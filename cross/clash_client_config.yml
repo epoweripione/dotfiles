@@ -1,0 +1,331 @@
+# https://github.com/Dreamacro/clash/wiki/configuration
+# Clash for Windows: https://docs.cfw.lbyczf.com/
+# Manager from web UI(RESTful API): http://clash.razord.top/ or http://yacd.haishan.me/
+
+# Port of HTTP(S) proxy server on the local end
+# port: 7890
+
+# Port of SOCKS5 proxy server on the local end
+# socks-port: 7891
+
+# Transparent proxy server port for Linux and macOS
+redir-port: 7892
+
+# HTTP(S) and SOCKS5 server on the same port
+mixed-port: 7890
+
+# authentication of local SOCKS5/HTTP(S) server
+# authentication:
+#  - "user1:pass1"
+#  - "user2:pass2"
+
+# Set to true to allow connections to local-end server from
+# other LAN IP addresses
+allow-lan: false
+
+# This is only applicable when `allow-lan` is `true`
+# '*': bind all IP addresses
+# 192.168.122.11: bind a single IPv4 address
+# "[aaaa::a8aa:ff:fe09:57d8]": bind a single IPv6 address
+bind-address: "*"
+
+# Clash router working mode
+# rule: rule-based packet routing
+# global: all packets will be forwarded to a single endpoint
+# direct: directly forward the packets to the Internet
+mode: rule
+
+# When set to false, resolver won't translate hostnames to IPv6 addresses
+ipv6: true
+
+# set log level to stdout (default is info)
+# info / warning / error / debug / silent
+log-level: info
+
+# RESTful web API listening address
+# external-controller: 127.0.0.1:9090
+
+# A relative path to the configuration directory or an absolute path to a
+# directory in which you put some static web resource. Clash core will then
+# serve it at `http://{{external-controller}}/ui`.
+# external-ui: folder
+
+# Secret for the RESTful API (optional)
+# Authenticate by spedifying HTTP header `Authorization: Bearer ${secret}`
+# ALWAYS set a secret if RESTful API is listening on 0.0.0.0
+# secret: ""
+
+# Outbound interface name
+# interface-name: en0
+
+# Static hosts for DNS server and connection establishment, only works
+# when `dns.enhanced-mode` is `redir-host`.
+#
+# Wildcard hostnames are supported (e.g. *.clash.dev, *.foo.*.example.com)
+# Non-wildcard domain names has a higher priority than wildcard domain names
+# e.g. foo.example.com > *.example.com > .example.com
+# P.S. +.foo.com equals to .foo.com and foo.com
+hosts:
+  # '*.clash.dev': 127.0.0.1
+  # '.dev': 127.0.0.1
+  # 'alpha.clash.dev': '::1'
+
+# DNS server settings
+# This section is optional. When not present, DNS server will be disabled.
+dns:
+  enable: false
+  listen: 0.0.0.0:53
+  # ipv6: false # when false, response to AAAA questions will be empty
+
+  # These nameservers are used to resolve the DNS nameserver hostnames below.
+  # Specify IP addresses only
+  default-nameserver:
+    - 114.114.114.114
+    - 8.8.8.8
+
+  enhanced-mode: redir-host # or fake-ip
+  fake-ip-range: 198.18.0.1/16 # Fake IP addresses pool CIDR
+
+  # Hostnames in this list will not be resolved with fake IPs
+  # i.e. questions to these domain names will always be answered with their
+  # real IP addresses
+  # fake-ip-filter:
+  #   - '*.lan'
+  #   - localhost.ptlogin2.qq.com
+
+  # Supports UDP, TCP, DoT, DoH. You can specify the port to connect to.
+  # All DNS questions are sent directly to the nameserver, without proxies
+  # involved. Clash answers the DNS question with the first result gathered.
+  nameserver:
+    - 223.5.5.5 # 阿里 DNS
+    - 180.76.76.76 # 百度 DNS
+    - 119.29.29.29 # 腾讯 DNS
+    - 117.50.11.11 # ONE DNS 拦截版 恶意网站拦截、广告过滤
+    - 117.50.10.10 # ONE DNS 纯净版 直接返回其真实的响应结果
+    - 114.114.114.114 # 114 DNS
+    - https://dns.alidns.com/dns-query # 阿里 DoH DNS
+    - https://doh.360.cn/dns-query # 360 DoH DNS
+
+  # When `fallback` is present, the DNS server will send concurrent requests
+  # to the servers in this section along with servers in `nameservers`.
+  # The answers from fallback servers are used when the GEOIP country
+  # is not `CN`.
+  fallback:
+    - tcp://8.8.8.8 # 谷歌 DNS
+    - tcp://1.1.1.1 # Cloudflare DNS
+    - tls://dns.rubyfish.cn:853
+    - tls://1.0.0.1:853
+    - tls://dns.google:853
+    - https://dns.rubyfish.cn/dns-query
+    - https://cloudflare-dns.com/dns-query
+    - https://dns.google/dns-query
+
+  # If IP addresses resolved with servers in `nameservers` are in the specified
+  # subnets below, they are considered invalid and results from `fallback`
+  # servers are used instead.
+  #
+  # IP address resolved with servers in `nameserver` is used when
+  # `fallback-filter.geoip` is true and when GEOIP of the IP address is `CN`.
+  #
+  # If `fallback-filter.geoip` is false, results from `fallback` nameservers
+  # are always used, and answers from `nameservers` are discarded.
+  #
+  # This is a countermeasure against DNS pollution attacks.
+  fallback-filter:
+    geoip: true
+    ipcidr:
+      # - 240.0.0.0/4
+
+# 1. clash DNS 请求逻辑：
+#   (1) 当访问一个域名时， nameserver 与 fallback 列表内的所有服务器并发请求，得到域名对应的 IP 地址。
+#   (2) clash 将选取 nameserver 列表内，解析最快的结果。
+#   (3) 若解析结果中，IP 地址属于 国外，那么 clash 将选择 fallback 列表内，解析最快的结果。
+#   因此，我在 nameserver 和 fallback 内都放置了无污染、解析速度较快的国内 DNS 服务器，以达到最快的解析速度。
+#   但是 fallback 列表内服务器会用在解析境外网站，为了结果绝对无污染，仅保留了支持 DoT/DoH 的两个服务器。
+# 2. clash DNS 配置注意事项：
+#   (1) 如果您为了确保 DNS 解析结果无污染，请仅保留列表内以 tls:// 或 https:// 开头的 DNS 服务器，但是通常对于国内域名没有必要。
+#   (2) 如果您不在乎可能解析到污染的结果，更加追求速度。请将 nameserver 列表的服务器插入至 fallback 列表内，并移除重复项。
+# 3. 关于 DNS over HTTPS (DoH) 和 DNS over TLS (DoT) 的选择：
+#   对于两项技术双方各执一词，而且会无休止的争论，各有利弊。请根据具体需求自行选择，但是配置文件内默认启用 DoT，因为目前国内没有封锁或管制。
+#   DoH: 以 https:// 开头的 DNS 服务器。拥有更好的伪装性，且几乎不可能被运营商或网络管理封锁，但查询效率和安全性可能略低。
+#   DoT: 以 tls:// 开头的 DNS 服务器。拥有更高的安全性和查询效率，但端口有可能被管制或封锁。
+#   若要了解更多关于 DoH/DoT 相关技术，请自行查阅规范文档。
+
+# Clash for Windows
+# Proxies module latency test settings
+cfw-latency-timeout: 3000
+cfw-latency-url: http://www.gstatic.com/generate_204
+
+# 混合配置（mixin）
+# 支持向所有配置文件中注入公共属性设置
+# cfw-profile-mixin:
+#   dns:
+#     enable: true
+#     listen: :53
+#     enhanced-mode: fake-ip
+#     nameserver:
+#     - 223.5.5.5 # 阿里 DNS
+#     - 180.76.76.76 # 百度 DNS
+#     - 119.29.29.29 # 腾讯 DNS
+#     - 117.50.11.11 # ONE DNS 拦截版 恶意网站拦截、广告过滤
+#     - 117.50.10.10 # ONE DNS 纯净版 直接返回其真实的响应结果
+#     - 114.114.114.114 # 114DNS
+
+# 自定义配置目录
+# cfw-profiles-path: 'C:\Users\Administrator\.config\clash\profiles'
+
+# 打断连接
+# Identify strategy of breaking connections after switching to a new proxy/profile/mode
+# Options for proxy: none, chain(proxy group in connection chains), all
+# Options for profile: true, false
+# Options for mode: true, false
+cfw-conn-break-strategy:
+  proxy: none # none/chain/all
+  profile: true # true/false
+  mode: false # true/false
+
+# 自定义状态栏图标
+# cfw-tray-icon:
+#   default: .\resources\static\imgs\logo_64.png        # 默认图标
+#   system-proxy-on: .\resources\static\imgs\custom.ico   # 开启系统代理后图标
+
+# 自定义字体
+# cfw-font-family: "Noto Sans TC"
+
+# 自定义请求头
+# cfw-http-headers:
+#   token: "123456"
+#   cfw-version: "0.9.11"
+
+# 自定义节点排序
+# 可选参数：
+#  default：按配置文件定义节点顺序
+#  latency：按节点延迟升序排列
+#  alphabet：按节点名称字母表排列
+# Sort proxies in Proxies module by default/latency/alphabet
+cfw-proxies-order: default
+
+# 子进程 启动其他应用
+# Run child process after CFW started
+# Refer: https://docs.cfw.lbyczf.com/contents/childprocess.html
+# cfw-child-process:
+#   # 启动订阅转换程序，端口号 7893
+#   - command: "subconverter.exe" # run.cmd 程序名称 subconverter.exe -cfw >>logs/run.log 2>&1
+#     args:
+#       - "-cfw" # 运行参数 1
+#       - "-f" # 运行参数 2
+#       - "pref-acl4ssr.yml" # 运行参数 3
+#     options:
+#       cwd: subconverter # 子进程工作目录
+#       detached: true # 子进程独立于其父进程运行
+#       shell: true # 则在 shell 中运行 command
+#       windowsHide: true # 隐藏子进程的控制台窗口
+#   # 启动网易云，端口号 3333
+#   - command: "unblockneteasemusic.exe" # 启动网易云
+#     args:
+#       - "-p" # 运行参数 1
+#       - "3333" # 运行参数 2
+#     options:
+#       cwd: unblockNeteaseMusic # 子进程工作目录
+#       detached: true # 子进程独立于其父进程运行
+#       shell: true # 则在 shell 中运行 command
+#       windowsHide: true # 隐藏子进程的控制台窗口
+#   - command: trojan.exe
+#     # args:
+#     #   - "-c"
+#     #   - "trojan.json"
+#     options:
+#       cwd: C:\Users\<UserName>\scoop\apps\trojan\current
+#       # detached: true
+#       # shell: true
+#       # windowsHide: true
+#   - command: v2rayn.exe
+
+cfw-bypass:
+# [CFW_BYPASS]https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GeneralClashConfig.yml
+
+# Will be ignored after profile selection
+proxies:
+# [PROXY]
+
+proxy-groups:
+  ## relay chains the proxies. proxies shall not contain a proxy-group. No UDP support.
+  ## Traffic: clash <-> http <-> vmess <-> ss1 <-> ss2 <-> Internet
+  # - name: relay
+  #   type: relay
+  #   proxies:
+  #     - http
+  #     - vmess
+  #     - ss1
+  #     - ss2
+
+  ## url-test select which proxy will be used by benchmarking speed to a URL.
+  ## name = url-test, [proxys], url, interval(second)
+  # - name: auto
+  #   type: url-test
+  #   proxies:
+  #     - trojan
+  #     - v2ray
+  #   url: http://www.gstatic.com/generate_204
+  #   interval: 300
+
+  ## fallback select an available policy by priority.
+  ## The availability is tested by accessing an URL, just like an auto url-test group.
+  # - name: fallback-auto
+  #   type: fallback
+  #   proxies:
+  #     - trojan
+  #     - v2ray
+  #   url: http://www.gstatic.com/generate_204
+  #   interval: 300
+
+  ## load-balance: The request of the same eTLD will be dial on the same proxy.
+  # - name: load-balance
+  #   type: load-balance
+  #   proxies:
+  #     - trojan
+  #     - v2ray
+  #   url: http://www.gstatic.com/generate_204
+  #   interval: 300
+
+  ## select is used for selecting proxy or proxy group
+  ## you can use RESTful API to switch proxy, is recommended for use in GUI.
+  # - name: Proxy
+  #   type: select
+  #   proxies:
+  #     - trojan
+  #     - v2ray
+  #     - auto
+  #     - fallback-auto
+  #     - load-balance
+
+  # - name: UseProvider
+  #   type: select
+  #   use:
+  #     - provider1
+  #   proxies:
+  #     - Proxy
+  #     - DIRECT
+
+# proxy-providers:
+#   provider1:
+#     type: http
+#     url: "url"
+#     interval: 3600
+#     path: ./hk.yaml
+#     health-check:
+#       enable: true
+#       interval: 600
+#       url: http://www.gstatic.com/generate_204
+#   test:
+#     type: file
+#     path: /test.yaml
+#     health-check:
+#       enable: true
+#       interval: 36000
+#       url: http://www.gstatic.com/generate_204
+
+# [PROXY_GROUP]
+
+rules:
+# [RULES]http://localhost:25500/sub?target=clash&url=https%3A%2F%2Fjiang.netlify.com%2F%7Chttps%3A%2F%2Fraw.githubusercontent.com%2Fssrsub%2Fssr%2Fmaster%2Fv2ray%7Chttps%3A%2F%2Fraw.githubusercontent.com%2Fssrsub%2Fssr%2Fmaster%2Fss-sub%7Chttps%3A%2F%2Fraw.githubusercontent.com%2Fssrsub%2Fssr%2Fmaster%2Fssrsub&config=config%2Fclash_client_rules.ini&new_name=true

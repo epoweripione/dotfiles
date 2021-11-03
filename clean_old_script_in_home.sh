@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+rm -f "$HOME"/*installer.sh
+rm -f "$HOME"/chromium*.sh
+rm -f "$HOME"/clash_*.sh
+rm -f "$HOME"/cross_*.*
+rm -f "$HOME"/git_*.sh
+rm -f "$HOME"/hosts_*.*
+rm -f "$HOME"/install_*.*
+rm -f "$HOME"/ip2location*.*
+rm -f "$HOME"/manjaro_*.sh
+rm -f "$HOME"/msys2_*.sh
+rm -f "$HOME"/nvm_node_*.sh
+rm -f "$HOME"/nvs_node_*.sh
+rm -f "$HOME"/pecl_*.sh
+rm -f "$HOME"/python-*.sh
+rm -f "$HOME"/ssl-*.sh
+rm -f "$HOME"/terminal_256colors.*
+rm -f "$HOME"/vs-code*.*
+rm -f "$HOME"/vscode*.*
+rm -f "$HOME"/wsl2_*.sh
+rm -f "$HOME"/yarn_packages_*.sh
+rm -f "$HOME"/zsh_*.sh
+rm -f "$HOME/analyze_sys_performance.sh"
+rm -f "$HOME/batch_download.sh"
+rm -f "$HOME/custom_functions.sh"
+rm -f "$HOME/generate_random_string.sh"
+rm -f "$HOME/linux_optimize.sh"
+rm -f "$HOME/npm_config.sh"
+rm -f "$HOME/speedtest.sh"
+rm -f "$HOME/terminal_colors.sh"
+rm -f "$HOME/termux_init.sh"

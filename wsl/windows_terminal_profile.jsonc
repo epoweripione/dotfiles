@@ -1,0 +1,284 @@
+// To view the default settings, hold "alt" while clicking on the "Settings" button.
+// For documentation on these settings, see: http://docs.microsoft.com/windows/terminal
+// https://devblogs.microsoft.com/commandline/
+// https://github.com/microsoft/terminal/blob/master/doc/user-docs/UsingJsonSettings.md
+// https://github.com/microsoft/terminal/blob/master/doc/cascadia/SettingsSchema.md
+// %UserProfile%\AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState
+// command line: wt new-tab -p "Debian"; split-pane -p "PowerShell Core" -H
+{
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+
+    // Launch Settings
+    "initialCols": 120,
+    "initialRows": 30,
+    "launchMode": "maximized",
+    "alwaysOnTop": false,
+
+    // Selection
+    "copyOnSelect": false,
+    "copyFormatting": true,
+    "trimBlockSelection": false,
+    "wordDelimiters": " /\\()\"'-.,:;<>~!@#$%^&*|+=[]{}~?\u2502",
+
+    // Tab UI
+    "alwaysShowTabs": true,
+    "showTabsInTitlebar": true,
+    "showTerminalTitleInTitlebar": true,
+    "tabWidthMode": "equal",
+    "tabSwitcherMode": "inOrder",
+
+    // Miscellaneous
+    "confirmCloseAllTabs": true,
+    "startOnUserLogin":  false,
+    "theme": "system",
+    "snapToGridOnResize": true,
+    "disableAnimations": false,
+    "startupActions": "",
+    "focusFollowMouse": true,
+
+    "profiles": {
+        "defaults": {
+            "fontFace": "FiraCode Nerd Font Mono",
+            "fontSize": 12,
+            "acrylicOpacity": 1.0,
+            "useAcrylic": true,
+            "antialiasingMode": "grayscale",
+            "closeOnExit": "graceful",
+            "cursorShape": "underscore",
+            "historySize": 9001,
+            "padding": "8, 8, 8, 8",
+            "snapOnInput": true,
+            "altGrAliasing": true,
+            "backgroundImage":"%USERPROFILE%\\Pictures\\nature_sunset_2979296_pixabay.jpg",
+            "backgroundImageOpacity" : 0.3,
+            "backgroundImageStretchMode": "uniformToFill",
+            "backgroundImageAlignment": "center",
+            "colorScheme": "ePoweriPiOne Dark"
+            // https://atomcorp.github.io/themes/
+            // https://terminalsplash.com/
+            // Campbell,Campbell Powershell,Vintage,One Half Dark,One Half Light
+            // Solarized Dark,Solarized Light,Tango Dark,Tango Light
+            // Dark Pastel,Dark+,Darkside,Dracula,DraculaPlus,Duotone Dark
+            // JetBrains Darcula,Material,MaterialDark,MaterialDarker,MaterialOcean,OneDark
+            // [enum]::GetValues([System.ConsoleColor]) | Foreach-Object {Write-Host $_ -ForegroundColor $_}
+        },
+        "list": [
+            {
+                "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+                "name": "PowerShell Core",
+                "commandline": "pwsh.exe -NoLogo",
+                "hidden": false
+                // "source": "Windows.Terminal.PowershellCore"
+            },
+            {
+                "guid": "{58ad8b0c-3ef8-5f4d-bc6f-13e4c00f2530}",
+                "name": "Debian",
+                "commandline": "wsl.exe ~ -d Debian",
+                "hidden": false
+                // "startingDirectory": "%USERPROFILE%/wslhome"
+                // "source": "Windows.Terminal.Wsl"
+            },
+            {
+                "guid": "{2c4de342-38b7-51cf-b940-2309a097f518}",
+                "name": "Ubuntu",
+                "commandline": "wsl.exe ~ -d Ubuntu",
+                "hidden": false
+                //"source": "Windows.Terminal.Wsl"
+            },
+            {
+                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                "name": "Windows PowerShell",
+                "commandline": "powershell.exe",
+                // "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                // "icon": "ms-appx:///ProfileIcons/{61c54bbd-c2c6-5271-96e7-009a87ff44bf}.png",
+                // "startingDirectory": "%USERPROFILE%",
+                "hidden": false
+            },
+            {
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "name": "Command Prompt",
+                "commandline": "cmd.exe",
+                // "commandline": "%SystemRoot%\\System32\\cmd.exe",
+                // "icon": "ms-appx:///ProfileIcons/{0caa0dad-35be-5f56-a8ff-afceeeaa6101}.png",
+                // "startingDirectory": "%USERPROFILE%",
+                "hidden": false
+            },
+            {
+                "guid": "{2b372ca1-1ee2-403d-a839-6d63077ad871}",
+                "name": "Nu Shell",
+                "commandline": "nu.exe",
+                "startingDirectory": "%USERPROFILE%",
+                "hidden": false
+            },
+            {
+                "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
+                "name": "Azure Cloud Shell",
+                "source": "Windows.Terminal.Azure",
+                "hidden": false
+            }
+        ]
+    },
+    // Add custom color schemes to this array
+    "schemes": [
+        // A profile can override the following color scheme values:
+        //   - "foreground"
+        //   - "background"
+        //   - "cursorColor"
+        {
+            "name": "ePoweriPiOne Dark",
+            "black": "#000000",
+            "red": "#fa5355",
+            "green": "#8ae234",
+            "yellow": "#c2c300",
+            "blue": "#4581eb",
+            "purple": "#fa54ff",
+            "cyan": "#33c2c1",
+            "white": "#adadad",
+            "brightBlack": "#555555",
+            "brightRed": "#fb7172",
+            "brightGreen": "#4e9a06",
+            "brightYellow": "#ffff00",
+            "brightBlue": "#6d9df1",
+            "brightPurple": "#fb82ff",
+            "brightCyan": "#60d3d1",
+            "brightWhite": "#eeeeee",
+            "background": "#202020",
+            "foreground": "#adadad"
+        },
+        {
+            "name": "Aura Theme",
+            "cursorColor": "#a277ff",
+            "selectionBackground": "#a394f0",
+            "background": "#15141b",
+            "foreground": "#edecee",
+            "black": "#110f18",
+            "blue": "#61ffca",
+            "cyan": "#edecee",
+            "green": "#61ffca",
+            "purple": "#a277ff",
+            "red": "#ff6767",
+            "white": "#edecee",
+            "yellow": "#ffca85",
+            "brightBlack": "#4d4d4d",
+            "brightBlue": "#a277ff",
+            "brightCyan": "#61ffca",
+            "brightGreen": "#a277ff",
+            "brightPurple": "#a277ff",
+            "brightRed": "#ffca85",
+            "brightWhite": "#edecee",
+            "brightYellow": "#ffca85"
+        },
+        {
+            "name": "JetBrains Darcula",
+            "black": "#000000",
+            "red": "#fa5355",
+            "green": "#126e00",
+            "yellow": "#c2c300",
+            "blue": "#4581eb",
+            "purple": "#fa54ff",
+            "cyan": "#33c2c1",
+            "white": "#adadad",
+            "brightBlack": "#555555",
+            "brightRed": "#fb7172",
+            "brightGreen": "#67ff4f",
+            "brightYellow": "#ffff00",
+            "brightBlue": "#6d9df1",
+            "brightPurple": "#fb82ff",
+            "brightCyan": "#60d3d1",
+            "brightWhite": "#eeeeee",
+            "background": "#202020",
+            "foreground": "#adadad"
+        },
+        {
+            "name": "Dark+",
+            "black": "#000000",
+            "red": "#cd3131",
+            "green": "#0dbc79",
+            "yellow": "#e5e510",
+            "blue": "#2472c8",
+            "purple": "#bc3fbc",
+            "cyan": "#11a8cd",
+            "white": "#e5e5e5",
+            "brightBlack": "#666666",
+            "brightRed": "#f14c4c",
+            "brightGreen": "#23d18b",
+            "brightYellow": "#f5f543",
+            "brightBlue": "#3b8eea",
+            "brightPurple": "#d670d6",
+            "brightCyan": "#29b8db",
+            "brightWhite": "#e5e5e5",
+            "background": "#0e0e0e",
+            "foreground": "#cccccc"
+        },
+        {
+            "name": "Darkside",
+            "black": "#000000",
+            "red": "#e8341c",
+            "green": "#68c256",
+            "yellow": "#f2d42c",
+            "blue": "#1c98e8",
+            "purple": "#8e69c9",
+            "cyan": "#1c98e8",
+            "white": "#bababa",
+            "brightBlack": "#000000",
+            "brightRed": "#e05a4f",
+            "brightGreen": "#77b869",
+            "brightYellow": "#efd64b",
+            "brightBlue": "#387cd3",
+            "brightPurple": "#957bbe",
+            "brightCyan": "#3d97e2",
+            "brightWhite": "#bababa",
+            "background": "#222324",
+            "foreground": "#bababa"
+        },
+        {
+            "name": "MaterialDarker",
+            "black": "#000000",
+            "red": "#ff5370",
+            "green": "#c3e88d",
+            "yellow": "#ffcb6b",
+            "blue": "#82aaff",
+            "purple": "#c792ea",
+            "cyan": "#89ddff",
+            "white": "#ffffff",
+            "brightBlack": "#545454",
+            "brightRed": "#ff5370",
+            "brightGreen": "#c3e88d",
+            "brightYellow": "#ffcb6b",
+            "brightBlue": "#82aaff",
+            "brightPurple": "#c792ea",
+            "brightCyan": "#89ddff",
+            "brightWhite": "#ffffff",
+            "background": "#212121",
+            "foreground": "#eeffff"
+        },
+        {
+            "name": "OneDark",
+            "black": "#1e2127",
+            "red": "#e06c75",
+            "green": "#98c379",
+            "yellow": "#d19a66",
+            "blue": "#61afef",
+            "purple": "#c678dd",
+            "cyan": "#56b6c2",
+            "white": "#abb2bf",
+            "brightBlack": "#5c6370",
+            "brightRed": "#e06c75",
+            "brightGreen": "#98c379",
+            "brightYellow": "#d19a66",
+            "brightBlue": "#61afef",
+            "brightPurple": "#c678dd",
+            "brightCyan": "#56b6c2",
+            "brightWhite": "#ffffff",
+            "background": "#1e2127",
+            "foreground": "#abb2bf"
+        }
+    ],
+    // Add any keybinding overrides to this array.
+    // To unbind a default keybinding, set the command to "unbound"
+    "keybindings": [
+        {"keys": ["alt+h"], "command": {"action": "splitPane", "split": "horizontal", "splitMode": "duplicate"}},
+        {"keys": ["alt+v"], "command": {"action": "splitPane", "split": "vertical", "splitMode": "duplicate"}}
+    ]
+}

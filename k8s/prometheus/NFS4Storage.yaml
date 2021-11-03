@@ -1,0 +1,39 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfsv4-sc
+mountOptions:
+  - vers=4.0
+  - nolock,tcp,noresvport
+provisioner: k8s-sigs.io/nfs-subdir-external-provisioner
+reclaimPolicy: Retain
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: nfsv4-sc
+  volumeMode: Filesystem
+
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: grafana-pv
+# spec:
+#   capacity:
+#     storage: 10Gi
+#   accessModes:
+#   - ReadWriteMany
+#   persistentVolumeReclaimPolicy: Recycle
+#   nfs:
+#     server: 127.0.0.1
+#     path: /nfs

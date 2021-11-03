@@ -1,0 +1,209 @@
+# Look & Feel
+ms-ceintl.vscode-language-pack-zh-hans
+vscode-icons-team.vscode-icons
+miguelsolorio.fluent-icons
+idleberg.icon-fonts
+zhuangtongfa.material-theme
+freecodecamp.freecodecamp-dark-vscode-theme
+tds.taptap-vscode-theme
+daltonmenezes.aura-theme
+# Editing
+aaron-bond.better-comments
+bmewburn.vscode-intelephense-client
+christian-kohler.npm-intellisense
+christian-kohler.path-intellisense
+esbenp.prettier-vscode
+fernandoescolar.vscode-solution-explorer
+formulahendry.auto-close-tag
+formulahendry.auto-rename-tag
+hookyqr.beautify
+oderwat.indent-rainbow
+streetsidesoftware.code-spell-checker
+visualstudioexptteam.vscodeintellicode
+tabnine.tabnine-vscode
+lacroixdavid1.vscode-format-context-menu
+wix.vscode-import-cost
+sysoev.language-stylus
+mrmlnc.vscode-attrs-sorter
+# Language support
+## C/C++
+ms-vscode.cpptools
+austin.code-gnu-global
+## C#
+ms-vscode.csharp
+craigthomas.supersharp
+jchannon.csharpextensions
+jorgeserrano.vscode-csharp-snippets
+leopotam.csharpfixformat
+## Core
+doggy8088.netcore-extension-pack
+doggy8088.netcore-snippets
+## dotnet
+formulahendry.dotnet
+formulahendry.dotnet-test-explorer
+jmrog.vscode-nuget-package-manager
+schneiderpat.aspnet-helper
+tintoy.msbuild-project-tools
+alefragnani.project-manager
+## Database
+bajdzis.vscode-database
+ms-mssql.mssql
+ms-ossdata.vscode-postgresql
+mtxr.sqltools
+ckolkman.vscode-postgres
+oracle.oracledevtools
+## Dart/Flutter
+dart-code.dart-code
+dart-code.flutter
+nash.awesome-flutter-snippets
+gornivv.vscode-flutter-files
+alexisvt.flutter-snippets
+## GO
+golang.go
+## HTML/CSS
+ms-vscode.brackets-pack
+thekalinga.bootstrap4-vscode
+abusaidm.html-snippets
+clinyong.vscode-css-modules
+syler.sass-indented
+sidthesloth.html5-boilerplate
+stylelint.vscode-stylelint
+vincaslt.highlight-matching-tag
+formulahendry.auto-rename-tag
+## JAVA
+redhat.java
+vscjava.vscode-java-debug
+vscjava.vscode-java-dependency
+vscjava.vscode-java-pack
+vscjava.vscode-java-test
+vscjava.vscode-maven
+## Javascript
+chenxsan.vscode-standardjs
+dbaeumer.vscode-eslint
+octref.vetur
+xabikos.javascriptsnippets
+msjsdiag.vscode-react-native
+## Typescript
+stringham.move-ts
+## Angular
+angular.ng-template
+johnpapa.angular2
+cyrilletuzi.angular-schematics
+mikael.angular-beastcode
+metatype.copilot-vscode
+cipchk.ng-alain-extension-pack
+# https://github.com/ng-alain/extension-pack/
+# cipchk.ng-zorro-vscode
+# cipchk.ng-alain-vscode
+cyrilletuzi.angular-schematics
+infinity1207.angular2-switcher
+nrwl.angular-console
+## ionic
+loiane.ionic-extension-pack
+msjsdiag.cordova-tools
+## Vue
+johnsoncodehk.volar
+dariofuzinato.vue-peek
+abdelaziz18003.quasar-snippets
+## kubernete/docker
+ms-kubernetes-tools.vscode-kubernetes-tools
+ms-azuretools.vscode-docker
+## latex
+james-yu.latex-workshop
+## Markdown
+marp-team.marp-vscode
+evilz.vscode-reveal
+yzhang.markdown-all-in-one
+bierner.markdown-mermaid
+bierner.markdown-emoji
+bierner.markdown-footnotes
+devhawk.markdown-sup
+gera2ld.markmap-vscode
+mushan.vscode-paste-image
+DavidAnson.vscode-markdownlint
+shd101wyy.markdown-preview-enhanced
+orangex4.better-markdown-latex-shortcuts
+darkriszty.markdown-table-prettify
+yzane.markdown-pdf
+## nginx
+shanoor.vscode-nginx
+## Node
+eg2.vscode-npm-script
+leizongmin.node-module-intellisense
+## PHP
+felixfbecker.php-intellisense
+ikappas.composer
+ikappas.phpcs
+felixfbecker.php-debug
+junstyle.php-cs-fixer
+## plsql
+xyz.plsql-language
+## python
+ms-python.anaconda-extension-pack
+ms-python.python
+## powershell
+ms-vscode.powershell
+## ruby
+rebornix.ruby
+## rust
+rust-lang.rust
+bungcip.better-toml
+serayuzgur.crates
+## cht.sh snippets
+vscode-snippet.snippet
+## linux/shell/vim
+vscodevim.vim
+## XML/JSON/GraphQL/YAML
+dotjoshjohnson.xml
+eriklynd.json-tools
+mohsen1.prettify-json
+kumar-harsh.graphql-for-vscode
+redhat.vscode-yaml
+# Vesion Control
+johnstoncode.svn-scm
+codezombiech.gitignore
+donjayamanne.githistory
+eamodio.gitlens
+pflannery.vscode-versionlens
+# Remote
+ms-vscode-remote.vscode-remote-extensionpack
+ms-vscode-remote.remote-wsl
+ms-vsliveshare.vsliveshare
+# Debug & Test
+formulahendry.code-runner
+humao.rest-client
+hediet.debug-visualizer
+# Extra functionality
+bukas.gbktoutf8
+steoates.autoimport
+wakatime.vscode-wakatime
+# Designer & Components
+iceworks-team.iceworks
+# Extra tools
+ms-toolsai.jupyter
+shan.code-settings-sync
+anseki.vscode-color
+grapecity.gc-excelviewer
+gruntfuggly.todo-tree
+vsls-contrib.codetour
+joelday.docthis
+k--kato.docomment
+mkxml.vscode-filesize
+quicktype.quicktype
+wayou.vscode-todo-highlight
+obkoro1.korofileheader
+kisstkondoros.vscode-gutter-preview
+tomoki1207.pdf
+wwm.better-align
+tyriar.sort-lines
+russell.any-rule
+hediet.vscode-drawio
+# eighthundreds.vscode-drawio
+parthr2031.colorful-comments
+mechatroner.rainbow-csv
+mqycn.huile8
+wscats.search
+idleberg.innosetup
+unbug.codelf
+grapecity.gc-excelviewer
+tyriar.vscode-terminal-here

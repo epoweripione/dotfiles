@@ -1,0 +1,424 @@
+# https://starship.rs/config/
+# Use custom format
+format = """
+[░▒▓](fg:#5a6374)\
+$env_var\
+${custom.osicon}\
+$username\
+$hostname\
+$time\
+$shlvl\
+$kubernetes\
+$directory\
+$vcsh\
+$git_branch\
+$git_commit\
+$git_state\
+$git_metrics\
+$git_status\
+$hg_branch\
+$docker_context\
+${custom.docker}\
+$package\
+$cmake\
+$dart\
+$deno\
+$dotnet\
+$elixir\
+$elm\
+$erlang\
+$golang\
+$helm\
+$java\
+$julia\
+$kotlin\
+$lua\
+$nim\
+$nodejs\
+$ocaml\
+$perl\
+$php\
+$purescript\
+$python\
+$red\
+$rlang\
+$ruby\
+$rust\
+$scala\
+$swift\
+$terraform\
+$vlang\
+$vagrant\
+$zig\
+$nix_shell\
+$conda\
+$aws\
+$gcloud\
+$openstack\
+$crystal\
+$memory_usage\
+$cmd_duration\
+$jobs\
+$battery\
+$status\
+$shell\
+[](fg:#5a6374)\
+$line_break\
+$character"""
+
+# Timeout for starship to scan files under the current directory (in milliseconds)
+scan_timeout = 50
+
+# Timeout for commands executed by starship (in milliseconds)
+command_timeout = 3_000
+
+# Inserts blank line between shell prompts
+add_newline = true
+
+[aws]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$profile($region)]($style)"
+
+[battery]
+format = "[  ](fg:white bg:#5a6374)[$symbol$percentage]($style)"
+
+[[battery.display]]
+threshold = 10
+style = "bold fg:bright-red bg:#5a6374"
+
+[[battery.display]]
+threshold = 30
+style = "bold fg:bright-yellow bg:#5a6374"
+
+[character]
+success_symbol = "[➜](bold bright-green) "
+error_symbol = "[✗](bold bright-red) "
+vicmd_symbol = "[V](bold bright-green) "
+
+[cmake]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[cmd_duration]
+min_time = 5_000  # Show command duration over 5,000 milliseconds (=5 sec)
+style = "bold fg:bright-red bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[ $duration]($style)"
+
+[conda]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$environment]($style)"
+
+[crystal]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[dart]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[deno]
+symbol = "🦕 "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[directory]
+home_symbol = " ~"
+truncation_length = 5
+truncation_symbol = ""
+truncate_to_repo = false
+style = "bold fg:bright-blue bg:#5a6374"
+read_only_style = "bold fg:bright-red bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$path]($style)[$read_only]($read_only_style)"
+
+[docker_context]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$context]($style)"
+
+[dotnet]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version( 🎯 $tfm)]($style)"
+
+[elixir]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version OTP $otp_version]($style)"
+
+[elm]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[erlang]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[gcloud]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$account($region)]($style)"
+
+[git_branch]
+style = "bold fg:bright-purple bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$branch]($style)"
+
+[git_commit]
+style = "bold fg:bright-green bg:#5a6374"
+format = "[ $hash]($style)[ $tag]($style)"
+only_detached = true
+tag_disabled = false
+
+[git_state]
+style = "bold fg:bright-yellow bg:#5a6374"
+format = "[ $state( $progress_current/$progress_total)]($style)"
+
+[git_metrics]
+added_style = "bold fg:bright-green bg:#5a6374"
+deleted_style = "bold fg:bright-red bg:#5a6374"
+format = '[+$added]($added_style)/[-$deleted]($deleted_style)'
+disabled=true
+
+[git_status]
+conflicted = " =${count}"
+ahead = " ⇡${count}"
+behind = " ⇣${count}"
+diverged = " ⇕⇡${ahead_count} ⇣${behind_count}"
+untracked = " ?${count}"
+stashed = " $${count}"
+modified = " !${count}"
+staged = " +${count}"
+renamed = " »${count}"
+deleted = " ✘${count}"
+style = "bold fg:bright-red bg:#5a6374"
+format = "[$all_status$ahead_behind]($style)"
+
+[golang]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[helm]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[hg_branch]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$branch]($style)"
+
+[hostname]
+ssh_only = false
+trim_at = "."
+style = "bold fg:bright-yellow bg:#5a6374"
+format = "[@$hostname]($style)"
+disabled = false
+
+[java]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[jobs]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$number]($style)"
+
+[julia]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[kotlin]
+symbol = "🅺 "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[kubernetes]
+symbol = "☸ "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$context(\\($namespace\\))]($style)"
+disabled = false
+
+[kubernetes.context_aliases]
+"dev.local.cluster.k8s" = "dev"
+
+[lua]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[memory_usage]
+symbol = " "
+show_percentage = true
+show_swap = true
+threshold = -1
+separator = "/"
+style = "bold fg:bright-yellow bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol${ram} ${ram_pct}( | ${swap} ${swap_pct})]($style)"
+disabled = true
+
+[nim]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[nix_shell]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$state( $name)]($style)"
+
+[nodejs]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[ocaml]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[openstack]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$cloud(\\($project\\))]($style)"
+
+[package]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[perl]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[php]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[purescript]
+symbol = "<=> "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[python]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[${symbol}${pyenv_prefix}${version}(\\($virtualenv\\))]($style)"
+
+[red]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[rlang]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[ruby]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[rust]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[scala]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[shell]
+fish_indicator = ""
+zsh_indicator = ""
+powershell_indicator = ""
+format = "[  ](fg:white bg:#5a6374)[$indicator](bold fg:bright-cyan bg:#5a6374)"
+disabled = true
+
+[shlvl]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$shlvl]($style)"
+
+[singularity]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol($env)]($style)"
+
+[status]
+style = "bold fg:bright-red bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol $status $status_common_meaning$status_signal_name$status_maybe_int]($style)"
+symbol = ""
+signal_symbol = "☇"
+map_symbol = true
+disabled = false
+
+[swift]
+symbol = "ﯣ "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[terraform]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$workspace]($style)"
+
+[vagrant]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[vcsh]
+symbol = "🆅 "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$repo]($style)"
+
+[vlang]
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[zig]
+symbol = " "
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$version]($style)"
+
+[time]
+time_format = "%H:%M" # "%T" "%Y-%m-%d %H:%M:%S"
+utc_time_offset = "+8"
+style = "bold fg:bright-green bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[ $time]($style)"
+disabled = false
+
+[username]
+style_user = "bold fg:bright-cyan bg:#5a6374"
+style_root = "bold fg:bright-red bg:#5a6374"
+format = "[$user]($style)"
+show_always = true
+disabled = false
+
+## linux
+[custom.docker]
+description = "Shows the docker symbol if the current directory has Dockerfile or docker-compose.yml files"
+command = "echo 🐳"
+files = ["Dockerfile", "docker-compose.yml", "docker-compose.yaml"]
+when = """ command -v docker &> /dev/null; exit (echo $?); """
+style = "bold fg:bright-cyan bg:#5a6374"
+format = "[  ](fg:white bg:#5a6374)[$symbol$output]($style)"
+disabled = false
+
+[env_var]
+variable = "ICON_OS_SSH_SCREEN_TMUX"
+default = ""
+style = "bold fg:bright-white bg:#5a6374"
+format = "[ $env_value ]($style)"
+disabled = false
+
+[custom.osicon]
+command = "source $HOME/.dotfiles/custom_functions.sh && get_os_icon && echo ${OS_ICON}"
+when = """ test true """
+style = "bold fg:bright-white bg:#5a6374"
+format = "[$symbol$output ]($style)"
+disabled = true
+
+[custom.homeicon]
+command = "echo "
+when = """ test "$HOME" = "$PWD" """
+style = "bold fg:bright-white bg:#5a6374"
+format = "[$symbol$output ]($style)"
+disabled = true

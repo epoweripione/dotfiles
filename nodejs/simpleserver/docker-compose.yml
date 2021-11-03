@@ -1,0 +1,33 @@
+version: "3.5"
+services:
+  nginx:
+    image: siyuwuxin/nginx-acme:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    network_mode: "host"
+    volumes:
+      - ./www/:/var/www/html/:rw
+      - ./conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./conf/nginx/conf.d/:/etc/nginx/conf.d/:rw
+      - ./conf/nginx/snippets/:/etc/nginx/snippets/:rw
+      - ./conf/nginx/ssl/:/etc/nginx/ssl/:rw
+      - ./logs/nginx/:/var/log/nginx/:rw
+      - ./logs/rotate/nginx/:/opt/log/nginx/:rw
+    environment:
+      ACCOUNT_CONF_PATH: /etc/nginx/ssl/acme.sh.conf
+      TZ: Asia/Shanghai
+    restart: always
+    depends_on:
+      - simpleserver
+
+  simpleserver:
+    build: ./simpleserver/
+    ports:
+      - "8080:8080"
+    network_mode: "host"
+    volumes:
+      - ./www/public/:/srv/simpleserver/public/:ro
+    environment:
+      TZ: Asia/Shanghai
+    restart: always

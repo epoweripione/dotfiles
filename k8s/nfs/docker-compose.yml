@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  nfs:
+    image: erichough/nfs-server
+    ports:
+      - 2049:2049
+      - 2049:2049/udp
+      - 111:111
+      - 111:111/udp
+      - 32765:32765
+      - 32765:32765/udp
+      - 32767:32767
+      - 32767:32767/udp
+    volumes:
+      - /opt/nfs:/nfs
+      - ./exports:/etc/exports:ro
+      - /lib/modules:/lib/modules:ro
+    cap_add:
+      - SYS_ADMIN
+      - SYS_MODULE
+    security_opt:
+      - apparmor=erichough-nfs
+    environment:
+      - TZ=Asia/Shanghai

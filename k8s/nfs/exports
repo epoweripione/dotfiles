@@ -1,0 +1,31 @@
+# https://linux.die.net/man/5/exports
+# ro                           共享目录只读
+# rw                           共享目录可读可写
+# sync                         同步，将数据同步写入内存缓冲区与磁盘中，效率低，但可以保证数据的一致性
+# async                        异步，将数据先保存在内存缓冲区中，必要时才写入磁盘，效率高，但有丢失数据的风险
+# wdelay（默认）                如果有多个客户端要对同一个共享目录进行写操作，则将这些操作集中执行。对有很多小的 IO 写操作时，使用该选项可以有效的提高效率
+# no_wdelay                    如果有多个客户端要对同一个共享目录进行写操作则立即写入。当设置了 async 选项时，no_wdelay 选项无效，应与 sync 配合使用
+# root_squash（默认）           将来访的 root 用户映射为匿名用户或用户组
+# no_root_squash               来访的 root 用户保持 root 帐号权限
+# all_squash                   所有访问用户都映射为匿名用户或用户组
+# no_all_squash（默认）         访问用户先与本机用户匹配，匹配失败后再映射为匿名用户或用户组
+# anonuid=<UID>                指定匿名访问用户的本地用户 UID，默认为 nfsnobody（65534）
+# anongid=<GID>                指定匿名访问用户的本地用户组 GID，默认为 nfsnobody（65534）
+# secure（默认）                限制客户端只能从小于 1024 的 tcp/ip 端口连接服务器
+# insecure                     允许客户端从大于 1024 的 tcp/ip 端口连接服务器
+# subtree_check                若输出目录是一个子目录，则 nfs 服务器将检查其父目录的权限
+# no_subtree_check（默认）      即使输出目录是一个子目录，nfs 服务器也不检查其父目录的权限，这样可以提高效率
+# hide                         共享一个目录时，不共享该目录的子目录
+# no_hide                      共享子目录
+
+# crossmnt                     允许访问共享根目录下的子目录
+# Crossmnt allows the NFS client to traverse the directories below the exported root. For example:
+# etc/exports:
+# /exports      *(fsid=0,ro,root_squash,sync)
+# /exports/doc  *(ro,bind=/usr/share/doc)
+# With crossmnt,the client can see the contents of /exports/doc as the subfolder of /exports,
+# while without crossmnt, doc would appear to be an empty folder.
+
+/nfs        *(rw,sync,no_root_squash,no_all_squash,no_subtree_check,nohide,crossmnt)
+/nfs_ro     *(ro,sync,all_squash,no_subtree_check,nohide)
+/nfs_anon   *(rw,sync,all_squash,no_subtree_check,nohide,anonuid=210,anongid=210)

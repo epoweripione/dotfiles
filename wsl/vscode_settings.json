@@ -1,0 +1,98 @@
+{
+	"sync.gist": "",
+	"sync.autoDownload": false,
+	"sync.autoUpload": true,
+	"sync.quietSync": true,
+
+	"window.titleBarStyle": "custom",
+	"window.restoreFullscreen": true,
+
+	"breadcrumbs.enabled": true,
+	"explorer.confirmDelete": false,
+
+	"workbench.colorTheme": "Aura Soft Dark (Soft Text)",
+	"workbench.iconTheme": "vscode-icons",
+	"workbench.productIconTheme": "fluent-icons",
+	"workbench.list.horizontalScrolling": true,
+	"workbench.editor.highlightModifiedTabs": true,
+	"workbench.editor.decorations.badges": true,
+	"workbench.editor.decorations.colors": true,
+
+	"oneDarkPro.bold": true,
+
+	"editor.minimap.enabled": true,
+	"editor.renderControlCharacters": true,
+	"editor.renderWhitespace": "selection",
+	"editor.fontFamily": "'FiraCode Nerd Font Mono', 'Fira Code Retina', 'Sarasa Term SC', '更纱黑体 SC'",
+	"editor.fontLigatures": true,
+	"editor.formatOnPaste": true,
+	"editor.linkedEditing": true,
+	"editor.bracketPairColorization.enabled": true,
+	"editor.guides.bracketPairs": true,
+
+	"extensions.closeExtensionDetailsOnViewChange": true,
+	"extensions.ignoreRecommendations": true,
+
+	"files.eol": "\n",
+	"files.autoSave": "off",
+	"files.exclude": {
+		"**/.classpath": true,
+		"**/.project": true,
+		"**/.settings": true,
+		"**/.factorypath": true
+	},
+
+	"terminal.external.windowsExec": "wt.exe",
+	"terminal.integrated.copyOnSelection": true,
+	"terminal.integrated.tabs.enabled": true,
+
+	// https://juejin.cn/post/7022720509875847182
+	// npm i -D eslint eslint-config-airbnb-base eslint-plugin-import eslint-plugin-typescript eslint-plugin-vue husky sass stylelint stylelint-config-standard stylelint-scss typescript @typescript-eslint/eslint-plugin @typescript-eslint/parser vue-eslint-parser
+	"editor.codeActionsOnSave": {
+		"source.fixAll": true
+	},
+	"eslint.validate": ["typescript", "typescriptreact", "javascript", "javascriptreact", "html", "vue"],
+	"eslint.alwaysShowStatus": true,
+
+	"stylelint.validate": ["css", "less", "postcss", "scss", "vue", "sass"],
+
+	"typescript.tsdk": "node_modules/typescript/lib",
+
+	"gitlens.keymap": "alternate",
+	"gitlens.advanced.messages": {
+		"suppressCommitHasNoPreviousCommitWarning": false,
+		"suppressCommitNotFoundWarning": false,
+		"suppressFileNotUnderSourceControlWarning": false,
+		"suppressGitVersionWarning": false,
+		"suppressLineUncommittedWarning": false,
+		"suppressNoRepositoryWarning": false
+	},
+
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"prettier.singleQuote": true,
+	"prettier.useTabs": true,
+	"prettier.printWidth": 120,
+
+	"powershell.integratedConsole.showOnStartup": false,
+	"powershell.promptToUpdatePowerShell": false,
+
+	"go.formatTool": "goimports",
+	"go.useLanguageServer": true,
+
+	"prettier.tabWidth": 4,
+
+	"vsicons.dontShowNewVersionMessage": true,
+
+	"markdown.extension.print.theme": "dark",
+	"markdown-preview-enhanced.enableExtendedTableSyntax": true,
+	"markdown-preview-enhanced.enableHTML5Embed": true,
+	"markdown-preview-enhanced.HTML5EmbedUseLinkSyntax": true,
+	"markdown-preview-enhanced.mermaidTheme": "dark",
+	"markdown-preview-enhanced.previewTheme": "one-dark.css",
+	"markdown-preview-enhanced.revealjsTheme": "black.css",
+
+	"tabnine.experimentalAutoImports": true
+}
