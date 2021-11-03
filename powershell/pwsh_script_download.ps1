@@ -54,7 +54,7 @@ if (-Not (check_webservice_up)) {
 Set-Location ~
 
 Write-Host "Downloading custom powershell scripts..." -ForegroundColor Blue
-$DOWNLOAD_URL = "https://github.com/epoweripione/dotfiles/archive/main.zip"
+$DOWNLOAD_URL = "https://github.com/epoweripione/dotfiles/archive/refs/heads/main.zip"
 if (($null -eq $SOCKS_PROXY_ADDR) -or ($SOCKS_PROXY_ADDR -eq "")) {
     curl -fsL -o ".\dotfiles.zip" "$DOWNLOAD_URL"
 } else {

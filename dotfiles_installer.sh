@@ -44,7 +44,7 @@ if [[ ! "$(command -v git)" ]]; then
 fi
 
 
-MY_SHELL_SCRIPTS="${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}"
+MY_SHELL_SCRIPTS="$HOME/.dotfiles"
 
 colorEcho "${BLUE}Cloning dotfiles to ${FUCHSIA}${MY_SHELL_SCRIPTS}${BLUE}..."
 if [[ -d "${MY_SHELL_SCRIPTS}" ]]; then
@@ -87,12 +87,14 @@ if [[ -s "$HOME/.zshrc" ]]; then
 fi
 
 if [[ -d "$ZSH/custom" ]]; then
-    colorEcho "${BLUE}copy zsh custom plugins & theme to ${FUCHSIA}$ZSH/custom${BLUE}..."
+    colorEcho "${BLUE}Copying ZSH custom plugins & themes to ${FUCHSIA}$ZSH/custom${BLUE}..."
     # zsh custom plugins
     [ -d "$HOME/.dotfiles/zsh/plugins" ] && cp -f "$HOME/.dotfiles/zsh/plugins/"* "$ZSH/custom/plugins"
 
     # zsh custom themes
     [ -d "$HOME/.dotfiles/zsh/themes" ] && cp -f "$HOME/.dotfiles/zsh/themes/"*.zsh-theme "$ZSH/custom/themes"
 fi
+
+colorEcho "${BLUE}Done!"
 
 cd "${CURRENT_DIR}" || exit
