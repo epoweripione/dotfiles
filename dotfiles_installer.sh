@@ -3,10 +3,12 @@
 ## Usage:
 ## 1. Install `curl git`
 ## 2. Clone repo: source <(curl -fsSL --connect-timeout 5 --max-time 15 https://git.io/JPSue)
-## 3. Install zsh and oh-my-zsh: $HOME/.dotfiles/zsh/zsh_installer.sh
+##    or
+##    curl -fsSL --connect-timeout 5 --max-time 15 https://git.io/JPSue | bash "$HOME/.dotfiles"
+## 3. Install zsh and oh-my-zsh: ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/zsh/zsh_installer.sh
 ## 4. Change default shell to zsh: chsh -s $(which zsh)
-## 5. Init: $HOME/.dotfiles/zsh/zsh_upgrade_all_packages.sh && $HOME/.dotfiles/zsh/zsh_init.sh
-## 6. Update: source <(curl -fsSL https://git.io/JPSue) && $HOME/.dotfiles/zsh/zsh_upgrade_all_packages.sh
+## 5. Init: ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/zsh/zsh_upgrade_all_packages.sh && ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/zsh/zsh_init.sh
+## 6. Update: source <(curl -fsSL --connect-timeout 5 --max-time 15 https://git.io/JPSue) && ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/zsh/zsh_upgrade_all_packages.sh
 [[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
 
 # Colors
@@ -37,29 +39,28 @@ function colorEcho() {
     fi
 }
 
-
 if [[ ! "$(command -v git)" ]]; then
     colorEcho "${FUCHSIA}git${RED} is not installed, Please install it first!"
     exit
 fi
 
+MY_SHELL_SCRIPTS="${1:-$HOME/.dotfiles}"
 
-MY_SHELL_SCRIPTS="$HOME/.dotfiles"
-
-colorEcho "${BLUE}Cloning dotfiles to ${FUCHSIA}${MY_SHELL_SCRIPTS}${BLUE}..."
+colorEcho "${BLUE}Cloning ${ORANGE}dotfiles & scripts ${BLUE}to ${FUCHSIA}${MY_SHELL_SCRIPTS}${BLUE}..."
+# [[ -d "$HOME/terminal-custom" ]] && rm -rf "$HOME/terminal-custom"
 if [[ -d "${MY_SHELL_SCRIPTS}" ]]; then
     cd "${MY_SHELL_SCRIPTS}" && \
         BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null) && \
             git pull --rebase --stat origin "${BRANCH:-main}"
 else
     REPOREMOTE="https://github.com/epoweripione/dotfiles.git"
-    BRANCH=$(git ls-remote --symref "$REPOREMOTE" HEAD \
+    BRANCH=$(git ls-remote --symref "${REPOREMOTE}" HEAD \
                 | awk '/^ref:/ {sub(/refs\/heads\//, "", $2); print $2}')
     git clone -c core.autocrlf=false -c core.filemode=false \
         -c fsck.zeroPaddedFilemode=ignore \
         -c fetch.fsck.zeroPaddedFilemode=ignore \
         -c receive.fsck.zeroPaddedFilemode=ignore \
-        --depth=1 --branch "${BRANCH:-main}" "$REPOREMOTE" "${MY_SHELL_SCRIPTS}"
+        --depth=1 --branch "${BRANCH:-main}" "${REPOREMOTE}" "${MY_SHELL_SCRIPTS}"
 fi
 
 # starship config
@@ -82,8 +83,9 @@ find "${MY_SHELL_SCRIPTS}" -type f -iname "*.sh" -exec chmod +x {} \;
 
 # fix zsh_custom_conf.sh location in .zshrc
 if [[ -s "$HOME/.zshrc" ]]; then
-    sed -i "s|^source ~/zsh_custom_conf.sh|source ~/terminal-custom/zsh/zsh_custom_conf.sh|" "$HOME/.zshrc"
+    sed -i "s|^source ~/zsh_custom_conf.sh|source ~/.dotfiles/zsh/zsh_custom_conf.sh|" "$HOME/.zshrc"
     sed -i "s|^source ~/terminal-custom/zsh/zsh_custom_conf.sh|source ~/.dotfiles/zsh/zsh_custom_conf.sh|" "$HOME/.zshrc"
+    sed -i "s|~/terminal-custom|~/.dotfiles|g" "$HOME/.zshrc"
 fi
 
 if [[ -d "$ZSH/custom" ]]; then
@@ -95,6 +97,6 @@ if [[ -d "$ZSH/custom" ]]; then
     [ -d "$HOME/.dotfiles/zsh/themes" ] && cp -f "$HOME/.dotfiles/zsh/themes/"*.zsh-theme "$ZSH/custom/themes"
 fi
 
-colorEcho "${BLUE}Done!"
+colorEcho "${ORANGE}Dotfiles & Scripts ${GREEN}successfully downloaded to ${FUCHSIA}${MY_SHELL_SCRIPTS}${GREEN}!"
 
 cd "${CURRENT_DIR}" || exit

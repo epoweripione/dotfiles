@@ -12,6 +12,10 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 ### 2. Clone to `$HOME/.dotfiles`
 `source <(curl -fsSL --connect-timeout 5 --max-time 15 https://git.io/JPSue)`
 
+or
+
+`curl -fsSL --connect-timeout 5 --max-time 15 https://git.io/JPSue | bash "$HOME/.dotfiles"`
+
 ### 3. Install `ZSH` & `Oh My ZSH`
 `${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/zsh/zsh_installer.sh`
 
