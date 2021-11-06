@@ -216,6 +216,7 @@ AppList=(
     # "gvm_go"
     "hyperfine"
     # "inlets"
+    "ncdu"
     "nu"
     "poetry"
     "procs"
