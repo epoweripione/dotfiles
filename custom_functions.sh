@@ -1645,6 +1645,12 @@ function Git_Clone_Update() {
         return 1
     fi
 
+    if [[ "${REPONAME}" =~ ^(https?://|git@) ]]; then
+        REPOREMOTE="${REPONAME}"
+        REPONAME=$(echo "${REPOREMOTE}" | sed 's|^http://||;s|^https://||;s|.git$||' | sed 's|.*[/:]\([^ ]*/[^ ]*\).*|\1|')
+        REPOURL=$(echo "${REPOREMOTE}" | sed 's|.git$||' | sed "s|${REPONAME}||" | sed 's|[/:]$||')
+    fi
+
     [[ -z "${REPODIR}" ]] && REPODIR=$(echo "${REPONAME}" | awk -F"/" '{print $NF}')
 
     REPOURL="${REPOURL%/}"
@@ -1662,7 +1668,9 @@ function Git_Clone_Update() {
 
         REPOREMOTE="https://${REPOURL}/${REPONAME}"
     else
-        REPOREMOTE="${REPOURL}/${REPONAME}"
+        [[ "${REPOURL}" =~ ^(git@) ]] \
+            && REPOREMOTE="${REPOURL}:${REPONAME}.git" \
+            || REPOREMOTE="${REPOURL}/${REPONAME}.git"
     fi
 
     # check_url_exists "${REPOREMOTE}" \
@@ -1701,6 +1709,12 @@ function Git_Clone_Update_Branch() {
         return 1
     fi
 
+    if [[ "${REPONAME}" =~ ^(https?://|git@) ]]; then
+        REPOREMOTE="${REPONAME}"
+        REPONAME=$(echo "${REPOREMOTE}" | sed 's|^http://||;s|^https://||;s|.git$||' | sed 's|.*[/:]\([^ ]*/[^ ]*\).*|\1|')
+        REPOURL=$(echo "${REPOREMOTE}" | sed 's|.git$||' | sed "s|${REPONAME}||" | sed 's|[/:]$||')
+    fi
+
     [[ -z "${REPODIR}" ]] && REPODIR=$(echo "${REPONAME}" | awk -F"/" '{print $NF}')
 
     REPOURL="${REPOURL%/}"
@@ -1718,7 +1732,9 @@ function Git_Clone_Update_Branch() {
 
         REPOREMOTE="https://${REPOURL}/${REPONAME}"
     else
-        REPOREMOTE="${REPOURL}/${REPONAME}"
+        [[ "${REPOURL}" =~ ^(git@) ]] \
+            && REPOREMOTE="${REPOURL}:${REPONAME}.git" \
+            || REPOREMOTE="${REPOURL}/${REPONAME}.git"
     fi
 
     # check_url_exists "${REPOREMOTE}" \
@@ -1802,8 +1818,8 @@ function Git_Update_Repo_in_SubDir() {
         cd "${REPODIR}" || return
 
         REPOREMOTE=$(git config --get remote.origin.url | head -n1)
-        REPONAME=$(echo "${REPOREMOTE}" | sed 's|^http://||;s|^https://||;s|.git$||' | sed 's/.*\/\([^ ]*\/[^ ]*\).*/\1/')
-        REPOURL=$(echo "${REPOREMOTE}" | sed 's|.git$||' | sed "s|/${REPONAME}||")
+        REPONAME=$(echo "${REPOREMOTE}" | sed 's|^http://||;s|^https://||;s|.git$||' | sed 's|.*[/:]\([^ ]*/[^ ]*\).*|\1|')
+        REPOURL=$(echo "${REPOREMOTE}" | sed 's|.git$||' | sed "s|${REPONAME}||" | sed 's|[/:]$||')
         [[ "${REPOREMOTE}" == *"://github.com/"* ]] && REPOURL="github.com"
 
         BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
