@@ -58,6 +58,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         python3-dev
         python3-devel
         python3-distutils
+        python3-venv
         swig
         libdbus-1-dev
         libglib2.0-dev
@@ -153,6 +154,7 @@ if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
     PipPackages=(
         setuptools
         wheel
+        pipx
         # pipq
         pip-search
     )
@@ -160,6 +162,13 @@ if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
         colorEcho "${BLUE}Installing ${FUCHSIA}pip package ${ORANGE}${TargetPackage}${BLUE}..."
         ${PYTHON_CMD} -m pip install --user -U "${TargetPackage}"
     done
+
+    # pipx - Install and Run Python Applications in Isolated Environments
+    # https://github.com/pypa/pipx
+    [[ -x "$(command -v pipx)" ]] && ${PYTHON_CMD} -m pipx ensurepath
+
+    # noproxy_cmd pipx install litecli
+    # noproxy_cmd pipx install pgclt
 fi
 
 # noproxy_cmd python3 -m pip install --user -U setuptools wheel
