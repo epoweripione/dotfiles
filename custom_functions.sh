@@ -2327,9 +2327,11 @@ function App_Installer_Get_Remote() {
     # Usage:
     # App_Installer_Get_Remote "https://api.github.com/repos/rclone/rclone/releases/latest"
     # App_Installer_Get_Remote "https://api.github.com/repos/jarun/nnn/releases/latest" "nnn-nerd-.*\.tar\.gz"
+    # App_Installer_Get_Remote "https://dev.yorhel.nl/ncdu" 'ncdu-[^<>:;,?"*|/]+\.tar\.gz' "ncdu-.*\.tar\.gz"
     local remote_url=$1
-    local match_pattern=$2
-    local multi_match_filter=$3
+    local file_match_pattern=$2
+    local version_match_pattern=$3
+    local multi_match_filter=$4
     local remote_content match_urls match_result match_result_type match_result_arch match_result_float match_cnt
 
     REMOTE_VERSION=""
@@ -2337,7 +2339,7 @@ function App_Installer_Get_Remote() {
 
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
-    [[ -z "${match_pattern}" ]] && match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
+    [[ -z "${file_match_pattern}" ]] && file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
     [[ -z "${multi_match_filter}" ]] && multi_match_filter="musl|static"
 
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
@@ -2347,12 +2349,19 @@ function App_Installer_Get_Remote() {
 
     # Get app version
     REMOTE_VERSION=$(echo "${remote_content}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
-    [[ -z "${REMOTE_VERSION}" ]] &&  REMOTE_VERSION=$(echo "${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(echo "${remote_content}" | grep -E "${version_match_pattern}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(echo "${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 
     # Get download urls
     match_urls=$(echo "${remote_content}" \
-        | grep -E "${match_pattern}" \
+        | grep -E "${file_match_pattern}" \
         | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
+
+    if ! echo "${match_urls}" | grep -q -E "${file_match_pattern}"; then
+        match_urls=""
+    fi
+
+    [[ -z "${match_urls}" ]] && match_urls=$(echo "${remote_content}" | grep -Eo "${file_match_pattern}")
 
     [[ -z "${OS_INFO_MATCH_TYPE}" ]] && App_Installer_Get_OS_Info_Match_Cond
 
@@ -2521,7 +2530,7 @@ function App_Installer_Install() {
     # ARCHIVE_EXT ARCHIVE_EXEC_DIR ARCHIVE_EXEC_NAME 
     # MAN1_FILE ZSH_COMPLETION_FILE
     #
-    # Check `installer/zoxide_installer.sh` as an example
+    # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` as an example
     local CHECK_URL=$1
 
     [[ "${IS_INSTALL}" != "yes" ]] && return 0
@@ -2530,9 +2539,11 @@ function App_Installer_Install() {
 
     # get app remote version & download link that match running platform
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-    if App_Installer_Get_Remote "${CHECK_URL}"; then
-        if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-            IS_INSTALL="no"
+    if [[ -z "${REMOTE_DOWNLOAD_URL}" ]]; then
+        if App_Installer_Get_Remote "${CHECK_URL}"; then
+            if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
+                IS_INSTALL="no"
+            fi
         fi
     fi
     [[ -z "${REMOTE_VERSION}" || -z "${REMOTE_DOWNLOAD_URL}" ]] && IS_INSTALL="no"
