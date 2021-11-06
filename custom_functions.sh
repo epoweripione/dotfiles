@@ -2527,7 +2527,7 @@ function App_Installer_Install() {
     # The following variables need to be set before executing the function:
     # WORKDIR APP_INSTALL_NAME GITHUB_REPO_NAME
     # EXEC_INSTALL_PATH EXEC_INSTALL_NAME CURRENT_VERSION
-    # ARCHIVE_EXT ARCHIVE_EXEC_DIR ARCHIVE_EXEC_NAME 
+    # ARCHIVE_EXT ARCHIVE_EXEC_DIR ARCHIVE_EXEC_NAME
     # MAN1_FILE ZSH_COMPLETION_FILE
     #
     # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` as an example
@@ -2539,14 +2539,11 @@ function App_Installer_Install() {
 
     # get app remote version & download link that match running platform
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-    if [[ -z "${REMOTE_DOWNLOAD_URL}" ]]; then
-        if App_Installer_Get_Remote "${CHECK_URL}"; then
-            if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-                IS_INSTALL="no"
-            fi
-        fi
-    fi
+    [[ -z "${REMOTE_DOWNLOAD_URL}" ]] && App_Installer_Get_Remote "${CHECK_URL}"
+
     [[ -z "${REMOTE_VERSION}" || -z "${REMOTE_DOWNLOAD_URL}" ]] && IS_INSTALL="no"
+
+    version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}" && IS_INSTALL="no"
 
     [[ "${IS_INSTALL}" != "yes" ]] && return 0
 
