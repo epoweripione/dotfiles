@@ -17,6 +17,8 @@ else
     fi
 fi
 
+# Conventional Commits
+# https://www.conventionalcommits.org/en/about/
 # Commitizen - The commitizen command line utility
 # https://github.com/commitizen/cz-cli
 # husky - Modern native Git hooks made easy
@@ -60,6 +62,12 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     fi
 fi
 
+# Install packages If there is a package.json file in the directory
+if [[ "${IS_INSTALL}" == "yes" && -x "$(command -v npm)" && -s "${CURRENT_DIR}/package.json" ]]; then
+    npm install
+    IS_INSTALL="no"
+fi
+
 # Install and run Commitizen locally
 if [[ "${IS_INSTALL}" == "yes" && -x "$(command -v npx)" ]]; then
     # commitizen
@@ -75,14 +83,15 @@ if [[ "${IS_INSTALL}" == "yes" && -x "$(command -v npx)" ]]; then
 
     # cz-emoji: Commitizen adapter formatting commit messages using emojis
     # https://github.com/ngryman/cz-emoji
-    npm install cz-emoji commitlint commitlint-config-gitmoji --save-dev
+    npm install conventional-changelog-cli cz-emoji commitlint commitlint-config-gitmoji --save-dev
 
     cat "${CURRENT_DIR}/package.json" \
         | jq -r '."config"."commitizen"."path"="cz-emoji"' \
         | jq -r '."config"."cz-emoji"."symbol"=true' \
+        | jq -r '."config"."cz-emoji"."conventional"=true' \
         | tee "${CURRENT_DIR}/package.json" >/dev/null
 
-    tee -a "${CURRENT_DIR}/commitlint.config.js" >/dev/null <<-'EOF'
+    tee "${CURRENT_DIR}/commitlint.config.js" >/dev/null <<-'EOF'
 module.exports = {
   extends: ['gitmoji'],
   parserPreset: {
@@ -121,3 +130,6 @@ EOF
     # echo "🚀 :boom: :sparkles:" | devmoji --format devmoji
     # glol | devmoji --format unicode
 fi
+
+## Generate a CHANGELOG from git metadata
+# ./node_modules/.bin/conventional-changelog -p angular -i CHANGELOG.md -s
