@@ -81,11 +81,18 @@ find "${MY_SHELL_SCRIPTS}" -type f -iname "*.sh" -exec chmod +x {} \;
 #     source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/git/git_global_config.sh"
 # fi
 
-# fix zsh_custom_conf.sh location in .zshrc
+# fix location in .zshrc
 if [[ -s "$HOME/.zshrc" ]]; then
     sed -i "s|^source ~/zsh_custom_conf.sh|source ~/.dotfiles/zsh/zsh_custom_conf.sh|" "$HOME/.zshrc"
     sed -i "s|^source ~/terminal-custom/zsh/zsh_custom_conf.sh|source ~/.dotfiles/zsh/zsh_custom_conf.sh|" "$HOME/.zshrc"
     sed -i "s|~/terminal-custom|~/.dotfiles|g" "$HOME/.zshrc"
+fi
+
+# fix location in cron jobs
+if [[ -x "$(command -v crontab)" ]]; then
+    if crontab -l | grep -q '/terminal-custom/' 2>/dev/null; then
+        crontab -l | sed "s|/terminal-custom/|/.dotfiles/|g" | crontab -
+    fi
 fi
 
 if [[ -d "$ZSH/custom" ]]; then
