@@ -27,32 +27,32 @@ yarn config set emoji true
 # if [[ -x "$(command -v npm)" ]]; then
 #     # Change npm registry to taobao
 #     colorEcho "${BLUE}Change npm registry to ${FUCHSIA}taobao${BLUE}..."
-#     npm set registry https://registry.npm.taobao.org
+#     npm set registry https://registry.npmmirror.com
 
-#     npm set disturl https://npm.taobao.org/dist # node-gyp
-#     npm set sass_binary_site https://npm.taobao.org/mirrors/node-sass # node-sass
-#     npm set electron_mirror https://npm.taobao.org/mirrors/electron/ # electron
-#     npm set puppeteer_download_host https://npm.taobao.org/mirrors # puppeteer
-#     npm set chromedriver_cdnurl https://npm.taobao.org/mirrors/chromedriver # chromedriver
-#     npm set operadriver_cdnurl https://npm.taobao.org/mirrors/operadriver # operadriver
-#     npm set phantomjs_cdnurl https://npm.taobao.org/mirrors/phantomjs # phantomjs
-#     npm set selenium_cdnurl https://npm.taobao.org/mirrors/selenium # selenium
-#     npm set node_inspector_cdnurl https://npm.taobao.org/mirrors/node-inspector # node-inspector
+#     npm set disturl https://npmmirror.com/dist # node-gyp
+#     npm set sass_binary_site https://npmmirror.com/mirrors/node-sass # node-sass
+#     npm set electron_mirror https://npmmirror.com/mirrors/electron/ # electron
+#     npm set puppeteer_download_host https://npmmirror.com/mirrors # puppeteer
+#     npm set chromedriver_cdnurl https://npmmirror.com/mirrors/chromedriver # chromedriver
+#     npm set operadriver_cdnurl https://npmmirror.com/mirrors/operadriver # operadriver
+#     npm set phantomjs_cdnurl https://npmmirror.com/mirrors/phantomjs # phantomjs
+#     npm set selenium_cdnurl https://npmmirror.com/mirrors/selenium # selenium
+#     npm set node_inspector_cdnurl https://npmmirror.com/mirrors/node-inspector # node-inspector
 # fi
 
 # Change yarn registry to taobao
 # colorEcho "${BLUE}Change yarn registry to ${FUCHSIA}taobao${BLUE}..."
-# yarn config set registry https://registry.npm.taobao.org
+# yarn config set registry https://registry.npmmirror.com
 
-# yarn config set disturl https://npm.taobao.org/dist # node-gyp
-# yarn config set sass_binary_site https://npm.taobao.org/mirrors/node-sass # node-sass
-# yarn config set electron_mirror https://npm.taobao.org/mirrors/electron/ # electron
-# yarn config set puppeteer_download_host https://npm.taobao.org/mirrors # puppeteer
-# yarn config set chromedriver_cdnurl https://npm.taobao.org/mirrors/chromedriver # chromedriver
-# yarn config set operadriver_cdnurl https://npm.taobao.org/mirrors/operadriver # operadriver
-# yarn config set phantomjs_cdnurl https://npm.taobao.org/mirrors/phantomjs # phantomjs
-# yarn config set selenium_cdnurl https://npm.taobao.org/mirrors/selenium # selenium
-# yarn config set node_inspector_cdnurl https://npm.taobao.org/mirrors/node-inspector # node-inspector
+# yarn config set disturl https://npmmirror.com/dist # node-gyp
+# yarn config set sass_binary_site https://npmmirror.com/mirrors/node-sass # node-sass
+# yarn config set electron_mirror https://npmmirror.com/mirrors/electron/ # electron
+# yarn config set puppeteer_download_host https://npmmirror.com/mirrors # puppeteer
+# yarn config set chromedriver_cdnurl https://npmmirror.com/mirrors/chromedriver # chromedriver
+# yarn config set operadriver_cdnurl https://npmmirror.com/mirrors/operadriver # operadriver
+# yarn config set phantomjs_cdnurl https://npmmirror.com/mirrors/phantomjs # phantomjs
+# yarn config set selenium_cdnurl https://npmmirror.com/mirrors/selenium # selenium
+# yarn config set node_inspector_cdnurl https://npmmirror.com/mirrors/node-inspector # node-inspector
 
 # Custom global packages install location
 # `yarn global bin` will output the location where Yarn will install symlinks to your installed executables

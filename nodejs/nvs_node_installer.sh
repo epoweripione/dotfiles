@@ -34,7 +34,7 @@ if [[ -d "$HOME/.nvs" ]]; then
     fi
 
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-        nvs remote node https://npm.taobao.org/mirrors/node/
+        nvs remote node https://npmmirror.com/mirrors/node/
     fi
 fi
 

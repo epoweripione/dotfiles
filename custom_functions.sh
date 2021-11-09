@@ -2056,7 +2056,7 @@ function asdf_App_Install() {
     if [[ "${appName}" == "nodejs" ]]; then
         [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
         if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-            NODEJS_CHECK_SIGNATURES="no" NODEJS_ORG_MIRROR="https://npm.taobao.org/mirrors/node/" \
+            NODEJS_CHECK_SIGNATURES="no" NODEJS_ORG_MIRROR="https://npmmirror.com/mirrors/node/" \
                 asdf install "${appName}" "${latestVersion}"
             appInstallStatus=$?
         else
@@ -2160,7 +2160,7 @@ function asdf_App_Update() {
         if [[ "${appName}" == "nodejs" ]]; then
             [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
             if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-                NODEJS_CHECK_SIGNATURES="no" NODEJS_ORG_MIRROR="https://npm.taobao.org/mirrors/node/" \
+                NODEJS_CHECK_SIGNATURES="no" NODEJS_ORG_MIRROR="https://npmmirror.com/mirrors/node/" \
                     asdf install "${InstalledApp}" "${latestVersion}"
                 appInstallStatus=$?
             else

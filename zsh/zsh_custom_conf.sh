@@ -543,7 +543,7 @@ if [[ -d "$HOME/.nvs" ]]; then
     fi
 
     # if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    #     nvs remote node https://npm.taobao.org/mirrors/node/
+    #     nvs remote node https://npmmirror.com/mirrors/node/
     # fi
 fi
 
@@ -559,7 +559,7 @@ if [[ -d "$HOME/.nvm" ]]; then
     fi
 
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-        export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node
+        export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node
     fi
 
     if [[ "$NVM_LOAD_NVMRC_IN_CURRENT_DIRECTORY" == true ]]; then

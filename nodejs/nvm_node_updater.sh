@@ -49,10 +49,10 @@ if [[ -z "$NVM_NOT_UPDATE" && -d "$HOME/.nvm" ]]; then
 
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
         colorEcho "${BLUE}Updating ${FUCHSIA}node LTS${BLUE}..."
-        NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node nvm install --lts
+        NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install --lts
 
         colorEcho "${BLUE}Updating ${FUCHSIA}node latest${BLUE}..."
-        NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node nvm install node --reinstall-packages-from=node
+        NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install node --reinstall-packages-from=node
     else
         colorEcho "${BLUE}Updating ${FUCHSIA}node LTS${BLUE}..."
         nvm install --lts

@@ -538,7 +538,7 @@ sudo pacman -S pyenv
 # pyenv init
 # pyenv install --list
 # pyenv install <version>
-# v=3.8.0;wget https://npm.taobao.org/mirrors/python/$v/Python-$v.tar.xz -P ~/.pyenv/cache/;pyenv install $v
+# v=3.9.8;wget https://npmmirror.com/mirrors/python/$v/Python-$v.tar.xz -P ~/.pyenv/cache/;pyenv install $v
 # pyenv versions
 # pyenv uninstall <version>
 # pyenv global <version>
