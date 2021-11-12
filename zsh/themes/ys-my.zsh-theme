@@ -208,4 +208,4 @@ ${dir_info}\
 ${hg_info}\
 ${git_info}\
 %{$fg[white]%} $exit_code
-%{$terminfo[bold]$fg[$CARETCOLOR]%}⚡ %{$reset_color%}"
+%{$terminfo[bold]$fg[$CARETCOLOR]%}🌠 %{$reset_color%}"

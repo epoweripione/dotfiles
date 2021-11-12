@@ -468,7 +468,7 @@ prompt_user_host() {
   fi
 
   if [[ $(print -P "%#") == '#' ]]; then
-    visual_user_icon+="%F{red}\u26A1%f " # ROOT_ICON $'\u26A1' ⚡ $'\uE614' 
+    visual_user_icon+="%F{red}\u26A1%f " # ROOT_ICON $'\u26A1' 🌠 $'\uE614' 
   else
     local os_msys=$(uname)
     if [[ "$os_msys" =~ "MSYS_NT" || "$os_msys" =~ "MINGW" || "$os_msys" =~ "CYGWIN_NT" ]]; then
@@ -516,7 +516,7 @@ prompt_status_exitcode() {
   local symbols
   symbols=()
   [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘:$RETVAL"
-  # [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
+  # [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}🌠"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
 
   if [[ -n "$symbols" ]]; then
