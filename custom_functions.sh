@@ -1677,7 +1677,7 @@ function Git_Clone_Update() {
     #     || colorEcho "${RED}  ${FUCHSIA}${REPOREMOTE}${RED} does not exist!"
 
     if [[ -d "${REPODIR}/.git" ]]; then
-        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPONAME}${BLUE}..."
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPOREMOTE}${BLUE}..."
 
         CurrentDir=$(pwd)
 
@@ -1685,7 +1685,7 @@ function Git_Clone_Update() {
         ${GIT_COMMAND} pull
         cd "${CurrentDir}" || return
     else
-        colorEcho "${BLUE}  Cloning ${FUCHSIA}${REPONAME}${BLUE}..."
+        colorEcho "${BLUE}  Cloning ${FUCHSIA}${REPOREMOTE}${BLUE}..."
         [[ -z "${GIT_CLONE_OPTS[*]}" ]] && Get_Git_Clone_Options
         ${GIT_COMMAND} clone "${GIT_CLONE_OPTS[@]}" "${REPOREMOTE}" "${REPODIR}" || {
                 colorEcho "${RED}  git clone of ${FUCHSIA}${REPONAME} ${RED}failed!"
@@ -1741,7 +1741,7 @@ function Git_Clone_Update_Branch() {
     #     || colorEcho "${RED}  ${FUCHSIA}${REPOREMOTE}${RED} does not exist!"
 
     if [[ -d "${REPODIR}/.git" ]]; then
-        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPONAME}${BLUE}..."
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPOREMOTE}${BLUE}..."
 
         CurrentDir=$(pwd)
 
@@ -1778,7 +1778,7 @@ function Git_Clone_Update_Branch() {
 
         cd "${CurrentDir}" || return
     else
-        colorEcho "${BLUE}  Cloning ${FUCHSIA}${REPONAME}${BLUE}..."
+        colorEcho "${BLUE}  Cloning ${FUCHSIA}${REPOREMOTE}${BLUE}..."
         [[ -z "${BRANCH}" ]] && \
             BRANCH=$(${GIT_COMMAND} ls-remote --symref "${REPOREMOTE}" HEAD \
                     | awk '/^ref:/ {sub(/refs\/heads\//, "", $2); print $2}')
