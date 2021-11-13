@@ -10,9 +10,9 @@ if (-Not (Get-Command -Name "check_webservice_up" 2>$null)) {
     }
 }
 
-$UseMirror = $false
+$UseMirror = $true
 if (check_webservice_up) {
-    $UseMirror = $true
+    $UseMirror = $false
 }
 
 if (($ConfigAction -eq "AUTO") -and $UseMirror) {
