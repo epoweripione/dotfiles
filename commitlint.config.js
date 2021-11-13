@@ -86,7 +86,7 @@ module.exports = {
         'windows',
         'android',
         'ios',
-        'ingnore',
+        'ignore',
         'comment',
         'snapshot',
         'addlog',
