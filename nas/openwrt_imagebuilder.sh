@@ -123,7 +123,7 @@ make info
 # make image PROFILE=XXX PACKAGES="pkg1 pk2 -pkg3 -pkg4" FILES=files/
 
 # PACKAGES="iptraf-ng tcpdump -kmod-i40e -kmod-i40evf"
-PACKAGES=$(< "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nas/openwrt_packages.list" | grep -v '^#' | tr '\n' ' ')
+PACKAGES=$(grep -v '^#' "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nas/openwrt_packages.list" | tr '\n' ' ')
 
 if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; then
     PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \

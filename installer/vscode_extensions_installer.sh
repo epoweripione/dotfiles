@@ -81,6 +81,8 @@ extensions=(
 	"serayuzgur.crates"
 	## cht.sh snippets
 	"vscode-snippet.snippet"
+	## linux/shell/vim
+	"timonwong.shellcheck"
     ## XML/JSON/GraphQL/YAML
     "eriklynd.json-tools"
 	"mohsen1.prettify-json"

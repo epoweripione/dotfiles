@@ -32,6 +32,7 @@ fi
 
 # https://zhuanlan.zhihu.com/p/398819857
 # sudo fdisk -l
+# shellcheck disable=SC2010
 dsk=$(ls /dev/sd* | grep -Po 'sd(a{2}|[a-z]+)$')
 
 date +"%F %T %Z %z"
@@ -46,38 +47,38 @@ c=0
 for i in $dsk; do
     printf "%-11s" "/dev/$i:"
 
-    stats=$(smartctl -i -n standby /dev/$i | grep "mode" | awk '{print $4}')
+    stats=$(smartctl -i -n standby /dev/"$i" | grep "mode" | awk '{print $4}')
 
     if [[ $stats == STANDBY || $stats == ACTIVE || $stats == IDLE_A ]]; then
         for s in $stats; do
             if [[ $s == STANDBY ]]; then
                 echo -e -n "\033[30;42mSTANDBY\033[0m"
-                printf "%-5s"
+                printf "%-5s" ""
                 let standby=$standby+1
             else
                 echo -e -n "\033[37;41mACTIVE \033[0m"
-                printf "%-5s"
+                printf "%-5s" ""
                 let active=$active+1
             fi
         done
     else
         echo -e -n "\033[30;47mUNKNOWN\033[0m"
-        printf "%-5s"
+        printf "%-5s" ""
         unknown=$unknown+1
         for un in $i; do
             list[c]=$un
             ((c++))
         done
     fi
-    
-    mountpoint=$(lsblk /dev/$i|grep "/srv/dev-disk-by-label-"|awk '{print $7}');
+
+    mountpoint=$(lsblk "/dev/$i" | grep "/srv/dev-disk-by-label-" | awk '{print $7}');
     if [[ $mountpoint == */srv/dev* ]]; then
-        printf "%-40s" "$(lsblk /dev/$i | grep "/srv/dev-disk-by-label-" | awk '{print $7}')"
+        printf "%-40s" "$(lsblk "/dev/$i" | grep "/srv/dev-disk-by-label-" | awk '{print $7}')"
     else
         echo -n "Not Mounted!"
     fi
 
-    printf "%-10s\n" "$(lsblk /dev/$i | grep "/srv/dev-disk-by-label-" | awk '{print $4}')"
+    printf "%-10s\n" "$(lsblk "/dev/$i" | grep "/srv/dev-disk-by-label-" | awk '{print $4}')"
 done
 
 echo -e "\n"
@@ -86,7 +87,7 @@ echo -e "\033[30;42mStandby Disk in Total=$standby  \033[0m"
 echo -e "\033[30;47mUnknown Disk in Total=$unknown   \033[0m"
 
 echo -e "Unknown Disk list: "
-for ((b=0;b<=$c;b++)); do
+for ((b=0;b<=c;b++)); do
     if [[ $b -lt $c ]]; then
         echo "/dev/${list[b]}"
     fi

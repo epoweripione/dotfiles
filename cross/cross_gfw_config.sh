@@ -242,6 +242,7 @@ function get_v2ray_config_from_subscription() {
 EOF
 
         # removed ^M
+        # shellcheck disable=SC2046,SC2116
         sudo sed -i -e 's/'$(echo "\013")'//g' -e 's/\r//g' /etc/v2ray/config.json
 
         # check the config file

@@ -153,8 +153,15 @@ fi
 
 
 # Fonts
-sudo pacman --noconfirm -S powerline-fonts ttf-symbola ttf-fira-code ttf-sarasa-gothic
-# sudo pacman --noconfirm -S adobe-source-han-sans-cn-fonts adobe-source-han-serif-cn-fonts
+sudo pacman --noconfirm -S powerline-fonts ttf-symbola ttf-fira-code ttf-sarasa-gothic \
+    ttf-hannom noto-fonts noto-fonts-extra noto-fonts-emoji noto-fonts-cjk
+
+# sudo pacman --noconfirm -S ttf-dejavu ttf-droid ttf-hack ttf-font-awesome otf-font-awesome \
+#     ttf-lato ttf-liberation ttf-linux-libertine ttf-opensans ttf-roboto ttf-ubuntu-font-family
+
+# sudo pacman --noconfirm -S adobe-source-code-pro-fonts adobe-source-sans-fonts adobe-source-serif-fonts \
+#     adobe-source-han-sans-cn-fonts adobe-source-han-sans-hk-fonts adobe-source-han-sans-tw-fonts \
+#     adobe-source-han-serif-cn-fonts wqy-zenhei wqy-microhei
 
 # FiraCode Nerd Font Complete Mono
 colorEchoN "${ORANGE}Download URL for FiraCode-Mono?[${CYAN}Use github by default${ORANGE}]: "
@@ -180,7 +187,7 @@ mkdir -p "$HOME/patched-fonts/FiraCode-Mono" && \
 # Fcitx5 input methods for Chinese Pinyin
 # https://github.com/fcitx/fcitx5
 # https://blog.rasphino.cn/archive/a-taste-of-fcitx5-in-arch.html
-sudo pacman --noconfirm -Rs $(pacman -Qsq fcitx)
+sudo pacman --noconfirm -Rs "$(pacman -Qsq fcitx)"
 sudo pacman --noconfirm -S fcitx5 fcitx5-configtool fcitx5-qt fcitx5-gtk fcitx5-material-color
 sudo pacman --noconfirm -S fcitx5-im fcitx-sunpinyin fcitx5-chinese-addons fcitx5-pinyin-zhwiki
 
@@ -265,7 +272,7 @@ conky-colors --theme=human --side=right --arch --cpu=2 --proc=5 \
 # network interface
 get_network_interface_default
 [[ -n "${NETWORK_INTERFACE_DEFAULT}" ]] && \
-    sed -i 's/ppp0/${NETWORK_INTERFACE_DEFAULT}/g' "$HOME/.conkycolors/conkyrc"
+    sed -i "s/ppp0/${NETWORK_INTERFACE_DEFAULT}/g" "$HOME/.conkycolors/conkyrc"
 # display font
 sed -i 's/font Liberation Sans/font Sarasa Term SC/g' "$HOME/.conkycolors/conkyrc" && \
     sed -i 's/font Liberation Mono/font Sarasa Mono SC/g' "$HOME/.conkycolors/conkyrc" && \

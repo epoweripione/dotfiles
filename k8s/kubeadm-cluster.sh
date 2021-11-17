@@ -92,10 +92,10 @@ fi
 # lsmod | grep br_netfilter
 # sudo modprobe br_netfilter
 # ipvs
-# grep -e ipvs -e nf_conntrack /lib/modules/$(uname -r)/modules.builtin
+# grep -e ipvs -e nf_conntrack "/lib/modules/$(uname -r)/modules.builtin"
 # lsmod | grep -e ip_vs -e nf_conntrack
 colorEcho "${BLUE}Setting kernel mod ${FUCHSIA}br_netfilter, ipvs${BLUE}..."
-KERNEL_MOD_NF_CONNTRACK=$(find /lib/modules/$(uname -r) -name "nf_conntrack_ipv4" 2>/dev/null)
+KERNEL_MOD_NF_CONNTRACK=$(find "/lib/modules/$(uname -r)" -name "nf_conntrack_ipv4" 2>/dev/null)
 [[ -n "${KERNEL_MOD_NF_CONNTRACK}" ]] && KERNEL_MOD_NF_CONNTRACK="nf_conntrack_ipv4" || KERNEL_MOD_NF_CONNTRACK="nf_conntrack"
 
 cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf >/dev/null
@@ -250,7 +250,7 @@ sudo kubeadm init \
 # To start using your cluster, you need to run the following as a regular user:
 mkdir -p "$HOME/.kube" && \
     sudo cp -i "/etc/kubernetes/admin.conf" "$HOME/.kube/config" && \
-    sudo chown $(id -u):$(id -g) "$HOME/.kube/config"
+    sudo chown "$(id -u):$(id -g)" "$HOME/.kube/config"
 
 # fix `kubectl get cs` error: componentstatus/scheduler Unhealthy
 sudo sed -i "/--port=0$/ s/^\(.*\)$/#\1/" "/etc/kubernetes/manifests/kube-controller-manager.yaml"
@@ -351,7 +351,7 @@ if [[ ! -x "$(command -v calicoctl)" && -x "$(command -v kubectl)" ]]; then
 fi
 
 calicoctl get workloadendpoints
-sudo calicoctl node status
+calicoctl node status
 
 
 # cert-manager
@@ -390,7 +390,7 @@ kubectl wait -n default --for=condition=ready pod --selector=app.kubernetes.io/c
 
 # Detect installed version
 POD_NAME=$(kubectl get pods -l app.kubernetes.io/name=ingress-nginx -o jsonpath='{.items[0].metadata.name}')
-kubectl exec -it $POD_NAME -- /nginx-ingress-controller --version
+kubectl exec -it "${POD_NAME}" -- /nginx-ingress-controller --version
 
 
 # Storage

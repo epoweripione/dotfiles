@@ -97,7 +97,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 sed -i "s/^ZSH_THEME=.*/ZSH_THEME=\"ys\"/" "$HOME/.zshrc"
 
 # Change shell to ZSH
-which zsh >/dev/null && sed -i -- 's:/bin/ash:'$(which zsh)':g' "/etc/passwd"
+which zsh >/dev/null && sed -i -- 's:/bin/ash:'"$(which zsh)"':g' "/etc/passwd"
 
 # LuCI
 # /etc/config/luci

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2028
 if [[ "${OS_INFO_TYPE}" != "windows" && $UID -ne 0 ]]; then
     echo "Please run this script as root user!"
     exit 0

@@ -206,7 +206,7 @@ echo "https://${HOSTNAME}/dashboard/?setup=$(kubectl get secret --namespace catt
 # List All Container Images Running in a Cluster
 kubectl get pods --all-namespaces \
     -o jsonpath="{.items[*].spec.containers[*].image}" \
-    | tr -s '[[:space:]]' '\n' | sort | uniq -c
+    | tr -s '[:space:]' '\n' | sort | uniq -c
 
 
 cd "${CURRENT_DIR}" || exit

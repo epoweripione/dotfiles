@@ -95,7 +95,7 @@ fi
 
 # rook NFS
 if [[ -d "${K8S_WORKDIR}/rook-nfs/cluster/examples/kubernetes/nfs" ]]; then
-    cd "${K8S_WORKDIR}/rook-nfs/cluster/examples/kubernetes/nfs"
+    cd "${K8S_WORKDIR}/rook-nfs/cluster/examples/kubernetes/nfs" || exit
     kubectl delete -f web-service.yaml
     kubectl delete -f web-rc.yaml
     kubectl delete -f busybox-rc.yaml

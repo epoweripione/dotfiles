@@ -48,7 +48,7 @@ Git_Clone_Update_Branch "rook/rook" "${K8S_WORKDIR}/rook-ceph" "github.com" "${R
 
 
 # A simple Rook cluster can be created with the following kubectl commands and example manifests.
-cd "${K8S_WORKDIR}/rook-ceph/cluster/examples/kubernetes/ceph"
+cd "${K8S_WORKDIR}/rook-ceph/cluster/examples/kubernetes/ceph" || exit
 
 # Deploy the Rook Operator
 kubectl create -f crds.yaml -f common.yaml -f operator.yaml
@@ -92,7 +92,7 @@ kubectl -n rook-ceph logs -l job-name=rook-ceph-toolbox-job
 # https://rook.io/docs/rook/latest/ceph-block.html
 [[ -s "${K8S_WORKDIR}/rook_ceph_storageclass.yaml" ]] && kubectl create -f "${K8S_WORKDIR}/rook_ceph_storageclass.yaml"
 # Consume the storage: Wordpress sample
-cd "${K8S_WORKDIR}/rook-ceph/cluster/examples/kubernetes"
+cd "${K8S_WORKDIR}/rook-ceph/cluster/examples/kubernetes" || exit
 kubectl create -f mysql.yaml
 kubectl create -f wordpress.yaml
 kubectl get pvc

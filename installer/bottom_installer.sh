@@ -66,7 +66,7 @@ fi
 # Install Latest Version
 if [[ "${IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-    if [[ -n "${EXEC_FULL_NAME}" ]] && [[ ! "${EXEC_FULL_NAME}" =~ "${EXEC_INSTALL_PATH}" ]]; then
+    if [[ -n "${EXEC_FULL_NAME}" ]] && [[ "${EXEC_FULL_NAME}" != *"${EXEC_INSTALL_PATH}"* ]]; then
         [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALL_FROM_SOURCE="yes"
     fi
 fi

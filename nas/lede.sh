@@ -35,7 +35,7 @@ sudo apt-get -y install antlr3 asciidoc autoconf automake autopoint binutils bui
 
 Git_Clone_Update_Branch "coolsnowwolf/lede" "$HOME/lede"
 
-cd "$HOME/lede"
+cd "$HOME/lede" || exit
 
 ./scripts/feeds update -a && ./scripts/feeds install -a
 

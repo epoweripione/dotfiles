@@ -94,5 +94,27 @@
 	"markdown-preview-enhanced.previewTheme": "one-dark.css",
 	"markdown-preview-enhanced.revealjsTheme": "black.css",
 
-	"tabnine.experimentalAutoImports": true
+	"tabnine.experimentalAutoImports": true,
+	"[json]": {
+			"editor.tabSize": 2,
+			"editor.defaultFormatter": "vscode.json-language-features"
+	},
+	"shellcheck.exclude": [
+			"1090",
+			"1091",
+			"1094",
+			"2001",
+			"2002",
+			"2012",
+			"2015",
+			"2016",
+			"2034",
+			"2119",
+			"2120",
+			"2126",
+			"2129",
+			"2142",
+			"2145",
+			"2219"
+	]
 }

@@ -184,13 +184,12 @@ while [ "$1" ]; do
     shift
 done
 
-CheckLocalCert()
-{
+CheckLocalCert() {
     openssl x509 -in "$crt" -noout "$opt"
 }
 
-CheckRemoteCert()
-{
+CheckRemoteCert() {
+    # shellcheck disable=SC2086
     echo |
     openssl s_client $servername -connect "$host:$port" 2>/dev/null |
     openssl x509 -noout "$opt"

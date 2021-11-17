@@ -153,6 +153,7 @@ serayuzgur.crates
 vscode-snippet.snippet
 ## linux/shell/vim
 vscodevim.vim
+timonwong.shellcheck
 ## XML/JSON/GraphQL/YAML
 dotjoshjohnson.xml
 eriklynd.json-tools

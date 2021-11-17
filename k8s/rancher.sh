@@ -180,14 +180,14 @@ kubectl --kubeconfig "$HOME/.kube/rke2.yaml" -n cattle-system get pods
 # kubectl --kubeconfig "$HOME/.kube/rke2.yaml" -n cattle-system describe issuer
 # kubectl --kubeconfig "$HOME/.kube/rke2.yaml" -n cattle-system describe ingress
 
-echo "https://${RKE_HOSTNAME}/dashboard/?setup=$(kubectl --kubeconfig $HOME/.kube/rke2.yaml get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
+echo "https://${RKE_HOSTNAME}/dashboard/?setup=$(kubectl --kubeconfig "$HOME/.kube/rke2.yaml" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
 # kubectl --kubeconfig "$HOME/.kube/rke2.yaml" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}{{ "\n" }}'
 
 
 # List All Container Images Running in a Cluster
 kubectl --kubeconfig "$HOME/.kube/rke2.yaml" get pods --all-namespaces \
     -o jsonpath="{.items[*].spec.containers[*].image}" \
-    | tr -s '[[:space:]]' '\n' | sort | uniq -c
+    | tr -s '[:space:]' '\n' | sort | uniq -c
 
 ## Dry run; print the corresponding API objects without creating them
 # kubectl --kubeconfig "$HOME/.kube/rke2.yaml" run nginx --image=nginx --dry-run=client

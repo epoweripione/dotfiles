@@ -154,9 +154,6 @@ function get_os_release_type() {
         SunOS)
             osname='Solaris'
             ;;
-        *)
-            osname="$osname"
-            ;;
     esac
 
     os_wsl=$(uname -r)
@@ -2114,7 +2111,7 @@ function asdf_App_Update() {
         InstalledPlugins=$(asdf plugin list 2>/dev/null)
     else
         colorEcho "${BLUE}Checking update for ${FUCHSIA}asdf plugin ${ORANGE}${appName}${BLUE}..."
-        InstalledPlugins=("${appName}")
+        InstalledPlugins="${appName}"
     fi
 
     while read -r InstalledApp; do
@@ -2188,10 +2185,10 @@ function goup_Upgrade() {
     colorEcho "${BLUE}Updating ${FUCHSIA} Go toolchains and goup${BLUE}..."
     # fix: proxyconnect tcp: dial tcp: lookup socks5h: no such host
     if echo "${all_proxy}" | grep -q 'socks5h'; then
-        proxy_socks5h_to_socks5 sudo $(which goup) upgrade
+        proxy_socks5h_to_socks5 sudo "$(which goup)" upgrade
         proxy_socks5h_to_socks5 goup install
     else
-        sudo $(which goup) upgrade
+        sudo "$(which goup)" upgrade
         goup install
     fi
 }
@@ -2550,6 +2547,7 @@ function App_Installer_Install() {
     # set the app execute filename in archive
     [[ -z "${ARCHIVE_EXEC_NAME}" ]] && ARCHIVE_EXEC_NAME="${EXEC_INSTALL_NAME}"
 
+    [[ -z "${WORKDIR}" ]] && WORKDIR="$(pwd)"
     DOWNLOAD_FILENAME="${WORKDIR}/${EXEC_INSTALL_NAME}"
     [[ -n "${ARCHIVE_EXT}" ]] && DOWNLOAD_FILENAME="${DOWNLOAD_FILENAME}.${ARCHIVE_EXT}"
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1094,SC2086,SC2296
+
 # https://github.com/junegunn/fzf
 function fzf-tmux-popup() {
     fzf-tmux -p "${TMUX_POPUP_DIMENSION:-80%,80%}" "$@"
@@ -79,7 +81,7 @@ if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]]; then
     # https://github.com/Aloxaf/fzf-tab
     # set list-colors to enable filename colorizing
     [[ ! -s "${ZSH_CUSTOM}/plugins/fzf-tab/modules/Src/aloxaf/fzftab.so" ]] && \
-        zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+        zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
     # [kill/ps] preview of full commandline arguments
     zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"

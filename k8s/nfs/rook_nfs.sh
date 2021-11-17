@@ -38,7 +38,7 @@ Git_Clone_Update_Branch "rook/nfs" "${K8S_WORKDIR}/rook-nfs" "github.com" "${ROO
 
 
 # Deploy NFS Operator
-cd "${K8S_WORKDIR}/rook-nfs/cluster/examples/kubernetes/nfs"
+cd "${K8S_WORKDIR}/rook-nfs/cluster/examples/kubernetes/nfs" || exit
 kubectl create -f crds.yaml
 kubectl create -f operator.yaml
 

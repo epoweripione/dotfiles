@@ -50,8 +50,8 @@ fi
 # EXTROOT_DEVICE="/dev/${USBDISK}"
 EXTROOT_DEVICE=${1:-""}
 if [[ -n "${EXTROOT_DEVICE}" ]]; then
-    mkfs.ext4 ${EXTROOT_DEVICE}
-    eval $(block info ${EXTROOT_DEVICE} | grep -o -e "UUID=\S*")
+    mkfs.ext4 "${EXTROOT_DEVICE}"
+    eval "$(block info "${EXTROOT_DEVICE}" | grep -o -e "UUID=\S*")"
     uci -q delete fstab.overlay && \
         uci set fstab.overlay="mount" && \
         uci set fstab.overlay.uuid="${UUID}" && \
@@ -61,7 +61,7 @@ if [[ -n "${EXTROOT_DEVICE}" ]]; then
     # Transferring data
     mkdir -p /tmp/cproot && \
         mount --bind /overlay /tmp/cproot && \
-        mount ${EXTROOT_DEVICE} /mnt && \
+        mount "${EXTROOT_DEVICE}" /mnt && \
         tar -C /tmp/cproot -cvf - . | tar -C /mnt -xf -	 && \
         umount /tmp/cproot /mnt && \
         reboot
