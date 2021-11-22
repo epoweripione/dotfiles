@@ -86,6 +86,8 @@ PROXY_SERVER_ALL=()
 
 FILELIST=()
 FILEOPTION=()
+
+GLOBAL_FILTER=$(grep '^# global' "${SUB_URL_LIST}" | cut -d' ' -f3)
 while read -r READLINE || [[ "${READLINE}" ]]; do
     [[ -z "${READLINE}" ]] && continue
 
@@ -179,6 +181,11 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         # Delete lines with empty name
         sed -i '/name:\s*,/d' "${DOWNLOAD_FILE}"
         sed -i 's/,,/,/g' "${DOWNLOAD_FILE}"
+
+        # Global filter
+        if [[ -n "${GLOBAL_FILTER}" ]]; then
+            sed -ri "/(${GLOBAL_FILTER})/d" "${DOWNLOAD_FILE}"
+        fi
 
         # Merge proxies
         TARGET_PROXIES=""

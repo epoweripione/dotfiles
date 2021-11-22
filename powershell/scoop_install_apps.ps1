@@ -200,6 +200,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "frp"
         # "v2rayn"
         # "lxrunoffline"
+        "bulk-rename-utility"
         "snipaste-beta"
         "ffmpeg"
         "vlc"
@@ -270,7 +271,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "tightvnc"
         "vncviewer"
         ## epower
-        # "chromium-robrich-dev-avx2"
+        "chromium-robrich-dev-avx2"
         "chromium-robrich-dev"
         # "ExplorerPlusPlus"
         # "TablacusExplorer"
