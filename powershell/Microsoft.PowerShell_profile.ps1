@@ -1,4 +1,4 @@
-$PS_CUSTOM_FUNCTION = "$HOME\Documents\PowerShell\Scripts\ps_custom_function.ps1"
+$PS_CUSTOM_FUNCTION = "$env:USERPROFILE\Documents\PowerShell\Scripts\ps_custom_function.ps1"
 if ((Test-Path "$PS_CUSTOM_FUNCTION") -and ((Get-Item "$PS_CUSTOM_FUNCTION").length -gt 0)) {
     . "$PS_CUSTOM_FUNCTION"
 }
@@ -14,11 +14,50 @@ Import-Module Posh-git
 Import-Module Terminal-Icons
 Import-Module PSEverything
 
+# Use github mirror to download oh-my-posh executable
+$PoshExec = "oh-my-posh"
+if ($PSVersionTable.PSEdition -ne "Core" -or $IsWindows) {
+    $PoshExec = "oh-my-posh.exe"
+}
+$InstalledPoshDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
+$InstalledPoshVersion = "0.0.0"
+if (Test-Path "$InstalledPoshDir\$PoshExec") {
+    $InstalledPoshVersion = & "$InstalledPoshDir\$PoshExec" --version
+}
+$ModulePoshPSM = (Get-ChildItem -Path "$InstalledPoshDir" `
+    -Filter "oh-my-posh.psm1" -File -Recurse -ErrorAction SilentlyContinue -Force `
+    | Select-Object -First 1).FullName
+#     | ForEach-Object {$_.FullName})
+if (Test-Path "$ModulePoshPSM") {
+    $ModulePoshVersion = Split-Path -Parent $ModulePoshPSM | Split-Path -Leaf
+    if ([System.Version]"$ModulePoshVersion" -gt [System.Version]"$InstalledPoshVersion") {
+        (Get-Content -path "$ModulePoshPSM" -Raw) `
+            -Replace 'https://github.com/jandedobbeleer/oh-my-posh/','https://download.fastgit.org/jandedobbeleer/oh-my-posh/' `
+            -Replace 'Invoke-WebRequest \$Url -Out \$Destination','curl -fSL --progress -o $Destination $Url' `
+            | Set-Content -Path "$ModulePoshPSM"
+    }
+}
+
+## Skip oh-my-posh executable download if already installed by scoop
+# $ScoopPoshExec = ""
+# $ScoopPoshVersion = "0.0.0"
+# if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
+#     $ScoopPoshExec = "$(scoop prefix oh-my-posh3 6>$null)\bin\$PoshExec"
+#     if (Test-Path "$ScoopPoshExec") {
+#         $ScoopPoshVersion = & "$ScoopPoshExec" --version
+#     }
+# }
+# if ([System.Version]"$ScoopPoshVersion" -gt [System.Version]"$PoshVersion") {
+#     if (Test-Path "$ScoopPoshExec") {
+#         Copy-Item -Path "$ScoopPoshExec" -Destination "$InstalledPoshDir" -Force -Confirm:$false
+#     }
+# }
+
 Import-Module oh-my-posh
 $env:POSH_GIT_ENABLED = $true
 # oh-my-posh --init --shell pwsh --config "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json" | Invoke-Expression
 # Set-PoshPrompt -Theme powerlevel10k_rainbow
-Set-PoshPrompt -Theme ~\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json
+Set-PoshPrompt -Theme "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json"
 
 ## PSFzf
 ## https://github.com/kelleyma49/PSFzf

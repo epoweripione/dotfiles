@@ -167,6 +167,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "vcredist"
         "hub"
         "less"
+        "oh-my-posh3"
         "starship"
         # "googlechrome-dev"
         # "chromium"
