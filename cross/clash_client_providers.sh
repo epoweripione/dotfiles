@@ -84,6 +84,8 @@ PROXIES_PUBLIC=""
 PROXY_LIST_ALL=()
 PROXY_SERVER_ALL=()
 
+PROXY_EMPTY_GROUP=()
+
 FILELIST=()
 FILEOPTION=()
 
@@ -536,6 +538,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
     # delete empty group
     if [[ -z "${CONTENT_TAG}" && "${CONTENT_IS_GROUP}" == "yes" ]]; then
+        PROXY_EMPTY_GROUP+=("${TARGET_GROUP}")
         CONTENT_PREFIX=$(echo "${CONTENT_PREFIX}" | sed "/name:\s*${TARGET_GROUP}$/,$ d" | sed "/^\s*\-\s*${TARGET_GROUP}$/d")
         sed -i "/^\s*\-\s*${TARGET_GROUP}$/d" "${TARGET_CONFIG_FILE}"
     fi
@@ -545,6 +548,12 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
     LINE_START=$((TARGET_LINE + 1))
 done <<<"${FILL_LINES}"
+
+# delete empty group
+for TargetGroup in "${PROXY_EMPTY_GROUP[@]}"; do
+    [[ -z "${TargetGroup}" ]] && continue
+    sed -i "/^\s*\-\s*${TargetGroup}$/d" "${TARGET_CONFIG_FILE}"
+done
 
 ## Fix: invalid leading UTF-8 octet
 ## https://stackoverflow.com/questions/12999651/how-to-remove-non-utf-8-characters-from-text-file
