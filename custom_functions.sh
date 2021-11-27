@@ -2516,6 +2516,31 @@ function App_Installer_Download_Extract() {
     fi
 }
 
+# Reset app installer variables
+function App_Installer_Reset() {
+    APP_INSTALL_NAME=""
+    GITHUB_REPO_NAME=""
+
+    EXEC_INSTALL_PATH="/usr/local/bin"
+    EXEC_INSTALL_NAME=""
+
+    ARCHIVE_EXT=""
+    ARCHIVE_EXEC_DIR=""
+    ARCHIVE_EXEC_NAME=""
+
+    MAN1_FILE="*.1"
+    ZSH_COMPLETION_FILE=""
+
+    IS_INSTALL="yes"
+    IS_UPDATE="no"
+
+    CURRENT_VERSION="0.0.0"
+    REMOTE_VERSION=""
+    VERSION_FILENAME=""
+
+    REMOTE_DOWNLOAD_URL=""
+}
+
 # Install app from github releases or given url
 function App_Installer_Install() {
     # Usage:
@@ -2527,7 +2552,7 @@ function App_Installer_Install() {
     # ARCHIVE_EXT ARCHIVE_EXEC_DIR ARCHIVE_EXEC_NAME
     # MAN1_FILE ZSH_COMPLETION_FILE
     #
-    # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` as an example
+    # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/juicefs_installer.sh` as an example
     local CHECK_URL=$1
 
     [[ "${IS_INSTALL}" != "yes" ]] && return 0
