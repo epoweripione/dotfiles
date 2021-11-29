@@ -3,7 +3,7 @@
 ## termux: required storage access permission 
 
 ## install openssh
-# pkg up -y && pkg i -y openssh
+# pkg up -y && pkg i -y git openssh
 ## start openssh service
 # sshd
 ## ssh port: 8022
@@ -83,8 +83,20 @@ pkg up -y && \
     pkg i -y binutils curl wget git nano openssh unzip unrar htop nmap rsync \
         bat fd fzf lsd lsof nnn screenfetch starship tree zoxide
 
+# Termux Sudo Without Root
+# https://github.com/virtual-designer/termux-sudo-without-root
+if [[ ! -x "$(command -v sudo)" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}sudo${BLUE}..."
+    git clone --depth=1 "https://github.com/virtual-designer/termux-sudo-without-root" "$HOME/sudo" && \
+        cd "$HOME/sudo" && \
+        apt install -y ./sudo.deb && \
+        chmod +w "$PREFIX/etc/sudoers" && \
+        echo "$(whoami)|All|admin" >> "$PREFIX/etc/sudoers" && \
+        chmod -w "$PREFIX/etc/sudoers"
+fi
+
 # pacapt
-if [[ ! -x "$(command -v pacapt)" ]]; then
+if [[ -x "$(command -v sudo)" && ! -x "$(command -v pacapt)" ]]; then
     [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/pacapt_installer.sh" ]] && \
         source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/pacapt_installer.sh"
 fi
@@ -97,9 +109,10 @@ colorEcho "${BLUE}Installing ${FUCHSIA}termux-api${BLUE}..."
 pkg i -y termux-api
 
 # nanorc
-colorEcho "${BLUE}Setting nanorc..."
-git clone --depth=1 "https://github.com/scopatz/nanorc" "$HOME/.local/share/nano"
-tee "$HOME/.nanorc" >/dev/null <<-EOF
+if [[ ! -d "$HOME/.local/share/nanorc" ]]; then
+    colorEcho "${BLUE}Setting nanorc..."
+    git clone --depth=1 "https://github.com/scopatz/nanorc" "$HOME/.local/share/nanorc"
+    tee "$HOME/.nanorc" >/dev/null <<-EOF
 set titlecolor brightwhite,red
 set statuscolor brightwhite,red
 set selectedcolor brightwhite,cyan
@@ -107,50 +120,17 @@ set numbercolor magenta
 set keycolor brightmagenta
 set functioncolor magenta
 
-include "$HOME/.local/share/nano/*.nanorc"
+include "$HOME/.local/share/nanorc/*.nanorc"
 EOF
+fi
 
 # Remove Welcome screen Text
 # cat $PREFIX/etc/motd
 # touch ~/.hushlogin
 mv "$PREFIX/etc/motd" "$PREFIX/etc/motd.bak" && echo -e "\nWelcome to Termux!" > "$PREFIX/etc/motd"
 
-# font: Fira Code Regular Nerd Font Complete Mono
-colorEcho "${BLUE}Installing ${FUCHSIA}FiraCode-Mono${BLUE}..."
-NerdFont_URL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-5.2.0.zip"
-curl "${CURL_DOWNLOAD_OPTS[@]}" "${NerdFont_URL}" -o "$HOME/FiraCode-Mono.zip" && \
-    mkdir -p "$HOME/FiraCode-Mono" && \
-	unzip -q "$HOME/FiraCode-Mono.zip" -d "$HOME/FiraCode-Mono" && \
-    mv "$HOME/.termux/font.ttf" "$HOME/.termux/font.ttf.bak" && \
-    mv "$HOME/FiraCode-Mono/Fira Code Regular Nerd Font Complete Mono.ttf" "$HOME/.termux/font.ttf" && \
-	rm -f "$HOME/FiraCode-Mono.zip" && \
-    rm -rf "$HOME/FiraCode-Mono"
-
-# nnn
-if [[ -x "$(command -v nnn)" ]]; then
-    curl -fsL "https://raw.githubusercontent.com/jarun/nnn/master/plugins/getplugs" | sh
-fi
-
-# frp
-if [[ ! -d "$HOME/frp" ]]; then
-    colorEcho "${BLUE}Installing ${FUCHSIA}frp${BLUE}..."
-    CHECK_URL="https://api.github.com/repos/fatedier/frp/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
-
-    if [[ -n "$REMOTE_VERSION" ]]; then
-        DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/fatedier/frp/releases/download/v${REMOTE_VERSION}/frp_${REMOTE_VERSION}_linux_arm64.tar.gz"
-        curl "${CURL_DOWNLOAD_OPTS[@]}" -o frp.tar.gz "$DOWNLOAD_URL" && \
-            tar -xzf frp.tar.gz -C "$HOME" && \
-            rm frp.tar.gz && \
-            mkdir -p "$HOME/frp" && \
-            cp -rf $"HOME"/frp_*/* "$HOME/frp" && \
-            rm -rf "$HOME"/frp_*/
-    fi
-fi
-# cd "$HOME/frp/" && nohup ./frpc -c ./frpc.ini >/dev/null 2>&1 & disown
-
-# zsh
-if [[ -x "$(command -v zsh)" ]]; then
+# zsh & oh-my-zsh
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}zsh & oh-my-zsh${BLUE}..."
     sh -c "$(curl -fsSL https://github.com/Cabbagec/termux-ohmyzsh/raw/master/install.sh)"
 fi
@@ -187,7 +167,7 @@ if [[ -s "$HOME/.zshrc" ]]; then
     done
 
     # Enable plugins
-    colorEcho "${BLUE}enable plugins..."
+    colorEcho "${BLUE}enable zsh plugins..."
     Plugins="git cp rsync"
 
     [[ "$(command -v git-flow)" ]] && Plugins="${Plugins} git-flow-avh"
@@ -223,22 +203,64 @@ if [[ -s "$HOME/.zshrc" ]]; then
         sed -i "${DeleteBegin},${DeleteEnd}d" "$HOME/.zshrc"
     fi
 
-    sed -i "${LineBegin}a\\${Plugins}" "$HOME/.zshrc"
+    [[ -n "$LineBegin" ]] && sed -i "${LineBegin}a\\${Plugins}" "$HOME/.zshrc"
+
+    # custom configuration
+    if ! grep -q "zsh_custom_conf.sh" "$HOME/.zshrc" 2>/dev/null; then
+        colorEcho "${BLUE}Source custom configuration ${FUCHSIA}~/.dotfiles/zsh/zsh_custom_conf.sh${BLUE} in ${ORANGE}.zshrc${BLUE}..."
+        echo -e "\n# Custom configuration\nsource ~/.dotfiles/zsh/zsh_custom_conf.sh" >> "$HOME/.zshrc"
+    fi
+
+    # sshd auto start
+    if ! grep -q "sshd" "$HOME/.zshrc" 2>/dev/null; then
+        colorEcho "${BLUE}Setting sshd start with zsh..."
+        echo "sshd" >> "$HOME/.zshrc"
+    fi
 fi
 
-# custom configuration
-colorEcho "${BLUE}Source custom configuration ${FUCHSIA}~/.dotfiles/zsh/zsh_custom_conf.sh${BLUE} in ${ORANGE}.zshrc${BLUE}..."
-if ! grep -q "zsh_custom_conf.sh" "$HOME/.zshrc" 2>/dev/null; then
-    echo -e "\n# Custom configuration\nsource ~/.dotfiles/zsh/zsh_custom_conf.sh" >> "$HOME/.zshrc"
+# font: Fira Code Regular Nerd Font Complete Mono
+colorEcho "${BLUE}Installing ${FUCHSIA}FiraCode-Mono${BLUE}..."
+if [[ ! -s "$HOME/FiraCode-Mono/Fira Code Regular Nerd Font Complete Mono.ttf" ]]; then
+    NerdFont_URL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-5.2.0.zip"
+    curl "${CURL_DOWNLOAD_OPTS[@]}" "${NerdFont_URL}" -o "$HOME/FiraCode-Mono.zip" && \
+        mkdir -p "$HOME/FiraCode-Mono" && \
+        unzip -q "$HOME/FiraCode-Mono.zip" -d "$HOME/FiraCode-Mono" && \
+        rm -f "$HOME/FiraCode-Mono.zip"
 fi
+
+if [[ -s "$HOME/FiraCode-Mono/Fira Code Regular Nerd Font Complete Mono.ttf" ]]; then
+    [[ -s "$HOME/.termux/font.ttf" && ! -s "$HOME/.termux/font.ttf.bak" ]] && \
+        mv "$HOME/.termux/font.ttf" "$HOME/.termux/font.ttf.bak"
+
+    cp -f "$HOME/FiraCode-Mono/Fira Code Regular Nerd Font Complete Mono.ttf" "$HOME/.termux/font.ttf"
+fi
+
+# nnn
+if [[ -x "$(command -v nnn)" ]]; then
+    curl -fsL "https://raw.githubusercontent.com/jarun/nnn/master/plugins/getplugs" | sh
+fi
+
+# frp
+if [[ ! -d "$HOME/frp" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}frp${BLUE}..."
+    CHECK_URL="https://api.github.com/repos/fatedier/frp/releases/latest"
+    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
+
+    if [[ -n "$REMOTE_VERSION" ]]; then
+        DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/fatedier/frp/releases/download/v${REMOTE_VERSION}/frp_${REMOTE_VERSION}_linux_arm64.tar.gz"
+        curl "${CURL_DOWNLOAD_OPTS[@]}" -o frp.tar.gz "$DOWNLOAD_URL" && \
+            tar -xzf frp.tar.gz -C "$HOME" && \
+            rm frp.tar.gz && \
+            mkdir -p "$HOME/frp" && \
+            cp -rf "$HOME"/frp_*/* "$HOME/frp" && \
+            rm -rf "$HOME"/frp_*/
+    fi
+fi
+# cd "$HOME/frp/" && nohup ./frpc -c ./frpc.ini >/dev/null 2>&1 & disown
 
 ## webui-aria2
 # colorEcho "${BLUE}Installing ${FUCHSIA}webui-aria2${BLUE}..."
 # git clone https://github.com/ziahamza/webui-aria2 "$HOME/webui-aria2" && \
 #     cd "$HOME/webui-aria2" && node node-server.js
-
-# sshd auto start
-colorEcho "${BLUE}Setting sshd start with zsh..."
-echo "sshd" >> "$HOME/.zshrc"
 
 cd "${CURRENT_DIR}" || exit
