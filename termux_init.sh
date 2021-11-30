@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
-## termux: required storage access permission 
+## termux: required storage access permission
 
-## install openssh
+## install git & openssh
 # pkg up -y && pkg i -y git openssh
+
+## init termux
+# source <(curl -fsSL https://git.io/JPSue) && ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/termux_init.sh
+
 ## start openssh service
 # sshd
 ## ssh port: 8022
@@ -33,9 +37,6 @@
 # ssh <phone>
 # rm -f .ssh/known_hosts && chmod 600 ~/.ssh/*
 
-## init termux
-# source <(curl -fsSL https://git.io/JPSue) && ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/termux_init.sh
-
 [[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
 
 # Load custom functions
@@ -64,8 +65,8 @@ colorEcho "${BLUE}Setting ${FUCHSIA}termux.properties${BLUE}..."
 mkdir -p "$HOME/.termux"
 tee "$HOME/.termux/termux.properties" >/dev/null <<-'EOF'
 extra-keys = [ \
-        ['ESC','/','BACKSLASH',|','HOME','UP','END','PGUP','DEL'], \
-        ['CTRL','ALT','TAB',ENTER','LEFT','DOWN','RIGHT','PGDN','BKSP'] \
+        ['ESC','/','BACKSLASH','|','HOME','UP','END','PGUP','DEL'], \
+        ['CTRL','ALT','TAB','ENTER','LEFT','DOWN','RIGHT','PGDN','BKSP'] \
     ]
 EOF
 
@@ -87,12 +88,13 @@ pkg up -y && \
 # https://github.com/virtual-designer/termux-sudo-without-root
 if [[ ! -x "$(command -v sudo)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}sudo${BLUE}..."
-    git clone --depth=1 "https://github.com/virtual-designer/termux-sudo-without-root" "$HOME/sudo" && \
-        cd "$HOME/sudo" && \
-        apt install -y ./sudo.deb && \
-        chmod +w "$PREFIX/etc/sudoers" && \
-        echo "$(whoami)|All|admin" >> "$PREFIX/etc/sudoers" && \
-        chmod -w "$PREFIX/etc/sudoers"
+    Git_Clone_Update_Branch "virtual-designer/termux-sudo-without-root" "$HOME/sudo"
+    if [[ -s "$HOME/sudo/sudo.deb" ]]; then
+        apt install -y "$HOME/sudo/sudo.deb" && \
+            chmod +w "$PREFIX/etc/sudoers" && \
+            echo "$(whoami)|All|admin" >> "$PREFIX/etc/sudoers" && \
+            chmod -w "$PREFIX/etc/sudoers"
+    fi
 fi
 
 # pacapt
@@ -111,7 +113,7 @@ pkg i -y termux-api
 # nanorc
 if [[ ! -d "$HOME/.local/share/nanorc" ]]; then
     colorEcho "${BLUE}Setting nanorc..."
-    git clone --depth=1 "https://github.com/scopatz/nanorc" "$HOME/.local/share/nanorc"
+    Git_Clone_Update_Branch "scopatz/nanorc" "$HOME/.local/share/nanorc"
     tee "$HOME/.nanorc" >/dev/null <<-EOF
 set titlecolor brightwhite,red
 set statuscolor brightwhite,red
@@ -237,6 +239,8 @@ fi
 
 # nnn
 if [[ -x "$(command -v nnn)" ]]; then
+    find "${XDG_CONFIG_HOME:-$HOME/.config}/nnn" -type f -name "plugins-*.tar.gz" -delete
+    [[ -d "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins" ]] && rm -rf "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins"
     curl -fsL "https://raw.githubusercontent.com/jarun/nnn/master/plugins/getplugs" | sh
 fi
 

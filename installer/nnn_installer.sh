@@ -146,6 +146,8 @@ fi
 # https://github.com/jarun/nnn/tree/master/plugins
 # ${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins
 if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" && -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
+    find "${XDG_CONFIG_HOME:-$HOME/.config}/nnn" -type f -name "plugins-*.tar.gz" -delete
+    [[ -d "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins" ]] && rm -rf "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins"
     curl -fsL "https://raw.githubusercontent.com/jarun/nnn/master/plugins/getplugs" | sh
 fi
 
