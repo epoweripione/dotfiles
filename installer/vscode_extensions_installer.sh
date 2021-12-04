@@ -55,7 +55,9 @@ extensions=(
     ## Javascript
 	"dbaeumer.vscode-eslint"
     ## kubernete/docker
+	"ms-kubernetes-tools.vscode-kubernetes-tools"
 	"ms-azuretools.vscode-docker"
+	"mindaro.mindaro"
 	## Markdown
 	"marp-team.marp-vscode"
 	"evilz.vscode-reveal"
