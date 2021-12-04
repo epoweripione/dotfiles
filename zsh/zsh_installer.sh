@@ -52,6 +52,7 @@ if [[ -x "$(command -v pacman)" ]]; then
 
     # Pre-requisite packages
     PackagesList=(
+        aria2
         axel
         curl
         wget

@@ -65,7 +65,8 @@ fi
 
 # starship config
 if [[ -x "$(command -v starship)" ]]; then
-    cp -f "${MY_SHELL_SCRIPTS}/zsh/themes/starship.toml" "$HOME/.config"
+    [[ ! -d "$HOME/.config" ]] && mkdir -p "$HOME/.config"
+    cp -f "${MY_SHELL_SCRIPTS}/zsh/themes/starship.toml" "$HOME/.config/starship.toml"
 fi
 
 # starship config

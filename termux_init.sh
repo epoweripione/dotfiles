@@ -239,8 +239,12 @@ fi
 
 # nnn
 if [[ -x "$(command -v nnn)" ]]; then
-    find "${XDG_CONFIG_HOME:-$HOME/.config}/nnn" -type f -name "plugins-*.tar.gz" -delete
-    [[ -d "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins" ]] && rm -rf "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins"
+    [[ -d "${XDG_CONFIG_HOME:-$HOME/.config}/nnn" ]] && \
+        find "${XDG_CONFIG_HOME:-$HOME/.config}/nnn" -type f -name "plugins-*.tar.gz" -delete
+
+    [[ -d "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins" ]] && \
+        rm -rf "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins"
+
     curl -fsL "https://raw.githubusercontent.com/jarun/nnn/master/plugins/getplugs" | sh
 fi
 
@@ -264,7 +268,8 @@ fi
 
 ## webui-aria2
 # colorEcho "${BLUE}Installing ${FUCHSIA}webui-aria2${BLUE}..."
-# git clone https://github.com/ziahamza/webui-aria2 "$HOME/webui-aria2" && \
-#     cd "$HOME/webui-aria2" && node node-server.js
+# pkg i -y aria2 nodejs
+# Git_Clone_Update_Branch "ziahamza/webui-aria2" "$HOME/webui-aria2"
+# [[ -d "$HOME/webui-aria2" ]] && cd "$HOME/webui-aria2" && node node-server.js
 
 cd "${CURRENT_DIR}" || exit
