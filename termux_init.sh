@@ -223,7 +223,7 @@ fi
 # font: Fira Code Regular Nerd Font Complete Mono
 colorEcho "${BLUE}Installing ${FUCHSIA}FiraCode-Mono${BLUE}..."
 if [[ ! -s "$HOME/FiraCode-Mono/Fira Code Regular Nerd Font Complete Mono.ttf" ]]; then
-    NerdFont_URL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.1.0.zip"
+    NerdFont_URL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.2.0.zip"
     curl "${CURL_DOWNLOAD_OPTS[@]}" "${NerdFont_URL}" -o "$HOME/FiraCode-Mono.zip" && \
         mkdir -p "$HOME/FiraCode-Mono" && \
         unzip -q "$HOME/FiraCode-Mono.zip" -d "$HOME/FiraCode-Mono" && \

@@ -126,7 +126,7 @@ colorEcho "${BLUE}Downloading ${FUCHSIA}FiraCode Nerd Font Complete Mono${BLUE}.
 # docker run -v /c/DevWorkSpaces/nerd-fonts/Fira_Code_v6.1/ttf/:/in -v /c/DevWorkSpaces/nerd-fonts/patched/:/out nerdfonts/patcher --quiet --careful --complete --mono --adjust-line-height
 # cd /c/DevWorkSpaces/nerd-fonts/patched && zip -r /c/DevWorkSpaces/nerd-fonts/FiraCode-Mono.zip . -i "Fira Code*.ttf"
 curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$HOME/patched-fonts/FiraCode-Mono.zip" \
-		"https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.1.0.zip" &&\
+		"https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.2.0.zip" &&\
 	mkdir -p ~/patched-fonts/FiraCode-Mono && \
 	unzip -q ~/patched-fonts/FiraCode-Mono.zip -d ~/patched-fonts/FiraCode-Mono && \
 	rm -f ~/patched-fonts/FiraCode-Mono.zip
