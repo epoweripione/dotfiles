@@ -26,7 +26,7 @@ if (Test-Path "$InstalledPoshDir\$PoshExec") {
 }
 $ModulePoshPSM = (Get-ChildItem -Path "$InstalledPoshDir" `
     -Filter "oh-my-posh.psm1" -File -Recurse -ErrorAction SilentlyContinue -Force `
-    | Select-Object -First 1).FullName
+    | Sort-Object -Descending | Select-Object -First 1).FullName
 #     | ForEach-Object {$_.FullName})
 if (Test-Path "$ModulePoshPSM") {
     $ModulePoshVersion = Split-Path -Parent $ModulePoshPSM | Split-Path -Leaf
