@@ -2763,6 +2763,16 @@ function dockerPullImages() {
     # for dockerImage in "$@"; do docker pull $dockerImage; done
 }
 
+# Remove all dangling containers & images
+function dockerRemoveDangling() {
+    colorEcho "${BLUE}Removing all dangling containers & images..."
+    dockerps -a | grep -v 'CONTAINER' | awk '{print $1}' | xargs -n1 docker rm
+    docker images | grep -v 'CONTAINER' | awk '{print $1}' | grep '_' | xargs -n1 docker rmi
+
+    yes | docker container prune
+    yes | docker image prune
+}
+
 
 function Get_Read_Array_Options() {
     local runShell
