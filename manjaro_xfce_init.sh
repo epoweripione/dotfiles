@@ -167,7 +167,7 @@ sudo pacman --noconfirm -S powerline-fonts ttf-symbola ttf-fira-code ttf-sarasa-
 colorEchoN "${ORANGE}Download URL for FiraCode-Mono?[${CYAN}Use github by default${ORANGE}]: "
 read -r NerdFont_URL
 [[ -z "$NerdFont_URL" ]] && \
-    NerdFont_URL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-5.2.0.zip"
+    NerdFont_URL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.1.0.zip"
 
 mkdir -p "$HOME/patched-fonts/FiraCode-Mono" && \
     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$HOME/patched-fonts/FiraCode-Mono.zip" ${NerdFont_URL} && \

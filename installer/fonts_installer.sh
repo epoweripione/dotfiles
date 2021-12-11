@@ -122,23 +122,26 @@ mkdir -p ~/patched-fonts
 colorEcho "${BLUE}Downloading ${FUCHSIA}FiraCode Nerd Font Complete Mono${BLUE}..."
 # https://github.com/tonsky/FiraCode
 ## Patch fonts
-# cd ~/nerd-fonts && for font in /c/DevWorkSpaces/nerd-fonts/Fira_Code_v5.2/ttf/*.ttf; do fontforge -script font-patcher -out /c/DevWorkSpaces/nerd-fonts/patched --quiet --careful --complete --mono --adjust-line-height "$font"; done && cd /c/DevWorkSpaces/nerd-fonts/patched && zip -r /c/DevWorkSpaces/nerd-fonts/FiraCode-Mono.zip . -i "Fira Code*.ttf"
-curl "${CURL_DOWNLOAD_OPTS[@]}" https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-5.2.0.zip -o ~/patched-fonts/FiraCode-Mono.zip
-mkdir -p ~/patched-fonts/FiraCode-Mono && \
+# cd ~/nerd-fonts && for font in /c/DevWorkSpaces/nerd-fonts/Fira_Code_v6.1/ttf/*.ttf; do fontforge -script font-patcher -out /c/DevWorkSpaces/nerd-fonts/patched --quiet --careful --complete --mono --adjust-line-height "$font"; done
+# docker run -v /c/DevWorkSpaces/nerd-fonts/Fira_Code_v6.1/ttf/:/in -v /c/DevWorkSpaces/nerd-fonts/patched/:/out nerdfonts/patcher --quiet --careful --complete --mono --adjust-line-height
+# cd /c/DevWorkSpaces/nerd-fonts/patched && zip -r /c/DevWorkSpaces/nerd-fonts/FiraCode-Mono.zip . -i "Fira Code*.ttf"
+curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$HOME/patched-fonts/FiraCode-Mono.zip" \
+		"https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.1.0.zip" &&\
+	mkdir -p ~/patched-fonts/FiraCode-Mono && \
 	unzip -q ~/patched-fonts/FiraCode-Mono.zip -d ~/patched-fonts/FiraCode-Mono && \
 	rm -f ~/patched-fonts/FiraCode-Mono.zip
 
-colorEcho "${BLUE}Downloading ${FUCHSIA}Iosevka Term SS05 Nerd Font Complete Mono${BLUE}..."
-# https://github.com/be5invis/Iosevka
-# ## Patch fonts
-# # cd ~/nerd-fonts && for font in /c/DevWorkSpaces/nerd-fonts/ttf-iosevka-term-ss05-4.0.3/ttf/*.ttf; do fontforge -script font-patcher -out /c/DevWorkSpaces/nerd-fonts/patched --quiet --careful --complete --mono --adjust-line-height "$font"; done && cd /c/DevWorkSpaces/nerd-fonts/patched && zip -r /c/DevWorkSpaces/nerd-fonts/iosevka-term-ss05-Mono.zip . -i "Iosevka Term SS05*.ttf"
-# curl "${CURL_DOWNLOAD_OPTS[@]}" https://github.com/epoweripione/fonts/releases/download/v0.1.0/iosevka-term-ss05-Mono.zip -o ~/patched-fonts/iosevka-term-ss05-Mono.zip
+# colorEcho "${BLUE}Downloading ${FUCHSIA}Iosevka Term SS05 Nerd Font Complete Mono${BLUE}..."
+## https://github.com/be5invis/Iosevka
+# curl "${CURL_DOWNLOAD_OPTS[@]}" https://github.com/epoweripione/fonts/releases/download/v0.1.0/iosevka-term-ss05-Mono.zip -o "$HOME/patched-fonts/iosevka-term-ss05-Mono.zip"
 # mkdir -p ~/patched-fonts/iosevka-term-ss05-Mono && \
 # 	unzip -q ~/patched-fonts/iosevka-term-ss05-Mono.zip -d ~/patched-fonts/iosevka-term-ss05-Mono && \
 # 	rm -f ~/patched-fonts/iosevka-term-ss05-Mono.zip
 
 # Install Script
-curl "${CURL_DOWNLOAD_OPTS[@]}" https://github.com/ryanoasis/nerd-fonts/raw/master/install.sh -o ~/nerdfonts_installer.sh && chmod +x ~/nerdfonts_installer.sh
+curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$HOME/nerdfonts_installer.sh" \
+		"https://github.com/ryanoasis/nerd-fonts/raw/master/install.sh" && \
+	chmod +x "$HOME/nerdfonts_installer.sh"
 
 colorEcho "${BLUE}Installing ${FUCHSIA}Nerd fonts${BLUE}..."
 if [[ "${OS_INFO_TYPE}" == "windows" ]]; then
