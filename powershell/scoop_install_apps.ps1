@@ -187,6 +187,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "php"
         "composer"
         "cacert"
+        "beekeeper-studio"
         "dbeaver"
         "dbgate"
         # "vscode"
@@ -211,6 +212,11 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "screentogif"
         "aida64extreme"
         "cpu-z"
+        "as-ssd"
+        "crystaldiskinfo"
+        "crystaldiskmark"
+        # "crystaldiskinfo-shizuku-edition"
+        # "crystaldiskmark-shizuku-edition"
         "onefetch"
         "winfetch"
         "diffinity"
@@ -271,6 +277,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "typora"
         # "tightvnc"
         "vncviewer"
+        # k8s
+        "lens"
         ## epower
         "chromium-robrich-dev-avx2"
         "chromium-robrich-dev"
