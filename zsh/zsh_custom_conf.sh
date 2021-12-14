@@ -161,10 +161,6 @@ if [[ ! -x "$(command -v calicoctl)" && -x "$(command -v kubectl)" ]]; then
     alias calicoctl="kubectl exec -i -n kube-system calicoctl -- /calicoctl"
 fi
 
-if [[ "$(command -v br)" && -s "${MY_SHELL_SCRIPTS}/conf/broot.toml" ]]; then
-    alias br='br --conf "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/broot.toml"'
-fi
-
 # zsh-command-time
 # If command execution time above min. time, plugins will not output time.
 ZSH_COMMAND_TIME_MIN_SECONDS=3
@@ -628,6 +624,10 @@ fi
 # broot
 if [[ ! "$(command -v br)" && -x "$(command -v broot)" ]]; then
     [[ -s "$HOME/.config/broot/launcher/bash/br" ]] && source "$HOME/.config/broot/launcher/bash/br"
+
+    if [[ "$(command -v br)" && -s "${MY_SHELL_SCRIPTS}/conf/broot.toml" ]]; then
+        alias br='br --conf "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/broot.toml"'
+    fi
 fi
 
 # nnn
