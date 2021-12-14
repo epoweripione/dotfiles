@@ -2767,9 +2767,20 @@ function dockerPullImages() {
 
 # Remove all dangling containers & images
 function dockerRemoveDangling() {
+    local list
+
     colorEcho "${BLUE}Removing all dangling containers & images..."
-    dockerps -a | grep -v 'CONTAINER' | awk '{print $1}' | xargs -n1 docker rm
-    docker images | grep -v 'CONTAINER' | awk '{print $1}' | grep '_' | xargs -n1 docker rmi
+    # container build cache
+    list=$(docker ps -a | grep -v 'CONTAINER' | awk '{print $1}')
+    if [[ -n "${list}" ]]; then
+        docker ps -a | grep -v 'CONTAINER' | awk '{print $1}' | xargs -n1 docker rm
+    fi
+
+    # image build cache
+    list=$(docker images | grep -v 'CONTAINER' | awk '{print $1}' | grep '_')
+    if [[ -n "${list}" ]]; then
+        docker images | grep -v 'CONTAINER' | awk '{print $1}' | grep '_' | xargs -n1 docker rmi
+    fi
 
     yes | docker container prune
     yes | docker image prune
