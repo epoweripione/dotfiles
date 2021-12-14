@@ -2331,10 +2331,12 @@ function App_Installer_Get_Remote() {
     local multi_match_filter=$4
     local remote_content match_urls match_result match_result_type match_result_arch match_result_float match_cnt
 
+    [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
+
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+
     REMOTE_VERSION=""
     REMOTE_DOWNLOAD_URL=""
-
-    [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
     [[ -z "${file_match_pattern}" ]] && file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
     [[ -z "${multi_match_filter}" ]] && multi_match_filter="musl|static"
@@ -2552,7 +2554,7 @@ function App_Installer_Install() {
     # ARCHIVE_EXT ARCHIVE_EXEC_DIR ARCHIVE_EXEC_NAME
     # MAN1_FILE ZSH_COMPLETION_FILE
     #
-    # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/juicefs_installer.sh` as an example
+    # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/juicefs_installer.sh` or `installer/llama_installer.sh` as example
     local CHECK_URL=$1
 
     [[ "${IS_INSTALL}" != "yes" ]] && return 0
@@ -2560,7 +2562,7 @@ function App_Installer_Install() {
     [[ -z "${CHECK_URL}" ]] && CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
 
     # get app remote version & download link that match running platform
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+    # colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
     [[ -z "${REMOTE_DOWNLOAD_URL}" ]] && App_Installer_Get_Remote "${CHECK_URL}"
 
     [[ -z "${REMOTE_VERSION}" || -z "${REMOTE_DOWNLOAD_URL}" ]] && IS_INSTALL="no"
@@ -2825,6 +2827,22 @@ function Get_Git_Clone_Options() {
         while read -r opts; do
             GIT_CLONE_OPTS+=("${opts}")
         done < <(echo "${GIT_CLONE_DEFAULT_OPTION}" | tr ' ' '\n')
+    fi
+}
+
+
+# broot
+# a better tree optimizing for the height of the screen
+function br_tree() {
+    br -c :pt "$@"
+}
+
+# br with git status
+function br_git_status {
+    if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/broot.toml" ]]; then
+        br --conf "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/broot.toml" --git-status
+    else
+        br --git-status
     fi
 }
 

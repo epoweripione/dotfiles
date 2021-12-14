@@ -146,17 +146,17 @@ fi
 #     fi
 # fi
 
-# Better git diffs with FZF
-# https://medium.com/@GroundControl/better-git-diffs-with-fzf-89083739a9cb
-function fzf-git-diff() {
-    ## only work from the root of your git project
-    ## comparing your current branch to master
-    # fzf-git-diff master...
-    ## comparing the changes between two commits
-    #fzf-git-diff 4c674950..6d88a7bfd8
-    local preview='git diff $@ --color=always -- {-1}'
-    git diff "$@" --name-only | ${FZF_REAL_COMMAND:-fzf} -m --preview "$preview"
-}
+## Better git diffs with FZF
+## https://medium.com/@GroundControl/better-git-diffs-with-fzf-89083739a9cb
+# function fzf-git-diff() {
+#     ## only work from the root of your git project
+#     ## comparing your current branch to master
+#     # fzf-git-diff master...
+#     ## comparing the changes between two commits
+#     # fzf-git-diff 4c674950..6d88a7bfd8
+#     local preview='git diff $@ --color=always -- {-1}'
+#     git diff --name-only $@ | ${FZF_REAL_COMMAND:-fzf} -m --preview "$preview"
+# }
 
 # fzf alias
 alias fzf-cat='${FZF_REAL_COMMAND:-fzf} --preview="cat {}"'

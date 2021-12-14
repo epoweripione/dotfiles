@@ -105,15 +105,26 @@ if [[ "${IS_INSTALL}" == "yes" && -n "${DOWNLOAD_URL}" ]]; then
         sudo cp -f "${DOWNLOAD_FILENAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
             sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}"
     fi
+
+    # vscode font
+    FONT_URL="https://raw.githubusercontent.com/Canop/broot/master/resources/icons/vscode/vscode.ttf"
+    FONT_FILE="${WORKDIR}/vscode.ttf"
+    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${FONT_FILE}" "${FONT_URL}"
+
+    curl_download_status=$?
+    if [[ ${curl_download_status} -eq 0 ]]; then
+        mkdir -p "$HOME/.local/share/fonts" && \
+            cp -f "${FONT_FILE}" "$HOME/.local/share/fonts"
+    fi
 fi
 
 # Shell completion
 if [[ "${IS_INSTALL}" == "yes" && -x "$(command -v broot)" ]]; then
     [[ ! -s "$HOME/.config/broot/launcher/bash/br" ]] && broot --install
 
-    if [[ -s "$HOME/.config/broot/conf.hjson" ]]; then
-        sed -i "s/# icon_theme: vscode/icon_theme: vscode/" "$HOME/.config/broot/conf.hjson"
-    fi
+    # if [[ -s "$HOME/.config/broot/conf.hjson" ]]; then
+    #     sed -i "s/# icon_theme: vscode/icon_theme: vscode/" "$HOME/.config/broot/conf.hjson"
+    # fi
 fi
 
 cd "${CURRENT_DIR}" || exit

@@ -1,0 +1,18 @@
+# default_flags = "sdp"
+
+# icon_theme = "vscode"
+
+[[verbs]]
+invocation = "edit"
+key = "ctrl-e"
+shortcut = "e"
+execution = "$EDITOR {file}"
+leave_broot = false
+
+[[verbs]]
+invocation = "git_diff"
+shortcut = "gd"
+key = "enter"
+leave_broot = false
+execution = "git diff {file}"
+apply_to = "file"

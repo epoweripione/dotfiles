@@ -58,3 +58,27 @@ if [[ -x "$(command -v delta)" ]]; then
 
     git config --global interactive.diffFilter "delta --color-only"
 fi
+
+if [[ -x "$(command -v nvim)" ]]; then
+    # git difftool --tool-help
+    # git config --global --unset diff.tool
+    git config --global diff.tool nvimdiff
+    git config --global difftool.nvimdiff.cmd 'nvim -d "$LOCAL" "$REMOTE"'
+    git config --global difftool.prompt false
+
+    git config --global merge.tool nvimdiff
+    git config --global mergetool.nvimdiff.cmd 'nvim -d "$LOCAL" "$REMOTE" "$MERGED" -c '"'"'$wincmd w'"'"' -c '"'"'wincmd J'"'"''
+    # git config --global mergetool.keepBackup false
+    git config --global mergetool.prompt false
+fi
+
+if [[ -x "$(command -v meld)" ]]; then
+    git config --global diff.tool meld
+    git config --global difftool.meld.path "$(which meld)"
+    git config --global difftool.prompt false
+
+    git config --global merge.tool meld
+    git config --global mergetool.meld.path "$(which meld)"
+    # git config --global mergetool.keepBackup false
+    git config --global mergetool.prompt false
+fi
