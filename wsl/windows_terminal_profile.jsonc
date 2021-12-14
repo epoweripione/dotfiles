@@ -37,10 +37,15 @@
     "startupActions": "",
     "focusFollowMouse": true,
 
-    "profiles": {
-        "defaults": {
-            "fontFace": "FiraCode Nerd Font Mono",
-            "fontSize": 12,
+    "profiles":
+    {
+        "defaults":
+        {
+            "font":
+            {
+                "face": "FiraCode Nerd Font Mono",
+                "size": 12
+            },
             "acrylicOpacity": 1.0,
             "useAcrylic": true,
             "antialiasingMode": "grayscale",
@@ -63,7 +68,8 @@
             // JetBrains Darcula,Material,MaterialDark,MaterialDarker,MaterialOcean,OneDark
             // [enum]::GetValues([System.ConsoleColor]) | Foreach-Object {Write-Host $_ -ForegroundColor $_}
         },
-        "list": [
+        "list":
+        [
             {
                 "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
                 "name": "PowerShell Core",
@@ -119,8 +125,35 @@
             }
         ]
     },
+    // Add any keybinding overrides to this array.
+    // To unbind a default keybinding, set the command to "unbound"
+    "actions": [
+        {
+            "command":
+            {
+                "action": "splitPane",
+                "split": "horizontal",
+                "splitMode": "duplicate"
+            },
+                "keys": "alt+h"
+        },
+        {
+            "command":
+            {
+                "action": "splitPane",
+                "split": "vertical",
+                "splitMode": "duplicate"
+            },
+            "keys": "alt+v"
+        },
+        {
+            "command": "unbound",
+            "keys": "alt+enter"
+        }
+    ],
     // Add custom color schemes to this array
-    "schemes": [
+    "schemes":
+    [
         // A profile can override the following color scheme values:
         //   - "foreground"
         //   - "background"
@@ -274,11 +307,5 @@
             "background": "#1e2127",
             "foreground": "#abb2bf"
         }
-    ],
-    // Add any keybinding overrides to this array.
-    // To unbind a default keybinding, set the command to "unbound"
-    "keybindings": [
-        {"keys": ["alt+h"], "command": {"action": "splitPane", "split": "horizontal", "splitMode": "duplicate"}},
-        {"keys": ["alt+v"], "command": {"action": "splitPane", "split": "vertical", "splitMode": "duplicate"}}
     ]
 }
