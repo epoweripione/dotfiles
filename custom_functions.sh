@@ -2767,23 +2767,31 @@ function dockerPullImages() {
 
 # Remove all dangling containers & images
 function dockerRemoveDangling() {
-    local list
+    local list,imageTag
 
     colorEcho "${BLUE}Removing all dangling containers & images..."
     # container build cache
-    list=$(docker ps -a | grep -v 'CONTAINER' | awk '{print $1}')
+    # list=$(sudo docker ps -a | grep -v 'CONTAINER' | awk '{print $1}')
+    list=$(sudo docker ps -aq --filter "status=exited" --filter "status=created")
     if [[ -n "${list}" ]]; then
-        docker ps -a | grep -v 'CONTAINER' | awk '{print $1}' | xargs -n1 docker rm
+        sudo docker ps -aq --filter "status=exited" --filter "status=created" | xargs -n1 sudo docker rm
     fi
 
-    # image build cache
-    list=$(docker images | grep -v 'CONTAINER' | awk '{print $1}' | grep '_')
+    # local images
+    # The RepoDigest field in the image inspect will have a sha256 reference if you pulled the image from a registry
+    # list=$(sudo docker images --format "{{.Repository}}" | grep '_')
+    list=$(sudo docker images --filter "dangling=false" --format "{{.Repository}}" \
+        | xargs -n1 sudo docker image inspect \
+            --format '{{if .RepoTags}}{{index .RepoTags 0}}{{end}} {{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' \
+        | grep -v '@' | sed 's/\s//g')
     if [[ -n "${list}" ]]; then
-        docker images | grep -v 'CONTAINER' | awk '{print $1}' | grep '_' | xargs -n1 docker rmi
+        while read -r imageTag; do
+            sudo docker rmi "${imageTag}"
+        done <<<"${list}"
     fi
 
-    yes | docker container prune
-    yes | docker image prune
+    sudo docker container prune --force
+    sudo docker image prune --force
 }
 
 
