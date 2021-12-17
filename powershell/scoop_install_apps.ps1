@@ -287,6 +287,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "HBuilderXFull"
         "UniExtract2"
         "NewFileTime"
+        "notepad2-zufuliu"
         # "WiseCare365"
         "WiseDataRecovery"
         "WiseDiskCleaner"
