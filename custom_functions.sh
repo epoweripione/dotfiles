@@ -2767,7 +2767,7 @@ function dockerPullImages() {
 
 # Remove all dangling containers & images
 function dockerRemoveDangling() {
-    local list,imageTag
+    local list imageTag
 
     colorEcho "${BLUE}Removing all dangling containers & images..."
     # container build cache
