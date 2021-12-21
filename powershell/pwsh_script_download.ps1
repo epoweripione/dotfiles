@@ -67,29 +67,36 @@ if ($?) {
     Rename-Item -Path ".\dotfiles-main" -NewName ".\dotfiles"
 
     $PWSH_DIR = "~\Documents\PowerShell\Scripts"
-    if (-Not (Test-Path $PWSH_DIR)) {New-Item -path $PWSH_DIR -type Directory | Out-Null}
-    # Copy-Item -Path ".\dotfiles\powershell\*" -Destination $PWSH_DIR -Recurse -Force -Confirm:$false
-    Copy-Item -Path ".\dotfiles\powershell\*.ps1" -Destination $PWSH_DIR
-    Copy-Item -Path ".\dotfiles\wsl\*.ps1" -Destination $PWSH_DIR
-    Copy-Item -Path ".\dotfiles\cross\hosts_accelerate_cn.list" -Destination $PWSH_DIR
+    if (-Not (Test-Path "$PWSH_DIR")) {New-Item -path "$PWSH_DIR" -type Directory | Out-Null}
+    # Copy-Item -Path ".\dotfiles\powershell\*" -Destination "$PWSH_DIR" -Recurse -Force -Confirm:$false
+    Copy-Item -Path ".\dotfiles\powershell\*.ps1" -Destination "$PWSH_DIR"
+    Copy-Item -Path ".\dotfiles\wsl\*.ps1" -Destination "$PWSH_DIR"
+    Copy-Item -Path ".\dotfiles\cross\hosts_accelerate_cn.list" -Destination "$PWSH_DIR"
 
     $CONFIG_DIR = "~\.config"
-    if (-Not (Test-Path $CONFIG_DIR)) {
-        New-Item -path $CONFIG_DIR -type Directory | Out-Null
+    if (-Not (Test-Path "$CONFIG_DIR")) {
+        New-Item -path "$CONFIG_DIR" -type Directory | Out-Null
     }
-    Copy-Item -Path ".\dotfiles\powershell\themes\starship.toml" -Destination $CONFIG_DIR
+    Copy-Item -Path ".\dotfiles\powershell\themes\starship.toml" -Destination "$CONFIG_DIR"
 
     $THEME_DIR = "~\Documents\PowerShell\PoshThemes"
-    if (-Not (Test-Path $THEME_DIR)) {New-Item -path $THEME_DIR -type Directory | Out-Null}
-    Copy-Item -Path ".\dotfiles\powershell\themes\*.psm1" -Destination $THEME_DIR
-    Copy-Item -Path ".\dotfiles\powershell\themes\*.json" -Destination $THEME_DIR
+    if (-Not (Test-Path "$THEME_DIR")) {New-Item -path "$THEME_DIR" -type Directory | Out-Null}
+    Copy-Item -Path ".\dotfiles\powershell\themes\*.psm1" -Destination "$THEME_DIR"
+    Copy-Item -Path ".\dotfiles\powershell\themes\*.json" -Destination "$THEME_DIR"
 
     (Get-Content -path "~\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json" -Raw) `
         -Replace '"type": "git",','"type": "poshgit",' `
         | Set-Content -Path "~\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json"
 
     $IMAGE_DIR = "~\Pictures"
-    Copy-Item -Path ".\dotfiles\wsl\*.jpg" -Destination $IMAGE_DIR
+    Copy-Item -Path ".\dotfiles\wsl\*.jpg" -Destination "$IMAGE_DIR"
+
+    if (Test-Path "~\scoop\apps\clash-for-windows\current\data\parser.js") {
+        $USER_DIR = $env:USERPROFILE -Replace '\\','/'
+        (Get-Content -path "~\scoop\apps\clash-for-windows\current\data\cfw-settings.yaml" -Raw) `
+        -Replace 'C:/Users/Leung',"$USER_DIR" `
+        | Set-Content -Path "~\scoop\apps\clash-for-windows\current\data\cfw-settings.yaml"
+    }
 
     Remove-Item -Path ".\dotfiles" -Recurse -Force -Confirm:$false
     Remove-Item -Path ".\dotfiles.zip" -Force -Confirm:$false
