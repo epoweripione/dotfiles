@@ -2369,27 +2369,6 @@ function App_Installer_Get_Remote() {
         match_urls=$(echo "${match_urls}" | grep -Evi "${OS_INFO_UNMATCH_COND}")
     fi
 
-    # [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
-    # [[ -z "${OS_INFO_ARCH}" ]] && get_arch
-    # [[ -z "${OS_INFO_FLOAT}" ]] && get_arch_float
-    # OS_INFO_REPLACE_RULE=(
-    #     386=i686
-    #     amd64=x86_64
-    #     arm=armv7
-    #     ppc64le=powerpc64le
-    # )
-    # OS_INFO_MATCH_TYPE="${OS_INFO_TYPE}"
-    # OS_INFO_MATCH_ARCH="${OS_INFO_ARCH}"
-    # OS_INFO_MATCH_FLOAT="${OS_INFO_FLOAT}"
-    # for TargetRule in "${OS_INFO_REPLACE_RULE[@]}"; do
-    #     [[ -z "${TargetRule}" ]] && continue
-    #     RuleMatch=$(echo "${TargetRule}" | cut -d"=" -f1)
-    #     RuleReplace=$(echo "${TargetRule}" | cut -d"=" -f2)
-    #     OS_INFO_MATCH_TYPE=$(echo "${OS_INFO_MATCH_TYPE}" | sed "s/${RuleMatch}/${RuleReplace}/g")
-    #     OS_INFO_MATCH_ARCH=$(echo "${OS_INFO_MATCH_ARCH}" | sed "s/${RuleMatch}/${RuleReplace}/g")
-    #     OS_INFO_MATCH_FLOAT=$(echo "${OS_INFO_MATCH_FLOAT}" | sed "s/${RuleMatch}/${RuleReplace}/g")
-    # done
-
     match_result_type=""
     match_result_arch=""
     match_result_float=""

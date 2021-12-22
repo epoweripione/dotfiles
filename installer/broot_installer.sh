@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 
 # Broot: A new way to see and navigate directory trees
@@ -76,45 +78,79 @@ elif [[ "${INSTALL_FROM_SOURCE}" == "no" ]]; then
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 
+    # case "${OS_INFO_TYPE}" in
+    #     linux)
+    #         case "${OS_INFO_ARCH}" in
+    #             arm)
+    #                 DOWNLOAD_URL="https://dystroy.org/broot/download/armv7-unknown-linux-gnueabihf/broot"
+    #                 ;;
+    #             arm64)
+    #                 DOWNLOAD_URL="https://dystroy.org/broot/download/aarch64-linux-android/broot"
+    #                 ;;
+    #             *)
+    #                 DOWNLOAD_URL="https://dystroy.org/broot/download/x86_64-unknown-linux-musl/broot"
+    #                 ;;
+    #         esac
+    #         ;;
+    #     windows)
+    #         DOWNLOAD_URL="https://dystroy.org/broot/download/x86_64-pc-windows-gnu/broot.exe"
+    #         ;;
+    # esac
+
     case "${OS_INFO_TYPE}" in
         linux)
             case "${OS_INFO_ARCH}" in
                 arm)
-                    DOWNLOAD_URL="https://dystroy.org/broot/download/armv7-unknown-linux-gnueabihf/broot"
+                    ARCHIVE_EXEC_DIR="armv7-unknown-linux-gnueabihf"
                     ;;
                 arm64)
-                    DOWNLOAD_URL="https://dystroy.org/broot/download/aarch64-linux-android/broot"
+                    ARCHIVE_EXEC_DIR="aarch64-linux-android"
                     ;;
                 *)
-                    DOWNLOAD_URL="https://dystroy.org/broot/download/x86_64-unknown-linux-musl/broot"
+                    ARCHIVE_EXEC_DIR="x86_64-unknown-linux-musl"
                     ;;
             esac
             ;;
         windows)
-            DOWNLOAD_URL="https://dystroy.org/broot/download/x86_64-pc-windows-gnu/broot.exe"
+            ARCHIVE_EXEC_DIR="x86_64-pc-windows-gnu"
             ;;
     esac
+
+    REMOTE_DOWNLOAD_URL="https://github.com/Canop/broot/releases/download/v${REMOTE_VERSION}/broot_${REMOTE_VERSION}.zip"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" && -n "${DOWNLOAD_URL}" ]]; then
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+# if [[ "${IS_INSTALL}" == "yes" && -n "${DOWNLOAD_URL}" ]]; then
+#     colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
+#     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} -eq 0 ]]; then
-        sudo cp -f "${DOWNLOAD_FILENAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-            sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}"
-    fi
+#     curl_download_status=$?
+#     if [[ ${curl_download_status} -eq 0 ]]; then
+#         sudo cp -f "${DOWNLOAD_FILENAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
+#             sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}"
+#     fi
 
-    # vscode font
-    FONT_URL="https://raw.githubusercontent.com/Canop/broot/master/resources/icons/vscode/vscode.ttf"
-    FONT_FILE="${WORKDIR}/vscode.ttf"
-    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${FONT_FILE}" "${FONT_URL}"
+#     # vscode font
+#     FONT_URL="https://raw.githubusercontent.com/Canop/broot/master/resources/icons/vscode/vscode.ttf"
+#     FONT_FILE="${WORKDIR}/vscode.ttf"
+#     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${FONT_FILE}" "${FONT_URL}"
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} -eq 0 ]]; then
-        mkdir -p "$HOME/.local/share/fonts" && \
-            cp -f "${FONT_FILE}" "$HOME/.local/share/fonts"
+#     curl_download_status=$?
+#     if [[ ${curl_download_status} -eq 0 ]]; then
+#         mkdir -p "$HOME/.local/share/fonts" && \
+#             cp -f "${FONT_FILE}" "$HOME/.local/share/fonts"
+#     fi
+# fi
+
+if [[ "${IS_INSTALL}" == "yes" && -n "${ARCHIVE_EXEC_DIR}" ]]; then
+    if App_Installer_Install; then
+        # vscode font
+        FONT_FILE=$(find "${WORKDIR}" -type f -name "vscode.ttf")
+        if [[ -s "${FONT_FILE}" ]]; then
+            mkdir -p "$HOME/.local/share/fonts" && \
+                cp -f "${FONT_FILE}" "$HOME/.local/share/fonts"
+        fi
+    else
+        colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
     fi
 fi
 
