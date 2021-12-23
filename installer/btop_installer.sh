@@ -69,21 +69,21 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 
     case "${OS_INFO_ARCH}" in
         amd64)
-            REMOTE_FILENAME="btop-${REMOTE_VERSION}-x86_64-${OS_INFO_TYPE}-musl.${ARCHIVE_EXT}"
+            REMOTE_FILENAME="btop-x86_64-${OS_INFO_TYPE}-musl.${ARCHIVE_EXT}"
             ;;
         386)
-            REMOTE_FILENAME="btop-${REMOTE_VERSION}-i686-${OS_INFO_TYPE}-musl.${ARCHIVE_EXT}"
+            REMOTE_FILENAME="btop-i686-${OS_INFO_TYPE}-musl.${ARCHIVE_EXT}"
             ;;
         arm64)
-            REMOTE_FILENAME="btop-${REMOTE_VERSION}-aarch64-${OS_INFO_TYPE}-musl.${ARCHIVE_EXT}"
+            REMOTE_FILENAME="btop-aarch64-${OS_INFO_TYPE}-musl.${ARCHIVE_EXT}"
             ;;
         arm)
             [[ "${OS_INFO_FLOAT}" == "hardfloat" ]] && \
-                REMOTE_FILENAME="btop-${REMOTE_VERSION}-armv7r-${OS_INFO_TYPE}-musleabihf.${ARCHIVE_EXT}" || \
-                REMOTE_FILENAME="btop-${REMOTE_VERSION}-armv7m-${OS_INFO_TYPE}-musleabi.${ARCHIVE_EXT}"
+                REMOTE_FILENAME="btop-armv7r-${OS_INFO_TYPE}-musleabihf.${ARCHIVE_EXT}" || \
+                REMOTE_FILENAME="btop-armv7m-${OS_INFO_TYPE}-musleabi.${ARCHIVE_EXT}"
             ;;
         *)
-            REMOTE_FILENAME="btop-${REMOTE_VERSION}-${OS_INFO_ARCH}-${OS_INFO_TYPE}-musl.${ARCHIVE_EXT}"
+            REMOTE_FILENAME="btop-${OS_INFO_ARCH}-${OS_INFO_TYPE}-musl.${ARCHIVE_EXT}"
             ;;
     esac
 

@@ -50,7 +50,8 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     # curl -fsSL https://starship.rs/install.sh | bash
 
     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/starship_install.sh" "https://starship.rs/install.sh" && \
-        bash "${WORKDIR}/starship_install.sh" --force
+        chmod +x "${WORKDIR}/starship_install.sh" && \
+        "${WORKDIR}/starship_install.sh" --force
 
     ## config
     # mkdir -p ~/.config && touch ~/.config/starship.toml
