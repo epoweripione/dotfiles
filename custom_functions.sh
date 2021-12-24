@@ -2533,7 +2533,7 @@ function App_Installer_Install() {
     # ARCHIVE_EXT ARCHIVE_EXEC_DIR ARCHIVE_EXEC_NAME
     # MAN1_FILE ZSH_COMPLETION_FILE
     #
-    # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/juicefs_installer.sh` or `installer/llama_installer.sh` as example
+    # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/juicefs_installer.sh` or `installer/lazygit_installer.sh` as example
     local CHECK_URL=$1
 
     [[ "${IS_INSTALL}" != "yes" ]] && return 0

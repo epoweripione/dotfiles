@@ -167,6 +167,7 @@ AppList=(
     "exa"
     "fd"
     "git-delta"
+    "lazygit"
     "lnav"
     "nano"
     "navi"

@@ -161,6 +161,8 @@ if [[ ! -x "$(command -v calicoctl)" && -x "$(command -v kubectl)" ]]; then
     alias calicoctl="kubectl exec -i -n kube-system calicoctl -- /calicoctl"
 fi
 
+[[ -x "$(command -v lazygit)" ]] && alias lg='lazygit'
+
 # zsh-command-time
 # If command execution time above min. time, plugins will not output time.
 ZSH_COMMAND_TIME_MIN_SECONDS=3
