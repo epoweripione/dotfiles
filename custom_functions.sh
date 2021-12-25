@@ -2759,7 +2759,7 @@ function dockerRemoveDangling() {
     # local images
     # The RepoDigest field in the image inspect will have a sha256 reference if you pulled the image from a registry
     # list=$(sudo docker images --format "{{.Repository}}" | grep '_')
-    list=$(sudo docker images --filter "dangling=false" --format "{{.Repository}}" \
+    list=$(sudo docker images --filter "dangling=false" --format "{{.Repository}}:{{.Tag}}" \
         | xargs -n1 sudo docker image inspect \
             --format '{{if .RepoTags}}{{index .RepoTags 0}}{{end}} {{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' \
         | grep -v '@' | sed 's/\s//g')
