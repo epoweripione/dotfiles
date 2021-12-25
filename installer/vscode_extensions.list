@@ -70,6 +70,7 @@ sidthesloth.html5-boilerplate
 stylelint.vscode-stylelint
 vincaslt.highlight-matching-tag
 formulahendry.auto-rename-tag
+bradlc.vscode-tailwindcss
 ## JAVA
 redhat.java
 vscjava.vscode-java-debug
@@ -101,6 +102,10 @@ nrwl.angular-console
 ## ionic
 loiane.ionic-extension-pack
 msjsdiag.cordova-tools
+## Svelte
+svelte.svelte-vscode
+ardenivanov.svelte-intellisense
+fivethree.vscode-svelte-snippets
 ## Vue
 johnsoncodehk.volar
 dariofuzinato.vue-peek
@@ -129,6 +134,7 @@ yzane.markdown-pdf
 ## nginx
 shanoor.vscode-nginx
 ## Node
+christian-kohler.npm-intellisense
 eg2.vscode-npm-script
 leizongmin.node-module-intellisense
 ## PHP
