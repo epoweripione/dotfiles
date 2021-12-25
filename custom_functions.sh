@@ -2756,6 +2756,9 @@ function dockerRemoveDangling() {
         sudo docker ps -aq --filter "status=exited" --filter "status=created" | xargs -n1 sudo docker rm
     fi
 
+    sudo docker container prune --force
+    sudo docker image prune --force
+
     # local images
     # The RepoDigest field in the image inspect will have a sha256 reference if you pulled the image from a registry
     # list=$(sudo docker images --format "{{.Repository}}" | grep '_')
@@ -2768,9 +2771,6 @@ function dockerRemoveDangling() {
             sudo docker rmi "${imageTag}"
         done <<<"${list}"
     fi
-
-    sudo docker container prune --force
-    sudo docker image prune --force
 }
 
 
