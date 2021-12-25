@@ -54,7 +54,7 @@ if [[ -z "$SUB_LIST_LINE" ]]; then
         fi
     done
 else
-    SUB_LIST_CONTENT=$(sed '/^$/d' "${SUB_LIST_FILE}")
+    SUB_LIST_CONTENT=$(sed -e '/^$/d' -e '/^#/d' "${SUB_LIST_FILE}")
     SUB_LIST_COUNT=$(echo "${SUB_LIST_CONTENT}" | wc -l)
 
     # random line
