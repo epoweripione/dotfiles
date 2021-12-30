@@ -187,6 +187,7 @@ AppInstaller="${MY_SHELL_SCRIPTS}/installer/tmux_installer.sh"
 [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]] && IS_UPDATE_ONLY="no" || IS_UPDATE_ONLY="yes"
 AppList=(
     "curlie"
+    "fq"
     "git-lfs"
     "httpie"
     "httpie-go"
