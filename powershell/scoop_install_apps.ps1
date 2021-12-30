@@ -276,10 +276,13 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "marktext"
         "notable"
         "typora"
+        ## VNC
         # "tightvnc"
         "vncviewer"
-        # k8s
+        ## k8s
         "lens"
+        ## images & videos
+        "darktable"
         ## epower
         "chromium-robrich-dev-avx2"
         "chromium-robrich-dev"
