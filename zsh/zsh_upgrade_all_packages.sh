@@ -172,6 +172,7 @@ AppList=(
     "nano"
     "navi"
     "nnn"
+    "yq"
     "zoxide"
 )
 for Target in "${AppList[@]}"; do

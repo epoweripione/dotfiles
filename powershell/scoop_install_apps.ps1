@@ -262,6 +262,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "wget"
         "winmtr"
         "zoxide"
+        "jq"
+        "yq"
         "trafficmonitor"
         "treesize-free"
         # "windterm"

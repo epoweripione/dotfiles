@@ -24,6 +24,17 @@ fi
 [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 
+# yq
+if [[ ! -x "$(command -v yq)" ]]; then
+    AppInstaller="${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/yq_installer.sh"
+    [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
+fi
+
+if [[ ! -x "$(command -v yq)" ]]; then
+    colorEcho "${FUCHSIA}yq${RED} is not installed!"
+    exit 1
+fi
+
 
 COPY_TO_DIR=${1:-""}
 TARGET_CONFIG_FILE=${2:-"/etc/clash/clash_provider.yml"}
@@ -550,6 +561,13 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 done <<<"${FILL_LINES}"
 
 # delete empty group
+GROUP_CNT=$(yq e '.proxy-groups | length' "${TARGET_CONFIG_FILE}")
+for ((i=0; i < GROUP_CNT; ++i)); do
+    GROUP_NAME=$(yq e ".proxy-groups[$i].name" "${TARGET_CONFIG_FILE}")
+    GROUP_PROXIES=$(yq e ".proxy-groups[$i].proxies // \"\"" "${TARGET_CONFIG_FILE}")
+    [[ -z "${GROUP_PROXIES}" ]] && PROXY_EMPTY_GROUP+=("${GROUP_NAME}")
+done
+
 for TargetGroup in "${PROXY_EMPTY_GROUP[@]}"; do
     [[ -z "${TargetGroup}" ]] && continue
     sed -i "/^\s*\-\s*${TargetGroup}$/d" "${TARGET_CONFIG_FILE}"
