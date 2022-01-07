@@ -79,7 +79,9 @@ if [[ -x "$(command -v pacman)" ]]; then
         glibc-langpack-en
         glibc-locale-source
         bc
+        dstat
         htop
+        inxi
         jq
         lsof
         make
