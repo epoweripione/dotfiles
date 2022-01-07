@@ -36,6 +36,9 @@ npm install -g cnpm
 colorEcho "${BLUE}Installing ${FUCHSIA}cnpm${BLUE}..."
 npm install -g pnpm
 
+colorEcho "${BLUE}Installing ${FUCHSIA}npm-check-updates${BLUE}..."
+npm install -g npm-check-updates
+
 colorEcho "${BLUE}Installing ${FUCHSIA}npm-check es-checker eslint jslint jshint standard${BLUE}..."
 npm install -g npm-check es-checker eslint jslint jshint standard
 

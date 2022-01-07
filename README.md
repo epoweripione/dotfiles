@@ -27,3 +27,10 @@ or
 
 ## Update
 `source <(curl -fsSL --connect-timeout 5 --max-time 15 https://git.io/JPSue) && ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/zsh/zsh_upgrade_all_packages.sh`
+
+## Upgrading npm dependencies
+1. Use `npm outdated` to discover dependencies that are out of date.
+2. Use `npm update` to perform safe dependency upgrades.
+3. Use `npm install <packagename>@latest` to upgrade to the latest major version of a package.
+4. Use `npm install -g npm-check-updates` to install the `npm-check-updates` package globally.
+5. Use `npx npm-check-updates -u` and `npm install` to upgrade all dependencies to their latest major versions.

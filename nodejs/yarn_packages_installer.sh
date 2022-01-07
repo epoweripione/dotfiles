@@ -62,6 +62,9 @@ yarn config set emoji true
 # By default that will be: ~/.config/yarn/global
 
 # Install global packages with binaries
+colorEcho "${BLUE}Installing ${FUCHSIA}npm-check-updates${BLUE}..."
+yarn global add npm-check-updates
+
 colorEcho "${BLUE}Installing ${FUCHSIA}es-checker eslint tslint jslint jshint standard${BLUE}..."
 yarn global add es-checker eslint tslint jslint jshint standard
 
