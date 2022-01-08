@@ -287,7 +287,20 @@ fi
 
 if [[ -x "$(command -v tldr)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}tldr cheatsheets${BLUE}..."
-    tldr --update
+    # tldr --update
+    case "${OS_INFO_TYPE}" in
+        darwin)
+            TLDR_PAGES="$HOME/Library/Application Support/tldr"
+            ;;
+        windows)
+            # TLDR_PAGES="$HOME/AppData/Roaming/tldr"
+            TLDR_PAGES=""
+            ;;
+        *)
+            TLDR_PAGES="$HOME/.local/share/tldr"
+            ;;
+    esac
+    [[ -n "${TLDR_PAGES}" ]] && Git_Clone_Update_Branch "tldr-pages/tldr" "${TLDR_PAGES}"
 fi
 
 if [[ -n "$ZSH" ]]; then
