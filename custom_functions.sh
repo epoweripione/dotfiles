@@ -2599,7 +2599,7 @@ function App_Installer_Install() {
                 done <<<"${CP_FILE_LIST}"
             fi
         else
-            colorEcho "${RED}  Can't find ${FUCHSIA}${ARCHIVE_EXEC_NAME}${RED} in downloaded files!"
+            colorEcho "${RED}  Can't find ${FUCHSIA}${ARCHIVE_EXEC_NAME}${RED} in downloaded file ${YELLOW}${DOWNLOAD_FILENAME}!"
             return 1
         fi
     else

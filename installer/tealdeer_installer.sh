@@ -62,7 +62,6 @@ if [[ "${INSTALL_FROM_SOURCE}" == "yes" ]]; then
     [[ ! -x "$(command -v cargo)" && -x "$(command -v brew)" ]] && brew install "${APP_INSTALL_NAME}"
 elif [[ "${INSTALL_FROM_SOURCE}" == "no" ]]; then
     if App_Installer_Get_Remote "https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest" 'tealdeer-[^"]+'; then
-        echo "${REMOTE_DOWNLOAD_URL}"
         if App_Installer_Install; then
             :
         else
