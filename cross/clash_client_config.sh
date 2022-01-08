@@ -47,6 +47,9 @@ else
     fi
 fi
 
+# fix "command not found" when running via cron
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
 # jq
 if [[ ! -x "$(command -v jq)" ]]; then
     if checkPackageNeedInstall "jq"; then

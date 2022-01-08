@@ -24,6 +24,9 @@ fi
 [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 
+# fix "command not found" when running via cron
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
 # yq
 if [[ ! -x "$(command -v yq)" ]]; then
     AppInstaller="${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/yq_installer.sh"
