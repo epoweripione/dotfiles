@@ -203,11 +203,10 @@ if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" && -x "$(command -v ${E
 
     # use cheatsheets from tldr: https://github.com/tldr-pages/tldr
     # navi --tldr <query>
-    if [[ ! -x "$(command -v tldr)" && -x "$(command -v cargo)" ]]; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}tldr${BLUE}..."
-        cargo install tealdeer
-    fi
-    [[ -x "$(command -v tldr)" ]] && tldr --update
+    # tealdeer: A very fast implementation of tldr in Rust
+    # https://github.com/dbrgn/tealdeer
+    AppInstaller="${MY_SHELL_SCRIPTS}/installer/tealdeer_installer.sh"
+    [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
 
     # use cheatsheets from cheat.sh: https://github.com/chubin/cheat.sh
     # navi --cheatsh <query>

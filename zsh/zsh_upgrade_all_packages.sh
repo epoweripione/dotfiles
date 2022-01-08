@@ -301,6 +301,16 @@ if [[ -x "$(command -v tldr)" ]]; then
             ;;
     esac
     [[ -n "${TLDR_PAGES}" ]] && Git_Clone_Update_Branch "tldr-pages/tldr" "${TLDR_PAGES}"
+
+    # tealdeer Pages cache
+    if tldr -v | grep -q 'tealdeer'; then
+        # tldr --show-paths
+        if [[ ! -L "$HOME/.cache/tealdeer/tldr-pages" && -d "${TLDR_PAGES}" ]]; then
+            [[ -d "$HOME/.cache/tealdeer/tldr-pages" ]] && rm -rf "$HOME/.cache/tealdeer/tldr-pages"
+            mkdir -p "$HOME/.cache/tealdeer" && \
+                ln -s "${TLDR_PAGES}" "$HOME/.cache/tealdeer/tldr-pages" || true
+        fi
+    fi
 fi
 
 if [[ -n "$ZSH" ]]; then

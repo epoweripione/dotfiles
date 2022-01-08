@@ -2519,6 +2519,9 @@ function App_Installer_Reset() {
     REMOTE_VERSION=""
     VERSION_FILENAME=""
 
+    INSTALL_FROM_SOURCE="no"
+    EXEC_FULL_NAME=""
+
     REMOTE_DOWNLOAD_URL=""
 }
 
@@ -2550,6 +2553,7 @@ function App_Installer_Install() {
 
     [[ "${IS_INSTALL}" != "yes" ]] && return 0
 
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
     # set the app execute filename in archive
     [[ -z "${ARCHIVE_EXEC_NAME}" ]] && ARCHIVE_EXEC_NAME="${EXEC_INSTALL_NAME}"
 
