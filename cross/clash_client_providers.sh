@@ -25,7 +25,17 @@ fi
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 
 # fix "command not found" when running via cron
-PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+DirList=(
+    "/usr/local/sbin"
+    "/usr/local/bin"
+    "/usr/sbin"
+    "/usr/bin"
+    "/sbin"
+    "/bin"
+)
+for TargetDir in "${DirList[@]}"; do
+    [[ -d "${TargetDir}" && ":$PATH:" != *":${TargetDir}:"* ]] && PATH="${TargetDir}:$PATH"
+done
 
 # yq
 if [[ ! -x "$(command -v yq)" ]]; then
@@ -119,7 +129,17 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     colorEcho "${BLUE}  Getting ${FUCHSIA}${TARGET_FILE}${BLUE}..."
     DOWNLOAD_FILE="${WORKDIR}/${TARGET_FILE}.yml"
 
-    curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+    if echo "${TARGET_URL}" | grep -q "^http"; then
+        curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+    else
+        if [[ -s "/etc/clash/${TARGET_URL}" ]]; then
+            cp "/etc/clash/${TARGET_URL}" "${DOWNLOAD_FILE}"
+        elif [[ -s "${TARGET_URL}" ]]; then
+            cp "${TARGET_URL}" "${DOWNLOAD_FILE}"
+        else
+            continue
+        fi
+    fi
 
     curl_download_status=$?
     if [[ ${curl_download_status} != 0 ]]; then
