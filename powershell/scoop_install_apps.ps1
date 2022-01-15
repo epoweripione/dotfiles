@@ -205,6 +205,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "bulk-rename-utility"
         "snipaste-beta"
         "ffmpeg"
+        "mpc-be"
         "vlc"
         "potplayer"
         "captura"
