@@ -67,6 +67,15 @@ if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
     npm config delete node_inspector_cdnurl
 fi
 
+
+# pnpm
+if [[ -x "$(command -v npm)" ]]; then
+    colorEcho "${BLUE}Setting pnpm config..."
+    mkdir -p "$HOME/.pnpm-store"
+    pnpm config set store-dir "$HOME/.pnpm-store"
+fi
+
+
 ## show all defaults
 # npm config ls -l
 npm config list

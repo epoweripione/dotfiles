@@ -33,7 +33,7 @@ fi
 colorEcho "${BLUE}Installing ${FUCHSIA}cnpm${BLUE}..."
 npm install -g cnpm
 
-colorEcho "${BLUE}Installing ${FUCHSIA}cnpm${BLUE}..."
+colorEcho "${BLUE}Installing ${FUCHSIA}pnpm${BLUE}..."
 npm install -g pnpm
 
 colorEcho "${BLUE}Installing ${FUCHSIA}npm-check-updates${BLUE}..."
