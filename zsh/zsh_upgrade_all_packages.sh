@@ -172,6 +172,7 @@ AppList=(
     "nano"
     "navi"
     "nnn"
+    "tealdeer"
     "yq"
     "zoxide"
 )
