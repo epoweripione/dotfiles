@@ -81,7 +81,6 @@ $EnableModules = @(
     "Posh-git"
     "Terminal-Icons"
     "PSEverything"
-    "oh-my-posh"
 )
 
 foreach ($TargetModule in $EnableModules) {
@@ -90,8 +89,37 @@ foreach ($TargetModule in $EnableModules) {
     }
 }
 
-# theme
+# oh-my-posh theme
 Write-Host "Setting powershell theme..." -ForegroundColor Blue
+@'
+
+# Use github mirror to download oh-my-posh executable
+$PoshExec = "oh-my-posh"
+if ($PSVersionTable.PSEdition -ne "Core" -or $IsWindows) {
+    $PoshExec = "oh-my-posh.exe"
+}
+$InstalledPoshDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
+$InstalledPoshVersion = "0.0.0"
+if (Test-Path "$InstalledPoshDir\$PoshExec") {
+    $InstalledPoshVersion = & "$InstalledPoshDir\$PoshExec" --version
+}
+$ModulePoshPSM = (Get-ChildItem -Path "$InstalledPoshDir" `
+    -Filter "oh-my-posh.psm1" -File -Recurse -ErrorAction SilentlyContinue -Force `
+    | Sort-Object -Descending | Select-Object -First 1).FullName
+#     | ForEach-Object {$_.FullName})
+if (Test-Path "$ModulePoshPSM") {
+    $ModulePoshVersion = Split-Path -Parent $ModulePoshPSM | Split-Path -Leaf
+    if ([System.Version]"$ModulePoshVersion" -gt [System.Version]"$InstalledPoshVersion") {
+        (Get-Content -path "$ModulePoshPSM" -Raw) `
+            -Replace 'https://github.com/jandedobbeleer/oh-my-posh/','https://download.fastgit.org/jandedobbeleer/oh-my-posh/' `
+            -Replace 'Invoke-WebRequest \$Url -Out \$Destination','curl -fSL -# -o $Destination $Url' `
+            -Replace 'Invoke-WebRequest -OutFile \$tmp \$themesUrl','curl -fSL -# -o $tmp $themesUrl' `
+            | Set-Content -Path "$ModulePoshPSM"
+    }
+}
+'@ | Tee-Object $PROFILE -Append | Out-Null
+
+Add-Content $PROFILE "`nImport-Module oh-my-posh"
 Add-Content $PROFILE '$env:POSH_GIT_ENABLED = $true'
 # Add-Content $PROFILE "Set-PoshPrompt -Theme powerlevel10k_rainbow"
 
@@ -105,7 +133,7 @@ if (-Not (Test-Path $THEME_FILE)) {
 }
 
 if (Test-Path $THEME_FILE) {
-    Add-Content $PROFILE "`nSet-PoshPrompt -Theme $THEME_FILE"
+    Add-Content $PROFILE "`nSet-PoshPrompt -Theme `"$THEME_FILE`""
 }
 
 # Custom

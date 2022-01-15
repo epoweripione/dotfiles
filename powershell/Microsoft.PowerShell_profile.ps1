@@ -33,8 +33,8 @@ if (Test-Path "$ModulePoshPSM") {
     if ([System.Version]"$ModulePoshVersion" -gt [System.Version]"$InstalledPoshVersion") {
         (Get-Content -path "$ModulePoshPSM" -Raw) `
             -Replace 'https://github.com/jandedobbeleer/oh-my-posh/','https://download.fastgit.org/jandedobbeleer/oh-my-posh/' `
-            -Replace 'Invoke-WebRequest \$Url -Out \$Destination','curl -fSL --progress -o $Destination $Url' `
-            -Replace 'Invoke-WebRequest -OutFile \$tmp \$themesUrl','curl -fSL --progress -o $tmp $themesUrl' `
+            -Replace 'Invoke-WebRequest \$Url -Out \$Destination','curl -fSL -# -o $Destination $Url' `
+            -Replace 'Invoke-WebRequest -OutFile \$tmp \$themesUrl','curl -fSL -# -o $tmp $themesUrl' `
             | Set-Content -Path "$ModulePoshPSM"
     }
 }
