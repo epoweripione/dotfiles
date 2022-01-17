@@ -19,15 +19,23 @@ $PoshExec = "oh-my-posh"
 if ($PSVersionTable.PSEdition -ne "Core" -or $IsWindows) {
     $PoshExec = "oh-my-posh.exe"
 }
-$InstalledPoshDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
+
+if (Test-Path "$HOME\.oh-my-posh") {
+    $InstalledPoshDir = "$HOME\.oh-my-posh"
+} else {
+    $InstalledPoshDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
+}
+
 $InstalledPoshVersion = "0.0.0"
 if (Test-Path "$InstalledPoshDir\$PoshExec") {
     $InstalledPoshVersion = & "$InstalledPoshDir\$PoshExec" --version
 }
+
 $ModulePoshPSM = (Get-ChildItem -Path "$InstalledPoshDir" `
     -Filter "oh-my-posh.psm1" -File -Recurse -ErrorAction SilentlyContinue -Force `
     | Sort-Object -Descending | Select-Object -First 1).FullName
 #     | ForEach-Object {$_.FullName})
+
 if (Test-Path "$ModulePoshPSM") {
     $ModulePoshVersion = Split-Path -Parent $ModulePoshPSM | Split-Path -Leaf
     if ([System.Version]"$ModulePoshVersion" -gt [System.Version]"$InstalledPoshVersion") {
