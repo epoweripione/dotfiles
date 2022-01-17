@@ -583,19 +583,6 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     LINE_START=$((TARGET_LINE + 1))
 done <<<"${FILL_LINES}"
 
-# delete empty group
-GROUP_CNT=$(yq e '.proxy-groups | length' "${TARGET_CONFIG_FILE}")
-for ((i=0; i < GROUP_CNT; ++i)); do
-    GROUP_NAME=$(yq e ".proxy-groups[$i].name" "${TARGET_CONFIG_FILE}")
-    GROUP_PROXIES=$(yq e ".proxy-groups[$i].proxies // \"\"" "${TARGET_CONFIG_FILE}")
-    [[ -z "${GROUP_PROXIES}" ]] && PROXY_EMPTY_GROUP+=("${GROUP_NAME}")
-done
-
-for TargetGroup in "${PROXY_EMPTY_GROUP[@]}"; do
-    [[ -z "${TargetGroup}" ]] && continue
-    sed -i "/^\s*\-\s*${TargetGroup}$/d" "${TARGET_CONFIG_FILE}"
-done
-
 ## Fix: invalid leading UTF-8 octet
 ## https://stackoverflow.com/questions/12999651/how-to-remove-non-utf-8-characters-from-text-file
 ## https://stackoverflow.com/questions/29465612/how-to-detect-invalid-utf8-unicode-binary-in-a-text-file
@@ -613,6 +600,19 @@ if [[ "${INVALID_FILE}" == "yes" ]]; then
         rm "${TARGET_CONFIG_FILE}" && \
         mv "${TARGET_CONFIG_FILE}.tmp" "${TARGET_CONFIG_FILE}"
 fi
+
+# delete empty group
+GROUP_CNT=$(yq e '.proxy-groups | length' "${TARGET_CONFIG_FILE}")
+for ((i=0; i < GROUP_CNT; ++i)); do
+    GROUP_NAME=$(yq e ".proxy-groups[$i].name" "${TARGET_CONFIG_FILE}")
+    GROUP_PROXIES=$(yq e ".proxy-groups[$i].proxies // \"\"" "${TARGET_CONFIG_FILE}")
+    [[ -z "${GROUP_PROXIES}" ]] && PROXY_EMPTY_GROUP+=("${GROUP_NAME}")
+done
+
+for TargetGroup in "${PROXY_EMPTY_GROUP[@]}"; do
+    [[ -z "${TargetGroup}" ]] && continue
+    sed -i "/^\s*\-\s*${TargetGroup}$/d" "${TARGET_CONFIG_FILE}"
+done
 
 # Copy to dir
 if [[ -n "${COPY_TO_DIR}" ]]; then
