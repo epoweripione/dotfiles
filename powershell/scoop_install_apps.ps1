@@ -229,6 +229,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "motrix"
         # "powertoys"
         "q-dir"
+        "sumatrapdf"
         "syncback"
         "syncthing"
         "syncthingtray"
@@ -240,6 +241,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "telegram"
         # "cdburnerxp"
         # "wincdemu"
+        "windowsupdateshistoryviewer"
         "ventoy"
         "cht"
         "fzf"
@@ -305,6 +307,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
     )
 
     $sudoApps = @(
+        "dotnet-desktop-runtime"
         # "nmap"
         "Cascadia-Code"
         ## epower
