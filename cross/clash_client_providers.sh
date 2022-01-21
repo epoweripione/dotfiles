@@ -601,6 +601,27 @@ if [[ "${INVALID_FILE}" == "yes" ]]; then
         mv "${TARGET_CONFIG_FILE}.tmp" "${TARGET_CONFIG_FILE}"
 fi
 
+## delete not exist proxies
+## PROXY_LIST=$(yq e ".proxies[].name" "${TARGET_CONFIG_FILE}")
+# PROXY_LIST=$(yq e ".proxy-groups[] | select(.name ==\"🌀 自动选择\") | .proxies[]" "${TARGET_CONFIG_FILE}")
+# PROXY_LIST_ALL=()
+# while read -r list; do
+#     [[ -z "${list}" ]] && continue
+#     PROXY_LIST_ALL+=("${list}")
+# done <<<"${PROXY_LIST}"
+for TargetName in "${PROXY_LIST_ALL[@]}"; do
+    [[ -z "${TargetName}" ]] && continue
+
+    TargetName_Escape_GREP=$(echo "${TargetName}" \
+        | sed 's/[\\\/\:\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' \
+        | sed 's/]/\\&/g')
+
+    TargetProxies=$(grep -Ea "name:\s*${TargetName_Escape_GREP}," "${TARGET_CONFIG_FILE}")
+    if [[ -z "${TargetProxies}" ]]; then
+        sed -i "/^\s*\-\s*${TargetName_Escape_GREP}$/d" "${TARGET_CONFIG_FILE}"
+    fi
+done
+
 # delete empty group
 GROUP_CNT=$(yq e '.proxy-groups | length' "${TARGET_CONFIG_FILE}")
 for ((i=0; i < GROUP_CNT; ++i)); do
