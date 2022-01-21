@@ -68,7 +68,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 
         if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
             VERSION_FILENAME="$(which ${EXEC_INSTALL_NAME}).version"
-            echo "${REMOTE_VERSION}" | tee "${VERSION_FILENAME}" >/dev/null || true
+            echo "${REMOTE_VERSION}" | sudo tee "${VERSION_FILENAME}" >/dev/null || true
         fi
     fi
 fi
