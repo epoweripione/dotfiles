@@ -20,30 +20,31 @@ if ($PSVersionTable.PSEdition -ne "Core" -or $IsWindows) {
     $PoshExec = "oh-my-posh.exe"
 }
 
+$PoshModuleDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
 if (Test-Path "$HOME\.oh-my-posh") {
-    $InstalledPoshDir = "$HOME\.oh-my-posh"
+    $PoshExecDir = "$HOME\.oh-my-posh"
 } else {
-    $InstalledPoshDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
+    $PoshExecDir = "$PoshModuleDir"
 }
 
 $InstalledPoshVersion = "0.0.0"
-if (Test-Path "$InstalledPoshDir\$PoshExec") {
-    $InstalledPoshVersion = & "$InstalledPoshDir\$PoshExec" --version
+if (Test-Path "$PoshExecDir\$PoshExec") {
+    $InstalledPoshVersion = & "$PoshExecDir\$PoshExec" --version
 }
 
-$ModulePoshPSM = (Get-ChildItem -Path "$InstalledPoshDir" `
+$PoshModulePSM = (Get-ChildItem -Path "$PoshModuleDir" `
     -Filter "oh-my-posh.psm1" -File -Recurse -ErrorAction SilentlyContinue -Force `
     | Sort-Object -Descending | Select-Object -First 1).FullName
 #     | ForEach-Object {$_.FullName})
 
-if (Test-Path "$ModulePoshPSM") {
-    $ModulePoshVersion = Split-Path -Parent $ModulePoshPSM | Split-Path -Leaf
+if (Test-Path "$PoshModulePSM") {
+    $ModulePoshVersion = Split-Path -Parent $PoshModulePSM | Split-Path -Leaf
     if ([System.Version]"$ModulePoshVersion" -gt [System.Version]"$InstalledPoshVersion") {
-        (Get-Content -path "$ModulePoshPSM" -Raw) `
+        (Get-Content -path "$PoshModulePSM" -Raw) `
             -Replace 'https://github.com/jandedobbeleer/oh-my-posh/','https://download.fastgit.org/jandedobbeleer/oh-my-posh/' `
             -Replace 'Invoke-WebRequest \$Url -Out \$Destination','curl -fSL -# -o $Destination $Url' `
             -Replace 'Invoke-WebRequest -OutFile \$tmp \$themesUrl','curl -fSL -# -o $tmp $themesUrl' `
-            | Set-Content -Path "$ModulePoshPSM"
+            | Set-Content -Path "$PoshModulePSM"
     }
 }
 
@@ -58,7 +59,7 @@ if (Test-Path "$ModulePoshPSM") {
 # }
 # if ([System.Version]"$ScoopPoshVersion" -gt [System.Version]"$PoshVersion") {
 #     if (Test-Path "$ScoopPoshExec") {
-#         Copy-Item -Path "$ScoopPoshExec" -Destination "$InstalledPoshDir" -Force -Confirm:$false
+#         Copy-Item -Path "$ScoopPoshExec" -Destination "$PoshModuleDir" -Force -Confirm:$false
 #     }
 # }
 
