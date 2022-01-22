@@ -536,6 +536,9 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 fi
             done
             ;;
+        "otherbalance")
+            CONTENT_TAG="#otherbalance"
+            ;;
         *)
             MATCH_TAG="no"
             for TargetFile in "${FILELIST[@]}"; do
@@ -583,6 +586,28 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     LINE_START=$((TARGET_LINE + 1))
 done <<<"${FILL_LINES}"
 
+## auto-balance group for OTHER proxies
+GROUP_OTHER_BALANCE_LINE=$(grep -E -n "^#otherbalance" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
+if [[ ${GROUP_OTHER_BALANCE_LINE} -gt 0 ]]; then
+    colorEcho "${BLUE}    Processing ${FUCHSIA}auto-balance group for OTHER proxies${BLUE}..."
+    # PROXY_OTHER=$(yq e ".proxy-groups[] | select(.name ==\"🏁 其他节点\") | .proxies[]" "${TARGET_CONFIG_FILE}")
+    # PROXY_LIST_OTHER=()
+    # while read -r list; do [[ -z "${list}" ]] && continue; PROXY_LIST_OTHER+=("${list}"); done <<<"${PROXY_OTHER}"
+    # CURRENT_LINE=${GROUP_OTHER_BALANCE_LINE}
+
+    for TargetName in "${PROXY_LIST_ALL[@]}"; do
+        if [[ " ${PROXY_LIST_FILTERED[*]} " == *" ${TargetName} "* ]]; then
+            :
+        else
+            sed -i "/^#otherbalance/i\      - ${TargetName}" "${TARGET_CONFIG_FILE}"
+            # sed -i "${CURRENT_LINE}a\      - ${TargetName}" "${TARGET_CONFIG_FILE}"
+            # CURRENT_LINE=$((CURRENT_LINE + 1))
+        fi
+    done
+
+    sed -i "/^#otherbalance/d" "$TARGET_CONFIG_FILE"
+fi
+
 ## Fix: invalid leading UTF-8 octet
 ## https://stackoverflow.com/questions/12999651/how-to-remove-non-utf-8-characters-from-text-file
 ## https://stackoverflow.com/questions/29465612/how-to-detect-invalid-utf8-unicode-binary-in-a-text-file
@@ -596,6 +621,7 @@ elif grep -q -P "\x{fffd}/u" "${TARGET_CONFIG_FILE}" 2>/dev/null; then
 fi
 
 if [[ "${INVALID_FILE}" == "yes" ]]; then
+    colorEcho "${BLUE}    Fixing ${FUCHSIA}invalid leading UTF-8 octet${BLUE}..."
     iconv -f utf-8 -t utf-8 -c "${TARGET_CONFIG_FILE}" > "${TARGET_CONFIG_FILE}.tmp" && \
         rm "${TARGET_CONFIG_FILE}" && \
         mv "${TARGET_CONFIG_FILE}.tmp" "${TARGET_CONFIG_FILE}"
@@ -604,11 +630,7 @@ fi
 ## delete not exist proxies
 ## PROXY_LIST=$(yq e ".proxies[].name" "${TARGET_CONFIG_FILE}")
 # PROXY_LIST=$(yq e ".proxy-groups[] | select(.name ==\"🌀 自动选择\") | .proxies[]" "${TARGET_CONFIG_FILE}")
-# PROXY_LIST_ALL=()
-# while read -r list; do
-#     [[ -z "${list}" ]] && continue
-#     PROXY_LIST_ALL+=("${list}")
-# done <<<"${PROXY_LIST}"
+colorEcho "${BLUE}    Processing ${FUCHSIA}not exist proxies${BLUE}..."
 for TargetName in "${PROXY_LIST_ALL[@]}"; do
     [[ -z "${TargetName}" ]] && continue
 
@@ -623,17 +645,32 @@ for TargetName in "${PROXY_LIST_ALL[@]}"; do
 done
 
 # delete empty group
+colorEcho "${BLUE}    Processing ${FUCHSIA}empty proxy-groups${BLUE}..."
 GROUP_CNT=$(yq e '.proxy-groups | length' "${TARGET_CONFIG_FILE}")
+GROUP_DELETE_INDEX=()
 for ((i=0; i < GROUP_CNT; ++i)); do
     GROUP_NAME=$(yq e ".proxy-groups[$i].name" "${TARGET_CONFIG_FILE}")
     GROUP_PROXIES=$(yq e ".proxy-groups[$i].proxies // \"\"" "${TARGET_CONFIG_FILE}")
-    [[ -z "${GROUP_PROXIES}" ]] && PROXY_EMPTY_GROUP+=("${GROUP_NAME}")
+    if [[ -z "${GROUP_PROXIES}" ]]; then
+        PROXY_EMPTY_GROUP+=("${GROUP_NAME}")
+        GROUP_DELETE_INDEX+=("$i")
+    fi
 done
 
 for TargetGroup in "${PROXY_EMPTY_GROUP[@]}"; do
     [[ -z "${TargetGroup}" ]] && continue
     sed -i "/^\s*\-\s*${TargetGroup}$/d" "${TARGET_CONFIG_FILE}"
+
+    GROUP_START_LINE=$(grep -E -n "name: ${TargetGroup}" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
+    if [[ ${GROUP_START_LINE} -gt 0 ]]; then
+        GROUP_END_LINE=$((GROUP_START_LINE + 6))
+        sed -i "${GROUP_START_LINE},${GROUP_END_LINE}d" "${TARGET_CONFIG_FILE}"
+    fi
 done
+
+# for TargetIndex in "${GROUP_DELETE_INDEX[@]}"; do
+#     yq e -i "del(.proxy-groups[${TargetIndex}])" "${TARGET_CONFIG_FILE}"
+# done
 
 # Copy to dir
 if [[ -n "${COPY_TO_DIR}" ]]; then
