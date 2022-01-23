@@ -69,8 +69,13 @@ if [[ -z "${SUB_LIST_LINE}" ]]; then
 
         curl_download_status=$?
         if [[ ${curl_download_status} -eq 0 ]]; then
-            sed -i "s/^allow-lan:.*/allow-lan: false/" "${SUB_DOWNLOAD_FILE}"
-            sed -i "s/^external-controller:.*/# &/" "${SUB_DOWNLOAD_FILE}"
+            sed -i -e "s/^allow-lan:.*/allow-lan: false/" \
+                -e "s/^external-controller:.*/# &/" \
+                -e "s/^port:.*/# &/" \
+                -e "s/^redir-port:.*/# &/" \
+                -e "s/^mixed-port:.*/# &/" \
+                -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
+            sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
             sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
             exit 0
         fi
@@ -99,8 +104,13 @@ else
 
     curl_download_status=$?
     if [[ ${curl_download_status} -eq 0 ]]; then
-        sed -i "s/^allow-lan:.*/allow-lan: false/" "${SUB_DOWNLOAD_FILE}"
-        sed -i "s/^external-controller:.*/# &/" "${SUB_DOWNLOAD_FILE}"
+        sed -i -e "s/^allow-lan:.*/allow-lan: false/" \
+            -e "s/^external-controller:.*/# &/" \
+            -e "s/^port:.*/# &/" \
+            -e "s/^redir-port:.*/# &/" \
+            -e "s/^mixed-port:.*/# &/" \
+            -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
+        sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
         sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
         exit 0
     fi

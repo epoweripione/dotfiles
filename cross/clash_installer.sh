@@ -177,18 +177,22 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 
     [[ $(systemctl is-enabled clash 2>/dev/null) ]] || {
         if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-            Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash"
+            Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash" "root"
         else
             [[ "${IS_UPDATE}" == "no" ]] && \
                 colorEchoN "${ORANGE}Install clash systemd service?[y/${CYAN}N${ORANGE}]: " && \
                 read -r CHOICE
-            [[ "$CHOICE" == 'y' || "$CHOICE" == 'Y' ]] && Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash"
+            [[ "$CHOICE" == 'y' || "$CHOICE" == 'Y' ]] && Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash" "root"
         fi
     }
 
     if [[ "${IS_UPDATE}" == "yes" ]]; then
         [[ $(systemctl is-enabled clash 2>/dev/null) ]] && sudo systemctl restart clash && sleep 3
     fi
+
+    # if [[ -d "/srv/clash" && ! -s "/srv/clash/cache.db" ]]; then
+    #     sudo touch "/srv/clash/cache.db" && sudo chmod o=rw "/srv/clash/cache.db"
+    # fi
 fi
 
 # nohup /srv/clash/clash -d /srv/clash >/dev/null 2>&1 & disown

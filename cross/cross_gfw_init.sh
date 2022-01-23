@@ -114,7 +114,7 @@ if [[ ! -d "/srv/clash" ]]; then
             unzip -qo "/tmp/subconverter_clash.zip" -d "/srv" && \
             rm -f "/tmp/subconverter_clash.zip" && \
             Install_systemd_Service "subconverter" "/srv/subconverter/subconverter" && \
-            Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash" && \
+            Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash" "root" && \
             colorEcho "${GREEN}Subconverter & Clash installed!"
     fi
 fi
@@ -122,7 +122,7 @@ fi
 
 if ! pgrep -f "clash" >/dev/null 2>&1; then
     [[ -d "/srv/subconverter" ]] && Install_systemd_Service "subconverter" "/srv/subconverter/subconverter"
-    [[ -d "/srv/clash" ]] && Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash"
+    [[ -d "/srv/clash" ]] && Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash" "root"
     [[ $(systemctl is-enabled clash 2>/dev/null) ]] && sudo systemctl restart clash
 fi
 
@@ -134,27 +134,56 @@ fi
 
 TARGET_CONFIG_FILE="/srv/clash/config.yaml"
 
-[[ ! -s "$SUB_LIST_FILE" ]] && SUB_LIST_FILE="/srv/clash/clash_client_subscription.list"
-[[ ! -s "$SUB_LIST_FILE" ]] && SUB_LIST_FILE="$HOME/clash_client_subscription.list"
-if [[ -s "$SUB_LIST_FILE" ]]; then
+[[ ! -s "${SUB_LIST_FILE}" ]] && SUB_LIST_FILE="/srv/clash/clash_client_subscription.list"
+[[ ! -s "${SUB_LIST_FILE}" ]] && SUB_LIST_FILE="$HOME/clash_client_subscription.list"
+
+if [[ -s "${SUB_LIST_FILE}" ]]; then
+    SUB_DOWNLOAD_FILE="${WORKDIR}/clash_sub.yaml"
+
+    URL_EXCLUDE=$(grep -E '^# exclude=' "${SUB_LIST_FILE}" | cut -d" " -f2)
+    URL_CONFIG=$(grep -E '^# config=' "${SUB_LIST_FILE}" | cut -d" " -f2)
+
+    URL_URL="url="
+    SUB_URL_LIST=$(grep -E '^# url=' "${SUB_LIST_FILE}" | cut -d" " -f2 | cut -d"=" -f2)
+    SUB_URL_CNT=0
+    while read -r READLINE || [[ "${READLINE}" ]]; do
+        if [[ SUB_URL_CNT -gt 0 ]]; then
+            URL_URL="${URL_URL}%7C${READLINE}"
+        else
+            URL_URL="${URL_URL}${READLINE}"
+        fi
+
+        SUB_URL_CNT=$((SUB_URL_CNT + 1))
+    done <<<"${SUB_URL_LIST}"
+
     SUB_LIST=()
     # || In case the file has an incomplete (missing newline) last line
-    while read -r READLINE || [[ "$READLINE" ]]; do
-        SUB_LIST+=("$READLINE")
+    while read -r READLINE || [[ "${READLINE}" ]]; do
+        [[ "${READLINE}" =~ ^#.* ]] && continue
+        SUB_LIST+=("${READLINE}")
     done < "${SUB_LIST_FILE}"
 
-    SUB_DOWNLOAD_FILE="${WORKDIR}/clash_sub.yaml"
     for TargetURL in "${SUB_LIST[@]}"; do
-        [[ -z "$TargetURL" ]] && continue
+        [[ -z "${TargetURL}" ]] && continue
+
+        # https://www.example.com/sub?target=clash&url=<url>&config=<config>&exclude=<exclude>
+        TargetURL="${TargetURL}&${URL_URL}&${URL_CONFIG}"
+        [[ -n "${URL_EXCLUDE}" ]] && TargetURL="${TargetURL}&${URL_EXCLUDE}"
+
         colorEcho "${BLUE}Downloading clash client connfig from ${FUCHSIA}${TargetURL}${BLUE}..."
-        curl -fSL --connect-timeout 10 --max-time 60 \
-            -o "$SUB_DOWNLOAD_FILE" "$TargetURL"
+        curl -fSL --noproxy "*" --connect-timeout 10 --max-time 60 \
+            -o "${SUB_DOWNLOAD_FILE}" "${TargetURL}"
 
         curl_download_status=$?
         if [[ ${curl_download_status} -eq 0 ]]; then
-            sed -i "s/^allow-lan:.*/allow-lan: false/" "$SUB_DOWNLOAD_FILE"
-            sed -i "s/^external-controller:.*/# &/" "$SUB_DOWNLOAD_FILE"
-            sudo cp -f "$SUB_DOWNLOAD_FILE" "$TARGET_CONFIG_FILE"
+            sed -i -e "s/^allow-lan:.*/allow-lan: false/" \
+                -e "s/^external-controller:.*/# &/" \
+                -e "s/^port:.*/# &/" \
+                -e "s/^redir-port:.*/# &/" \
+                -e "s/^mixed-port:.*/# &/" \
+                -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
+            sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
+            sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
             break
         fi
     done
