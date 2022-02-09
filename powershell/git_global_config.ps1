@@ -14,6 +14,8 @@ if (($null -eq $Proxy) -or ($Proxy -eq "")) {
 }
 
 if (Get-Command "git" -ErrorAction SilentlyContinue) {
+    git config --global init.defaultBranch "main"
+
     git config --global core.autocrlf false
     git config --global core.safecrlf true
     git config --global core.filemode false

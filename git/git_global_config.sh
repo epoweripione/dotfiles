@@ -5,6 +5,8 @@
 # fi
 
 if [[ -x "$(command -v git)" ]]; then
+    git config --global init.defaultBranch "main"
+
     git config --global core.autocrlf false
     git config --global core.safecrlf true
     git config --global core.filemode false
