@@ -1642,7 +1642,7 @@ function Git_Clone_Update() {
         return 1
     fi
 
-    if [[ "${REPONAME}" =~ ^(https?://|git@) ]]; then
+    if [[ "${REPONAME}" =~ ^(https?://|ssh://|git@) ]]; then
         REPOREMOTE="${REPONAME}"
         REPONAME=$(echo "${REPOREMOTE}" | sed 's|^http://||;s|^https://||;s|.git$||' | sed 's|.*[/:]\([^ ]*/[^ ]*\).*|\1|')
         REPOURL=$(echo "${REPOREMOTE}" | sed 's|.git$||' | sed "s|${REPONAME}||" | sed 's|[/:]$||')
@@ -1706,7 +1706,7 @@ function Git_Clone_Update_Branch() {
         return 1
     fi
 
-    if [[ "${REPONAME}" =~ ^(https?://|git@) ]]; then
+    if [[ "${REPONAME}" =~ ^(https?://|ssh://|git@) ]]; then
         REPOREMOTE="${REPONAME}"
         REPONAME=$(echo "${REPOREMOTE}" | sed 's|^http://||;s|^https://||;s|.git$||' | sed 's|.*[/:]\([^ ]*/[^ ]*\).*|\1|')
         REPOURL=$(echo "${REPOREMOTE}" | sed 's|.git$||' | sed "s|${REPONAME}||" | sed 's|[/:]$||')
