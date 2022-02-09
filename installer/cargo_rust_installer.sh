@@ -41,7 +41,7 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
 [source.crates-io]
 registry = "https://github.com/rust-lang/crates.io-index"
 
-replace-with = 'rustcc'
+replace-with = 'sjtu'
 
 [source.tuna]
 registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
