@@ -51,22 +51,28 @@ if [[ -x "$(command -v nvim)" ]]; then
     #     nvim +PlugInstall +qall # This script assumes that you are using vim-plug for plugin management 
 
     # Enable python3 support for NeoVim
-    # sudo apt install -y python3-pip
-    if [[ -x "$(command -v pip)" ]]; then
-        pip install --user -U neovim
-    elif [[ -x "$(command -v pip3)" ]]; then
-        pip3 install --user -U neovim
-    fi
+    pip_Package_Install "neovim"
 
-    # NvChad
-    # An attempt to make neovim cli as functional as an IDE while being very beautiful , blazing fast.
-    # https://github.com/NvChad/NvChad
-    # https://github.com/NvChad/NvChad/wiki/Mappings
-    if ! grep -q 'NvChad' "${NEOVIM_CUSTOM}/README.md" 2>/dev/null; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}NvChad${BLUE}..."
+    ## NvChad
+    ## An attempt to make neovim cli as functional as an IDE while being very beautiful , blazing fast.
+    ## https://github.com/NvChad/NvChad
+    ## https://github.com/NvChad/NvChad/wiki/Mappings
+    # if ! grep -q 'NvChad' "${NEOVIM_CUSTOM}/README.md" 2>/dev/null; then
+    #     colorEcho "${BLUE}  Installing ${FUCHSIA}NvChad${BLUE}..."
+    #     [[ -d "${NEOVIM_CUSTOM}.backup" ]] && rm -rf "${NEOVIM_CUSTOM}.backup"
+    #     [[ -d "${NEOVIM_CUSTOM}" ]] && mv "${NEOVIM_CUSTOM}" "${NEOVIM_CUSTOM}.backup"
+    #     Git_Clone_Update_Branch "NvChad/NvChad" "${NEOVIM_CUSTOM}"
+    #     nvim +'hi NormalFloat guibg=#1e222a' +PackerSync
+    # fi
+
+    # AstroVim is an aesthetic and feature-rich neovim config that is extensible and easy to use with a great set of plugins
+    # https://github.com/kabinspace/AstroVim
+    if ! grep -q 'AstroVim' "${NEOVIM_CUSTOM}/README.md" 2>/dev/null; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}AstroVim${BLUE}..."
+        [[ -d "${NEOVIM_CUSTOM}.backup" ]] && rm -rf "${NEOVIM_CUSTOM}.backup"
         [[ -d "${NEOVIM_CUSTOM}" ]] && mv "${NEOVIM_CUSTOM}" "${NEOVIM_CUSTOM}.backup"
-        Git_Clone_Update_Branch "NvChad/NvChad" "${NEOVIM_CUSTOM}"
-        nvim +'hi NormalFloat guibg=#1e222a' +PackerSync
+        Git_Clone_Update_Branch "kabinspace/AstroVim" "${NEOVIM_CUSTOM}"
+        nvim +PackerSync
     fi
 fi
 
