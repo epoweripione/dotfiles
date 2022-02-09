@@ -1655,10 +1655,10 @@ function Git_Clone_Update() {
         # Accelerate the speed of accessing GitHub
         # https://www.gitclone.com/
         # https://fastgit.org/
-        [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
+        # [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
         [[ -n "${GITHUB_MIRROR_USE_GITCLONE}" ]] && REPOURL="gitclone.com/github.com"
 
-        REPOREMOTE="https://${REPOURL}/${REPONAME}"
+        REPOREMOTE="https://${REPOURL}/${REPONAME}.git"
     else
         [[ "${REPOURL}" =~ ^(git@) ]] \
             && REPOREMOTE="${REPOURL}:${REPONAME}.git" \
@@ -1669,15 +1669,16 @@ function Git_Clone_Update() {
     #     || colorEcho "${RED}  ${FUCHSIA}${REPOREMOTE}${RED} does not exist!"
 
     if [[ -d "${REPODIR}/.git" ]]; then
+        CurrentDir=$(pwd)
+        cd "${REPODIR}" || return
+
         REPOREMOTE=$(git config --get remote.origin.url | head -n1)
 
-        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPOURL}${BLUE}..."
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE}..."
         colorEcho "${BLUE}    From ${ORANGE}${REPOREMOTE}"
 
-        CurrentDir=$(pwd)
-
-        cd "${REPODIR}" || return
         ${GIT_COMMAND} pull
+
         cd "${CurrentDir}" || return
     else
         colorEcho "${BLUE}  Cloning ${ORANGE}${REPOREMOTE}${BLUE} to ${FUCHSIA}${REPODIR}${BLUE}..."
@@ -1717,7 +1718,7 @@ function Git_Clone_Update_Branch() {
         # Accelerate the speed of accessing GitHub
         # https://www.gitclone.com/
         # https://fastgit.org/
-        [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
+        # [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
         [[ -n "${GITHUB_MIRROR_USE_GITCLONE}" ]] && REPOURL="gitclone.com/github.com"
 
         REPOREMOTE="https://${REPOURL}/${REPONAME}"
@@ -1731,14 +1732,14 @@ function Git_Clone_Update_Branch() {
     #     || colorEcho "${RED}  ${FUCHSIA}${REPOREMOTE}${RED} does not exist!"
 
     if [[ -d "${REPODIR}/.git" ]]; then
+        CurrentDir=$(pwd)
+        cd "${REPODIR}" || return
+
         REPOREMOTE=$(git config --get remote.origin.url | head -n1)
 
-        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPOURL}${BLUE}..."
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE}..."
         colorEcho "${BLUE}    From ${ORANGE}${REPOREMOTE}"
 
-        CurrentDir=$(pwd)
-
-        cd "${REPODIR}" || return
         [[ -z "${BRANCH}" ]] && BRANCH=$(${GIT_COMMAND} symbolic-ref --short HEAD 2>/dev/null)
         [[ -z "${BRANCH}" ]] && BRANCH="master"
 
@@ -1771,7 +1772,7 @@ function Git_Clone_Update_Branch() {
 
         cd "${CurrentDir}" || return
     else
-        colorEcho "${BLUE}  Cloning ${FUCHSIA}${REPOREMOTE}${BLUE}..."
+        colorEcho "${BLUE}  Cloning ${ORANGE}${REPOREMOTE}${BLUE} to ${FUCHSIA}${REPODIR}${BLUE}..."
         [[ -z "${BRANCH}" ]] && \
             BRANCH=$(${GIT_COMMAND} ls-remote --symref "${REPOREMOTE}" HEAD \
                     | awk '/^ref:/ {sub(/refs\/heads\//, "", $2); print $2}')
