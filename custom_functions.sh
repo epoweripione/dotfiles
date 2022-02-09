@@ -58,7 +58,7 @@ function colorEchoAllColor() {
 NO_PROXY_LISTS="localhost,127.0.0.1,.local,.localdomain,.internal,.corp"
 [[ -n "${HOSTNAME}" ]] && NO_PROXY_LISTS="${NO_PROXY_LISTS},${HOSTNAME}"
 [[ -n "${HOSTIP_ALL}" ]] && NO_PROXY_LISTS="${NO_PROXY_LISTS},${HOSTIP_ALL}"
-NO_PROXY_LISTS="${NO_PROXY_LISTS},fastgit.org,gitclone.com,cnpmjs.org"
+NO_PROXY_LISTS="${NO_PROXY_LISTS},fastgit.org,gitclone.com,npmmirror.com"
 NO_PROXY_LISTS="${NO_PROXY_LISTS},ip.sb,ip-api.com,ident.me,ifconfig.co,icanhazip.com,ipinfo.io"
 
 
@@ -1655,13 +1655,8 @@ function Git_Clone_Update() {
         # Accelerate the speed of accessing GitHub
         # https://www.gitclone.com/
         # https://fastgit.org/
-        if [[ -n "${GITHUB_MIRROR_USE_CGIT}" && -x "$(command -v cgit)" ]]; then
-            GIT_COMMAND="cgit"
-        else
-            [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
-            [[ -n "${GITHUB_MIRROR_USE_GITCLONE}" ]] && REPOURL="gitclone.com/github.com"
-            [[ -n "${GITHUB_MIRROR_USE_CNPMJS}" ]] && REPOURL="github.com.cnpmjs.org"
-        fi
+        [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
+        [[ -n "${GITHUB_MIRROR_USE_GITCLONE}" ]] && REPOURL="gitclone.com/github.com"
 
         REPOREMOTE="https://${REPOURL}/${REPONAME}"
     else
@@ -1674,7 +1669,10 @@ function Git_Clone_Update() {
     #     || colorEcho "${RED}  ${FUCHSIA}${REPOREMOTE}${RED} does not exist!"
 
     if [[ -d "${REPODIR}/.git" ]]; then
-        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPOREMOTE}${BLUE}..."
+        REPOREMOTE=$(git config --get remote.origin.url | head -n1)
+
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPOURL}${BLUE}..."
+        colorEcho "${BLUE}    From ${ORANGE}${REPOREMOTE}"
 
         CurrentDir=$(pwd)
 
@@ -1682,7 +1680,7 @@ function Git_Clone_Update() {
         ${GIT_COMMAND} pull
         cd "${CurrentDir}" || return
     else
-        colorEcho "${BLUE}  Cloning ${FUCHSIA}${REPOREMOTE}${BLUE}..."
+        colorEcho "${BLUE}  Cloning ${ORANGE}${REPOREMOTE}${BLUE} to ${FUCHSIA}${REPODIR}${BLUE}..."
         [[ -z "${GIT_CLONE_OPTS[*]}" ]] && Get_Git_Clone_Options
         ${GIT_COMMAND} clone "${GIT_CLONE_OPTS[@]}" "${REPOREMOTE}" "${REPODIR}" || {
                 colorEcho "${RED}  git clone of ${FUCHSIA}${REPONAME} ${RED}failed!"
@@ -1719,13 +1717,8 @@ function Git_Clone_Update_Branch() {
         # Accelerate the speed of accessing GitHub
         # https://www.gitclone.com/
         # https://fastgit.org/
-        if [[ -n "${GITHUB_MIRROR_USE_CGIT}" && -x "$(command -v cgit)" ]]; then
-            GIT_COMMAND="cgit"
-        else
-            [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
-            [[ -n "${GITHUB_MIRROR_USE_GITCLONE}" ]] && REPOURL="gitclone.com/github.com"
-            [[ -n "${GITHUB_MIRROR_USE_CNPMJS}" ]] && REPOURL="github.com.cnpmjs.org"
-        fi
+        [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
+        [[ -n "${GITHUB_MIRROR_USE_GITCLONE}" ]] && REPOURL="gitclone.com/github.com"
 
         REPOREMOTE="https://${REPOURL}/${REPONAME}"
     else
@@ -1738,7 +1731,10 @@ function Git_Clone_Update_Branch() {
     #     || colorEcho "${RED}  ${FUCHSIA}${REPOREMOTE}${RED} does not exist!"
 
     if [[ -d "${REPODIR}/.git" ]]; then
-        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPOREMOTE}${BLUE}..."
+        REPOREMOTE=$(git config --get remote.origin.url | head -n1)
+
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPOURL}${BLUE}..."
+        colorEcho "${BLUE}    From ${ORANGE}${REPOREMOTE}"
 
         CurrentDir=$(pwd)
 

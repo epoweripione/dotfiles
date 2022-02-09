@@ -664,12 +664,9 @@ export GIT_CLONE_DEFAULT_OPTION
 INSTALLER_CHECK_CURL_OPTION="-fsL --connect-timeout 5"
 INSTALLER_DOWNLOAD_CURL_OPTION="-fSL --connect-timeout 5"
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    # export GITHUB_MIRROR_USE_CGIT=true
     # export GITHUB_MIRROR_USE_GITCLONE=true
-    export GITHUB_MIRROR_USE_CNPMJS=true
     export GITHUB_MIRROR_USE_FASTGIT=true
 
-    [[ -n "${GITHUB_MIRROR_USE_CNPMJS}" ]] && GITHUB_DOWNLOAD_URL="https://github.com.cnpmjs.org"
     [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && \
         GITHUB_DOWNLOAD_URL="https://download.fastgit.org" && GITHUB_RAW_URL="https://raw.fastgit.org"
 fi
