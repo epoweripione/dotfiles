@@ -1674,8 +1674,7 @@ function Git_Clone_Update() {
 
         REPOREMOTE=$(git config --get remote.origin.url | head -n1)
 
-        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE}..."
-        colorEcho "${BLUE}    From ${ORANGE}${REPOREMOTE}"
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE} From ${ORANGE}${REPOREMOTE}..."
 
         ${GIT_COMMAND} pull
 
@@ -1721,7 +1720,7 @@ function Git_Clone_Update_Branch() {
         # [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
         [[ -n "${GITHUB_MIRROR_USE_GITCLONE}" ]] && REPOURL="gitclone.com/github.com"
 
-        REPOREMOTE="https://${REPOURL}/${REPONAME}"
+        REPOREMOTE="https://${REPOURL}/${REPONAME}.git"
     else
         [[ "${REPOURL}" =~ ^(git@) ]] \
             && REPOREMOTE="${REPOURL}:${REPONAME}.git" \
@@ -1737,8 +1736,7 @@ function Git_Clone_Update_Branch() {
 
         REPOREMOTE=$(git config --get remote.origin.url | head -n1)
 
-        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE}..."
-        colorEcho "${BLUE}    From ${ORANGE}${REPOREMOTE}"
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE} From ${ORANGE}${REPOREMOTE}..."
 
         [[ -z "${BRANCH}" ]] && BRANCH=$(${GIT_COMMAND} symbolic-ref --short HEAD 2>/dev/null)
         [[ -z "${BRANCH}" ]] && BRANCH="master"
