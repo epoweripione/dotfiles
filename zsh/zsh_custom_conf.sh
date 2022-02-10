@@ -663,20 +663,30 @@ export GIT_CLONE_DEFAULT_OPTION
 # Accelerate the speed of accessing GitHub
 INSTALLER_CHECK_CURL_OPTION="-fsL --connect-timeout 5"
 INSTALLER_DOWNLOAD_CURL_OPTION="-fSL --connect-timeout 5"
-if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    # export GITHUB_MIRROR_USE_GITCLONE=true
-    export GITHUB_MIRROR_USE_FASTGIT=true
-
-    [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && \
-        GITHUB_DOWNLOAD_URL="https://download.fastgit.org" && GITHUB_RAW_URL="https://raw.fastgit.org"
-fi
 
 export INSTALLER_CHECK_CURL_OPTION=${INSTALLER_CHECK_CURL_OPTION:-""}
 export INSTALLER_DOWNLOAD_CURL_OPTION=${INSTALLER_DOWNLOAD_CURL_OPTION:-""}
-export GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"https://github.com"}
-export GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.githubusercontent.com"}
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+
+# Accelerate the speed of accessing GitHub
+# https://fastgit.org/
+# https://www.gitclone.com/
+if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+    # GITHUB_HUB_URL="https://hub.fastgit.xyz"
+    # GITHUB_HUB_URL="https://gitclone.com/github.com"
+    [[ -s "$HOME/.github_mirror.local" ]] && source "$HOME/.github_mirror.local"
+
+    export GITHUB_MIRROR_USE_FASTGIT=${GITHUB_MIRROR_USE_FASTGIT:-"true"}
+    if [[ "${GITHUB_MIRROR_USE_FASTGIT}" == "true" ]]; then
+        GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"https://download.fastgit.org"}
+        GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.fastgit.org"}
+    fi
+fi
+
+export GITHUB_HUB_URL=${GITHUB_HUB_URL:-"https://github.com"}
+export GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"https://github.com"}
+export GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.githubusercontent.com"}
 
 # WSL1
 if [[ "${OS_INFO_WSL}" =~ "Microsoft" ]]; then

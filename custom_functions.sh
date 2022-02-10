@@ -58,7 +58,7 @@ function colorEchoAllColor() {
 NO_PROXY_LISTS="localhost,127.0.0.1,.local,.localdomain,.internal,.corp"
 [[ -n "${HOSTNAME}" ]] && NO_PROXY_LISTS="${NO_PROXY_LISTS},${HOSTNAME}"
 [[ -n "${HOSTIP_ALL}" ]] && NO_PROXY_LISTS="${NO_PROXY_LISTS},${HOSTIP_ALL}"
-NO_PROXY_LISTS="${NO_PROXY_LISTS},fastgit.org,gitclone.com,npmmirror.com"
+NO_PROXY_LISTS="${NO_PROXY_LISTS},fastgit.org,fastgit.xyz,gitclone.com,npmmirror.com"
 NO_PROXY_LISTS="${NO_PROXY_LISTS},ip.sb,ip-api.com,ident.me,ifconfig.co,icanhazip.com,ipinfo.io"
 
 
@@ -1652,12 +1652,7 @@ function Git_Clone_Update() {
 
     REPOURL="${REPOURL%/}"
     if [[ "${REPOURL}" == "github.com" ]]; then
-        # Accelerate the speed of accessing GitHub
-        # https://www.gitclone.com/
-        # https://fastgit.org/
-        # [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
-        [[ -n "${GITHUB_MIRROR_USE_GITCLONE}" ]] && REPOURL="gitclone.com/github.com"
-
+        REPOURL=$(echo "${GITHUB_HUB_URL}" | sed 's|^http://||;s|^https://||')
         REPOREMOTE="https://${REPOURL}/${REPONAME}.git"
     else
         [[ "${REPOURL}" =~ ^(git@) ]] \
@@ -1714,12 +1709,7 @@ function Git_Clone_Update_Branch() {
 
     REPOURL="${REPOURL%/}"
     if [[ "${REPOURL}" == "github.com" ]]; then
-        # Accelerate the speed of accessing GitHub
-        # https://www.gitclone.com/
-        # https://fastgit.org/
-        # [[ -n "${GITHUB_MIRROR_USE_FASTGIT}" ]] && REPOURL="hub.fastgit.org"
-        [[ -n "${GITHUB_MIRROR_USE_GITCLONE}" ]] && REPOURL="gitclone.com/github.com"
-
+        REPOURL=$(echo "${GITHUB_HUB_URL}" | sed 's|^http://||;s|^https://||')
         REPOREMOTE="https://${REPOURL}/${REPONAME}.git"
     else
         [[ "${REPOURL}" =~ ^(git@) ]] \
