@@ -20,6 +20,30 @@ else
     fi
 fi
 
+# fix "command not found" when running via cron
+DirList=(
+    "/usr/local/sbin"
+    "/usr/local/bin"
+    "/usr/sbin"
+    "/usr/bin"
+    "/sbin"
+    "/bin"
+)
+for TargetDir in "${DirList[@]}"; do
+    [[ -d "${TargetDir}" && ":$PATH:" != *":${TargetDir}:"* ]] && PATH="${TargetDir}:$PATH"
+done
+
+# yq
+if [[ ! -x "$(command -v yq)" ]]; then
+    AppInstaller="${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/yq_installer.sh"
+    [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
+fi
+
+if [[ ! -x "$(command -v yq)" ]]; then
+    colorEcho "${FUCHSIA}yq${RED} is not installed!"
+    exit 1
+fi
+
 SUB_LIST_LINE=${1:-""}
 SUB_DOWNLOAD_FILE="${WORKDIR}/clash_sub.yaml"
 
@@ -100,7 +124,10 @@ if [[ -z "${SUB_LIST_LINE}" ]]; then
                 -e "s/^mixed-port:.*/# &/" \
                 -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
             sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
-            sed -i "/redir-port/r ${WORKDIR}/clash_dns.yaml" "${SUB_DOWNLOAD_FILE}"
+
+            DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
+            [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${WORKDIR}/clash_dns.yaml" "${SUB_DOWNLOAD_FILE}"
+
             sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
             exit 0
         fi
@@ -136,7 +163,10 @@ else
             -e "s/^mixed-port:.*/# &/" \
             -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
         sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
-        sed -i "/redir-port/r ${WORKDIR}/clash_dns.yaml" "${SUB_DOWNLOAD_FILE}"
+
+        DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
+        [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${WORKDIR}/clash_dns.yaml" "${SUB_DOWNLOAD_FILE}"
+
         sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
         exit 0
     fi
