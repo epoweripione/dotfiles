@@ -1669,7 +1669,7 @@ function Git_Clone_Update() {
 
         REPOREMOTE=$(git config --get remote.origin.url | head -n1)
 
-        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE} From ${ORANGE}${REPOREMOTE}..."
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE} From ${ORANGE}${REPOREMOTE}${BLUE}..."
 
         ${GIT_COMMAND} pull
 
@@ -1726,7 +1726,7 @@ function Git_Clone_Update_Branch() {
 
         REPOREMOTE=$(git config --get remote.origin.url | head -n1)
 
-        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE} From ${ORANGE}${REPOREMOTE}..."
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE} From ${ORANGE}${REPOREMOTE}${BLUE}..."
 
         [[ -z "${BRANCH}" ]] && BRANCH=$(${GIT_COMMAND} symbolic-ref --short HEAD 2>/dev/null)
         [[ -z "${BRANCH}" ]] && BRANCH="master"
