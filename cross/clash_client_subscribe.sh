@@ -32,6 +32,30 @@ SUB_LIST_FILE="/etc/clash/clash_client_subscription.list"
 
 [[ ! -s "${SUB_LIST_FILE}" ]] && colorEcho "${RED}Can't find ${FUCHSIA}clash_client_subscription.list${RED}!" && exit 1
 
+tee -a "${WORKDIR}/clash_dns.yaml" >/dev/null <<-'EOF'
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  ipv6: true
+
+  enhanced-mode: redir-host
+  fake-ip-range: 198.18.0.1/16
+
+  nameserver:
+    - 223.5.5.5
+    - 114.114.114.114
+    - https://dns.alidns.com/dns-query
+    - "[2400:3200::1]:53"
+
+  fallback:
+    - tcp://1.1.1.1
+    - tcp://8.8.8.8
+    - tls://1.0.0.1:853
+    - tls://dns.google:853
+    - "[2606:4700:4700::1111]:53"
+    - "[2620:fe::9]:53"
+EOF
+
 URL_EXCLUDE=$(grep -E '^# exclude=' "${SUB_LIST_FILE}" | cut -d" " -f2)
 URL_CONFIG=$(grep -E '^# config=' "${SUB_LIST_FILE}" | cut -d" " -f2)
 
@@ -76,6 +100,7 @@ if [[ -z "${SUB_LIST_LINE}" ]]; then
                 -e "s/^mixed-port:.*/# &/" \
                 -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
             sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
+            sed -i "/redir-port/r ${WORKDIR}/clash_dns.yaml" "${SUB_DOWNLOAD_FILE}"
             sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
             exit 0
         fi
@@ -111,6 +136,7 @@ else
             -e "s/^mixed-port:.*/# &/" \
             -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
         sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
+        sed -i "/redir-port/r ${WORKDIR}/clash_dns.yaml" "${SUB_DOWNLOAD_FILE}"
         sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
         exit 0
     fi
