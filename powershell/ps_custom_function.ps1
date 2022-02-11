@@ -160,7 +160,7 @@ function check_webservice_up() {
 function check_socks5_proxy_up() {
     Param (
         [Parameter(Mandatory = $true, Position = 0)]
-        [string] $socks_proxy_url,
+        [string] $proxy_url,
 
         [Parameter(Mandatory = $false, Position = 1)]
         [string] $webservice_url
@@ -170,7 +170,28 @@ function check_socks5_proxy_up() {
         $webservice_url = "www.google.com"
     }
 
-    curl -fsL --connect-timeout 3 --max-time 5 --socks5-hostname "$socks_proxy_url" -I "$webservice_url"
+    curl -fsL --connect-timeout 3 --max-time 5 --socks5-hostname "$proxy_url" -I "$webservice_url"
+    if ($?) {
+        return $true
+    } else {
+        return $false
+    }
+}
+
+function check_http_proxy_up() {
+    Param (
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string] $proxy_url,
+
+        [Parameter(Mandatory = $false, Position = 1)]
+        [string] $webservice_url
+    )
+
+    if (($null -eq $webservice_url) -or ($webservice_url -eq "")) {
+        $webservice_url = "www.google.com"
+    }
+
+    curl -fsL --connect-timeout 3 --max-time 5 --proxy "$proxy_url" -I "$webservice_url"
     if ($?) {
         return $true
     } else {
@@ -406,18 +427,35 @@ function GetFonts() {
 function CheckSetGlobalProxy() {
     param (
         [string]$ProxyAddress = "127.0.0.1",
-        [string]$ProxySocksPort = "7890",
-        [string]$ProxyHTTPPort = "7890",
+        [string]$ProxyMixedPort = "7890",
+        [string]$ProxyHttpPort = "7890",
         [string]$Msg = "Porxy address?"
     )
 
+    if (!$ProxyHttpPort) {
+        $ProxyHttpPort = $ProxyMixedPort
+    }
+
     $Proxy = ""
     if (-Not (check_webservice_up)) {
-        $Proxy = "${ProxyAddress}:${ProxySocksPort}"
+        $Proxy = "${ProxyAddress}:${ProxyMixedPort}"
         if (-Not (check_socks5_proxy_up $Proxy)) {
+            if (-Not (check_http_proxy_up $Proxy)) {
+                $Proxy = ""
+            }
+        }
+
+        if (!$Proxy) {
+            $Proxy = "${ProxyAddress}:${ProxyHttpPort}"
+            if (-Not (check_http_proxy_up $Proxy)) {
+                $Proxy = ""
+            }
+        }
+
+        if (!$Proxy) {
             if ($PROMPT_VALUE = Read-Host "$Msg[$($Proxy)]") {
                 $Proxy = $PROMPT_VALUE
-                if (-Not (check_socks5_proxy_up $Proxy)) {
+                if (-Not (check_http_proxy_up $Proxy)) {
                     $Proxy = ""
                 }
             } else {
@@ -428,22 +466,38 @@ function CheckSetGlobalProxy() {
 
     if ($Proxy) {
         $env:GLOBAL_PROXY_IP = $ProxyAddress
-        $env:GLOBAL_PROXY_SOCKS_PORT = $ProxySocksPort
-        $env:GLOBAL_PROXY_MIXED_PORT = $ProxyHTTPPort
+        $env:GLOBAL_PROXY_MIXED_PORT = $ProxyMixedPort
+        $env:GLOBAL_PROXY_HTTP_PORT = $ProxyHttpPort
 
-        $env:http_proxy="${ProxyAddress}:${ProxyHTTPPort}"
-        $env:https_proxy="${ProxyAddress}:${ProxyHTTPPort}"
-
-        return $true
+        $env:HTTP_PROXY="http://${ProxyAddress}:${ProxyHttpPort}"
+        $env:HTTPS_PROXY="https://${ProxyAddress}:${ProxyHttpPort}"
+        $env:NO_PROXY="localhost,127.0.0.1,::1"
     } else {
-        $env:GLOBAL_PROXY_IP = ""
-        $env:GLOBAL_PROXY_SOCKS_PORT = ""
-        $env:GLOBAL_PROXY_MIXED_PORT = ""
+        if ($env:GLOBAL_PROXY_IP) {Remove-Item "Env:\GLOBAL_PROXY_IP"}
+        if ($env:GLOBAL_PROXY_MIXED_PORT) {Remove-Item "Env:\GLOBAL_PROXY_MIXED_PORT"}
+        if ($env:GLOBAL_PROXY_HTTP_PORT) {Remove-Item "Env:\GLOBAL_PROXY_HTTP_PORT"}
 
-        $env:http_proxy=""
-        $env:https_proxy=""
+        if ($env:HTTP_PROXY) {Remove-Item "Env:\HTTP_PROXY"}
+        if ($env:HTTPS_PROXY) {Remove-Item "Env:\HTTPS_PROXY"}
+        if ($env:NO_PROXY) {Remove-Item "Env:\NO_PROXY"}
+    }
 
-        return $false
+    # if (![string]::IsNullOrEmpty($Proxy)) {
+    # if (![string]::IsNullOrWhiteSpace($Proxy)) {
+    if ($Proxy) {
+        # Write-Host "HTTP_PROXY=$env:HTTP_PROXY`nHTTPS_PROXY=$env:HTTPS_PROXY`nNO_PROXY=$env:NO_PROXY`n" -ForegroundColor Yellow
+        Write-Host "  ::" -ForegroundColor Green -NoNewline
+        Write-Host " HTTP_PROXY" -ForegroundColor Magenta -NoNewline
+        Write-Host "=" -ForegroundColor Cyan -NoNewline
+        Write-Host "$env:HTTP_PROXY" -ForegroundColor Yellow -NoNewline
+
+        Write-Host " HTTPS_PROXY" -ForegroundColor Magenta -NoNewline
+        Write-Host "=" -ForegroundColor Cyan -NoNewline
+        Write-Host "$env:HTTPS_PROXY" -ForegroundColor Yellow -NoNewline
+
+        Write-Host " NO_PROXY" -ForegroundColor Magenta -NoNewline
+        Write-Host "=" -ForegroundColor Cyan -NoNewline
+        Write-Host "$env:NO_PROXY" -ForegroundColor Yellow
     }
 }
 

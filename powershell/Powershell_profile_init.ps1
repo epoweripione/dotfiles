@@ -285,7 +285,7 @@ function UpdateScoop {
     scoop cleanup *
 }
 
-function  SearchScoopBucket {
+function SearchScoopBucket {
     param (
         [string]$SearchCond = ""
     )
@@ -378,4 +378,6 @@ if (Get-Command "zoxide" -ErrorAction SilentlyContinue) {
 # if (Get-Command "starship" -ErrorAction SilentlyContinue) {
 #     Invoke-Expression (&starship init powershell)
 # }
+
+CheckSetGlobalProxy
 '@ | Tee-Object $PROFILE -Append | Out-Null
