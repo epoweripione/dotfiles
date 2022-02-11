@@ -56,10 +56,14 @@ SUB_LIST_FILE="/etc/clash/clash_client_subscription.list"
 
 [[ ! -s "${SUB_LIST_FILE}" ]] && colorEcho "${RED}Can't find ${FUCHSIA}clash_client_subscription.list${RED}!" && exit 1
 
-tee -a "${WORKDIR}/clash_dns.yaml" >/dev/null <<-'EOF'
+DNS_CONIFG_FILE="/etc/clash/clash_client_dns.yaml"
+[[ ! -s "${DNS_CONIFG_FILE}" ]] && DNS_CONIFG_FILE="$HOME/clash_client_dns.yaml"
+
+if [[ ! -s "${DNS_CONIFG_FILE}" ]]; then
+    tee -a "${DNS_CONIFG_FILE}" >/dev/null <<-'EOF'
 dns:
   enable: true
-  listen: 0.0.0.0:53
+  listen: 0.0.0.0:8053
   ipv6: true
 
   enhanced-mode: redir-host
@@ -79,6 +83,7 @@ dns:
     - "[2606:4700:4700::1111]:53"
     - "[2620:fe::9]:53"
 EOF
+fi
 
 URL_EXCLUDE=$(grep -E '^# exclude=' "${SUB_LIST_FILE}" | cut -d" " -f2)
 URL_CONFIG=$(grep -E '^# config=' "${SUB_LIST_FILE}" | cut -d" " -f2)
@@ -126,7 +131,7 @@ if [[ -z "${SUB_LIST_LINE}" ]]; then
             sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
 
             DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
-            [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${WORKDIR}/clash_dns.yaml" "${SUB_DOWNLOAD_FILE}"
+            [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
 
             sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
             exit 0
@@ -165,7 +170,7 @@ else
         sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
 
         DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
-        [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${WORKDIR}/clash_dns.yaml" "${SUB_DOWNLOAD_FILE}"
+        [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
 
         sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
         exit 0
