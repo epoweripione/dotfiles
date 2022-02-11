@@ -385,7 +385,7 @@ sed -i "${LineBegin}a\\${Plugins}" "$HOME/.zshrc"
 
 # nano
 colorEcho "${BLUE}Setting ${FUCHSIA}nano${BLUE}..."
-Git_Clone_Update_Branch "scopatz/nanorc" "$HOME/.local/share/nano"
+Git_Clone_Update_Branch "scopatz/nanorc" "$HOME/.local/share/nanorc"
 
 if ! grep -q "set titlecolor" "$HOME/.nanorc" 2>/dev/null; then
     echo "set titlecolor brightwhite,red" >> "$HOME/.nanorc"
@@ -411,13 +411,14 @@ if ! grep -q "set functioncolor" "$HOME/.nanorc" 2>/dev/null; then
     echo "set functioncolor magenta" >> "$HOME/.nanorc"
 fi
 
-# if ! grep -q "set linenumbers" "$HOME/.nanorc"; then
-#     echo "set linenumbers" >> "$HOME/.nanorc"
-# fi
+if ! grep -q "set linenumbers" "$HOME/.nanorc"; then
+    echo "set linenumbers" >> "$HOME/.nanorc"
+fi
 
-if [[ -d "$HOME/.local/share/nano" ]]; then
-    if ! grep -q "\$HOME/.local/share/nano/\*\.nanorc" "$HOME/.nanorc" 2>/dev/null; then
-        echo "include \"$HOME/.local/share/nano/*.nanorc\"" >> "$HOME/.nanorc"
+if [[ -d "$HOME/.local/share/nanorc" ]]; then
+    if ! grep -q "$HOME/\.local/share/nanorc/\*\.nanorc" "$HOME/.nanorc" 2>/dev/null; then
+        sed -i -e '/nano\/\*\.nanorc/d' -e '/nanorc\/\*\.nanorc/d' "$HOME/.nanorc"
+        echo -e "\ninclude \"$HOME/.local/share/nanorc/*.nanorc\"" >> "$HOME/.nanorc"
     fi
 fi
 
