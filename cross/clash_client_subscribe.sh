@@ -63,7 +63,7 @@ if [[ ! -s "${DNS_CONIFG_FILE}" ]]; then
     tee -a "${DNS_CONIFG_FILE}" >/dev/null <<-'EOF'
 dns:
   enable: true
-  listen: 0.0.0.0:8053
+  listen: 127.0.0.1:8053
   ipv6: true
 
   enhanced-mode: redir-host
