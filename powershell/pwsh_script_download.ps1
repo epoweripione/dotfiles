@@ -84,9 +84,9 @@ if ($?) {
     Copy-Item -Path ".\dotfiles\powershell\themes\*.psm1" -Destination "$THEME_DIR"
     Copy-Item -Path ".\dotfiles\powershell\themes\*.json" -Destination "$THEME_DIR"
 
-    (Get-Content -path "~\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json" -Raw) `
-        -Replace '"type": "git",','"type": "poshgit",' `
-        | Set-Content -Path "~\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json"
+    # (Get-Content -path "~\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json" -Raw) `
+    #     -Replace '"type": "git",','"type": "poshgit",' `
+    #     | Set-Content -Path "~\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json"
 
     $IMAGE_DIR = "~\Pictures"
     Copy-Item -Path ".\dotfiles\wsl\*.jpg" -Destination "$IMAGE_DIR"

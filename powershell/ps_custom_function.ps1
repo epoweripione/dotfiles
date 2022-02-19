@@ -14,6 +14,69 @@ function isadmin() {
     ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
 }
 
+# Add expiration timer for receiving the input to the built-in "read-host" cmdlet
+# https://stackoverflow.com/questions/48261349/powershell-wait-for-specified-key-to-be-pressed-otherwise-timeout
+# http://thecuriousgeek.org/2014/10/powershell-read-host-with-timeout/
+# $answers = Read-Host-Timeout "Continue?[Y/n]" 5
+function Read-Host-Timeout() {
+    Param (
+        [Parameter(Mandatory=$true,Position=1)]
+        [string]$prompt,
+        
+        [Parameter(Mandatory=$false,Position=2)]
+        [int]$delayInSeconds
+    )
+
+    Write-host -nonewline "$($prompt):  "
+
+    $sleep = 200
+    $timeout = $delayInSeconds * 1000
+    $charArray = New-Object System.Collections.ArrayList
+
+    # While loop waits for the first key to be pressed for input and
+    # then exits.  If the timer expires it returns null
+    $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+    while (-not [Console]::KeyAvailable) {
+        if ($stopwatch.ElapsedMilliseconds -gt $timeout) {
+            return $null
+        }
+
+        Start-Sleep -Milliseconds $sleep
+    }
+
+    # Retrieve the key pressed, add it to the char array that is storing
+    # all keys pressed and then write it to the same line as the prompt
+    $key = $host.ui.rawui.readkey("NoEcho,IncludeKeyUp").Character
+    $charArray.Add($key) | out-null
+    Write-host -nonewline $key
+
+    # This block is where the script keeps reading for a key.  Every time
+    # a key is pressed, it checks if it's a carriage return.  If so, it exits the
+    # loop and returns the string.  If not it stores the key pressed and
+    # then checks if it's a backspace and does the necessary cursor 
+    # moving and blanking out of the backspaced character, then resumes 
+    # writing. 
+    $key = $host.ui.rawui.readkey("NoEcho,IncludeKeyUp")
+    While ($key.virtualKeyCode -ne 13) {
+        If ($key.virtualKeycode -eq 8) {
+            $charArray.Add($key.Character) | out-null
+            Write-host -nonewline $key.Character
+            $cursor = $host.ui.rawui.get_cursorPosition()
+            write-host -nonewline " "
+            $host.ui.rawui.set_cursorPosition($cursor)
+            $key = $host.ui.rawui.readkey("NoEcho,IncludeKeyUp")
+        } else {
+            $charArray.Add($key.Character) | out-null
+            Write-host -nonewline $key.Character
+            $key = $host.ui.rawui.readkey("NoEcho,IncludeKeyUp")
+        }
+    }
+
+    ""
+    $finalString = -join $charArray
+    return $finalString
+}
+
 function CheckDownloadPWSHNewVersion {
     [Version]$ReleaseVersion = (Invoke-RestMethod 'https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json').ReleaseTag -replace '^v'
     if ($PSVersionTable.PSEdition -like "Core" -and $ReleaseVersion -gt $PSVersionTable.PSVersion) {
@@ -110,8 +173,7 @@ function  GetDISMOnlineCapabilities() {
 }
 
 function GetIPGeolocation() {
-
-    param($ipaddress)
+    Param ($ipaddress)
 
     $resource = "http://ip-api.com/json/$ipaddress"
     try {
@@ -142,6 +204,7 @@ function GetIPGeolocation() {
 
     return $result
 }
+
 function check_webservice_up() {
     param($webservice_url)
 
@@ -429,6 +492,7 @@ function CheckSetGlobalProxy() {
         [string]$ProxyAddress = "127.0.0.1",
         [string]$ProxyMixedPort = "7890",
         [string]$ProxyHttpPort = "7890",
+        [switch]$InputAddress,
         [string]$Msg = "Porxy address?"
     )
 
@@ -452,9 +516,12 @@ function CheckSetGlobalProxy() {
             }
         }
 
-        if (!$Proxy) {
-            if ($PROMPT_VALUE = Read-Host "$Msg[$($Proxy)]") {
+        if (!$Proxy -and $InputAddress) {
+            if ($PROMPT_VALUE = Read-Host "$Msg[127.0.0.1:7890]") {
                 $Proxy = $PROMPT_VALUE
+                if (!$Proxy) {
+                    $Proxy = "127.0.0.1:7890"
+                }
                 if (-Not (check_http_proxy_up $Proxy)) {
                     $Proxy = ""
                 }
@@ -470,7 +537,7 @@ function CheckSetGlobalProxy() {
         $env:GLOBAL_PROXY_HTTP_PORT = $ProxyHttpPort
 
         $env:HTTP_PROXY="http://${ProxyAddress}:${ProxyHttpPort}"
-        $env:HTTPS_PROXY="https://${ProxyAddress}:${ProxyHttpPort}"
+        $env:HTTPS_PROXY="http://${ProxyAddress}:${ProxyHttpPort}"
         $env:NO_PROXY="localhost,127.0.0.1,::1"
     } else {
         if ($env:GLOBAL_PROXY_IP) {Remove-Item "Env:\GLOBAL_PROXY_IP"}
@@ -562,11 +629,9 @@ function ConvertTo-HexString {
 
     process
     {
-        if ($InputObjects -is [byte[]])
-        {
+        if ($InputObjects -is [byte[]]) {
             Write-Output (Transform $InputObjects)
-        }
-        else {
+        } else {
             foreach ($InputObject in $InputObjects) {
                 [byte[]] $InputBytes = $null
                 if ($InputObject -is [byte]) {
@@ -576,34 +641,21 @@ function ConvertTo-HexString {
                         Write-Warning ('For better performance when piping a single byte array, use "Write-Output $byteArray -NoEnumerate | {0}".' -f $MyInvocation.MyCommand)
                     }
                     $listBytes.Add($InputObject)
-                }
-                elseif ($InputObject -is [byte[]])
-                {
+                } elseif ($InputObject -is [byte[]]) {
                     $InputBytes = $InputObject
-                }
-                elseif ($InputObject -is [string])
-                {
+                } elseif ($InputObject -is [string]) {
                     $InputBytes = [Text.Encoding]::$Encoding.GetBytes($InputObject)
-                }
-                elseif ($InputObject -is [bool] -or $InputObject -is [char] -or $InputObject -is [single] -or $InputObject -is [double] -or $InputObject -is [int16] -or $InputObject -is [int32] -or $InputObject -is [int64] -or $InputObject -is [uint16] -or $InputObject -is [uint32] -or $InputObject -is [uint64])
-                {
+                } elseif ($InputObject -is [bool] -or $InputObject -is [char] -or $InputObject -is [single] -or $InputObject -is [double] -or $InputObject -is [int16] -or $InputObject -is [int32] -or $InputObject -is [int64] -or $InputObject -is [uint16] -or $InputObject -is [uint32] -or $InputObject -is [uint64]) {
                     $InputBytes = [System.BitConverter]::GetBytes($InputObject)
-                }
-                elseif ($InputObject -is [guid])
-                {
+                } elseif ($InputObject -is [guid]) {
                     $InputBytes = $InputObject.ToByteArray()
-                }
-                elseif ($InputObject -is [System.IO.FileSystemInfo])
-                {
+                } elseif ($InputObject -is [System.IO.FileSystemInfo]) {
                     if ($PSVersionTable.PSVersion -ge [version]'6.0') {
                         $InputBytes = Get-Content $InputObject.FullName -Raw -AsByteStream
-                    }
-                    else {
+                    } else {
                         $InputBytes = Get-Content $InputObject.FullName -Raw -Encoding Byte
                     }
-                }
-                else
-                {
+                } else {
                     ## Non-Terminating Error
                     $Exception = New-Object ArgumentException -ArgumentList ('Cannot convert input of type {0} to Hex string.' -f $InputObject.GetType())
                     Write-Error -Exception $Exception -Category ([System.Management.Automation.ErrorCategory]::ParserError) -CategoryActivity $MyInvocation.MyCommand -ErrorId 'ConvertHexFailureTypeNotSupported' -TargetObject $InputObject
@@ -658,8 +710,7 @@ function ConvertFrom-HexString {
             [string] $strHex = $InputObject[$iString]
             if ($strHex.Substring(2,1) -eq $Delimiter) {
                 [string[]] $listHex = $strHex -split $Delimiter
-            }
-            else {
+            } else {
                 [string[]] $listHex = New-Object string[] ($strHex.Length/2)
                 for ($iByte = 0; $iByte -lt $strHex.Length; $iByte += 2) {
                     $listHex[[System.Math]::Truncate($iByte/2)] = $strHex.Substring($iByte, 2)
@@ -672,8 +723,7 @@ function ConvertFrom-HexString {
                 $outBytes[$iByte] = [byte]::Parse($listHex[$iByte],[System.Globalization.NumberStyles]::HexNumber)
             }
 
-            if ($RawBytes) { $listBytes[$iString] = $outBytes }
-            else {
+            if ($RawBytes) { $listBytes[$iString] = $outBytes } else {
                 $outString = ([Text.Encoding]::$Encoding.GetString($outBytes))
                 Write-Output $outString
             }
