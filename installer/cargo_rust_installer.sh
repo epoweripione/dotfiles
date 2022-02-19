@@ -16,9 +16,9 @@ fi
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
 ## Rust and Cargo
-## https://doc.rust-lang.org/cargo/getting-started/installation.html
+## https://www.rust-lang.org/learn/get-started
 ## On Linux and macOS systems
-curl https://sh.rustup.rs -sSf | sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ## On Windows
 ## https://win.rustup.rs/
@@ -28,8 +28,11 @@ curl https://sh.rustup.rs -sSf | sh
 # rustup & cargo mirror
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     # rustup mirror
-    export RUSTUP_DIST_SERVER=https://mirror.sjtu.edu.cn/rust-static
-    export RUSTUP_UPDATE_ROOT=https://mirror.sjtu.edu.cn/rust-static/rustup
+    export RUSTUP_DIST_SERVER="https://rsproxy.cn"
+    export RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
+
+    # export RUSTUP_DIST_SERVER=https://mirror.sjtu.edu.cn/rust-static
+    # export RUSTUP_UPDATE_ROOT=https://mirror.sjtu.edu.cn/rust-static/rustup
 
     # export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
     # export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
@@ -40,8 +43,7 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
         tee "$HOME/.cargo/config" >/dev/null <<-'EOF'
 [source.crates-io]
 registry = "https://github.com/rust-lang/crates.io-index"
-
-replace-with = 'sjtu'
+replace-with = 'rsproxy'
 
 [source.tuna]
 registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
@@ -50,10 +52,19 @@ registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
 registry = "git://mirrors.ustc.edu.cn/crates.io-index"
 
 [source.sjtu]
-registry = "https://mirror.sjtu.edu.cn/git/crates.io-index"
+registry = "https://mirrors.sjtug.sjtu.edu.cn/git/crates.io-index/"
 
 [source.rustcc]
 registry = "git://crates.rustcc.cn/crates.io-index"
+
+[source.rsproxy]
+registry = "https://rsproxy.cn/crates.io-index"
+
+[registries.rsproxy]
+index = "https://rsproxy.cn/crates.io-index"
+
+[net]
+git-fetch-with-cli = true
 EOF
     fi
 fi

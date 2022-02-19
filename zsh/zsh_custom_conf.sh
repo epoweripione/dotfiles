@@ -449,8 +449,11 @@ fi
 # rustup & cargo
 if [[ "${THE_WORLD_BLOCKED}" == "true" && -x "$(command -v rustup)" ]]; then
     # rustup mirror
-    export RUSTUP_DIST_SERVER=https://mirror.sjtu.edu.cn/rust-static
-    export RUSTUP_UPDATE_ROOT=https://mirror.sjtu.edu.cn/rust-static/rustup
+    export RUSTUP_DIST_SERVER="https://rsproxy.cn"
+    export RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
+
+    # export RUSTUP_DIST_SERVER=https://mirror.sjtu.edu.cn/rust-static
+    # export RUSTUP_UPDATE_ROOT=https://mirror.sjtu.edu.cn/rust-static/rustup
 
     # export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
     # export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
@@ -461,8 +464,7 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -x "$(command -v rustup)" ]]; then
         tee "$HOME/.cargo/config" >/dev/null <<-'EOF'
 [source.crates-io]
 registry = "https://github.com/rust-lang/crates.io-index"
-
-replace-with = 'rustcc'
+replace-with = 'rsproxy'
 
 [source.tuna]
 registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
@@ -471,10 +473,19 @@ registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
 registry = "git://mirrors.ustc.edu.cn/crates.io-index"
 
 [source.sjtu]
-registry = "https://mirror.sjtu.edu.cn/git/crates.io-index"
+registry = "https://mirrors.sjtug.sjtu.edu.cn/git/crates.io-index/"
 
 [source.rustcc]
 registry = "git://crates.rustcc.cn/crates.io-index"
+
+[source.rsproxy]
+registry = "https://rsproxy.cn/crates.io-index"
+
+[registries.rsproxy]
+index = "https://rsproxy.cn/crates.io-index"
+
+[net]
+git-fetch-with-cli = true
 EOF
     fi
 fi
