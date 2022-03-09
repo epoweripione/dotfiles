@@ -100,27 +100,77 @@ fi
 SUB_LIST_FILE=${7:-"/etc/clash/clash_client_subscription.list"}
 [[ ! -s "$SUB_LIST_FILE" ]] && SUB_LIST_FILE="$HOME/clash_client_subscription.list"
 [[ ! -s "$SUB_LIST_FILE" ]] && SUB_LIST_FILE="${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cross/clash_client_subscription.list"
+
 if [[ -s "$SUB_LIST_FILE" ]]; then
+    # Subscribe urls
+    URL_EXCLUDE=$(grep -E '^# exclude=' "${SUB_LIST_FILE}" | cut -d" " -f2)
+    URL_CONFIG=$(grep -E '^# config=' "${SUB_LIST_FILE}" | cut -d" " -f2)
+    URL_LIST_CONTENT=$(grep -E '^# url=' "${SUB_LIST_FILE}" | cut -d" " -f2 | cut -d"=" -f2)
+
+    URL_UNION=""
+    URL_LIST=()
+    while read -r READLINE || [[ "${READLINE}" ]]; do
+        URL_LIST+=("${READLINE}")
+        [[ -n "${URL_UNION}" ]] && URL_UNION="${URL_UNION}%7C${READLINE}" || URL_UNION="${READLINE}"
+    done <<<"${URL_LIST_CONTENT}"
+
+    URL_LIST+=("${URL_UNION}")
+
+    # Subconverter web service urls
     SUB_LIST=()
     # || In case the file has an incomplete (missing newline) last line
-    while read -r READLINE || [[ "$READLINE" ]]; do
-        SUB_LIST+=("$READLINE")
+    while read -r READLINE || [[ "${READLINE}" ]]; do
+        [[ "${READLINE}" =~ ^#.* ]] && continue
+        SUB_LIST+=("${READLINE}")
     done < "${SUB_LIST_FILE}"
 
+    # Download clash configuration file
     SUB_DOWNLOAD_FILE="${WORKDIR}/clash_sub.yaml"
     for TargetURL in "${SUB_LIST[@]}"; do
-        [[ -z "$TargetURL" ]] && continue
-        colorEcho "${BLUE}Downloading clash client connfig from ${FUCHSIA}${TargetURL}${BLUE}..."
-        curl -fSL --noproxy "*" --connect-timeout 10 --max-time 60 \
-            -o "$SUB_DOWNLOAD_FILE" "$TargetURL"
+        [[ -z "${TargetURL}" ]] && continue
 
-        curl_download_status=$?
-        if [[ ${curl_download_status} -eq 0 ]]; then
-            sed -i "s/^allow-lan:.*/allow-lan: false/" "$SUB_DOWNLOAD_FILE"
-            sed -i "s/^external-controller:.*/# &/" "$SUB_DOWNLOAD_FILE"
-            sudo cp -f "$SUB_DOWNLOAD_FILE" "$TARGET_CONFIG_FILE"
-            exit 0
-        fi
+        for URL_URL in "${URL_LIST[@]}"; do
+            [[ -z "${URL_URL}" ]] && continue
+
+            # https://www.example.com/sub?target=clash&url=<url>&config=<config>&exclude=<exclude>
+            DownloadURL="${TargetURL}&url=${URL_URL}&${URL_CONFIG}"
+            [[ -n "${URL_EXCLUDE}" ]] && DownloadURL="${DownloadURL}&${URL_EXCLUDE}"
+
+            colorEcho "${BLUE}Downloading clash configuration from ${FUCHSIA}${DownloadURL}${BLUE}..."
+            curl -fSL --noproxy "*" --connect-timeout 10 --max-time 60 \
+                -o "${SUB_DOWNLOAD_FILE}" "${DownloadURL}"
+
+            curl_download_status=$?
+            if [[ ${curl_download_status} -eq 0 ]]; then
+                sed -i -e "s/^allow-lan:.*/allow-lan: false/" \
+                    -e "s/^external-controller:.*/# &/" \
+                    -e "s/^port:.*/# &/" \
+                    -e "s/^redir-port:.*/# &/" \
+                    -e "s/^mixed-port:.*/# &/" \
+                    -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
+                sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
+
+                DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
+                [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
+
+                sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
+
+                # if pgrep -f "clash" >/dev/null 2>&1; then
+                if [[ $(systemctl is-enabled clash 2>/dev/null) ]]; then
+                    colorEcho "${BLUE}Checking clash connectivity..."
+                    sudo systemctl restart clash && sleep 3
+
+                    if check_socks5_proxy_up "127.0.0.1:7890"; then
+                        colorEcho "${GREEN}The configuration looks ok, done!"
+                        exit 0
+                    else
+                        colorEcho "${RED}Connection failed!"
+                    fi
+                else
+                    exit 0
+                fi
+            fi
+        done
     done
 fi
 

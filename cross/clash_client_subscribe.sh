@@ -45,7 +45,6 @@ if [[ ! -x "$(command -v yq)" ]]; then
 fi
 
 SUB_LIST_LINE=${1:-""}
-SUB_DOWNLOAD_FILE="${WORKDIR}/clash_sub.yaml"
 
 mkdir -p "/srv/clash"
 TARGET_CONFIG_FILE="/srv/clash/config.yaml"
@@ -85,40 +84,60 @@ dns:
 EOF
 fi
 
+# Subscribe urls
 URL_EXCLUDE=$(grep -E '^# exclude=' "${SUB_LIST_FILE}" | cut -d" " -f2)
 URL_CONFIG=$(grep -E '^# config=' "${SUB_LIST_FILE}" | cut -d" " -f2)
+URL_LIST_CONTENT=$(grep -E '^# url=' "${SUB_LIST_FILE}" | cut -d" " -f2 | cut -d"=" -f2)
 
-URL_URL="url="
-SUB_URL_LIST=$(grep -E '^# url=' "${SUB_LIST_FILE}" | cut -d" " -f2 | cut -d"=" -f2)
-SUB_URL_CNT=0
+URL_UNION=""
+URL_LIST=()
 while read -r READLINE || [[ "${READLINE}" ]]; do
-    if [[ SUB_URL_CNT -gt 0 ]]; then
-        URL_URL="${URL_URL}%7C${READLINE}"
-    else
-        URL_URL="${URL_URL}${READLINE}"
-    fi
+    URL_LIST+=("${READLINE}")
+    [[ -n "${URL_UNION}" ]] && URL_UNION="${URL_UNION}%7C${READLINE}" || URL_UNION="${READLINE}"
+done <<<"${URL_LIST_CONTENT}"
 
-    SUB_URL_CNT=$((SUB_URL_CNT + 1))
-done <<<"${SUB_URL_LIST}"
+URL_LIST+=("${URL_UNION}")
 
+# Subconverter web service urls
+SUB_LIST=()
 if [[ -z "${SUB_LIST_LINE}" ]]; then
-    SUB_LIST=()
     # || In case the file has an incomplete (missing newline) last line
     while read -r READLINE || [[ "${READLINE}" ]]; do
         [[ "${READLINE}" =~ ^#.* ]] && continue
         SUB_LIST+=("${READLINE}")
     done < "${SUB_LIST_FILE}"
+else
+    SUB_LIST_CONTENT=$(sed -e '/^$/d' -e '/^#/d' "${SUB_LIST_FILE}")
+    SUB_CNT=$(echo "${SUB_LIST_CONTENT}" | wc -l)
 
-    for TargetURL in "${SUB_LIST[@]}"; do
-        [[ -z "${TargetURL}" ]] && continue
+    # random line
+    [[ "${SUB_LIST_LINE}" == "0" ]] && SUB_LIST_LINE=$(( ( RANDOM % 10 )  + SUB_CNT - 9 + 1 ))
+    SUB_URL=$(echo "${SUB_LIST_CONTENT}" | sed -n "${SUB_LIST_LINE}p")
+
+    # empty URL fallback to line 1
+    [[ -z "${SUB_URL}" ]] && SUB_LIST_LINE="1"
+    SUB_URL=$(echo "${SUB_LIST_CONTENT}" | sed -n "${SUB_LIST_LINE}p")
+
+    [[ -z "${SUB_URL}" ]] && colorEcho "${RED}Can't get URL from line ${FUCHSIA}${SUB_LIST_LINE}${RED}!" && exit 1
+
+    SUB_LIST+=("${SUB_URL}")
+fi
+
+# Download clash configuration file
+SUB_DOWNLOAD_FILE="${WORKDIR}/clash_sub.yaml"
+for TargetURL in "${SUB_LIST[@]}"; do
+    [[ -z "${TargetURL}" ]] && continue
+
+    for URL_URL in "${URL_LIST[@]}"; do
+        [[ -z "${URL_URL}" ]] && continue
 
         # https://www.example.com/sub?target=clash&url=<url>&config=<config>&exclude=<exclude>
-        TargetURL="${TargetURL}&${URL_URL}&${URL_CONFIG}"
-        [[ -n "${URL_EXCLUDE}" ]] && TargetURL="${TargetURL}&${URL_EXCLUDE}"
+        DownloadURL="${TargetURL}&url=${URL_URL}&${URL_CONFIG}"
+        [[ -n "${URL_EXCLUDE}" ]] && DownloadURL="${DownloadURL}&${URL_EXCLUDE}"
 
-        colorEcho "${BLUE}Downloading clash client connfig from ${FUCHSIA}${TargetURL}${BLUE}..."
+        colorEcho "${BLUE}Downloading clash configuration from ${FUCHSIA}${DownloadURL}${BLUE}..."
         curl -fSL --noproxy "*" --connect-timeout 10 --max-time 60 \
-            -o "${SUB_DOWNLOAD_FILE}" "${TargetURL}"
+            -o "${SUB_DOWNLOAD_FILE}" "${DownloadURL}"
 
         curl_download_status=$?
         if [[ ${curl_download_status} -eq 0 ]]; then
@@ -134,47 +153,23 @@ if [[ -z "${SUB_LIST_LINE}" ]]; then
             [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
 
             sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
-            exit 0
+
+            # if pgrep -f "clash" >/dev/null 2>&1; then
+            if [[ $(systemctl is-enabled clash 2>/dev/null) ]]; then
+                colorEcho "${BLUE}Checking clash connectivity..."
+                sudo systemctl restart clash && sleep 3
+
+                if check_socks5_proxy_up "127.0.0.1:7890"; then
+                    colorEcho "${GREEN}The configuration looks ok, done!"
+                    exit 0
+                else
+                    colorEcho "${RED}Connection failed!"
+                fi
+            else
+                exit 0
+            fi
         fi
     done
-else
-    SUB_LIST_CONTENT=$(sed -e '/^$/d' -e '/^#/d' "${SUB_LIST_FILE}")
-    SUB_LIST_COUNT=$(echo "${SUB_LIST_CONTENT}" | wc -l)
-
-    # random line
-    [[ "${SUB_LIST_LINE}" == "0" ]] && SUB_LIST_LINE=$(( ( RANDOM % 10 )  + SUB_LIST_COUNT - 9 + 1 ))
-    TargetURL=$(echo "${SUB_LIST_CONTENT}" | sed -n "${SUB_LIST_LINE}p")
-
-    # empty URL fallback to line 1
-    [[ -z "${TargetURL}" ]] && SUB_LIST_LINE="1"
-    TargetURL=$(echo "${SUB_LIST_CONTENT}" | sed -n "${SUB_LIST_LINE}p")
-
-    [[ -z "${TargetURL}" ]] && colorEcho "${RED}Can't get URL from line ${FUCHSIA}${SUB_LIST_LINE}${RED}!" && exit 1
-
-    # https://www.example.com/sub?target=clash&url=<url>&config=<config>&exclude=<exclude>
-    TargetURL="${TargetURL}&${URL_URL}&${URL_CONFIG}"
-    [[ -n "${URL_EXCLUDE}" ]] && TargetURL="${TargetURL}&${URL_EXCLUDE}"
-
-    colorEcho "${BLUE}Downloading clash client connfig from ${FUCHSIA}${TargetURL}${BLUE}..."
-    curl -fSL --noproxy "*" --connect-timeout 10 --max-time 60 \
-        -o "${SUB_DOWNLOAD_FILE}" "${TargetURL}"
-
-    curl_download_status=$?
-    if [[ ${curl_download_status} -eq 0 ]]; then
-        sed -i -e "s/^allow-lan:.*/allow-lan: false/" \
-            -e "s/^external-controller:.*/# &/" \
-            -e "s/^port:.*/# &/" \
-            -e "s/^redir-port:.*/# &/" \
-            -e "s/^mixed-port:.*/# &/" \
-            -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
-        sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
-
-        DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
-        [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
-
-        sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
-        exit 0
-    fi
-fi
+done
 
 cd "${CURRENT_DIR}" || exit
