@@ -45,9 +45,12 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
         asdf_App_Install nodejs lts
     fi
 
-    if [[ -x "$(command -v node)" && -x "$(command -v npm)" && ! -d "$HOME/.npm-global" ]]; then
-        [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]] && \
-            source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh"
+    if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
+        NPM_PREFIX=$(npm config get prefix 2>/dev/null)
+        if [[ ! -d "${NPM_PREFIX}" ]]; then
+            [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]] && \
+                source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh"
+        fi
     fi
 fi
 
