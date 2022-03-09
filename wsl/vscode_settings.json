@@ -16,6 +16,9 @@
 	"workbench.editor.decorations.badges": true,
 	"workbench.editor.decorations.colors": true,
 
+	"workbench.experimental.layoutControl.enabled": true,
+	"workbench.experimental.layoutControl.type": "both",
+
 	"editor.minimap.enabled": true,
 	"editor.renderControlCharacters": true,
 	"editor.renderWhitespace": "selection",
@@ -92,8 +95,12 @@
 
 	//go install -v golang.org/x/tools/cmd/goimports@latest
 	"go.useLanguageServer": true,
+	"go.toolsManagement.autoUpdate": true,
+	"[go]": {
+			"editor.defaultFormatter": "golang.go"
+	},
 
-"redhat.telemetry.enabled": true,
+	"redhat.telemetry.enabled": true,
 
 	"svelte.enable-ts-plugin": true,
 
