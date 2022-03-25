@@ -39,10 +39,10 @@ if [[ ! -x "$(command -v yq)" ]]; then
     [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
 fi
 
-if [[ ! -x "$(command -v yq)" ]]; then
-    colorEcho "${FUCHSIA}yq${RED} is not installed!"
-    exit 1
-fi
+# if [[ ! -x "$(command -v yq)" ]]; then
+#     colorEcho "${FUCHSIA}yq${RED} is not installed!"
+#     exit 1
+# fi
 
 SUB_LIST_LINE=${1:-""}
 
@@ -149,8 +149,8 @@ for TargetURL in "${SUB_LIST[@]}"; do
                 -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
             sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
 
-            DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
-            [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
+            [[ -x "$(command -v yq)" ]] && DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
+            [[ -z "${DNS_ENABLE}" && -s "${DNS_CONIFG_FILE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
 
             sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
 
@@ -168,6 +168,8 @@ for TargetURL in "${SUB_LIST[@]}"; do
             else
                 exit 0
             fi
+        else
+            break
         fi
     done
 done

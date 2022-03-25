@@ -150,8 +150,8 @@ if [[ -s "$SUB_LIST_FILE" ]]; then
                     -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
                 sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
 
-                DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
-                [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
+                [[ -x "$(command -v yq)" ]] && DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
+                [[ -z "${DNS_ENABLE}" && -s "${DNS_CONIFG_FILE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
 
                 sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
 
@@ -169,6 +169,8 @@ if [[ -s "$SUB_LIST_FILE" ]]; then
                 else
                     exit 0
                 fi
+            else
+                break
             fi
         done
     done

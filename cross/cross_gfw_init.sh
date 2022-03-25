@@ -137,6 +137,35 @@ TARGET_CONFIG_FILE="/srv/clash/config.yaml"
 [[ ! -s "${SUB_LIST_FILE}" ]] && SUB_LIST_FILE="/srv/clash/clash_client_subscription.list"
 [[ ! -s "${SUB_LIST_FILE}" ]] && SUB_LIST_FILE="$HOME/clash_client_subscription.list"
 
+DNS_CONIFG_FILE="/etc/clash/clash_client_dns.yaml"
+[[ ! -s "${DNS_CONIFG_FILE}" ]] && DNS_CONIFG_FILE="$HOME/clash_client_dns.yaml"
+
+if [[ ! -s "${DNS_CONIFG_FILE}" ]]; then
+    tee -a "${DNS_CONIFG_FILE}" >/dev/null <<-'EOF'
+dns:
+  enable: true
+  listen: 127.0.0.1:8053
+  ipv6: true
+
+  enhanced-mode: redir-host
+  fake-ip-range: 198.18.0.1/16
+
+  nameserver:
+    - 223.5.5.5
+    - 114.114.114.114
+    - https://dns.alidns.com/dns-query
+    - "[2400:3200::1]:53"
+
+  fallback:
+    - tcp://1.1.1.1
+    - tcp://8.8.8.8
+    - tls://1.0.0.1:853
+    - tls://dns.google:853
+    - "[2606:4700:4700::1111]:53"
+    - "[2620:fe::9]:53"
+EOF
+fi
+
 if [[ -s "${SUB_LIST_FILE}" ]]; then
     # Subscribe urls
     URL_EXCLUDE=$(grep -E '^# exclude=' "${SUB_LIST_FILE}" | cut -d" " -f2)
@@ -186,8 +215,8 @@ if [[ -s "${SUB_LIST_FILE}" ]]; then
                     -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
                 sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
 
-                DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
-                [[ -z "${DNS_ENABLE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
+                [[ -x "$(command -v yq)" ]] && DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
+                [[ -z "${DNS_ENABLE}" && -s "${DNS_CONIFG_FILE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
 
                 sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
 
@@ -205,6 +234,8 @@ if [[ -s "${SUB_LIST_FILE}" ]]; then
                 else
                     break 2
                 fi
+            else
+                break
             fi
         done
     done
