@@ -52,8 +52,6 @@ if [[ -x "$(command -v pacman)" ]]; then
 
     # Pre-requisite packages
     PackagesList=(
-        aria2
-        axel
         curl
         wget
         git
@@ -103,6 +101,8 @@ if [[ -x "$(command -v pacman)" ]]; then
         # tmux
         xsel
         xmlstarlet
+        aria2
+        axel
     )
     for TargetPackage in "${PackagesList[@]}"; do
         if checkPackageNeedInstall "${TargetPackage}"; then

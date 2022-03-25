@@ -1652,7 +1652,7 @@ function Git_Clone_Update() {
 
     REPOURL="${REPOURL%/}"
     if [[ "${REPOURL}" == "github.com" ]]; then
-        REPOURL=$(echo "${GITHUB_HUB_URL}" | sed 's|^http://||;s|^https://||')
+        [[ -n "${GITHUB_HUB_URL}" ]] && REPOURL=$(echo "${GITHUB_HUB_URL}" | sed 's|^http://||;s|^https://||')
         REPOREMOTE="https://${REPOURL}/${REPONAME}.git"
     else
         [[ "${REPOURL}" =~ ^(git@) ]] \
@@ -1709,7 +1709,7 @@ function Git_Clone_Update_Branch() {
 
     REPOURL="${REPOURL%/}"
     if [[ "${REPOURL}" == "github.com" ]]; then
-        REPOURL=$(echo "${GITHUB_HUB_URL}" | sed 's|^http://||;s|^https://||')
+        [[ -n "${GITHUB_HUB_URL}" ]] && REPOURL=$(echo "${GITHUB_HUB_URL}" | sed 's|^http://||;s|^https://||')
         REPOREMOTE="https://${REPOURL}/${REPONAME}.git"
     else
         [[ "${REPOURL}" =~ ^(git@) ]] \
