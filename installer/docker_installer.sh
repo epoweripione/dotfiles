@@ -216,7 +216,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     REMOTE_FILENAME="ctop-${REMOTE_VERSION}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
 
     DOWNLOAD_FILENAME="${WORKDIR}/ctop"
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/bcicen/ctop/releases/download/${REMOTE_VERSION}/${REMOTE_FILENAME}"
+    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/bcicen/ctop/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
     colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
 
