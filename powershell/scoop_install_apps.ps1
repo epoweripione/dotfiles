@@ -181,6 +181,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "rustup"
         "nodejs-lts"
         # "dotnet-sdk"
+        # "zulu17-jdk"
         "zulu11-jdk"
         # "zulu11-jre"
         "python"
@@ -203,6 +204,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "v2rayn"
         # "lxrunoffline"
         "bulk-rename-utility"
+        "fastcopy"
         "snipaste-beta"
         "ffmpeg"
         "mpc-be"
@@ -251,6 +253,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "broot"
         "cloc"
         "croc"
+        "dasel"
         "duf"
         "dust"
         "fd"
@@ -323,6 +326,17 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "CascadiaCode-NF"
         # "Noto-NF"
     )
+
+    # Use list file if exists
+    if (Test-Path "$PSScriptRoot\scoop_install_apps.list") {
+        # $Apps = [System.IO.File]::ReadAllLines("$PSScriptRoot\scoop_install_apps.list")
+        $Apps = Get-Content -Path "$PSScriptRoot\scoop_install_apps.list"
+    }
+
+    if (Test-Path "$PSScriptRoot\scoop_install_apps_sudo.list") {
+        # $sudoApps = [System.IO.File]::ReadAllLines("$PSScriptRoot\scoop_install_apps_sudo.list")
+        $sudoApps = Get-Content -Path "$PSScriptRoot\scoop_install_apps_sudo.list"
+    }
 
     # Remove failed installed apps
     $InstalledApps = scoop list 6>&1 | Out-String
