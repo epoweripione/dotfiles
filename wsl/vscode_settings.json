@@ -16,9 +16,6 @@
 	"workbench.editor.decorations.badges": true,
 	"workbench.editor.decorations.colors": true,
 
-	"workbench.experimental.layoutControl.enabled": true,
-	"workbench.experimental.layoutControl.type": "both",
-
 	"editor.minimap.enabled": true,
 	"editor.renderControlCharacters": true,
 	"editor.renderWhitespace": "selection",
@@ -98,6 +95,10 @@
 	"go.toolsManagement.autoUpdate": true,
 	"[go]": {
 			"editor.defaultFormatter": "golang.go"
+	},
+
+	"[xml]": {
+			"editor.defaultFormatter": "DotJoshJohnson.xml"
 	},
 
 	"redhat.telemetry.enabled": true,
