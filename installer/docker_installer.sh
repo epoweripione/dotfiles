@@ -275,6 +275,7 @@ if [[ "${SET_REGISTRY_MIRROR}" == "y" || "${SET_REGISTRY_MIRROR}" == "Y" ]]; the
 # }
 # EOF
 
+    # "https://mirror.ccs.tencentyun.com"
     REGISTRY_MIRRORS='"https://ustc-edu-cn.mirror.aliyuncs.com","https://docker.mirrors.sjtug.sjtu.edu.cn","https://mirror.baidubce.com","https://hub-mirror.c.163.com"'
     if [[ -x "$(command -v jq)" ]]; then
         [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null

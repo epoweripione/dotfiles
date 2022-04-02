@@ -120,6 +120,8 @@ SSH_PORT=${SSH_PORT:-"22"}
 SSH_USER=${SSH_USER:-"$USER"}
 SSH_PRIVATE_FILE=${SSH_PRIVATE_FILE:-"$HOME/.ssh/id_rsa"}
 
+mkdir -p "/var/log/rsyncd"
+mkdir -p "/var/log/lsyncd"
 
 if [[ "${SYNC_TYPE}" == "rsyncd" ]]; then
     # rsyncd daemon
@@ -163,7 +165,7 @@ EOF
 else
     # lsyncd
     # lsyncd config: /etc/lsyncd.conf
-    # https://axkibe.github.io/lsyncd/manual/config/file/
+    # https://lsyncd.github.io/lsyncd/
     sudo tee "/etc/lsyncd.conf" >/dev/null <<-EOF
 settings {
     logfile     = "/var/log/lsyncd/lsyncd.log",
@@ -232,17 +234,26 @@ EOF
             ;;
     esac
 
-    # start lsyncd service
-    sudo systemctl enable lsyncd
-    sudo systemctl restart lsyncd
+    ## start lsyncd service
+    # lsyncd -nodaemon -delay 30 /etc/lsyncd.conf
 
-    colorEcho "${FUCHSIA}lsyncd${GREEN} service successfully installed!"
+    # [[ $(systemctl is-enabled "lsyncd_${RSYNC_MODULE}" 2>/dev/null) ]] || {
+    #     Install_systemd_Service "lsyncd_${RSYNC_MODULE}" "/usr/bin/lsyncd /etc/lsyncd.conf"
+    # }
+    # [[ $(systemctl is-enabled "lsyncd_${RSYNC_MODULE}" 2>/dev/null) ]] && sudo systemctl restart "lsyncd_${RSYNC_MODULE}"
+    # colorEcho "${FUCHSIA}lsyncd${GREEN} service successfully installed!"
+
     colorEcho "${FUCHSIA}lsyncd config file: ${GREEN}/etc/lsyncd.conf"
     colorEcho "${FUCHSIA}lsyncd log file: ${GREEN}/var/log/lsyncd/lsyncd.log"
 
     cat "/etc/lsyncd.conf"
-    # sudo systemctl status -l lsyncd
+
+    colorEcho ""
+    colorEcho "${FUCHSIA}Run lsyncd in foreground: ${GREEN}lsyncd -nodaemon /etc/lsyncd.conf"
+    colorEcho "${FUCHSIA}Run lsyncd in daemon mode: ${GREEN}lsyncd /etc/lsyncd.conf"
+
     # tail -f /var/log/lsyncd/lsyncd.log /var/log/rsyncd/rsyncd.log
+    # if pgrep -f "lsyncd" >/dev/null 2>&1; then sudo pkill -f "lsyncd"; fi
 fi
 
 
