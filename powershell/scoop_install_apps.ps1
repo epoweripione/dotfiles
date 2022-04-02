@@ -420,10 +420,14 @@ if (Get-Command "go" -ErrorAction SilentlyContinue) {
 # mirrors
 if (-Not (check_webservice_up)) {
     if (Get-Command "go" -ErrorAction SilentlyContinue) {
-        # go env -w GOPROXY="https://goproxy.io,direct"
         go env -w GOPROXY="https://goproxy.cn,direct"
+        # go env -w GOPROXY="https://goproxy.io,direct"
+        # go env -w GOPROXY="https://mirrors.aliyun.com/goproxy/,direct"
         # go env -w GOPROXY="https://proxy.golang.org,direct"
-        go env -w GOSUMDB="gosum.io+ce6e7565+AY5qEHUk/qmHc5btzW45JVoENfazw8LielDsaI+lEbq6"
+
+        go env -w GOSUMDB="sum.golang.google.cn"
+        # go env -w GOSUMDB="gosum.io+ce6e7565+AY5qEHUk/qmHc5btzW45JVoENfazw8LielDsaI+lEbq6"
+
         ## https://goproxy.io/zh/docs/goproxyio-private.html
         # go env -w GOPRIVATE="*.corp.example.com"
     }
