@@ -21,8 +21,12 @@ if ($PSVersionTable.PSEdition -ne "Core" -or $IsWindows) {
 }
 
 $PoshModuleDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
-if (Test-Path "$HOME\.oh-my-posh") {
-    $PoshExecDir = "$HOME\.oh-my-posh"
+if (Test-Path "$env:LOCALAPPDATA\oh-my-posh") {
+    $PoshExecDir = "$env:LOCALAPPDATA\oh-my-posh"
+} elseif (Test-Path "$env:XDG_CACHE_HOME\oh-my-posh") {
+    $PoshExecDir = "$env:XDG_CACHE_HOME\oh-my-posh"
+} elseif (Test-Path "$env:HOME\.cache\oh-my-posh") {
+    $PoshExecDir = "$env:HOME\.cache\oh-my-posh"
 } else {
     $PoshExecDir = "$PoshModuleDir"
 }
