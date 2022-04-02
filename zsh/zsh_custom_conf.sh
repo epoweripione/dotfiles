@@ -409,19 +409,22 @@ if [[ -x "$(command -v go)" ]]; then
     if version_ge "${GO_VERSION}" '1.13'; then
         go env -w GO111MODULE=auto
         if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-            # go env -w GOPROXY="https://goproxy.io,direct"
             go env -w GOPROXY="https://goproxy.cn,direct"
+            # go env -w GOPROXY="https://goproxy.io,direct"
+            # go env -w GOPROXY="https://mirrors.aliyun.com/goproxy/,direct"
             # go env -w GOPROXY="https://proxy.golang.org,direct"
-            go env -w GOSUMDB="gosum.io+ce6e7565+AY5qEHUk/qmHc5btzW45JVoENfazw8LielDsaI+lEbq6"
+
+            go env -w GOSUMDB="sum.golang.google.cn"
+            # go env -w GOSUMDB="gosum.io+ce6e7565+AY5qEHUk/qmHc5btzW45JVoENfazw8LielDsaI+lEbq6"
+
             ## https://goproxy.io/zh/docs/goproxyio-private.html
             # go env -w GOPRIVATE="*.corp.example.com"
         fi
     else
         export GO111MODULE=auto
         if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-            # export GOPROXY="https://goproxy.io"
             export GOPROXY="https://goproxy.cn"
-            export GOSUMDB="gosum.io+ce6e7565+AY5qEHUk/qmHc5btzW45JVoENfazw8LielDsaI+lEbq6"
+            export GOSUMDB="sum.golang.google.cn"
         fi
     fi
 
