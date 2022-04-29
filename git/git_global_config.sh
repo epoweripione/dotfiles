@@ -36,6 +36,10 @@ if [[ -x "$(command -v git)" ]]; then
     # cd <workdir>
     # git config core.filemode false
     # git submodule foreach git config core.filemode false
+
+    ## fix fatal: unsafe repository ('/home/repo' is owned by someone else)
+    ## https://stackoverflow.com/questions/71901632/fatal-unsafe-repository-home-repon-is-owned-by-someone-else
+    # git config --global --add safe.directory '*'
 fi
 
 # git-delta
