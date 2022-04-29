@@ -68,14 +68,6 @@ foreach ($TargetModule in $InstallModules) {
     }
 }
 
-## Oh my Posh 3
-## https://ohmyposh.dev/
-# if (($null -eq $PROXY_ADDR) -or ($PROXY_ADDR -eq "")) {
-#     Update-Module -Name oh-my-posh -AllowPrerelease
-# } else {
-#     Update-Module -Name oh-my-posh -AllowPrerelease -Proxy "http://$PROXY_ADDR"
-# }
-
 $EnableModules = @(
     "Find-String"
     "Posh-git"
@@ -93,49 +85,59 @@ foreach ($TargetModule in $EnableModules) {
 Write-Host "Setting powershell theme..." -ForegroundColor Blue
 @'
 
-# Use github mirror to download oh-my-posh executable
-$PoshExec = "oh-my-posh"
-if ($PSVersionTable.PSEdition -ne "Core" -or $IsWindows) {
-    $PoshExec = "oh-my-posh.exe"
-}
+# Oh My Posh
+# # Use github mirror to download oh-my-posh executable
+# $PoshExec = "oh-my-posh"
+# if ($PSVersionTable.PSEdition -ne "Core" -or $IsWindows) {
+#     $PoshExec = "oh-my-posh.exe"
+# }
 
-$PoshModuleDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
-if (Test-Path "$env:LOCALAPPDATA\oh-my-posh") {
-    $PoshExecDir = "$env:LOCALAPPDATA\oh-my-posh"
-} elseif (Test-Path "$env:XDG_CACHE_HOME\oh-my-posh") {
-    $PoshExecDir = "$env:XDG_CACHE_HOME\oh-my-posh"
-} elseif (Test-Path "$env:HOME\.cache\oh-my-posh") {
-    $PoshExecDir = "$env:HOME\.cache\oh-my-posh"
+# $PoshModuleDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
+# if (Test-Path "$env:LOCALAPPDATA\oh-my-posh") {
+#     $PoshExecDir = "$env:LOCALAPPDATA\oh-my-posh"
+# } elseif (Test-Path "$env:XDG_CACHE_HOME\oh-my-posh") {
+#     $PoshExecDir = "$env:XDG_CACHE_HOME\oh-my-posh"
+# } elseif (Test-Path "$env:HOME\.cache\oh-my-posh") {
+#     $PoshExecDir = "$env:HOME\.cache\oh-my-posh"
+# } else {
+#     $PoshExecDir = "$PoshModuleDir"
+# }
+
+# $InstalledPoshVersion = "0.0.0"
+# if (Test-Path "$PoshExecDir\$PoshExec") {
+#     $InstalledPoshVersion = & "$PoshExecDir\$PoshExec" --version
+# }
+
+# $PoshModulePSM = (Get-ChildItem -Path "$PoshModuleDir" `
+#     -Filter "oh-my-posh.psm1" -File -Recurse -ErrorAction SilentlyContinue -Force `
+#     | Sort-Object -Descending | Select-Object -First 1).FullName
+# #     | ForEach-Object {$_.FullName})
+
+# if (Test-Path "$PoshModulePSM") {
+#     $ModulePoshVersion = Split-Path -Parent $PoshModulePSM | Split-Path -Leaf
+#     if ([System.Version]"$ModulePoshVersion" -gt [System.Version]"$InstalledPoshVersion") {
+#         (Get-Content -path "$PoshModulePSM" -Raw) `
+#             -Replace 'https://github.com/jandedobbeleer/oh-my-posh/','https://download.fastgit.org/jandedobbeleer/oh-my-posh/' `
+#             -Replace 'Invoke-WebRequest \$Url -Out \$Destination','curl -fSL -# -o $Destination $Url' `
+#             -Replace 'Invoke-WebRequest -OutFile \$tmp \$themesUrl','curl -fSL -# -o $tmp $themesUrl' `
+#             | Set-Content -Path "$PoshModulePSM"
+#     }
+# }
+
+$env:POSH_GIT_ENABLED = $true
+## https://ohmyposh.dev/docs/migrating
+# Remove-Item $env:POSH_PATH -Force -Recurse
+# Uninstall-Module oh-my-posh -AllVersions
+# scoop install oh-my-posh
+$env:POSH_THEMES_PATH = "$(scoop prefix oh-my-posh)\themes\"
+if (Test-Path "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json") {
+    oh-my-posh init pwsh --config "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json" | Invoke-Expression
 } else {
-    $PoshExecDir = "$PoshModuleDir"
-}
-
-$InstalledPoshVersion = "0.0.0"
-if (Test-Path "$PoshExecDir\$PoshExec") {
-    $InstalledPoshVersion = & "$PoshExecDir\$PoshExec" --version
-}
-
-$PoshModulePSM = (Get-ChildItem -Path "$PoshModuleDir" `
-    -Filter "oh-my-posh.psm1" -File -Recurse -ErrorAction SilentlyContinue -Force `
-    | Sort-Object -Descending | Select-Object -First 1).FullName
-#     | ForEach-Object {$_.FullName})
-
-if (Test-Path "$PoshModulePSM") {
-    $ModulePoshVersion = Split-Path -Parent $PoshModulePSM | Split-Path -Leaf
-    if ([System.Version]"$ModulePoshVersion" -gt [System.Version]"$InstalledPoshVersion") {
-        (Get-Content -path "$PoshModulePSM" -Raw) `
-            -Replace 'https://github.com/jandedobbeleer/oh-my-posh/','https://download.fastgit.org/jandedobbeleer/oh-my-posh/' `
-            -Replace 'Invoke-WebRequest \$Url -Out \$Destination','curl -fSL -# -o $Destination $Url' `
-            -Replace 'Invoke-WebRequest -OutFile \$tmp \$themesUrl','curl -fSL -# -o $tmp $themesUrl' `
-            | Set-Content -Path "$PoshModulePSM"
-    }
+    oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\powerlevel10k_rainbow.omp.json" | Invoke-Expression
 }
 '@ | Tee-Object $PROFILE -Append | Out-Null
 
-Add-Content $PROFILE "`nImport-Module oh-my-posh"
-Add-Content $PROFILE '$env:POSH_GIT_ENABLED = $true'
-# Add-Content $PROFILE "Set-PoshPrompt -Theme powerlevel10k_rainbow"
-
+# Add-Content $PROFILE '$env:POSH_GIT_ENABLED = $true'
 $THEME_DIR = "~\Documents\PowerShell\PoshThemes"
 $THEME_FILE = "$THEME_DIR\Powerlevel10k-my.omp.json"
 if (-Not (Test-Path $THEME_DIR)) {New-Item -path $THEME_DIR -type Directory | Out-Null}
@@ -143,10 +145,6 @@ if (-Not (Test-Path $THEME_FILE)) {
     $DOWNLOAD_URL = "https://raw.githubusercontent.com/epoweripione/dotfiles/main/powershell/Powerlevel10k-my.omp.json"
     $p = New-Object System.Net.WebClient
     $p.DownloadFile($DOWNLOAD_URL, $THEME_FILE)
-}
-
-if (Test-Path $THEME_FILE) {
-    Add-Content $PROFILE "`nSet-PoshPrompt -Theme `"$THEME_FILE`""
 }
 
 # Custom

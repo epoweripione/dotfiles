@@ -14,64 +14,56 @@ Import-Module Posh-git
 Import-Module Terminal-Icons
 Import-Module PSEverything
 
-# Use github mirror to download oh-my-posh executable
-$PoshExec = "oh-my-posh"
-if ($PSVersionTable.PSEdition -ne "Core" -or $IsWindows) {
-    $PoshExec = "oh-my-posh.exe"
-}
-
-$PoshModuleDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
-if (Test-Path "$env:LOCALAPPDATA\oh-my-posh") {
-    $PoshExecDir = "$env:LOCALAPPDATA\oh-my-posh"
-} elseif (Test-Path "$env:XDG_CACHE_HOME\oh-my-posh") {
-    $PoshExecDir = "$env:XDG_CACHE_HOME\oh-my-posh"
-} elseif (Test-Path "$env:HOME\.cache\oh-my-posh") {
-    $PoshExecDir = "$env:HOME\.cache\oh-my-posh"
-} else {
-    $PoshExecDir = "$PoshModuleDir"
-}
-
-$InstalledPoshVersion = "0.0.0"
-if (Test-Path "$PoshExecDir\$PoshExec") {
-    $InstalledPoshVersion = & "$PoshExecDir\$PoshExec" --version
-}
-
-$PoshModulePSM = (Get-ChildItem -Path "$PoshModuleDir" `
-    -Filter "oh-my-posh.psm1" -File -Recurse -ErrorAction SilentlyContinue -Force `
-    | Sort-Object -Descending | Select-Object -First 1).FullName
-#     | ForEach-Object {$_.FullName})
-
-if (Test-Path "$PoshModulePSM") {
-    $ModulePoshVersion = Split-Path -Parent $PoshModulePSM | Split-Path -Leaf
-    if ([System.Version]"$ModulePoshVersion" -gt [System.Version]"$InstalledPoshVersion") {
-        (Get-Content -path "$PoshModulePSM" -Raw) `
-            -Replace 'https://github.com/jandedobbeleer/oh-my-posh/','https://download.fastgit.org/jandedobbeleer/oh-my-posh/' `
-            -Replace 'Invoke-WebRequest \$Url -Out \$Destination','curl -fSL -# -o $Destination $Url' `
-            -Replace 'Invoke-WebRequest -OutFile \$tmp \$themesUrl','curl -fSL -# -o $tmp $themesUrl' `
-            | Set-Content -Path "$PoshModulePSM"
-    }
-}
-
-## Skip oh-my-posh executable download if already installed by scoop
-# $ScoopPoshExec = ""
-# $ScoopPoshVersion = "0.0.0"
-# if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
-#     $ScoopPoshExec = "$(scoop prefix oh-my-posh3 6>$null)\bin\$PoshExec"
-#     if (Test-Path "$ScoopPoshExec") {
-#         $ScoopPoshVersion = & "$ScoopPoshExec" --version
-#     }
+# Oh My Posh
+# # Use github mirror to download oh-my-posh executable
+# $PoshExec = "oh-my-posh"
+# if ($PSVersionTable.PSEdition -ne "Core" -or $IsWindows) {
+#     $PoshExec = "oh-my-posh.exe"
 # }
-# if ([System.Version]"$ScoopPoshVersion" -gt [System.Version]"$PoshVersion") {
-#     if (Test-Path "$ScoopPoshExec") {
-#         Copy-Item -Path "$ScoopPoshExec" -Destination "$PoshModuleDir" -Force -Confirm:$false
+
+# $PoshModuleDir = "$env:USERPROFILE\Documents\PowerShell\Modules\oh-my-posh"
+# if (Test-Path "$env:LOCALAPPDATA\oh-my-posh") {
+#     $PoshExecDir = "$env:LOCALAPPDATA\oh-my-posh"
+# } elseif (Test-Path "$env:XDG_CACHE_HOME\oh-my-posh") {
+#     $PoshExecDir = "$env:XDG_CACHE_HOME\oh-my-posh"
+# } elseif (Test-Path "$env:HOME\.cache\oh-my-posh") {
+#     $PoshExecDir = "$env:HOME\.cache\oh-my-posh"
+# } else {
+#     $PoshExecDir = "$PoshModuleDir"
+# }
+
+# $InstalledPoshVersion = "0.0.0"
+# if (Test-Path "$PoshExecDir\$PoshExec") {
+#     $InstalledPoshVersion = & "$PoshExecDir\$PoshExec" --version
+# }
+
+# $PoshModulePSM = (Get-ChildItem -Path "$PoshModuleDir" `
+#     -Filter "oh-my-posh.psm1" -File -Recurse -ErrorAction SilentlyContinue -Force `
+#     | Sort-Object -Descending | Select-Object -First 1).FullName
+# #     | ForEach-Object {$_.FullName})
+
+# if (Test-Path "$PoshModulePSM") {
+#     $ModulePoshVersion = Split-Path -Parent $PoshModulePSM | Split-Path -Leaf
+#     if ([System.Version]"$ModulePoshVersion" -gt [System.Version]"$InstalledPoshVersion") {
+#         (Get-Content -path "$PoshModulePSM" -Raw) `
+#             -Replace 'https://github.com/jandedobbeleer/oh-my-posh/','https://download.fastgit.org/jandedobbeleer/oh-my-posh/' `
+#             -Replace 'Invoke-WebRequest \$Url -Out \$Destination','curl -fSL -# -o $Destination $Url' `
+#             -Replace 'Invoke-WebRequest -OutFile \$tmp \$themesUrl','curl -fSL -# -o $tmp $themesUrl' `
+#             | Set-Content -Path "$PoshModulePSM"
 #     }
 # }
 
-Import-Module oh-my-posh
 $env:POSH_GIT_ENABLED = $true
-# oh-my-posh --init --shell pwsh --config "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json" | Invoke-Expression
-# Set-PoshPrompt -Theme powerlevel10k_rainbow
-Set-PoshPrompt -Theme "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json"
+## https://ohmyposh.dev/docs/migrating
+# Remove-Item $env:POSH_PATH -Force -Recurse
+# Uninstall-Module oh-my-posh -AllVersions
+# scoop install oh-my-posh
+$env:POSH_THEMES_PATH = "$(scoop prefix oh-my-posh)\themes\"
+if (Test-Path "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json") {
+    oh-my-posh init pwsh --config "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json" | Invoke-Expression
+} else {
+    oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\powerlevel10k_rainbow.omp.json" | Invoke-Expression
+}
 
 ## PSFzf
 ## https://github.com/kelleyma49/PSFzf
