@@ -2015,8 +2015,8 @@ function asdf_App_Install() {
     # asdf list all java | cut -d'-' -f1 | sort -V | uniq
 
     # If `appVersion` is not a valid version, get latest version from all versions
-    allVersion=$(asdf list all "${appName}" "${appVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc')
-    [[ -z "${allVersion}" ]] && allVersion=$(asdf list all "${appName}" 2>/dev/null | grep -Ev 'alpha|beta|rc')
+    allVersion=$(asdf list all "${appName}" "${appVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+    [[ -z "${allVersion}" ]] && allVersion=$(asdf list all "${appName}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
     # https://stackoverflow.com/questions/4493205/unix-sort-of-version-numbers
     # sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n
     # To reverse the order: sort -t. -k 1,1nr -k 2,2nr -k 3,3nr -k 4,4nr
@@ -2124,10 +2124,8 @@ function asdf_App_Update() {
             fi
         fi
 
-        [[ -n "${matchVersion}" ]] && allVersion=$(asdf list all "${InstalledApp}" "${matchVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc')
-
-        [[ -z "${allVersion}" ]] && allVersion=$(asdf list all "${InstalledApp}" 2>/dev/null | grep -Ev 'alpha|beta|rc')
-
+        [[ -n "${matchVersion}" ]] && allVersion=$(asdf list all "${InstalledApp}" "${matchVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+        [[ -z "${allVersion}" ]] && allVersion=$(asdf list all "${InstalledApp}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
         [[ -n "${allVersion}" ]] && latestVersion=$(echo "${allVersion}" | sort -rV | head -n1)
 
         # [[ -z "${latestVersion}" ]] && latestVersion="latest"
