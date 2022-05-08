@@ -39,7 +39,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
 
     CHECK_URL="https://api.github.com/repos/snail007/goproxy/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
+    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' | cut -d'v' -f2)
     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         IS_INSTALL="no"
     fi
@@ -84,7 +84,7 @@ fi
 
 if [[ "${IS_INSTALL}" == "yes" ]]; then
     CHECK_URL="https://api.github.com/repos/snail007/proxy_admin_free/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4)
+    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty')
     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         IS_INSTALL="no"
     fi

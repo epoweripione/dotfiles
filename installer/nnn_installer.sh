@@ -56,7 +56,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
 
     CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
+    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' | cut -d'v' -f2)
     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         IS_INSTALL="no"
     fi
@@ -146,8 +146,12 @@ fi
 # https://github.com/jarun/nnn/tree/master/plugins
 # ${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins
 if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" && -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    find "${XDG_CONFIG_HOME:-$HOME/.config}/nnn" -type f -name "plugins-*.tar.gz" -delete
-    [[ -d "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins" ]] && rm -rf "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins"
+    [[ -d "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins" ]] && \
+        find "${XDG_CONFIG_HOME:-$HOME/.config}/nnn" -type f -name "plugins-*.tar.gz" -delete
+
+    [[ -d "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins" ]] && \
+        rm -rf "${XDG_CONFIG_HOME:-$HOME/.config}/nnn/plugins"
+
     curl -fsL "https://raw.githubusercontent.com/jarun/nnn/master/plugins/getplugs" | sh
 fi
 

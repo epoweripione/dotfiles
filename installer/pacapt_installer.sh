@@ -24,7 +24,7 @@ fi
 colorEcho "${BLUE}Checking latest version for ${FUCHSIA}pacapt${BLUE}..."
 
 CHECK_URL="https://api.github.com/repos/icy/pacapt/releases/latest"
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
+REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' | cut -d'v' -f2)
 
 if [[ -x "$(command -v pacapt)" ]]; then
     ECHO_TYPE="Updating"

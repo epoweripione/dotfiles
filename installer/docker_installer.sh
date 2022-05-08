@@ -97,7 +97,7 @@ fi
 if [[ -n "${CURRENT_VERSION}" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}buildx${BLUE}..."
     CHECK_URL="https://api.github.com/repos/docker/buildx/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
+    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' | cut -d'v' -f2)
     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         IS_INSTALL="no"
     fi
@@ -148,7 +148,7 @@ fi
 if [[ -n "${CURRENT_VERSION}" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}docker-compose${BLUE}..."
     CHECK_URL="https://api.github.com/repos/docker/compose/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
+    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' | cut -d'v' -f2)
     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         IS_INSTALL="no"
     fi
@@ -206,7 +206,7 @@ fi
 
 colorEcho "${BLUE}Checking latest version for ${FUCHSIA}ctop${BLUE}..."
 CHECK_URL="https://api.github.com/repos/bcicen/ctop/releases/latest"
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
+REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' | cut -d'v' -f2)
 if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
     IS_INSTALL="no"
 fi

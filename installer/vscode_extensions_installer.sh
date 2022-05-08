@@ -124,11 +124,13 @@ if [[ $PARAMS_NUM -gt 0 ]]; then
         exit 0
     fi
 
-    grep -v '^#' "${ExtFile}" | xargs -L1 code --install-extension
+    grep -v '^#' "${ExtFile}" | xargs -P "$(nproc --ignore=1)" -n1 code --install-extension
 else
-    for Target in "${extensions[@]}"; do
-        code --install-extension "${Target}"
-    done
+    # for Target in "${extensions[@]}"; do
+    #     code --install-extension "${Target}"
+    # done
+
+	xargs -P "$(nproc --ignore=1)" -n1 code --install-extension <<<"${extensions[@]}"
 fi
 
 # How to install extensions from exprot list

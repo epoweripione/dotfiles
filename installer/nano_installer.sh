@@ -48,6 +48,10 @@ if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
             CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
             if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
                 colorEcho "${BLUE}  Removing ${FUCHSIA}${APP_INSTALL_NAME}${YELLOW} ${CURRENT_VERSION}${BLUE}..."
+                if checkPackageInstalled "nano-syntax-highlighting"; then
+                    sudo pacman --noconfirm -R "nano-syntax-highlighting"
+                fi
+
                 sudo pacman --noconfirm -R "${APP_INSTALL_NAME}"
                 sudo pacman --noconfirm -Rn "${APP_INSTALL_NAME}" || true
             fi
@@ -98,12 +102,19 @@ if [[ "${IS_UPDATE}" == "no" && -x "$(command -v nano)" ]]; then
     fi
 
     # select default sensible-editor from all installed editors
-    [[ -x "$(command -v select-editor)" ]] && select-editor
+    if [[ -x "$(command -v select-editor)" ]]; then
+        select-editor
+    esle
+        # What About Distros That Don’t Provide select-editor?
+        export VISUAL="nano" && export EDITOR="nano"
+        if ! grep -q "^export VISUAL=" "$HOME/.bashrc" 2>/dev/null; then
+            echo 'export VISUAL="nano" && export EDITOR="nano"' >> "$HOME/.bashrc"
+        fi
 
-    # What About Distros That Don’t Provide select-editor?
-    # export VISUAL="nano"
-    # echo 'export VISUAL="nano"' >> "$HOME/.bashrc"
-    # echo 'export VISUAL="nano"' >> "$HOME/.zshrc"
+        if ! grep -q "^export VISUAL=" "$HOME/.zshrc" 2>/dev/null; then
+            echo 'export VISUAL="nano" && export EDITOR="nano"' >> "$HOME/.zshrc"
+        fi
+    fi
 fi
 
 cd "${CURRENT_DIR}" || exit

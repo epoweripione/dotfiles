@@ -41,21 +41,21 @@ if [[ ! -x "$(command -v snap)" ]]; then
             fi
         done
     fi
+fi
 
-    if [[ -x "$(command -v snap)" ]]; then
-        if [[ "${OS_PACKAGE_MANAGER}" == "dnf" ]]; then
-            sudo systemctl enable --now snapd.socket
-            sudo ln -s /var/lib/snapd/snap /snap
-        else
-            sudo snap install core
-        fi
+if [[ -x "$(command -v snap)" ]]; then
+    sudo systemctl enable --now snapd.socket
 
-        [[ ":$PATH:" != *":/snap/bin:"* ]] && export PATH=$PATH:/snap/bin
+    # enable classic snap support
+    [[ ! -d "/var/lib/snapd/snap" ]] && sudo ln -s /var/lib/snapd/snap /snap
 
-        # test
-        sudo snap install hello-world
-        hello-world
-    fi
+    sudo snap install core
+
+    [[ ":$PATH:" != *":/snap/bin:"* ]] && export PATH=$PATH:/snap/bin
+
+    # test
+    sudo snap install hello-world
+    hello-world
 fi
 
 ## System options

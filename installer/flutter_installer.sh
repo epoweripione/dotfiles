@@ -36,6 +36,58 @@ if [[ ! -x "$(command -v jq)" ]]; then
     exit 1
 fi
 
+
+# macOS
+# https://flutter.dev/docs/get-started/install/macos
+if [[ "${OS_INFO_TYPE}" == "darwin" && ! -x "$(command -v xcodebuild)" ]]; then
+    # sudo xcode-select --install
+    sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+    # xcode-select --print-path
+    # sudo xcode-select --reset
+
+    # sudo xcodebuild -license
+    sudo xcodebuild -runFirstLaunch
+fi
+
+
+# Android Studio
+# https://developer.android.com/studio/install
+
+# Install desired Java version
+if [[ "$(command -v asdf)" ]]; then
+    # [[ ! -x "$(command -v java)" ]] && asdf_App_Install java openjdk-11
+    [[ ! -x "$(command -v java)" ]] && asdf_App_Install java zulu-11
+fi
+
+if [[ -x "$(command -v pacman)" ]]; then
+    # Pre-requisite packages
+    PackagesList=(
+        libc6:i386
+        libncurses5:i386
+        libstdc++6:i386
+        lib32z1
+        libbz2-1.0:i386
+        zlib.i686
+        ncurses-libs.i686
+        bzip2-libs.i686
+    )
+    for TargetPackage in "${PackagesList[@]}"; do
+        if checkPackageNeedInstall "${TargetPackage}"; then
+            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
+            sudo pacman --noconfirm -S "${TargetPackage}"
+        fi
+    done
+fi
+
+if [[ ! -x "$(command -v snap)" ]]; then
+    [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
+fi
+
+if [[ -x "$(command -v snap)" ]]; then
+    sudo snap install android-studio --classic
+fi
+
+
 # https://flutter.dev/docs/get-started/install/linux
 APP_INSTALL_NAME="flutter"
 
@@ -126,60 +178,15 @@ fi
 if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" ]]; then
     export PATH=$PATH:${EXEC_INSTALL_PATH}
 
+    if [[ ! -x "$(command -v google-chrome)" ]]; then
+        [[ -x "/opt/google/chrome/google-chrome" ]] && \
+            export CHROME_EXECUTABLE="/opt/google/chrome/google-chrome" 
+    fi
+
     # flutter precache
     flutter doctor
 fi
 
-
-# macOS
-# https://flutter.dev/docs/get-started/install/macos
-if [[ "${OS_INFO_TYPE}" == "darwin" && ! -x "$(command -v xcodebuild)" ]]; then
-    # sudo xcode-select --install
-    sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
-    # xcode-select --print-path
-    # sudo xcode-select --reset
-
-    # sudo xcodebuild -license
-    sudo xcodebuild -runFirstLaunch
-fi
-
-
-# Android Studio
-# https://developer.android.com/studio/install
-
-# Install desired Java version
-if [[ "$(command -v asdf)" ]]; then
-    # [[ ! -x "$(command -v java)" ]] && asdf_App_Install java openjdk-11
-    [[ ! -x "$(command -v java)" ]] && asdf_App_Install java zulu-11
-fi
-
-if [[ -x "$(command -v pacman)" ]]; then
-    # Pre-requisite packages
-    PackagesList=(
-        libc6:i386
-        libncurses5:i386
-        libstdc++6:i386
-        lib32z1
-        libbz2-1.0:i386
-        zlib.i686
-        ncurses-libs.i686
-        bzip2-libs.i686
-    )
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
-fi
-
-if [[ ! -x "$(command -v snap)" ]]; then
-    [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
-fi
-
-if [[ -x "$(command -v snap)" ]]; then
-    sudo snap install android-studio --classic
-fi
 
 ## Launch the Android Studio
 # android-studio
