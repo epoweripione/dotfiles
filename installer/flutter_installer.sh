@@ -83,7 +83,7 @@ if [[ ! -x "$(command -v snap)" ]]; then
     [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
 fi
 
-if [[ -x "$(command -v snap)" ]]; then
+if [[ -x "$(command -v snap)" && ! -x "$(command -v android-studio)" ]]; then
     sudo snap install android-studio --classic
 fi
 
