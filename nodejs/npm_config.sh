@@ -26,13 +26,13 @@ colorEcho "${BLUE}Setting npm config..."
 # npm config set user 0
 # npm config set unsafe-perm true
 
-# npm global
-NPM_PREFIX=$(npm config get prefix 2>/dev/null)
-if ! echo "${NPM_PREFIX}" | grep -q "\.asdf/installs/nodejs"; then
-    mkdir -p "$HOME/.npm-global"
-    npm config set prefix "$HOME/.npm-global"
-    export PATH="$PATH:$HOME/.npm-global/bin"
-fi
+## npm global
+# NPM_PREFIX=$(npm config get prefix 2>/dev/null)
+# if ! echo "${NPM_PREFIX}" | grep -q "\.asdf/installs/nodejs"; then
+#     mkdir -p "$HOME/.npm-global"
+#     npm config set prefix "$HOME/.npm-global"
+#     export PATH="$PATH:$HOME/.npm-global/bin"
+# fi
 
 CONFIG_ACTION=${1:-"AUTO"}
 
