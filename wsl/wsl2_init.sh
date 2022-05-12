@@ -244,6 +244,9 @@ if [[ -x "$(command -v nano)" ]]; then
 fi
 
 
+## Change Sudo Password Timeout (default 15 minutes)
+# echo "Defaults timestamp_timeout=30" | sudo tee "/etc/sudoers.d/sudo_timeout" >/dev/null
+
 # Allow members of the group sudo to execute any command without password prompt
 # sudo visudo OR sudo EDITOR=nano visudo
 # sudo sed -i 's/%sudo.*/%sudo   ALL=(ALL:ALL) NOPASSWD:ALL/' /etc/sudoers
@@ -257,7 +260,8 @@ CommandList=(
 )
 for TargetCommand in "${CommandList[@]}"; do
     [[ -x "$(command -v "${TargetCommand}")" ]] && \
-    echo "%sudo ALL=NOPASSWD:$(which "${TargetCommand}")" | sudo tee "/etc/sudoers.d/nopasswd_sudo_command_${TargetCommand}" >/dev/null
+        echo "%sudo ALL=NOPASSWD:$(which "${TargetCommand}")" \
+            | sudo tee "/etc/sudoers.d/nopasswd_sudo_command_${TargetCommand}" >/dev/null
 done
 
 

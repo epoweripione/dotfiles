@@ -55,7 +55,7 @@ function colorEchoAllColor() {
 [[ -n "${HOSTIP_ALL}" ]] && HOSTIP_ALL="${HOSTIP_ALL% }" && HOSTIP_ALL="${HOSTIP_ALL// /,}" && export HOSTIP_ALL
 
 # no proxy lists
-NO_PROXY_LISTS="localhost,127.0.0.1,.local,.localdomain,.internal,.corp"
+NO_PROXY_LISTS="localhost,127.0.0.1,.local,.localdomain,.internal,.corp,::1"
 [[ -n "${HOSTNAME}" ]] && NO_PROXY_LISTS="${NO_PROXY_LISTS},${HOSTNAME}"
 [[ -n "${HOSTIP_ALL}" ]] && NO_PROXY_LISTS="${NO_PROXY_LISTS},${HOSTIP_ALL}"
 NO_PROXY_LISTS="${NO_PROXY_LISTS},fastgit.org,fastgit.xyz,gitclone.com,npmmirror.com"
@@ -2330,7 +2330,7 @@ function App_Installer_Get_Remote() {
     [[ -z "${remote_content}" ]] && colorEcho "${RED}  Error occurred while downloading from ${FUCHSIA}${remote_url}${RED}!" && return 1
 
     # Get app version
-    REMOTE_VERSION=$(echo "${remote_content}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
+    REMOTE_VERSION=$(echo "${remote_content}" | jq -r '.tag_name//empty' | cut -d'v' -f2)
     [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(echo "${remote_content}" | grep -E "${version_match_pattern}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(echo "${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 

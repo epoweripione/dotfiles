@@ -328,7 +328,9 @@ fi
 # homebrew
 if [[ -x "$(command -v brew)" ]]; then
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-        export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles
+        export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
+        export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
+        export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
     fi
 fi
 
@@ -440,6 +442,11 @@ fi
 if [[ -d "$HOME/flutter/bin" ]]; then
     export PATH=$PATH:$HOME/flutter/bin
 
+    if [[ ! -x "$(command -v google-chrome)" ]]; then
+        [[ -x "/opt/google/chrome/google-chrome" ]] && \
+            export CHROME_EXECUTABLE="/opt/google/chrome/google-chrome" 
+    fi
+
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
         export PUB_HOSTED_URL=https://pub.flutter-io.cn
         export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
@@ -447,6 +454,13 @@ if [[ -d "$HOME/flutter/bin" ]]; then
         # export PUB_HOSTED_URL=https://mirror.sjtu.edu.cn/dart-pub
         # export FLUTTER_STORAGE_BASE_URL=https://mirror.sjtu.edu.cn
     fi
+
+    # Android Studio Tools
+    [[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && \
+        export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
+
+    [[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && \
+        export PATH=$PATH:$HOME/Android/Sdk/platform-tools
 fi
 
 # rustup & cargo

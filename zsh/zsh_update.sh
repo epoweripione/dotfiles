@@ -417,7 +417,7 @@ fi
 
 if [[ -d "$HOME/.local/share/nanorc" ]]; then
     if ! grep -q "$HOME/\.local/share/nanorc/\*\.nanorc" "$HOME/.nanorc" 2>/dev/null; then
-        sed -i -e '/nano\/\*\.nanorc/d' -e '/nanorc\/\*\.nanorc/d' "$HOME/.nanorc"
+        sed -i -e '/nano\/\*\.nanorc/d' -e '/nanorc\/\*\.nanorc/d' -e '/nano-syntax-highlighting/d' "$HOME/.nanorc"
         echo -e "\ninclude \"$HOME/.local/share/nanorc/*.nanorc\"" >> "$HOME/.nanorc"
     fi
 fi
