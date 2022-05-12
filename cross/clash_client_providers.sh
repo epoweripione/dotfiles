@@ -84,16 +84,18 @@ colorEcho "${BLUE}Getting ${FUCHSIA}clash rules${BLUE}..."
 # https://github.com/ACL4SSR/ACL4SSR
 if [[ -s "/srv/subconverter/subconverter" ]]; then
     if [[ -d "/etc/clash" ]]; then
-        find "/etc/clash" -type f -name "*_Profile*" -print0 | xargs -0 -I{} cp -f {} "/srv/subconverter/profiles"
-        find "/srv/subconverter/config" -type l -name "*_Rules*" -print0 | xargs -0 -I{} rm -f {}
-        find "/etc/clash" -type f -name "*_Rules*" -print0 | xargs -0 -I{} cp -f {} "/srv/subconverter/config"
+        find "/etc/clash" -type f -name "*_Profile*" -print0 | xargs -0 -I{} sudo cp -f {} "/srv/subconverter/profiles"
+        find "/srv/subconverter/config" -type l -name "*_Rules*" -print0 | xargs -0 -I{} sudo rm -f {}
+        find "/etc/clash" -type f -name "*_Rules*" -print0 | xargs -0 -I{} sudo cp -f {} "/srv/subconverter/config"
     fi
 
-    if Git_Clone_Update_Branch "ACL4SSR/ACL4SSR" "/srv/subconverter/ACL4SSR" "github.com" "master"; then
-        cp -f /srv/subconverter/ACL4SSR/Clash/*.list /srv/subconverter/rules/ACL4SSR/Clash
-        cp -f /srv/subconverter/ACL4SSR/Clash/Ruleset/*.list /srv/subconverter/rules/ACL4SSR/Clash/Ruleset
-        cp -f /srv/subconverter/ACL4SSR/Clash/*.yml /srv/subconverter/config
-        cp -f /srv/subconverter/ACL4SSR/Clash/config/*.ini /srv/subconverter/config
+    if Git_Clone_Update_Branch "ACL4SSR/ACL4SSR" "$HOME/subconverter/ACL4SSR" "github.com" "master"; then
+        sudo mkdir -p "/srv/subconverter/ACL4SSR"
+        sudo cp -rf "$HOME/subconverter/ACL4SSR"/* "/srv/subconverter/ACL4SSR"
+        sudo cp -f /srv/subconverter/ACL4SSR/Clash/*.list /srv/subconverter/rules/ACL4SSR/Clash
+        sudo cp -f /srv/subconverter/ACL4SSR/Clash/Ruleset/*.list /srv/subconverter/rules/ACL4SSR/Clash/Ruleset
+        sudo cp -f /srv/subconverter/ACL4SSR/Clash/*.yml /srv/subconverter/config
+        sudo cp -f /srv/subconverter/ACL4SSR/Clash/config/*.ini /srv/subconverter/config
     fi
 fi
 

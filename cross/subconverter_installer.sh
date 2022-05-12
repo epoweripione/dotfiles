@@ -43,7 +43,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
 
     CHECK_URL="https://api.github.com/repos/tindy2013/subconverter/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4 | cut -d'v' -f2)
+    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' | cut -d'v' -f2)
     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         IS_INSTALL="no"
     fi
@@ -108,7 +108,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     fi
 
     if [[ "${IS_UPDATE}" == "no" ]]; then
-        [[ ! -s "/srv/subconverter/pref.yml" ]] && cp "/srv/subconverter/pref-new.yml" "/srv/subconverter/pref.yml"
+        [[ ! -s "/srv/subconverter/pref.yml" ]] && cp "/srv/subconverter/pref.example.yml" "/srv/subconverter/pref.yml"
 
         colorEchoN "${ORANGE}Enter api access password: "
         read -r -s API_PASSWORD
