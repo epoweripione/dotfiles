@@ -358,7 +358,7 @@ calicoctl node status
 # https://cert-manager.io/docs/installation/
 # https://artifacthub.io/packages/helm/cert-manager/cert-manager
 CHECK_URL="https://api.github.com/repos/jetstack/cert-manager/releases/latest"
-CERT_MANAGER_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4)
+CERT_MANAGER_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty')
 
 helm repo add jetstack https://charts.jetstack.io
 helm repo update

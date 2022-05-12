@@ -68,7 +68,7 @@ sudo mkdir -p "/etc/systemd/system/kubelet.service.d"
 # Install CNI plugins (required for most pod network):
 colorEcho "${BLUE}Installing ${FUCHSIA}CNI plugins${BLUE}..."
 CHECK_URL="https://api.github.com/repos/containernetworking/plugins/releases/latest"
-CNI_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4)
+CNI_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty')
 DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/containernetworking/plugins/releases/download/${CNI_VERSION}/cni-plugins-${OS_INFO_TYPE}-${OS_INFO_ARCH}-${CNI_VERSION}.tgz"
 
 DOWNLOAD_FILENAME="${WORKDIR}/cni-plugins.tgz"
@@ -78,7 +78,7 @@ curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" && \
 # Install crictl (required for kubeadm / Kubelet Container Runtime Interface (CRI))
 colorEcho "${BLUE}Installing ${FUCHSIA}crictl${BLUE}..."
 CHECK_URL="https://api.github.com/repos/kubernetes-sigs/cri-tools/releases/latest"
-CRICTL_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4)
+CRICTL_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty')
 DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/kubernetes-sigs/cri-tools/releases/download/${CRICTL_VERSION}/crictl-${CRICTL_VERSION}-${OS_INFO_TYPE}-${OS_INFO_ARCH}.tar.gz"
 
 DOWNLOAD_FILENAME="${WORKDIR}/crictl.tar.gz"
@@ -99,7 +99,7 @@ cd "${WORKDIR}" && \
     sudo chmod +x "${EXEC_INSTALL_PATH}"/{kubeadm,kubelet,kubectl}
 
 CHECK_URL="https://api.github.com/repos/kubernetes/release/releases/latest"
-RELEASE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4)
+RELEASE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty')
 DOWNLOAD_URL="https://raw.githubusercontent.com/kubernetes/release/${RELEASE_VERSION}/cmd/kubepkg/templates/latest/deb"
 
 curl "${CURL_DOWNLOAD_OPTS[@]}" "${DOWNLOAD_URL}/kubelet/lib/systemd/system/kubelet.service" \
@@ -161,7 +161,7 @@ fi
 # https://docs.projectcalico.org/getting-started/clis/calicoctl/install
 colorEcho "${BLUE}Installing ${FUCHSIA}calicoctl${BLUE}..."
 CHECK_URL="https://api.github.com/repos/projectcalico/calicoctl/releases/latest"
-CALICO_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | cut -d\" -f4)
+CALICO_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty')
 DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/projectcalico/calicoctl/releases/download/${CALICO_VERSION}/calicoctl"
 
 DOWNLOAD_FILENAME="${WORKDIR}/calicoctl"
