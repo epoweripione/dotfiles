@@ -22,6 +22,12 @@ colorEcho "${BLUE}Installing ${FUCHSIA}homebrew${BLUE}..."
 
 [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
 
+if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+    export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
+    export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
+    export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
+fi
+
 case "${OS_INFO_TYPE}" in
     darwin | linux)
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
@@ -48,22 +54,31 @@ fi
 # cd "$(brew --repo)/Library/Taps/homebrew/homebrew-cask"
 # git remote set-url origin https://github.com/Homebrew/homebrew-cask
 
+# unset HOMEBREW_CORE_GIT_REMOTE
+# brew tap --custom-remote --force-auto-update homebrew/core "https://github.com/Homebrew/homebrew-core"
+# brew tap --custom-remote --force-auto-update homebrew/cask "https://github.com/Homebrew/homebrew-cask"
+# brew tap --custom-remote --force-auto-update homebrew/cask-versions "https://github.com/Homebrew/homebrew-cask-versions"
+
 ## mirrors
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    cd "$(brew --repo)" && \
-        git remote set-url origin https://mirrors.ustc.edu.cn/brew.git
+    # cd "$(brew --repo)" && \
+    #     git remote set-url origin "https://mirrors.ustc.edu.cn/brew.git"
 
-    cd "$(brew --repo)/Library/Taps/homebrew/homebrew-core" && \
-        git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-core.git
+    # cd "$(brew --repo)/Library/Taps/homebrew/homebrew-core" && \
+    #     git remote set-url origin "https://mirrors.ustc.edu.cn/homebrew-core.git"
 
-    cd "$(brew --repo)/Library/Taps/homebrew/homebrew-cask" && \
-        git remote set-url origin https://mirrors.ustc.edu.cn/homebrew-cask.git
+    # cd "$(brew --repo)/Library/Taps/homebrew/homebrew-cask" && \
+    #     git remote set-url origin "https://mirrors.ustc.edu.cn/homebrew-cask.git"
+
+    brew tap --custom-remote --force-auto-update homebrew/core "https://mirrors.ustc.edu.cn/homebrew-core.git"
+    brew tap --custom-remote --force-auto-update homebrew/cask "https://mirrors.ustc.edu.cn/homebrew-cask.git"
+    brew tap --custom-remote --force-auto-update homebrew/cask-versions "https://mirrors.ustc.edu.cn/homebrew-cask-versions.git"
 fi
 
 ## Bottles (Binary Packages)
 ## https://docs.brew.sh/Bottles
 # if ! grep -q "HOMEBREW_BOTTLE_DOMAIN" "$HOME/.zshrc" 2>/dev/null; then
-#     echo 'export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles' >> ~/.zshrc
+#     echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"' >> ~/.zshrc
 #     # source ~/.zshrc
 # fi
 
