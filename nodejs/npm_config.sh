@@ -69,7 +69,7 @@ fi
 
 
 # pnpm
-if [[ -x "$(command -v npm)" ]]; then
+if [[ -x "$(command -v pnpm)" ]]; then
     colorEcho "${BLUE}Setting pnpm config..."
     mkdir -p "$HOME/.pnpm-store"
     pnpm config set store-dir "$HOME/.pnpm-store"
