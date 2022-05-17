@@ -70,6 +70,8 @@ if [[ -x "$(command -v pacman)" ]]; then
         zlib.i686
         ncurses-libs.i686
         bzip2-libs.i686
+        cmake
+        ninja
     )
     for TargetPackage in "${PackagesList[@]}"; do
         if checkPackageNeedInstall "${TargetPackage}"; then
@@ -183,8 +185,8 @@ if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" ]]; then
             export CHROME_EXECUTABLE="/opt/google/chrome/google-chrome" 
     fi
 
-    # flutter precache
-    flutter doctor
+    # proxy_http_cmd flutter precache
+    proxy_http_cmd flutter doctor
 fi
 
 

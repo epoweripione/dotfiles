@@ -33,3 +33,26 @@ if [[ -x "$(command -v brew)" ]]; then
     brew tap leoafarias/fvm
     brew install fvm
 fi
+
+
+## Basic Commands
+## https://fvm.app/docs/guides/basic_commands
+## Sets Flutter SDK Version you would like to use in a project
+## If version does not exist it will ask if you want to install
+# fvm use {version}
+
+## Installs Flutter SDK Version. Gives you the ability to install Flutter releases or channels
+# fvm install - # Installs version found in project config
+# fvm install {version} - # Installs specific version
+
+## Removes Flutter SDK Version. Will impact any projects that depend on that version of the SDK
+# fvm remove {version}
+
+## Lists installed Flutter SDK Versions. Will also print the cache directory used by FVM
+# fvm list
+
+## View all Flutter SDK releases available for install
+# fvm releases
+
+## Shows information about environment, and project configuration
+# fvm doctor
