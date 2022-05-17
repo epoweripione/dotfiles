@@ -27,7 +27,7 @@ if [[ -d "$HOME/.nvs" ]]; then
     CHECK_URL="https://api.github.com/repos/jasongin/nvs/releases/latest"
 
     CURRENT_VERSION=$(nvs --version)
-    REMOTE_VERSION=$(wget -qO- "$CHECK_URL" | jq -r '.tag_name//empty' | cut -d'v' -f2)
+    REMOTE_VERSION=$(wget -qO- "$CHECK_URL" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
     if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         cd "$NVS_HOME" && git pull
     fi

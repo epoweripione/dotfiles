@@ -127,7 +127,7 @@ if [[ "${OS_RELEASE_ID}" == "manjaro" ]]; then
 
         if [[ -z "${REMOTE_VERSION}" ]]; then
             CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-            REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' | cut -d'v' -f2)
+            REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
         fi
         if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
             IS_INSTALL="no"

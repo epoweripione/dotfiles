@@ -2348,7 +2348,7 @@ function App_Installer_Get_Remote() {
     [[ -z "${remote_content}" ]] && colorEcho "${RED}  Error occurred while downloading from ${FUCHSIA}${remote_url}${RED}!" && return 1
 
     # Get app version
-    REMOTE_VERSION=$(echo "${remote_content}" | jq -r '.tag_name//empty' | cut -d'v' -f2)
+    REMOTE_VERSION=$(echo "${remote_content}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
     [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(echo "${remote_content}" | grep -E "${version_match_pattern}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(echo "${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 

@@ -794,7 +794,7 @@ yay --noconfirm --needed -S wps-office-fonts ttf-wps-fonts wps-office-all-dicts-
 # # https://github.com/GitSquared/edex-ui
 # # yay --noconfirm --needed -S edex-ui-git
 # CHECK_URL="https://api.github.com/repos/GitSquared/edex-ui/releases/latest"
-# REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty')
+# REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
 # wget -c -O eDEX-UI.AppImage \
 #     https://github.com/GitSquared/edex-ui/releases/download/${REMOTE_VERSION}/eDEX-UI.Linux.x86_64.AppImage
 

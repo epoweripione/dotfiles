@@ -32,7 +32,7 @@ EXEC_INSTALL_NAME="tmux"
 
 colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
 CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty')
+REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
 
 IS_INSTALL="yes"
 IS_UPDATE="no"
