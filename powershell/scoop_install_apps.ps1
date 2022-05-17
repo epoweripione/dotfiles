@@ -270,7 +270,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "zoxide"
         "jq"
         "yq"
-        "trafficmonitor"
+        # "trafficmonitor"
         "treesize-free"
         # "windterm"
         ## Diagram
@@ -292,8 +292,9 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         ## images & videos
         "darktable"
         ## epower
-        "chromium-robrich-dev-avx2"
-        "chromium-robrich-dev"
+        "chromium-justclueless-dev-avx2"
+        # "chromium-robrich-dev-avx2"
+        # "chromium-robrich-dev"
         # "ExplorerPlusPlus"
         # "TablacusExplorer"
         # "HBuilderXFull"
