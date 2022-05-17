@@ -62,9 +62,9 @@ if type 'nvm' 2>/dev/null | grep -q 'function'; then
         nvm alias default 'lts/*'
 
         ## Fix node & npm not found
-        [ -L "/usr/bin/node" ] && rm -f /usr/bin/node
-        [ -L "/usr/bin/npm" ] && rm -f /usr/bin/npm
-        ln -s "$(which node)" /usr/bin/node && ln -s "$(which npm)" /usr/bin/npm
+        # [ -L "/usr/bin/node" ] && sudo rm -f /usr/bin/node
+        # [ -L "/usr/bin/npm" ] && sudo rm -f /usr/bin/npm
+        # sudo ln -s "$(which node)" /usr/bin/node && sudo ln -s "$(which npm)" /usr/bin/npm
     fi
 fi
 

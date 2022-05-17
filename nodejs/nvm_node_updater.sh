@@ -62,11 +62,15 @@ if [[ -z "$NVM_NOT_UPDATE" && -d "$HOME/.nvm" ]]; then
     fi
 
     # nvm use node
-    nvm alias default node
+    # nvm alias default node
+
+    nvm use --lts
+    nvm alias default 'lts/*'
+
     ## Fix node & npm not found
-    [ -L "/usr/bin/node" ] && rm -f /usr/bin/node
-    [ -L "/usr/bin/npm" ] && rm -f /usr/bin/npm
-    ln -s "$(which node)" /usr/bin/node && ln -s "$(which npm)" /usr/bin/npm
+    # [ -L "/usr/bin/node" ] && sudo rm -f /usr/bin/node
+    # [ -L "/usr/bin/npm" ] && sudo rm -f /usr/bin/npm
+    # sudo ln -s "$(which node)" /usr/bin/node && sudo ln -s "$(which npm)" /usr/bin/npm
 
     # colorEcho "${BLUE}Getting node LTS version..."
     # CURRENT_VERSION=$(nvm version lts/*)
