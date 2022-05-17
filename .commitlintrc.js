@@ -4,382 +4,382 @@
 var commitTypes = [
 	{
 		"value": "feat",
-		"name": "feat:         ✨ Introduce new features",
+		"name": "feat:         ✨ 新增功能 | New feature",
 		"emoji": "✨"
 	},
 	{
 		"value": "fix",
-		"name": "fix:          🐛 Fix bug",
+		"name": "fix:          🐛 修复缺陷 | Bug fix",
 		"emoji": "🐛"
 	},
 	{
 		"value": "hotfix",
-		"name": "hotfix:       🚑 Critical hotfix",
+		"name": "hotfix:       🚑 紧急修复 | Critical hotfix",
 		"emoji": "🚑"
 	},
 	{
 		"value": "patch",
-		"name": "patch:        🩹 Simple fix for a non-critical issue",
+		"name": "patch:        🩹 简易修复 | Simple fix for a non-critical issue",
 		"emoji": "🩹"
 	},
 	{
 		"value": "style",
-		"name": "style:        🎨 Improve structure / format of the code",
+		"name": "style:        🎨 代码格式 | Improve structure/format of the code",
 		"emoji": "🎨"
 	},
 	{
 		"value": "docs",
-		"name": "docs:         📝 Add or update documentation",
+		"name": "docs:         📝 文档相关 | Add or update documentation",
 		"emoji": "📝"
 	},
 	{
 		"value": "perf",
-		"name": "perf:         🌠 Improve performance",
+		"name": "perf:         🌠 性能相关 | Improve performance",
 		"emoji": "🌠"
 	},
 	{
 		"value": "chore",
-		"name": "chore:        🎫 Chores",
+		"name": "chore:        🎫 其他修改 | Chores",
 		"emoji": "🎫"
 	},
 	{
 		"value": "build",
-		"name": "build:        🏭 Add or update build system",
+		"name": "build:        🏭 构建相关 | Add or update build system",
 		"emoji": "🏭"
 	},
 	{
 		"value": "ui",
-		"name": "ui:           💄 Add or update UI and style files",
+		"name": "ui:           💄 界面相关 | Add or update UI and style files",
 		"emoji": "💄"
 	},
 	{
 		"value": "refactor",
-		"name": "refactor:     🌀 Refactor code",
+		"name": "refactor:     🌀 代码重构 | Refactor code",
 		"emoji": "🌀"
 	},
 	{
 		"value": "config",
-		"name": "config:       🔧 Add or update configuration files",
+		"name": "config:       🔧 配置相关 | Add or update configuration files",
 		"emoji": "🔧"
 	},
 	{
 		"value": "i18n",
-		"name": "i18n:         🌐 Internationalization and localization",
+		"name": "i18n:         🌐 国际化和本地化 | Internationalization and localization",
 		"emoji": "🌐"
 	},
 	{
 		"value": "typo",
-		"name": "typo:         ✎ Fix typos",
+		"name": "typo:         ✎ 拼写修正 | Fix typos",
 		"emoji": "✎"
 	},
 	{
 		"value": "revert",
-		"name": "revert:       ⏪ Revert changes",
+		"name": "revert:       ⏪ 回退代码 | Revert changes",
 		"emoji": "⏪"
 	},
 	{
 		"value": "merge",
-		"name": "merge:        🔀 Merge branches",
+		"name": "merge:        🔀 合并分支 | Merge branches",
 		"emoji": "🔀"
 	},
 	{
 		"value": "break",
-		"name": "break:        💥 Introduce breaking changes",
+		"name": "break:        💥 重大变更 | Introduce breaking changes",
 		"emoji": "💥"
 	},
 	{
 		"value": "api",
-		"name": "api:          👽 Update code due to external API changes",
+		"name": "api:          👽 外部 API 相关 | Update code due to external API changes",
 		"emoji": "👽"
 	},
 	{
 		"value": "lint",
-		"name": "lint:         🚨 Fix compiler / linter warnings",
+		"name": "lint:         🚨 编译器/代码检查警告修复 | Fix compiler/linter warnings",
 		"emoji": "🚨"
 	},
 	{
 		"value": "test",
-		"name": "test:         ✅ Add, update, or pass tests",
+		"name": "test:         ✅ 测试相关 | Add, update, or pass tests",
 		"emoji": "✅"
 	},
 	{
 		"value": "prune",
-		"name": "prune:        🔥 Remove code or files",
+		"name": "prune:        🔥 删除代码或文件 | Remove code or files",
 		"emoji": "🔥"
 	},
 	{
 		"value": "move",
-		"name": "move:         🚚 Move or rename resources (e.g.: files, paths, routes)",
+		"name": "move:         🚚 文件/路径/路由 | Move or rename resources (e.g.: files, paths, routes)",
 		"emoji": "🚚"
 	},
 	{
 		"value": "data",
-		"name": "data:         📡 Data exploration / inspection",
+		"name": "data:         📡 数据相关 | Data exploration/inspection",
 		"emoji": "📡"
 	},
 	{
 		"value": "db",
-		"name": "db:           💽 Perform database related changes",
+		"name": "db:           💽 数据库相关 | Perform database related changes",
 		"emoji": "💽"
 	},
 	{
 		"value": "ux",
-		"name": "ux:           🚸 Improve user experience / usability",
+		"name": "ux:           🚸 用户体验相关 | Improve user experience/usability",
 		"emoji": "🚸"
 	},
 	{
 		"value": "business",
-		"name": "business:     👔 Add or update business logic",
+		"name": "business:     👔 业务逻辑 | Add or update business logic",
 		"emoji": "👔"
 	},
 	{
 		"value": "arch",
-		"name": "arch:         🏠 Make architectural changes",
+		"name": "arch:         🏠 架构相关 | Make architectural changes",
 		"emoji": "🏠"
 	},
 	{
 		"value": "texts",
-		"name": "texts:        💬 Add or update text and literals",
+		"name": "texts:        💬 文本相关 | Add or update text and literals",
 		"emoji": "💬"
 	},
 	{
 		"value": "assets",
-		"name": "assets:       🍱 Add or update assets",
+		"name": "assets:       🍱 资源相关 | Add or update assets",
 		"emoji": "🍱"
 	},
 	{
 		"value": "auth",
-		"name": "auth:         🛂 Work on code related to authorization, roles and permissions",
+		"name": "auth:         🛂 权限认证 | Work on code related to authorization, roles and permissions",
 		"emoji": "🛂"
 	},
 	{
 		"value": "access",
-		"name": "access:       ♿ Improve accessibility",
+		"name": "access:       ♿ 可访问性 | Improve accessibility",
 		"emoji": "♿"
 	},
 	{
 		"value": "review",
-		"name": "review:       👌 Update code due to code review changes",
+		"name": "review:       👌 代码审查导致的更改 | Update code due to code review changes",
 		"emoji": "👌"
 	},
 	{
 		"value": "experiment",
-		"name": "experiment:   🧪 Perform experiments",
+		"name": "experiment:   🧪 实验性功能相关 | Perform experiments",
 		"emoji": "🧪"
 	},
 	{
 		"value": "flags",
-		"name": "flags:        🚩 Add, update, or remove feature flags",
+		"name": "flags:        🚩 新功能相关 | Add, update, or remove feature flags",
 		"emoji": "🚩"
 	},
 	{
 		"value": "animation",
-		"name": "animation:    💫 Add or update animations and transitions",
+		"name": "animation:    💫 动画相关 | Add or update animations and transitions",
 		"emoji": "💫"
 	},
 	{
 		"value": "responsive",
-		"name": "responsive:   📱 Work on responsive design",
+		"name": "responsive:   📱 响应式设计 | Work on responsive design",
 		"emoji": "📱"
 	},
 	{
 		"value": "types",
-		"name": "types:        📔 Add or update types",
+		"name": "types:        📔 类型相关 | Add or update types",
 		"emoji": "📔"
 	},
 	{
 		"value": "mock",
-		"name": "mock:         🤡 Mock things",
+		"name": "mock:         🤡 模拟相关 | Mock things",
 		"emoji": "🤡"
 	},
 	{
 		"value": "script",
-		"name": "script:       🔨 Add or update development scripts",
+		"name": "script:       🔨 脚本相关 | Add or update development scripts",
 		"emoji": "🔨"
 	},
 	{
 		"value": "error",
-		"name": "error:        🥅 Catch errors",
+		"name": "error:        🥅 捕获错误 | Catch errors",
 		"emoji": "🥅"
 	},
 	{
 		"value": "healthcheck",
-		"name": "healthcheck:  🩺 Add or update healthcheck",
+		"name": "healthcheck:  🩺 健康检查 | Add or update healthcheck",
 		"emoji": "🩺"
 	},
 	{
 		"value": "package",
-		"name": "package:      📦 Add or update compiled files or packages",
+		"name": "package:      📦 编译文件或包相关 | Add or update compiled files or packages",
 		"emoji": "📦"
 	},
 	{
 		"value": "dep-add",
-		"name": "dep-add:      ➕ Add dependencies",
+		"name": "dep-add:      ➕ 增加依赖 | Add dependencies",
 		"emoji": "➕"
 	},
 	{
 		"value": "dep-rm",
-		"name": "dep-rm:       ➖ Remove dependencies",
+		"name": "dep-rm:       ➖ 移除依赖 | Remove dependencies",
 		"emoji": "➖"
 	},
 	{
 		"value": "dep-down",
-		"name": "dep-down:     ⬇ Downgrade dependencies",
+		"name": "dep-down:     ⬇ 降级依赖 | Downgrade dependencies",
 		"emoji": "⬇"
 	},
 	{
 		"value": "dep-up",
-		"name": "dep-up:       ⬆ Upgrade dependencies",
+		"name": "dep-up:       ⬆ 升级依赖 | Upgrade dependencies",
 		"emoji": "⬆"
 	},
 	{
 		"value": "pushpin",
-		"name": "pushpin:      📌 Pin dependencies to specific versions",
+		"name": "pushpin:      📌 固定依赖到特定版本 | Pin dependencies to specific versions",
 		"emoji": "📌"
 	},
 	{
 		"value": "init",
-		"name": "init:         🎉 Begin a project",
+		"name": "init:         🎉 开始新项目 | Begin a project",
 		"emoji": "🎉"
 	},
 	{
 		"value": "wip",
-		"name": "wip:          🚧 Work in progress",
+		"name": "wip:          🚧 工作进行中 | Work in progress",
 		"emoji": "🚧"
 	},
 	{
 		"value": "deploy",
-		"name": "deploy:       🚀 Deploy stuff",
+		"name": "deploy:       🚀 部署相关 | Deploy stuff",
 		"emoji": "🚀"
 	},
 	{
 		"value": "release",
-		"name": "release:      🔖 Release / Version tags",
+		"name": "release:      🔖 发布/版本标签 | Release/Version tags",
 		"emoji": "🔖"
 	},
 	{
 		"value": "analytics",
-		"name": "analytics:    📈 Add or update analytics or track code",
+		"name": "analytics:    📈 分析跟踪代码 | Add or update analytics or track code",
 		"emoji": "📈"
 	},
 	{
 		"value": "security",
-		"name": "security:     🔒 Fix security issues",
+		"name": "security:     🔒 安全修复 | Fix security issues",
 		"emoji": "🔒"
 	},
 	{
 		"value": "ci",
-		"name": "ci:           👷 Add or update CI build system",
+		"name": "ci:           👷 CI 持续集成 | Add or update CI build system",
 		"emoji": "👷"
 	},
 	{
 		"value": "fixci",
-		"name": "fixci:        💚 Fix CI Build",
+		"name": "fixci:        💚 修复 CI 构建 | Fix CI Build",
 		"emoji": "💚"
 	},
 	{
 		"value": "clean",
-		"name": "clean:        🧹 Deprecate code that needs to be cleaned up",
+		"name": "clean:        🧹 弃用代码 | Deprecate code that needs to be cleaned up",
 		"emoji": "🧹"
 	},
 	{
 		"value": "deadcode",
-		"name": "deadcode:     🚮 Remove dead code",
+		"name": "deadcode:     🚮 移除无效代码 | Remove dead code",
 		"emoji": "🚮"
 	},
 	{
 		"value": "docker",
-		"name": "docker:       🐳 Work about Docker",
+		"name": "docker:       🐳 Docker 相关 | Work about Docker",
 		"emoji": "🐳"
 	},
 	{
 		"value": "k8s",
-		"name": "k8s:          🎡 Work about Kubernetes",
+		"name": "k8s:          🎡 K8S 相关 | Work about Kubernetes",
 		"emoji": "🎡"
 	},
 	{
 		"value": "osx",
-		"name": "osx:          🍎 Fix something on macOS",
+		"name": "osx:          🍎 macOS 相关 | Fix something on macOS",
 		"emoji": "🍎"
 	},
 	{
 		"value": "linux",
-		"name": "linux:        🐧 Fix something on Linux",
+		"name": "linux:        🐧 Linux 相关 | Fix something on Linux",
 		"emoji": "🐧"
 	},
 	{
 		"value": "windows",
-		"name": "windows:      🏁 Fix something on Windows",
+		"name": "windows:      🏁 Windows 相关 | Fix something on Windows",
 		"emoji": "🏁"
 	},
 	{
 		"value": "android",
-		"name": "android:      🤖 Fix something on Android",
+		"name": "android:      🤖 Android 相关 | Fix something on Android",
 		"emoji": "🤖"
 	},
 	{
 		"value": "ios",
-		"name": "ios:          🍏 Fix something on iOS",
+		"name": "ios:          🍏 iOS 相关 | Fix something on iOS",
 		"emoji": "🍏"
 	},
 	{
 		"value": "ignore",
-		"name": "ignore:       🙈 Add or update .gitignore file",
+		"name": "ignore:       🙈 .gitignore 相关 | Add or update .gitignore file",
 		"emoji": "🙈"
 	},
 	{
 		"value": "comment",
-		"name": "comment:      💡 Add or update comments in source code",
+		"name": "comment:      💡 代码注释 | Add or update comments in source code",
 		"emoji": "💡"
 	},
 	{
 		"value": "snapshot",
-		"name": "snapshot:     📸 Add or update snapshots",
+		"name": "snapshot:     📸 快照相关 | Add or update snapshots",
 		"emoji": "📸"
 	},
 	{
 		"value": "addlog",
-		"name": "addlog:       🔊 Add or update logs",
+		"name": "addlog:       🔊 增加或更新日志 | Add or update logs",
 		"emoji": "🔊"
 	},
 	{
 		"value": "rmlog",
-		"name": "rmlog:        🔇 Remove logs",
+		"name": "rmlog:        🔇 移除日志 | Remove logs",
 		"emoji": "🔇"
 	},
 	{
 		"value": "seed",
-		"name": "seed:         🌱 Add or update seed files",
+		"name": "seed:         🌱 种子文件 | Add or update seed files",
 		"emoji": "🌱"
 	},
 	{
 		"value": "seo",
-		"name": "seo:          🔍 Improve SEO",
+		"name": "seo:          🔍 SEO 优化 | Improve SEO",
 		"emoji": "🔍"
 	},
 	{
 		"value": "contrib",
-		"name": "contrib:      👥 Add or update contributor(s)",
+		"name": "contrib:      👥 贡献者 | Add or update contributor(s)",
 		"emoji": "👥"
 	},
 	{
 		"value": "license",
-		"name": "license:      📄 Add or update license",
+		"name": "license:      📄 许可证 | Add or update license",
 		"emoji": "📄"
 	},
 	{
 		"value": "egg",
-		"name": "egg:          🥚 Add or update an easter egg",
+		"name": "egg:          🥚 彩蛋 | Add or update an easter egg",
 		"emoji": "🥚"
 	},
 	{
 		"value": "beer",
-		"name": "beer:         🍻 Write code drunkenly",
+		"name": "beer:         🍻 醉酒写代码 | Write code drunkenly",
 		"emoji": "🍻"
 	},
 	{
 		"value": "poo",
-		"name": "poo:          💩 Write bad code that needs to be improved",
+		"name": "poo:          💩 糟糕代码 | Write bad code that needs to be improved",
 		"emoji": "💩"
 	}
 ];

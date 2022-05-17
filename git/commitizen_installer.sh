@@ -48,7 +48,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
         asdf_App_Install nodejs lts
     fi
 
-    if [[ -x "$(command -v node)" && -x "$(command -v npm)" && ! -d "$HOME/.npm-global" ]]; then
+    if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
         [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]] && \
             source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh"
     fi
@@ -96,7 +96,7 @@ fi
 # husky hooks
 if [[ -s "${CURRENT_DIR}/node_modules/.bin/husky" ]]; then
     npx husky install && \
-        npm set-script prepare "husky install"
+        npm set-script prepare "husky install && chmod ug+x .husky/*"
 fi
 
 if [[ ! -s "${CURRENT_DIR}/.husky/commit-msg" ]]; then
