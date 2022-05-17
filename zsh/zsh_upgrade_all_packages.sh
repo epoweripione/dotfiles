@@ -169,7 +169,7 @@ AppList=(
     "git-delta"
     "lazygit"
     "lnav"
-    "nano"
+    # "nano"
     "navi"
     "nnn"
     "tealdeer"

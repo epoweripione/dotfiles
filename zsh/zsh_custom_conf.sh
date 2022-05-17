@@ -326,7 +326,7 @@ fi
 [[ -s "$HOME/.local/share/funky/funky.sh" ]] && source "$HOME/.local/share/funky/funky.sh"
 
 # homebrew
-if [[ -x "$(command -v brew)" ]]; then
+if [[ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
         export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
         export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
@@ -505,6 +505,21 @@ index = "https://rsproxy.cn/crates.io-index"
 git-fetch-with-cli = true
 EOF
     fi
+fi
+
+# ruby
+if [[ -x "$(command -v rbenv)" ]]; then
+    export RUBY_BUILD_MIRROR_URL="https://cache.ruby-china.com"
+fi
+
+# vcpkg
+if [[ -z "${VCPKG_ROOT}" && -x "$(command -v vcpkg)" ]]; then
+    [[ -z "${VCPKG_ROOT}" ]] && VCPKG_ROOT=$(dirname "$(readlink -f "$(command -v vcpkg)")")
+    [[ -z "${VCPKG_DOWNLOADS}" && -d "/var/cache/vcpkg" ]] && VCPKG_DOWNLOADS="/var/cache/vcpkg"
+    export VCPKG_ROOT
+    export VCPKG_DOWNLOADS
+elif [[ -z "${VCPKG_ROOT}" && -d "$HOME/vcpkg" ]]; then
+    export VCPKG_ROOT="$HOME/vcpkg"
 fi
 
 # jabba

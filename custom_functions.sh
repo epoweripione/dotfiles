@@ -953,6 +953,7 @@ function get_proxy() {
     [[ -n "${all_proxy}" ]] && colorEcho "${BLUE}all_proxy=${FUCHSIA}${all_proxy}"
     [[ -n "${no_proxy}" ]] && colorEcho "${BLUE}no_proxy=${FUCHSIA}${no_proxy}"
 
+    echo ""
     [[ -n "${HTTP_PROXY}" ]] && colorEcho "${BLUE}HTTP_PROXY=${FUCHSIA}${HTTP_PROXY}"
     [[ -n "${HTTPS_PROXY}" ]] && colorEcho "${BLUE}HTTPS_PROXY=${FUCHSIA}${HTTPS_PROXY}"
     [[ -n "${FTP_PROXY}" ]] && colorEcho "${BLUE}FTP_PROXY=${FUCHSIA}${FTP_PROXY}"
@@ -972,8 +973,8 @@ function get_proxy() {
     fi
 
     if [[ -x "$(command -v yarn)" ]]; then
-        proxy_output1=$(yarn config get proxy | grep -v "null")
-        proxy_output2=$(yarn config get https-proxy | grep -v "null")
+        proxy_output1=$(yarn config get proxy | grep -Ev "null|undefined")
+        proxy_output2=$(yarn config get https-proxy | grep -Ev "null|undefined")
         [[ -n "${proxy_output1}" ]] && colorEcho "\n${BLUE}yarn proxies:\n${FUCHSIA}${proxy_output1}"
         [[ -n "${proxy_output2}" ]] && colorEcho "${FUCHSIA}${proxy_output2}"
     fi
@@ -1046,6 +1047,23 @@ function proxy_cmd() {
         [[ -n "${all_proxy}" ]] && colorEcho "${GREEN}Using proxy: ${FUCHSIA}${all_proxy}"
         "$@"
         [[ -n "${all_proxy}" ]] && clear_proxy && colorEcho "${GREEN}Proxy clear."
+    fi
+}
+
+function proxy_http_cmd() {
+    local proxy_address
+
+    [[ -z $* ]] && colorEcho "${GREEN}No proxy for specific command." && return 0
+
+    if [[ -n "${GLOBAL_PROXY_MIXED_PORT}" ]]; then
+        proxy_address="http://${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_MIXED_PORT}"
+        http_proxy="${proxy_address}" https_proxy="${proxy_address}" \
+            ftp_proxy="${proxy_address}" all_proxy="${proxy_address}" \
+            HTTP_PROXY="${proxy_address}" HTTPS_PROXY="${proxy_address}" \
+            FTP_PROXY="${proxy_address}" ALL_PROXY="${proxy_address}" \
+            "$@"
+    else
+        "$@"
     fi
 }
 

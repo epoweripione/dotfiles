@@ -243,16 +243,16 @@ for Target in "${PluginList[@]}"; do
     Git_Clone_Update_Branch "${Target}" "${ZSH_CUSTOM}/plugins/${TargetName}"
 done
 
-# fzf-tab: speed up parse and apply filename colorizing
-if [[ ! -s "${ZSH_CUSTOM}/plugins/fzf-tab/modules/Src/aloxaf/fzftab.so" ]]; then
-    [[ ! "$(command -v build-fzf-tab-module)" ]] && \
-        source "${ZSH_CUSTOM}/plugins/fzf-tab/fzf-tab.plugin.zsh"
+## fzf-tab: speed up parse and apply filename colorizing
+# if [[ ! -s "${ZSH_CUSTOM}/plugins/fzf-tab/modules/Src/aloxaf/fzftab.so" ]]; then
+#     [[ ! "$(command -v build-fzf-tab-module)" ]] && \
+#         source "${ZSH_CUSTOM}/plugins/fzf-tab/fzf-tab.plugin.zsh"
 
-    if [[ "$(command -v build-fzf-tab-module)" ]]; then
-        colorEcho "${BLUE}Building ${FUCHSIA}fzf-tab modules${BLUE}..."
-        build-fzf-tab-module >/dev/null
-    fi
-fi
+#     if [[ "$(command -v build-fzf-tab-module)" ]]; then
+#         colorEcho "${BLUE}Building ${FUCHSIA}fzf-tab modules${BLUE}..."
+#         build-fzf-tab-module >/dev/null
+#     fi
+# fi
 
 # Custom themes
 colorEcho "${BLUE}Oh-my-zsh custom ${FUCHSIA}themes${BLUE}..."

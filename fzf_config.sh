@@ -80,7 +80,7 @@ if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]]; then
     # fzf-tab
     # https://github.com/Aloxaf/fzf-tab
     # set list-colors to enable filename colorizing
-    [[ ! -s "${ZSH_CUSTOM}/plugins/fzf-tab/modules/Src/aloxaf/fzftab.so" ]] && \
+    [[ ! -s "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab/modules/Src/aloxaf/fzftab.so" ]] && \
         zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
     # [kill/ps] preview of full commandline arguments
