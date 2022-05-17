@@ -106,6 +106,11 @@ if [[ -d "$HOME/.local/bin" ]]; then
     export PATH=$PATH:$HOME/.local/bin
 fi
 
+## WARNING: Discarding xxx has inconsistent version: filename has 'x.y.z', but metadata has 'x.y.z
+## https://forum.manjaro.org/t/cant-install-anything-with-pip3/92890/11
+# sed -i 's/self._regex.search(version)/self._regex.search(str(version))/' "/usr/lib/python3.10/site-packages/packaging/version.py"
+# python -m pip install --user -U pip --use-deprecated=legacy-resolver
+
 # pip.conf
 mkdir -p "$HOME/.pip"
 PIP_CONFIG="$HOME/.pip/pip.conf"
@@ -156,7 +161,7 @@ if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
         wheel
         pipx
         # pipq
-        pip-search
+        pip_search
     )
     for TargetPackage in "${PipPackages[@]}"; do
         colorEcho "${BLUE}Installing ${FUCHSIA}pip package ${ORANGE}${TargetPackage}${BLUE}..."
