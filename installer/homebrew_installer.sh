@@ -28,6 +28,57 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
 fi
 
+# Brew installation fails due to Ruby versioning?
+# https://unix.stackexchange.com/questions/694020/brew-installation-fails-due-to-ruby-versioning
+BREW_RUBY_VERSION="2.6.8"
+BREW_RUBY_MAIN_VERSION=$(echo "${BREW_RUBY_VERSION}" | cut -d'.' -f1-2)
+RUBY_DOWNLOAD_URL="https://cache.ruby-china.com/pub/ruby/${BREW_RUBY_MAIN_VERSION}/ruby-${BREW_RUBY_VERSION}.tar.bz2"
+
+SYSTEM_RUBY_VERSION="0.0.0"
+[[ -x "$(command -v ruby)" ]] && SYSTEM_RUBY_VERSION=$(ruby -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+
+if [[ "${BREW_RUBY_VERSION}" != "${SYSTEM_RUBY_VERSION}" ]]; then
+    OS_RELEASE_ID="$(grep -E '^ID=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
+    OS_RELEASE_ID_LIKE="$(grep -E '^ID_LIKE=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
+    if [[ "${OS_RELEASE_ID}" == "arch" || "${OS_RELEASE_ID}" == "arch" || "${OS_RELEASE_ID_LIKE}" == "arch" ]]; then
+        # https://github.com/rbenv/rbenv
+        if [[ -x "$(command -v yay)" ]]; then
+            yay --noconfirm --needed -S rbenv
+            # https://github.com/Homebrew/discussions/discussions/3183
+            sudo pacman --noconfirm --needed -S libxcrypt-compat
+        fi
+
+        if [[ -x "$(command -v rbenv)" ]]; then
+            mkdir "$(rbenv root)/plugins"
+            mkdir "$(rbenv root)/cache"
+
+            if ! grep -q 'rbenv init -' "$HOME/.zshrc" >/dev/null 2>&1; then
+                echo -e '\n# rbenv' >> "$HOME/.zshrc"
+                echo 'eval "$(rbenv init -)"' >> "$HOME/.zshrc"
+            fi
+
+            Git_Clone_Update_Branch "andorchen/rbenv-china-mirror" "$(rbenv root)/plugins/rbenv-china-mirror"
+            export RUBY_BUILD_MIRROR_URL="https://cache.ruby-china.com"
+
+            Git_Clone_Update_Branch "rbenv/ruby-build" "$(rbenv root)/plugins/ruby-build"
+
+            wget "${RUBY_DOWNLOAD_URL}" -P "$(rbenv root)/cache"
+            rbenv install "${BREW_RUBY_VERSION}" && rbenv rehash
+            if rbenv versions | grep "${BREW_RUBY_VERSION}" >/dev/null 2>&1; then
+                rbenv global "${BREW_RUBY_VERSION}"
+            fi
+
+            ## fallback to system installed version
+            # rbenv global system
+        fi
+
+        if [[ -x "$(command -v gem)" ]]; then
+            noproxy_cmd gem sources --add "https://gems.ruby-china.com/" --remove "https://rubygems.org/"
+            gem sources -l
+        fi
+    fi
+fi
+
 case "${OS_INFO_TYPE}" in
     darwin | linux)
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
@@ -40,7 +91,15 @@ esac
 
 # https://docs.brew.sh/Homebrew-on-Linux
 if [[ "${OS_INFO_TYPE}" == "linux" && -s "/home/linuxbrew/.linuxbrew/bin/brew" ]]; then
-    echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> "$HOME/.zprofile"
+    # if ! grep -q 'brew shellenv' "$HOME/.zprofile" >/dev/null 2>&1; then
+    #     echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> "$HOME/.zprofile"
+    # fi
+
+    if ! grep -q 'brew shellenv' "$HOME/.zshrc" >/dev/null 2>&1; then
+        echo -e '\n# homebrew' >> "$HOME/.zshrc"
+        echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> "$HOME/.zshrc"
+    fi
+
     # eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 fi
 
@@ -60,7 +119,7 @@ fi
 # brew tap --custom-remote --force-auto-update homebrew/cask-versions "https://github.com/Homebrew/homebrew-cask-versions"
 
 ## mirrors
-if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+if [[ "${THE_WORLD_BLOCKED}" == "true" && -x "$(command -v brew)" ]]; then
     # cd "$(brew --repo)" && \
     #     git remote set-url origin "https://mirrors.ustc.edu.cn/brew.git"
 
@@ -82,5 +141,19 @@ fi
 #     # source ~/.zshrc
 # fi
 
+
+## How to force homebrew to install a local file?
+## https://stackoverflow.com/questions/59017569/how-to-force-homebrew-to-install-a-local-file
+# brew install -b <formula>
+## If a package fails to download, look for the cached location name and the url to download
+## Note 3 things from the response:
+## Cache folder location: <Cacheed_folder>($HOME/.cache/Homebrew/downloads/<Cacheed_filename>)
+## Cached filename: <Cacheed_filename>
+## Download url: <Download_url>
+## Manual download the package:
+# wget "<Download_url>" -O "<Cacheed_folder>/<Cacheed_filename>"
+## Run brew install again
+# brew install -b <formula>
+# brew --cache <formula>
 
 cd "${CURRENT_DIR}" || exit
