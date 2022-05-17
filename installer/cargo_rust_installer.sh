@@ -15,16 +15,6 @@ fi
 # Use proxy or mirror when some sites were blocked or low speed
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
-## Rust and Cargo
-## https://www.rust-lang.org/learn/get-started
-## On Linux and macOS systems
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-## On Windows
-## https://win.rustup.rs/
-# scoop install rustup
-
-
 # rustup & cargo mirror
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     # rustup mirror
@@ -68,3 +58,13 @@ git-fetch-with-cli = true
 EOF
     fi
 fi
+
+
+## Rust and Cargo
+## https://www.rust-lang.org/learn/get-started
+## On Linux and macOS systems
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+## On Windows
+## https://win.rustup.rs/
+# scoop install rustup
