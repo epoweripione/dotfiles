@@ -180,7 +180,7 @@ sudo pacman --noconfirm --needed -S patch pkg-config automake
 
 # pre-requisite packages
 colorEcho "${BLUE}Installing ${FUCHSIA}pre-requisite packages${BLUE}..."
-sudo pacman --noconfirm --needed -S git curl wget unzip seahorse yay
+sudo pacman --noconfirm --needed -S git curl wget unzip seahorse yay fx
 
 
 # use en_US.UTF-8 for terminal
@@ -388,6 +388,7 @@ fi
 
 # RDP Client
 sudo pacman --noconfirm --needed -S freerdp remmina
+# yay -S rustdesk
 
 
 # # NoMachine
@@ -781,9 +782,9 @@ sudo pacman --noconfirm --needed -S btop font-manager filelight peek redshift ve
 # Terminal
 # sudo pacman --noconfirm --needed -S konsole
 
-# Virtualbox
-yay --noconfirm --needed -S aur/virtualbox-bin
-yay --noconfirm --needed -S aur/virtualbox-ext-oracle
+## Virtualbox
+# yay --noconfirm --needed -S aur/virtualbox-bin
+# yay --noconfirm --needed -S aur/virtualbox-ext-oracle
 
 # WPS
 yay --noconfirm --needed -S wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn
@@ -825,7 +826,7 @@ sudo pacman --noconfirm --needed -S swtpm
 # Enable secure-boot/UEFI on KVM
 sudo pacman --noconfirm --needed -S edk2-ovmf
 # Install the qemu package
-sudo pacman --noconfirm --needed -S qemu
+sudo pacman --noconfirm --needed -S qemu-desktop
 sudo pacman --noconfirm --needed -S libvirt virt-install virt-manager virt-viewer
 sudo systemctl enable libvirtd && sudo systemctl start libvirtd
 
