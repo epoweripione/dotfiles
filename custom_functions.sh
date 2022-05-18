@@ -1023,8 +1023,9 @@ function clear_proxy() {
 function clear_all_proxy() {
     clear_proxy
     set_git_proxy
-    set_curl_proxy
-    # [[ -s "$HOME/.curl_socks5" ]] && set_curl_proxy "" "$HOME/.curl_socks5"
+    # set_git_special_proxy "github.com,gitlab.com"
+    set_curl_socks_proxy
+    # [[ -s "$HOME/.curl_socks5" ]] && set_curl_socks_proxy "" "$HOME/.curl_socks5"
     set_special_socks5_proxy
     set_wget_proxy
 }
@@ -1365,8 +1366,8 @@ function set_wget_proxy() {
     fi
 }
 
-# Set curl proxy
-function set_curl_proxy() {
+# Set curl socks proxy
+function set_curl_socks_proxy() {
     local PROXY_ADDRESS=$1
     local CURL_CONFIG=${2:-"$HOME/.curlrc"}
 
@@ -1458,39 +1459,30 @@ function set_global_proxy() {
     local HTTP_ADDRESS=${2:-""}
     local SOCKS_PROTOCOL=${3:-"socks5"}
 
-    # clear git special proxy
-    set_git_special_proxy "github.com,gitlab.com"
+    # clear all proxy first
+    clear_all_proxy
 
-    # clear special socks5 proxy(curl...)
-    set_special_socks5_proxy
+    [[ -z "${SOCKS_ADDRESS}" && -z "${HTTP_ADDRESS}" ]] && return 1
 
-    if [[ -n "$SOCKS_ADDRESS" ]]; then
+    if [[ -n "${HTTP_ADDRESS}" ]]; then
+        set_proxy "http://${HTTP_ADDRESS}"
+
+        colorEcho "${GREEN}  :: Now using ${FUCHSIA}${SOCKS_PROTOCOL}://${SOCKS_ADDRESS} ${GREEN}for global proxy!"
+    elif [[ -n "${SOCKS_ADDRESS}" ]]; then
         set_proxy "${SOCKS_PROTOCOL}://${SOCKS_ADDRESS}"
 
-        set_curl_proxy "${SOCKS_ADDRESS}"
+        set_curl_socks_proxy "${SOCKS_ADDRESS}"
 
-        ## set git global proxy
-        # set_git_proxy "${SOCKS_PROTOCOL}://${SOCKS_ADDRESS}"
-
-        ## set special socks5 proxy(curl...)
-        # set_special_socks5_proxy "${SOCKS_ADDRESS}"
-
-        colorEcho "${GREEN}  :: Now using ${FUCHSIA}${SOCKS_PROTOCOL}://${SOCKS_ADDRESS} ${GREEN}for global socks5 proxy!"
-
-        # wget must use http proxy
-        if [[ -n "$HTTP_ADDRESS" ]]; then
-            set_wget_proxy "${HTTP_ADDRESS}"
-            colorEcho "${GREEN}  :: Now using ${FUCHSIA}${HTTP_ADDRESS} ${GREEN}for http proxy(wget etc.)!"
-        else
-            set_wget_proxy
-        fi
-
-        return 0
-    else
-        clear_all_proxy
-
-        return 1
+        colorEcho "${GREEN}  :: Now using ${FUCHSIA}${SOCKS_PROTOCOL}://${SOCKS_ADDRESS} ${GREEN}for global proxy!"
     fi
+
+    # wget must use http proxy
+    if [[ -n "${HTTP_ADDRESS}" ]]; then
+        set_wget_proxy "${HTTP_ADDRESS}"
+        # colorEcho "${GREEN}  :: Now using ${FUCHSIA}${HTTP_ADDRESS} ${GREEN}for http proxy(wget etc.)!"
+    fi
+
+    return 0
 }
 
 # Check & set global proxy
@@ -1538,14 +1530,27 @@ function check_set_global_proxy() {
 
     # Set global proxy
     while read -r PROXY_IP; do
-        if check_socks5_proxy_up "${PROXY_IP}:${MIXED_PORT}"; then
-            SOCKS_PORT=${MIXED_PORT}
+        # if check_socks5_proxy_up "${PROXY_IP}:${MIXED_PORT}"; then
+        #     SOCKS_PORT=${MIXED_PORT}
+        #     PROXY_UP="YES"
+        # else
+        #     if check_socks5_proxy_up "${PROXY_IP}:${SOCKS_PORT}"; then
+        #         if ! check_http_proxy_up "${PROXY_IP}:${MIXED_PORT}"; then
+        #             MIXED_PORT=""
+        #         fi
+        #         PROXY_UP="YES"
+        #     fi
+        # fi
+
+        # Use HTTP proxy by default
+        if check_http_proxy_up "${PROXY_IP}:${MIXED_PORT}"; then
             PROXY_UP="YES"
         else
-            if check_socks5_proxy_up "${PROXY_IP}:${SOCKS_PORT}"; then
-                if ! check_http_proxy_up "${PROXY_IP}:${MIXED_PORT}"; then
-                    MIXED_PORT=""
-                fi
+            MIXED_PORT=""
+            if check_socks5_proxy_up "${PROXY_IP}:${MIXED_PORT}"; then
+                SOCKS_PORT=${MIXED_PORT}
+                PROXY_UP="YES"
+            elif check_socks5_proxy_up "${PROXY_IP}:${SOCKS_PORT}"; then
                 PROXY_UP="YES"
             fi
         fi
@@ -1581,7 +1586,7 @@ function set_special_socks5_proxy() {
     CURL_SPECIAL_CONFIG=${CURL_SPECIAL_CONFIG:-"$HOME/.curl_socks5"}
 
     if [[ -n "$SOCKS5_PROXY" ]]; then
-        set_curl_proxy "${SOCKS5_PROXY}" "${CURL_SPECIAL_CONFIG}"
+        set_curl_socks_proxy "${SOCKS5_PROXY}" "${CURL_SPECIAL_CONFIG}"
     else
         # cat /dev/null > "${CURL_SPECIAL_CONFIG}"
         [[ -f "${CURL_SPECIAL_CONFIG}" ]] && rm "${CURL_SPECIAL_CONFIG}"
