@@ -57,6 +57,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 
     CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
     REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    REMOTE_VERSION=$(grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' <<<"${REMOTE_VERSION}")
     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         IS_INSTALL="no"
     fi
