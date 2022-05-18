@@ -19,6 +19,8 @@ fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 
+App_Installer_Reset
+
 # fx: Command-line tool and terminal JSON viewer
 # https://github.com/antonmedv/fx
 APP_INSTALL_NAME="fx"
@@ -39,36 +41,46 @@ else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
 fi
 
-# Install nodejs
+## Install nodejs
+# if [[ "${IS_INSTALL}" == "yes" ]]; then
+#     if [[ ! -x "$(command -v node)" && "$(command -v asdf)" ]]; then
+#         asdf_App_Install nodejs lts
+#     fi
+
+#     if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
+#         NPM_PREFIX=$(npm config get prefix 2>/dev/null)
+#         if [[ ! -d "${NPM_PREFIX}" ]]; then
+#             [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]] && \
+#                 source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh"
+#         fi
+#     fi
+# fi
+
+
+## Install fx
+# if [[ "${IS_INSTALL}" == "yes" && -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
+#     colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+#     npm install -g fx
+# fi
+
 if [[ "${IS_INSTALL}" == "yes" ]]; then
-    if [[ ! -x "$(command -v node)" && "$(command -v asdf)" ]]; then
-        asdf_App_Install nodejs lts
-    fi
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
 
-    if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
-        NPM_PREFIX=$(npm config get prefix 2>/dev/null)
-        if [[ ! -d "${NPM_PREFIX}" ]]; then
-            [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]] && \
-                source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh"
+    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
+    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
+        IS_INSTALL="no"
+    fi
+fi
+
+if [[ "${IS_INSTALL}" == "yes" ]]; then
+    if App_Installer_Get_Remote "https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest" 'fx_[^"]+'; then
+        if App_Installer_Install; then
+            :
+        else
+            colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
         fi
     fi
 fi
 
-
-# Install fx
-if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
-    if [[ "${IS_INSTALL}" == "yes" ]]; then
-        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-
-        CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-        REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
-        if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-            IS_INSTALL="no"
-        fi
-    fi
-
-    if [[ "${IS_INSTALL}" == "yes" ]]; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-        npm install -g fx
-    fi
-fi
+cd "${CURRENT_DIR}" || exit
