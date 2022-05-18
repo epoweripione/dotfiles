@@ -1467,7 +1467,7 @@ function set_global_proxy() {
     if [[ -n "${HTTP_ADDRESS}" ]]; then
         set_proxy "http://${HTTP_ADDRESS}"
 
-        colorEcho "${GREEN}  :: Now using ${FUCHSIA}${SOCKS_PROTOCOL}://${SOCKS_ADDRESS} ${GREEN}for global proxy!"
+        colorEcho "${GREEN}  :: Now using ${FUCHSIA}http://${HTTP_ADDRESS} ${GREEN}for global proxy!"
     elif [[ -n "${SOCKS_ADDRESS}" ]]; then
         set_proxy "${SOCKS_PROTOCOL}://${SOCKS_ADDRESS}"
 
@@ -1495,7 +1495,8 @@ function check_set_global_proxy() {
     local PROXY_HTTP=""
     local IP_LIST="127.0.0.1"
     local IP_WSL
-    local PROXY_UP="NO"
+    local PROXY_SOCKS_UP="NO"
+    local PROXY_HTTP_UP="NO"
 
     if [[ "$(uname -r)" =~ "microsoft" ]]; then
         # wsl2
@@ -1531,7 +1532,7 @@ function check_set_global_proxy() {
     # Set global proxy
     while read -r PROXY_IP; do
         # if check_socks5_proxy_up "${PROXY_IP}:${MIXED_PORT}"; then
-        #     SOCKS_PORT=${MIXED_PORT}
+        #     SOCKS_PORT="${MIXED_PORT}"
         #     PROXY_UP="YES"
         # else
         #     if check_socks5_proxy_up "${PROXY_IP}:${SOCKS_PORT}"; then
@@ -1544,31 +1545,33 @@ function check_set_global_proxy() {
 
         # Use HTTP proxy by default
         if check_http_proxy_up "${PROXY_IP}:${MIXED_PORT}"; then
-            PROXY_UP="YES"
+            PROXY_HTTP_UP="YES"
         else
-            MIXED_PORT=""
             if check_socks5_proxy_up "${PROXY_IP}:${MIXED_PORT}"; then
-                SOCKS_PORT=${MIXED_PORT}
-                PROXY_UP="YES"
+                SOCKS_PORT="${MIXED_PORT}"
+                PROXY_SOCKS_UP="YES"
             elif check_socks5_proxy_up "${PROXY_IP}:${SOCKS_PORT}"; then
-                PROXY_UP="YES"
+                PROXY_SOCKS_UP="YES"
             fi
         fi
 
-        [[ "$PROXY_UP" == "YES" ]] && break
+        [[ "${PROXY_HTTP_UP}" == "YES" || "${PROXY_SOCKS_UP}" == "YES" ]] && break
     done <<<"${IP_LIST}"
 
-    if [[ "$PROXY_UP" == "YES" ]]; then
+    [[ "${PROXY_HTTP_UP}" == "NO" ]] && MIXED_PORT=""
+    [[ "${PROXY_SOCKS_UP}" == "NO" ]] && SOCKS_PORT=""
+
+    if [[ "${PROXY_HTTP_UP}" == "YES" || "${PROXY_SOCKS_UP}" == "YES" ]]; then
         [[ -n "${SOCKS_PORT}" ]] && PROXY_SOCKS="${PROXY_IP}:${SOCKS_PORT}"
         [[ -n "${MIXED_PORT}" ]] && PROXY_HTTP="${PROXY_IP}:${MIXED_PORT}"
 
         if set_global_proxy "${PROXY_SOCKS}" "${PROXY_HTTP}" "${SOCKS_PROTOCOL}"; then
-            export GLOBAL_PROXY_IP=${PROXY_IP}
-            export GLOBAL_PROXY_SOCKS_PROTOCOL=${SOCKS_PROTOCOL}
-            export GLOBAL_PROXY_SOCKS_PORT=${SOCKS_PORT}
-            export GLOBAL_PROXY_MIXED_PORT=${MIXED_PORT}
+            export GLOBAL_PROXY_IP="${PROXY_IP}"
+            export GLOBAL_PROXY_SOCKS_PROTOCOL="${SOCKS_PROTOCOL}"
+            export GLOBAL_PROXY_SOCKS_PORT="${SOCKS_PORT}"
+            export GLOBAL_PROXY_MIXED_PORT="${MIXED_PORT}"
 
-            [[ "$(uname -r)" =~ "microsoft" ]] && export GLOBAL_WSL2_HOST_IP=${PROXY_IP}
+            [[ "$(uname -r)" =~ "microsoft" ]] && export GLOBAL_WSL2_HOST_IP="${PROXY_IP}"
 
             return 0
         fi
