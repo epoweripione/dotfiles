@@ -45,7 +45,7 @@ npm install cz-relax --save-dev
 [[ -d "${CURRENT_DIR}/.husky" ]] && npx cz-relax init --force || npx cz-relax init
 
 
-# commitTypes
+# commit types with emoji
 CommitTypesFile="${WORKDIR}/commitTypes.json"
 
 JqArgs=".\"config\".\"cz-emoji\".\"types\"[] | \
@@ -53,9 +53,16 @@ JqArgs=".\"config\".\"cz-emoji\".\"types\"[] | \
 name: (.name + \": \" + (.name | \" \" * (12 - length)) + .emoji + \" \" + .description), \
 emoji: .emoji}"
 
-jq -r "[${JqArgs}] | tojson" cz-emoji-types.json \
-    | jq --tab \
-    | sed -e 's/^\[/var commitTypes = \[/' -e 's/^\]/\]\;/' > "${CommitTypesFile}"
+if [[ ! -s "${CURRENT_DIR}/cz-emoji-types.json" ]]; then
+    curl "${CURL_CHECK_OPTS[@]}" -o "${CURRENT_DIR}/cz-emoji-types.json" \
+        "https://raw.githubusercontent.com/epoweripione/dotfiles/main/cz-emoji-types.json"
+fi
+
+if [[ -s "${CURRENT_DIR}/cz-emoji-types.json" ]]; then
+    jq -r "[${JqArgs}] | tojson" "${CURRENT_DIR}/cz-emoji-types.json" \
+        | jq --tab \
+        | sed -e 's/^\[/var commitTypes = \[/' -e 's/^\]/\]\;/' > "${CommitTypesFile}"
+fi
 
 CommitTypesStartLine=$(grep -E -n "^var commitTypes" "${CURRENT_DIR}/.commitlintrc.js" | cut -d: -f1)
 CommitTypesEndLine=$(grep -E -n "^\]\;" "${CURRENT_DIR}/.commitlintrc.js" | cut -d: -f1)
@@ -63,4 +70,16 @@ CommitTypesEndLine=$(grep -E -n "^\]\;" "${CURRENT_DIR}/.commitlintrc.js" | cut 
 if [[ -n "${CommitTypesStartLine}" && -s "${CommitTypesFile}" ]]; then
     sed -i "${CommitTypesStartLine},${CommitTypesEndLine}d" "${CURRENT_DIR}/.commitlintrc.js"
     sed -i "$((CommitTypesStartLine - 1))r ${CommitTypesFile}" "${CURRENT_DIR}/.commitlintrc.js"
+fi
+
+# Parser presets
+if [[ ! -s "${CURRENT_DIR}/commitlint.parser-preset.js" ]]; then
+    curl "${CURL_CHECK_OPTS[@]}" -o "${CURRENT_DIR}/commitlint.parser-preset.js" \
+        "https://raw.githubusercontent.com/epoweripione/dotfiles/main/commitlint.parser-preset.js"
+fi
+
+ParserLine=$(grep -E -n "^module\.exports" "${CURRENT_DIR}/.commitlintrc.js" | cut -d: -f1)
+
+if [[ -s "${CURRENT_DIR}/commitlint.parser-preset.js" ]]; then
+    sed -i "${ParserLine}a\    parserPreset: './commitlint.parser-preset'," "${CURRENT_DIR}/.commitlintrc.js"
 fi

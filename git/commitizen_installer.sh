@@ -150,7 +150,7 @@ if [[ ! -s "${CURRENT_DIR}/cz-emoji-types.json" ]]; then
 fi
 
 if [[ -s "${CURRENT_DIR}/cz-emoji-types.json" ]]; then
-    CZ_EMOJI_TYPES=$(cat "${CURRENT_DIR}/cz-emoji-types.json" | jq -r '."config"."cz-emoji"."types"')
+    CZ_EMOJI_TYPES=$(jq -r '."config"."cz-emoji"."types"' "${CURRENT_DIR}/cz-emoji-types.json")
     cat "${CURRENT_DIR}/package.json" \
         | jq -r ".\"config\".\"cz-emoji\".\"types\"=${CZ_EMOJI_TYPES}" \
         | tee "${CURRENT_DIR}/package.json" >/dev/null

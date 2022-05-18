@@ -384,6 +384,7 @@ var commitTypes = [
 	}
 ];
 module.exports = {
+    parserPreset: './commitlint.parser-preset',
     rules: {
         // @see: https://commitlint.js.org/#/reference-rules
         "type-empty": [2, "never"],
