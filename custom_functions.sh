@@ -2357,7 +2357,8 @@ function App_Installer_Get_Remote() {
 
     # Get app version
     REMOTE_VERSION=$(echo "${remote_content}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
-    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(echo "${remote_content}" | grep -E "${version_match_pattern}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    [[ -z "${REMOTE_VERSION}" && -n "${version_match_pattern}" ]] && \
+        REMOTE_VERSION=$(echo "${remote_content}" | grep -E "${version_match_pattern}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(echo "${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 
     # Get download urls
