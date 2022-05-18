@@ -1855,7 +1855,7 @@ function Git_Update_Repo_in_SubDir_Parallel() {
 }
 
 function Git_Replace_Remote_Origin_URL() {
-    # Usage: Git_Replace_Remote_Origin_URL $HOME "https://hub.fastgit.org" "https://github.com"
+    # Usage: Git_Replace_Remote_Origin_URL $HOME "https://hub.fastgit.xyz" "https://github.com"
     local SubDir=${1:-""}
     local UrlOLD=$2
     local UrlNEW=$3

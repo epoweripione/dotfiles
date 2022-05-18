@@ -715,6 +715,7 @@ export INSTALLER_DOWNLOAD_CURL_OPTION=${INSTALLER_DOWNLOAD_CURL_OPTION:-""}
 # Accelerate the speed of accessing GitHub
 # https://fastgit.org/
 # https://www.gitclone.com/
+# https://raw.hellogithub.com/hosts
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     # GITHUB_HUB_URL="https://hub.fastgit.xyz"
     # GITHUB_HUB_URL="https://gitclone.com/github.com"
