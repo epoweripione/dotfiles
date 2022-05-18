@@ -75,9 +75,36 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
         done
     fi
 
-    Git_Clone_Update_Branch "${GITHUB_REPO_NAME}" "$HOME/${APP_INSTALL_NAME}"
-    if [[ -d "$HOME/${APP_INSTALL_NAME}" ]]; then
-        cd "$HOME/${APP_INSTALL_NAME}" && \
+    # Git_Clone_Update_Branch "${GITHUB_REPO_NAME}" "$HOME/${APP_INSTALL_NAME}"
+    # if [[ -d "$HOME/${APP_INSTALL_NAME}" ]]; then
+    #     cd "$HOME/${APP_INSTALL_NAME}" && \
+    #         make configure >/dev/null && \
+    #         ./configure >/dev/null && \
+    #         make prefix=/usr/local >/dev/null && \
+    #         sudo make install prefix=/usr/local >/dev/null
+    # fi
+
+    REMOTE_FILENAME="${EXEC_INSTALL_NAME}-${REMOTE_VERSION}.tar.gz"
+    DOWNLOAD_FILENAME="${REMOTE_FILENAME}"
+
+    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/${EXEC_INSTALL_NAME}-${REMOTE_VERSION}/${REMOTE_FILENAME}"
+    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
+    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+
+    curl_download_status=$?
+    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
+        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
+        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        curl_download_status=$?
+    fi
+
+    if [[ ${curl_download_status} -eq 0 ]]; then
+        tar -xzf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}"
+    fi
+
+    if [[ -d "${WORKDIR}/${EXEC_INSTALL_NAME}-${REMOTE_VERSION}" ]]; then
+        cd "${WORKDIR}/${EXEC_INSTALL_NAME}-${REMOTE_VERSION}" && \
             make configure >/dev/null && \
             ./configure >/dev/null && \
             make prefix=/usr/local >/dev/null && \
