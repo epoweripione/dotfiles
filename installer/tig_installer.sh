@@ -41,7 +41,11 @@ fi
 if [[ "${IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
     CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'tag_name' | grep -Eo '([0-9]{1,}\.)+[0-9a-zA-Z]{1,}' | head -n1)
+    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" \
+                        | jq -r '.tag_name//empty' 2>/dev/null \
+                        | grep -Eo '([0-9]{1,}\.)+[0-9a-zA-Z]{1,}' \
+                        | head -n1 \
+                    )
     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         IS_INSTALL="no"
     fi
