@@ -105,8 +105,11 @@ alias service-enabled='systemctl list-unit-files --type=service --state=enabled'
 alias service-running='systemctl --type=service --state=running'
 alias service-failed='systemctl --type=service --state=failed'
 
+[[ -x "$(command -v nc)" && -n "${GLOBAL_PROXY_IP}" && -n "${GLOBAL_PROXY_MIXED_PORT}" ]] && 
+    alias sshproxy='ssh -o ProxyCommand='"'"'nc -X connect -x ${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_MIXED_PORT} %h %p'"'"''
+
 [[ -x "$(command -v nc)" && -n "${GLOBAL_PROXY_IP}" && -n "${GLOBAL_PROXY_SOCKS_PORT}" ]] && 
-    alias sshproxy='ssh -o ProxyCommand='"'"'nc -x ${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_SOCKS_PORT} %h %p'"'"''
+    alias sshproxy='ssh -o ProxyCommand='"'"'nc -X 5 -x ${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_SOCKS_PORT} %h %p'"'"''
 
 # most used history commands
 alias histop='fc -l -n 1 | grep -v "^\.\/" | sort | uniq -c | sort -rn | sed "s/^[ ]*[0-9]\+[ ]*//"'
