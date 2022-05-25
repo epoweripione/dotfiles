@@ -476,6 +476,7 @@ if [[ -s "$HOME/.config/conky/hybrid/hybrid.conf" ]]; then
         sed -i "s|coretemp.0/hwmon/hwmon5|${CPU_HWMON_NAME}|g" "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
 
     sed -i -e 's/own_window_transparent.*/own_window_transparent = false,/' \
+        -e 's/update_interval.*/update_interval = 5.0,/' \
         -e 's/minimum_width.*/minimum_width = 550,/' \
         -e 's/font NotoSans/font Sarasa Term SC/g' \
         -e 's/time %A %d %b %Y/time %Y年%b%-d日 %A 第%W周/g' "$HOME/.config/conky/hybrid/hybrid.conf"
@@ -483,6 +484,124 @@ if [[ -s "$HOME/.config/conky/hybrid/hybrid.conf" ]]; then
     [[ -n "${NETWORK_INTERFACE_DEFAULT}" ]] && \
         sed -i "s/enp7s0f1/${NETWORK_INTERFACE_DEFAULT}/g" "$HOME/.config/conky/hybrid/hybrid.conf"
 fi
+
+# wttr.in weather
+# Conky Objects: http://conky.sourceforge.net/variables.html
+tee "$HOME/.config/conky/hybrid/weather.conf" >/dev/null <<-'EOF'
+conky.config = {
+    background = false,
+    use_xft = true,
+    xftalpha = 0.8,
+    update_interval = 600.0,
+    total_run_times = 0,
+    temperature_unit = 'celsius',
+
+    own_window_class = 'Conky',
+    own_window = true,
+    own_window_type = 'normal',
+    own_window_transparent = false,
+    own_window_argb_visual = true,
+    own_window_argb_value = 0,
+    own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+
+    alignment = 'bottom_left',
+
+    double_buffer = true,
+    minimum_width = 1000,
+    minimum_height = 500,
+
+    draw_shades = false,
+    draw_outline = false,
+    draw_borders = false,
+    draw_graph_borders = false,
+
+    stippled_borders = 8,
+    border_inner_margin = 4,
+    border_width = 1,
+
+    gap_x = 10,
+    gap_y = 10,
+
+    no_buffers = true,
+    uppercase = false,
+    
+    cpu_avg_samples = 12,
+    net_avg_samples = 2,
+    
+    use_spacer = 'none',
+    text_buffer_size = 256,
+    override_utf8_locale = true,
+
+    default_color = 'a8a8a8',
+    default_shade_color = 'darkgray',
+    default_outline_color = 'darkgray',
+
+    color2 = '3458eb'
+};
+
+conky.text = [[
+${texeci 3600 "$HOME/.dotfiles/snippets/weather_wttr.sh"}
+${image "$HOME/.config/conky/hybrid/weather.png" -p 0,0 -n}
+]]
+EOF
+
+tee "$HOME/.config/conky/hybrid/weather_mini.conf" >/dev/null <<-'EOF'
+conky.config = {
+    background = false,
+    use_xft = true,
+    xftalpha = 0.8,
+    update_interval = 600.0,
+    total_run_times = 0,
+    temperature_unit = 'celsius',
+
+    own_window_class = 'Conky',
+    own_window = true,
+    own_window_type = 'normal',
+    own_window_transparent = false,
+    own_window_argb_visual = true,
+    own_window_argb_value = 0,
+    own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+
+    alignment = 'bottom_middle',
+
+    double_buffer = true,
+    minimum_width = 300,
+    minimum_height = 450,
+
+    draw_shades = false,
+    draw_outline = false,
+    draw_borders = false,
+    draw_graph_borders = false,
+
+    stippled_borders = 8,
+    border_inner_margin = 4,
+    border_width = 1,
+
+    gap_x = 10,
+    gap_y = 10,
+
+    no_buffers = true,
+    uppercase = false,
+    
+    cpu_avg_samples = 12,
+    net_avg_samples = 2,
+    
+    use_spacer = 'none',
+    text_buffer_size = 256,
+    override_utf8_locale = true,
+
+    default_color = 'a8a8a8',
+    default_shade_color = 'darkgray',
+    default_outline_color = 'darkgray',
+
+    color2 = '3458eb'
+};
+
+conky.text = [[
+${texeci 3600 "$HOME/.dotfiles/snippets/weather_wttr.sh"}
+${image "$HOME/.config/conky/hybrid/weather_mini.png" -p 0,0 -n}
+]]
+EOF
 
 ## conky-weather
 ## https://github.com/kuiba1949/conky-weather
@@ -597,13 +716,16 @@ fi
 # EOF
 
 # auto start conky
-cat > "$HOME/.conky/autostart.sh" <<-EOF
+cat > "$HOME/.conky/autostart.sh" <<-'EOF'
 #!/usr/bin/env bash
 
 killall conky conky
 
 # time (in s) for the DE to start; use ~20 for Gnome or KDE, less for Xfce/LXDE etc
 sleep 10
+
+# pre exec script for weather from wttr.in
+source "$HOME/.dotfiles/snippets/weather_wttr.sh"
 
 ## the main conky
 ## /usr/share/conkycolors/bin/conkyStart
@@ -614,7 +736,15 @@ conky -c "$HOME/.config/conky/hybrid/hybrid.conf" --daemonize --quiet
 # time for the main conky to start
 # needed so that the smaller ones draw above not below 
 # probably can be lower, but we still have to wait 5s for the rings to avoid segfaults
-# sleep 5
+sleep 5
+
+# if [[ -s "$HOME/.config/conky/hybrid/weather.png" ]]; then
+#     conky -c "$HOME/.config/conky/hybrid/weather.conf" --daemonize --quiet
+# fi
+
+if [[ -s "$HOME/.config/conky/hybrid/weather_mini.png" ]]; then
+    conky -c "$HOME/.config/conky/hybrid/weather_mini.conf" --daemonize --quiet
+fi
 
 # conky -c "$HOME/.conky/conky-weather/conkyrc_mini" --daemonize --quiet
 EOF
