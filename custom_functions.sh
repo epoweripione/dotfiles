@@ -2753,7 +2753,7 @@ function dockerPullImages() {
     # https://www.linuxjournal.com/content/parallel-shells-xargs-utilize-all-your-cpu-cores-unix-and-windows
     # nproc: the number of installed processors
     # --ignore=N if possible, exclude N processing units
-    echo "$@" | xargs -P "$(nproc --ignore=1)" -n1 docker pull
+    echo "$@" | xargs -P "$(nproc --ignore=1)" -n1 sudo docker pull
 
     # for dockerImage in "$@"; do docker pull $dockerImage; done
 }
