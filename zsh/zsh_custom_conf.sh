@@ -779,6 +779,8 @@ if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; the
 
     # get local weather
     get_weather_custom
+else
+    get_os_desktop && [[ -n "${OS_INFO_DESKTOP}" ]] && get_weather_custom
 fi
 
 # Autostart Tmux/screen Session On Remote System When Logging In Via SSH
