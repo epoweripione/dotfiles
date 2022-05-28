@@ -83,7 +83,7 @@ fi
 
 # pacman
 # Generate custom mirrorlist
-if [[ "$IP_GEO_IN_CHINA" == "yes" ]]; then
+if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
     sudo pacman-mirrors -i -c China -m rank
 fi
 
@@ -92,7 +92,7 @@ sudo sed -i 's|^#Color|Color|' /etc/pacman.conf
 
 ## Arch Linux Chinese Community Repository
 ## https://github.com/archlinuxcn/mirrorlist-repo
-if [[ "$IP_GEO_IN_CHINA" == "yes" ]]; then
+if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
     if ! grep -q "archlinuxcn" /etc/pacman.conf 2>/dev/null; then
         echo "[archlinuxcn]" | sudo tee -a /etc/pacman.conf
         # echo "Server = https://repo.archlinuxcn.org/\$arch" | sudo tee -a /etc/pacman.conf
@@ -180,7 +180,91 @@ sudo pacman --noconfirm --needed -S patch pkg-config automake
 
 # pre-requisite packages
 colorEcho "${BLUE}Installing ${FUCHSIA}pre-requisite packages${BLUE}..."
-sudo pacman --noconfirm --needed -S git curl wget unzip seahorse yay fx
+sudo pacman --noconfirm --needed -S bind git curl wget unzip seahorse yay fx
+
+
+# DNS
+# https://blog.dnomd343.top/dns-server/
+if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
+    # smartdns
+    yay --noconfirm --needed -S dnslookup-bin smartdns smartdns-china-list-git
+
+    sudo sed -i -e "s/[#]*[ ]*cache-persist.*/cache-persist yes/" \
+                -e "s|[#]*[ ]*cache-file.*|cache-file /tmp/smartdns.cache|" \
+                -e "s/[#]*[ ]*prefetch-domain.*/prefetch-domain yes/"\
+        "/etc/smartdns/smartdns.conf"
+
+    sudo tee "/etc/smartdns/smartdns_server.conf" >/dev/null <<-'EOF'
+server-tls      1.0.0.1
+server-https    https://dns.alidns.com/dns-query
+server-https    https://doh.pub/dns-query
+server-https    https://dns.pub/dns-query
+server          1.0.0.1
+server          8.8.8.8
+
+server          223.5.5.5                               -group china -exclude-default-group
+server          223.6.6.6                               -group china -exclude-default-group
+server          119.29.29.29                            -group china -exclude-default-group
+server          119.28.28.28                            -group china -exclude-default-group
+server          117.50.10.10                            -group china -exclude-default-group
+server          114.114.114.114                         -group china -exclude-default-group
+server          114.114.115.115                         -group china -exclude-default-group
+
+server          1.1.1.1                                 -group world -exclude-default-group
+server          8.8.4.4                                 -group world -exclude-default-group
+server          9.9.9.9                                 -group world -exclude-default-group
+server-tls      1.1.1.1                                 -group world -exclude-default-group
+server-tls      dns.google                              -group world -exclude-default-group
+server-https    https://dns.google/dns-query            -group world -exclude-default-group
+server-https    https://dns.cloudflare.com/dns-query    -group world -exclude-default-group
+
+conf-file       /etc/smartdns/accelerated-domains.china.smartdns.conf
+conf-file       /etc/smartdns/apple.china.smartdns.conf
+conf-file       /etc/smartdns/google.china.smartdns.conf
+EOF
+
+    if ! sudo grep -q "^conf-file /etc/smartdns/smartdns_server.conf" "/etc/smartdns/smartdns.conf" 2>/dev/null; then
+        echo -e "\nconf-file /etc/smartdns/smartdns_server.conf" \
+            | sudo tee -a "/etc/smartdns/smartdns.conf" >/dev/null
+    fi
+
+    # Disable overwriting of /etc/resolv.conf by NM
+    sudo rm "/etc/resolv.conf" && sudo touch "/etc/resolv.conf"
+    echo -e '[main]\ndns=none' \
+        | sudo tee "/etc/NetworkManager/conf.d/disableresolv.conf" >/dev/null
+
+    # FallbackDNS
+    sudo mkdir -p "/etc/systemd/resolved.conf.d"
+    sudo tee "/etc/systemd/resolved.conf.d/fallback_dns.conf" >/dev/null <<-'EOF'
+[Resolve]
+DNS=127.0.0.1
+FallbackDNS=223.5.5.5 119.29.29.29 117.50.10.10 114.114.114.114
+DNSStubListener=no
+EOF
+
+    # Disable dnsmasq DNS Server
+    if [[ $(systemctl is-enabled dnsmasq 2>/dev/null) ]]; then
+        sudo sed -i "s/[#]*[ ]*port=.*/port=0/" "/etc/dnsmasq.conf"
+        sudo systemctl restart dnsmasq
+    else
+        if pgrep -f "dnsmasq" >/dev/null 2>&1; then
+            sudo pkill -f "dnsmasq"
+        fi
+    fi
+
+    # Restart network
+    sudo systemctl restart NetworkManager && sudo systemctl restart systemd-resolved
+    sleep 3
+    # resolvectl status
+
+    # Enable smartdns
+    sudo systemctl enable smartdns && sudo systemctl start smartdns
+    # sudo tail -f /var/log/smartdns.log
+    # nslookup -querytype=ptr smartdns 127.0.0.1
+    # dig -querytype=ptr google.com @127.0.0.1
+
+    echo 'nameserver 127.0.0.1' | sudo tee "/etc/resolv.conf" >/dev/null
+fi
 
 
 # use en_US.UTF-8 for terminal
@@ -237,7 +321,7 @@ fi
 
 ## AUR mirror in china
 ## if ! check_webservice_up www.google.com; then
-# if [[ "$IP_GEO_IN_CHINA" == "yes" ]]; then
+# if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
 #     # ~/.config/yay/config.json
 #     # yay -P -g
 #     [[ -x "$(command -v yay)" ]] && \
@@ -541,7 +625,7 @@ conky.config = {
 
 conky.text = [[
 ${texeci 3600 "$HOME/.dotfiles/snippets/weather_wttr.sh"}
-${image "$HOME/.config/conky/hybrid/weather.png" -p 0,0 -n}
+${image $HOME/.config/conky/hybrid/weather.png -p 0,0 -n}
 ]]
 EOF
 
@@ -562,7 +646,7 @@ conky.config = {
     own_window_argb_value = 0,
     own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
 
-    alignment = 'bottom_middle',
+    alignment = 'bottom_left',
 
     double_buffer = true,
     minimum_width = 300,
@@ -599,7 +683,7 @@ conky.config = {
 
 conky.text = [[
 ${texeci 3600 "$HOME/.dotfiles/snippets/weather_wttr.sh"}
-${image "$HOME/.config/conky/hybrid/weather_mini.png" -p 0,0 -n}
+${image $HOME/.config/conky/hybrid/weather_mini.png -p 0,0 -n}
 ]]
 EOF
 
