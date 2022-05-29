@@ -107,16 +107,21 @@ curl -fsSL --connect-timeout 5 --max-time 15 \
         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
         "wttr.in/.png" \
         -o "${WORKDIR}/weather.png" && \
-    convert - -transparent black "${WORKDIR}/weather.png" "${WEATHER_PNG}"
+    convert -transparent black "${WORKDIR}/weather.png" "${WEATHER_PNG}"
 
-if [[ ! -x "$(command -v npm)" ]]; then
-    colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm${RED} first!"
-    exit 1
-fi
+# if [[ ! -x "$(command -v npm)" ]]; then
+#     colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm${RED} first!"
+#     exit 1
+# fi
+
+# if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
+#     colorEcho "${BLUE}Installing ${FUCHSIA}node modules${BLUE}..."
+#     cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && npm install
+# fi
 
 if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
-    colorEcho "${BLUE}Installing ${FUCHSIA}node modules${BLUE}..."
-    cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && npm install
+    colorEcho "${FUCHSIA}node_modules${RED} not found, use \`${ORANGE}npm install${RED}\` to install first!"
+    exit 1
 fi
 
 sleep 5
