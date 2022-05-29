@@ -103,23 +103,39 @@ WEATHER_HTML="${WORKDIR}/weather_wttr.html"
 WEATHER_HTML_PNG="${WORKDIR}/weather_wttr.png"
 
 colorEcho "${BLUE}Getting weather from ${FUCHSIA}wttr.in${BLUE}..."
-curl -fsL --connect-timeout 5 --max-time 15 \
+curl -fsSL --connect-timeout 5 --max-time 15 \
         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
         "wttr.in/.png" \
-    | convert - -transparent black "${WEATHER_PNG}"
+        -o "${WORKDIR}/weather.png" && \
+    convert - -transparent black "${WORKDIR}/weather.png" "${WEATHER_PNG}"
+
+if [[ ! -x "$(command -v npm)" ]]; then
+    colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm${RED} first!"
+    exit 1
+fi
+
+if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}node modules${BLUE}..."
+    cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && npm install
+fi
+
+sleep 5
 
 colorEcho "${BLUE}Getting ${FUCHSIA}weather ${ORANGE}JSON${BLUE} from ${FUCHSIA}wttr.in${BLUE}..."
-curl -fsL --connect-timeout 5 --max-time 15 \
+curl -fsSL --connect-timeout 5 --max-time 15 \
     --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
     "wttr.in/?format=j1" \
     -o "${WEATHER_JSON}"
 
-# curl -fsL --connect-timeout 5 --max-time 15 \
+# curl -fsSL --connect-timeout 5 --max-time 15 \
 #         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
 #         "wttr.in/_Qtp_lang=zh_cn.png" \
 #     | convert - -transparent black "$HOME/.config/conky/hybrid/weather_mini.png"
 
-[[ ! -s "${WEATHER_JSON}" ]] && exit 0
+if [[ ! -s "${WEATHER_JSON}" ]]; then
+    colorEcho "${RED}Error occurred while getting ${FUCHSIA}weather data from ${FUCHSIA}wttr.in${RED}!"
+    exit 1
+fi
 
 colorEcho "${BLUE}Parsing ${ORANGE}JSON${BLUE} to ${FUCHSIA}HTML${BLUE}..."
 tee "${WEATHER_HTML}" >/dev/null <<-'EOF'
