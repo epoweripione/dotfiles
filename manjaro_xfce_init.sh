@@ -541,23 +541,56 @@ if [[ -d "$HOME/.conky/hybrid" ]]; then
     fc-cache -fv
 fi
 
+# if [[ ! -x "$(command -v inix)" ]]; then
+#     colorEcho "${BLUE}  Installing ${FUCHSIA}inix${BLUE}..."
+#     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${CURRENT_DIR}/inix" "smxi.org/inxi" && \
+#         sudo mv "${CURRENT_DIR}/inix" "/usr/local/bin/inix" && \
+#         chmod +x "/usr/local/bin/inix"
+# fi
+
 if [[ -s "$HOME/.config/conky/hybrid/hybrid.conf" ]]; then
     sed -i "s|home_dir = .*|home_dir = \"${HOME}\"|" "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
 
-    # monitor the temperature of CPU & GPU
-    # https://askubuntu.com/questions/1322971/temperature-sensors-hwmon5-and-hwmon6-keep-swapping-around-how-can-i-consistent
+    ## monitor the temperature of CPU & GPU
+    # sensors
+    # grep -d skip . /sys/class/hwmon/hwmon[0-5]/*
+    ## http://conky.pitstop.free.fr/wiki/index.php5?title=Using_Sensors_(en)
+    ## https://askubuntu.com/questions/1322971/temperature-sensors-hwmon5-and-hwmon6-keep-swapping-around-how-can-i-consistent
+    ## https://askubuntu.com/questions/5417/how-to-get-the-gpu-info
     # ls -la /sys/class/hwmon/
-    # https://bbs.archlinux.org/viewtopic.php?id=242492
+    ## https://bbs.archlinux.org/viewtopic.php?id=242492
     # echo /sys/devices/platform/*/hwmon/hwmon*
     sed -i "s|name='platform',|name='hwmon',|g" "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
     sed -i "s|pt.name == 'platform'|pt.name == 'platform' or pt.name == 'hwmon'|g" "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
 
+    # CPU
     CPU_HWMON_DEVICE=$(echo /sys/devices/platform/*/hwmon/hwmon* | head -n1 | awk -F"/" '{print $NF}')
     [[ -f "/sys/class/hwmon/${CPU_HWMON_DEVICE}/name" ]] && \
         CPU_HWMON_NAME=$(< "/sys/class/hwmon/${CPU_HWMON_DEVICE}/name")
 
     [[ -n "${CPU_HWMON_NAME}" ]] && \
         sed -i "s|coretemp.0/hwmon/hwmon5|${CPU_HWMON_NAME}|g" "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
+
+    # GPU
+    GPU_HWMON=$(grep -d skip . /sys/class/hwmon/hwmon[0-9]/* 2>/dev/null | grep 'GPU' | grep 'temp' | head -n1)
+    if [[ -n "${GPU_HWMON}" ]]; then
+        GPU_HWMON_DEVICE=$( (grep -Eo 'hwmon[0-9]+' | grep -Eo '[0-9]+') <<<"${GPU_HWMON}")
+        GPU_HWMON_SENSOR=$( (grep -Eo 'temp[0-9]+' | grep -Eo '[0-9]+') <<<"${GPU_HWMON}")
+    fi
+
+    if [[ -n "${GPU_HWMON_DEVICE}" && -n "${GPU_HWMON_SENSOR}" ]]; then
+        GPU_HWMON_ARG="${GPU_HWMON_DEVICE} temp ${GPU_HWMON_SENSOR}"
+        sed -i -e "s|name='nvidia',|name='hwmon',|" \
+            -e "s|arg='temp',|arg='${GPU_HWMON_ARG}',|" "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
+    fi
+
+    ## Battery
+    # upower -i $(upower -e | grep BAT)
+    # acpi -V
+    # acpi -b
+    BATTERY_DEVICE=$(upower -e | grep -Eo 'BAT[0-9]+' | sort | head -n1)
+    [[ -n "${BATTERY_DEVICE}" ]] && \
+        sed -i "s/BAT1/${BATTERY_DEVICE}/g" "$HOME/.config/conky/hybrid/hybrid.conf"
 
     sed -i -e 's/own_window_transparent.*/own_window_transparent = false,/' \
         -e 's/update_interval.*/update_interval = 5.0,/' \
@@ -576,7 +609,7 @@ conky.config = {
     background = false,
     use_xft = true,
     xftalpha = 0.8,
-    update_interval = 600.0,
+    update_interval = 60.0,
     total_run_times = 0,
     temperature_unit = 'celsius',
 
@@ -624,7 +657,7 @@ conky.config = {
 };
 
 conky.text = [[
-${texeci 3600 "$HOME/.dotfiles/snippets/weather_wttr.sh"}
+${texeci 3600 $HOME/.dotfiles/snippets/weather_wttr.sh >/dev/null}
 ${image $HOME/.config/conky/hybrid/weather.png -p 0,0 -n}
 ]]
 EOF
@@ -634,7 +667,7 @@ conky.config = {
     background = false,
     use_xft = true,
     xftalpha = 0.8,
-    update_interval = 600.0,
+    update_interval = 60.0,
     total_run_times = 0,
     temperature_unit = 'celsius',
 
@@ -682,7 +715,7 @@ conky.config = {
 };
 
 conky.text = [[
-${texeci 3600 "$HOME/.dotfiles/snippets/weather_wttr.sh"}
+${texeci 3600 $HOME/.dotfiles/snippets/weather_wttr.sh >/dev/null}
 ${image $HOME/.config/conky/hybrid/weather_mini.png -p 0,0 -n}
 ]]
 EOF

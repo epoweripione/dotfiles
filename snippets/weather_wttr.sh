@@ -17,6 +17,21 @@ else
     fi
 fi
 
+# if [[ ! -x "$(command -v npm)" ]]; then
+#     colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm${RED} first!"
+#     exit 1
+# fi
+
+# if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
+#     colorEcho "${BLUE}Installing ${FUCHSIA}node modules${BLUE}..."
+#     cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && npm install
+# fi
+
+if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
+    colorEcho "${FUCHSIA}node_modules${RED} not found, use \`${ORANGE}npm install${RED}\` to install first!"
+    exit 1
+fi
+
 # https://github.com/chubin/wttr.in/blob/master/lib/constants.py
 declare -A WWO_CODE=(
     ["113"]="Sunny"
@@ -102,6 +117,14 @@ WEATHER_JSON="${WORKDIR}/weather.json"
 WEATHER_HTML="${WORKDIR}/weather_wttr.html"
 WEATHER_HTML_PNG="${WORKDIR}/weather_wttr.png"
 
+colorEcho "${BLUE}Getting ${FUCHSIA}weather ${ORANGE}JSON${BLUE} from ${FUCHSIA}wttr.in${BLUE}..."
+curl -fsSL --connect-timeout 5 --max-time 15 \
+    --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
+    "wttr.in/?format=j1" \
+    -o "${WEATHER_JSON}"
+
+# sleep 5
+
 colorEcho "${BLUE}Getting weather from ${FUCHSIA}wttr.in${BLUE}..."
 curl -fsSL --connect-timeout 5 --max-time 15 \
         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
@@ -109,33 +132,11 @@ curl -fsSL --connect-timeout 5 --max-time 15 \
         -o "${WORKDIR}/weather.png" && \
     convert -transparent black "${WORKDIR}/weather.png" "${WEATHER_PNG}"
 
-# if [[ ! -x "$(command -v npm)" ]]; then
-#     colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm${RED} first!"
-#     exit 1
-# fi
-
-# if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
-#     colorEcho "${BLUE}Installing ${FUCHSIA}node modules${BLUE}..."
-#     cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && npm install
-# fi
-
-if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
-    colorEcho "${FUCHSIA}node_modules${RED} not found, use \`${ORANGE}npm install${RED}\` to install first!"
-    exit 1
-fi
-
-sleep 5
-
-colorEcho "${BLUE}Getting ${FUCHSIA}weather ${ORANGE}JSON${BLUE} from ${FUCHSIA}wttr.in${BLUE}..."
-curl -fsSL --connect-timeout 5 --max-time 15 \
-    --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
-    "wttr.in/?format=j1" \
-    -o "${WEATHER_JSON}"
-
 # curl -fsSL --connect-timeout 5 --max-time 15 \
 #         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
 #         "wttr.in/_Qtp_lang=zh_cn.png" \
-#     | convert - -transparent black "$HOME/.config/conky/hybrid/weather_mini.png"
+#         -o "${WORKDIR}/weather_mini.png" && \
+#     | convert -transparent black "${WORKDIR}/weather_mini.png" "${WEATHER_MINI_PNG}"
 
 if [[ ! -s "${WEATHER_JSON}" ]]; then
     colorEcho "${RED}Error occurred while getting ${FUCHSIA}weather data from ${FUCHSIA}wttr.in${RED}!"

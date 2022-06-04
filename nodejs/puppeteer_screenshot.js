@@ -7,14 +7,26 @@
 // });
 const args = require('minimist')(process.argv.slice(2));
 
+// puppeteer run js
+// https://xiday.com/2019/09/21/puppeteer-run-js/
+
 // node nodejs/puppeteer_screenshot.js --url="https://nodejs.org/en/" --element="#logo > img" --output="$HOME/screenshot.png"
 // node nodejs/puppeteer_screenshot.js --url="file://$HOME/.config/conky/hybrid/weather_wttr.html" --element="#weather" --output="$HOME/.config/conky/hybrid/weather_wttr.png"
+// node nodejs/puppeteer_screenshot.js --url="https://wannianli.tianqi.com/" \
+//     --Element="#cal_body" \
+//     --RemoveElement=".xcx_erweima,.info,.elevator-module,.more,.ming_ci_jie_shi,.copy,#cal_funcbar" \
+//     --ReplaceElement=".hd.li_history" \
+//     --ReplaceWithHTML="<span>历史上的今天</span>" \
+//     --Output="$HOME/.config/conky/hybrid/calendar.png"
 // console.log(args.url): https://nodejs.org/en/
 // console.log(args.element): #logo > img
 const url = args.url;
-const element = args.element;
-const AcceptCookies= args.AcceptCookies;
-const output = args.output;
+const Element = args.Element;
+const RemoveElement = args.RemoveElement;
+const AcceptCookies = args.AcceptCookies;
+const ReplaceElement = args.ReplaceElement;
+const ReplaceWithHTML = args.ReplaceWithHTML;
+const Output = args.Output;
 
 // Avoid Detection of Headless Chromium
 // https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth
@@ -50,8 +62,8 @@ function getDateTimeString() {
 // }
 
 let OutputFile = ""
-if (output) {
-    OutputFile = output;
+if (Output) {
+    OutputFile = Output;
 } else {
     if (! fs.existsSync(ScreenshotDir)) {
         fs.mkdirSync(ScreenshotDir, {recursive: true});
@@ -75,6 +87,31 @@ const PuppeteerScreenshotFull = async () => {
 
     await page.goto(url);
 
+    // Remove element before screenshot
+    if (RemoveElement) {
+        await page.evaluate((selector) => {
+            const elementToRemove = selector.split(',');
+            for (let i = 0; i < elementToRemove.length; i++) {
+                let elements = document.querySelectorAll(elementToRemove[i]);
+                for(let j=0; j < elements.length; j++){
+                    elements[j].parentNode.removeChild(elements[j]);
+                }
+            }
+        }, RemoveElement);
+    }
+
+    // Replace element before screenshot
+    if (ReplaceElement) {
+        await page.evaluate((selector,replace) => {
+            if (replace) {
+                let elements = document.querySelectorAll(selector);
+                for(let j=0; j < elements.length; j++){
+                    elements[j].innerHTML = `${replace}`;
+                }
+            }
+        }, ReplaceElement, ReplaceWithHTML);
+    }
+
     await page.screenshot({
         path: `${OutputFile}`,
         fullPage: true
@@ -91,9 +128,34 @@ const PuppeteerScreenshotElement = async () => {
 
     await page.goto(url);
 
-    await page.waitForSelector(element);
-    const pageElement = await page.$(element);
+    await page.waitForSelector(Element);
 
+    // Remove element before screenshot
+    if (RemoveElement) {
+        await page.evaluate((selector) => {
+            const elementToRemove = selector.split(',');
+            for (let i = 0; i < elementToRemove.length; i++) {
+                let elements = document.querySelectorAll(elementToRemove[i]);
+                for(let j=0; j < elements.length; j++){
+                    elements[j].parentNode.removeChild(elements[j]);
+                }
+            }
+        }, RemoveElement);
+    }
+
+    // Replace element before screenshot
+    if (ReplaceElement) {
+        await page.evaluate((selector,replace) => {
+            if (replace) {
+                let elements = document.querySelectorAll(selector);
+                for(let j=0; j < elements.length; j++){
+                    elements[j].innerHTML = `${replace}`;
+                }
+            }
+        }, ReplaceElement, ReplaceWithHTML);
+    }
+
+    const pageElement = await page.$(Element);
     await pageElement.screenshot({
         path: `${OutputFile}`
     });
@@ -106,7 +168,7 @@ if (AcceptCookies) {
     PuppeteerAcceptCookies();
 }
 
-if (element) {
+if (Element) {
     PuppeteerScreenshotElement();
 } else {
     PuppeteerScreenshotFull();
