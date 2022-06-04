@@ -17,6 +17,8 @@ else
     fi
 fi
 
+[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+
 # if [[ ! -x "$(command -v npm)" ]]; then
 #     colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm${RED} first!"
 #     exit 1
@@ -118,7 +120,7 @@ WEATHER_HTML="${WORKDIR}/weather_wttr.html"
 WEATHER_HTML_PNG="${WORKDIR}/weather_wttr.png"
 
 colorEcho "${BLUE}Getting ${FUCHSIA}weather ${ORANGE}JSON${BLUE} from ${FUCHSIA}wttr.in${BLUE}..."
-curl -fsSL --connect-timeout 5 --max-time 15 \
+curl "${CURL_DOWNLOAD_OPTS[@]}" \
     --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
     "wttr.in/?format=j1" \
     -o "${WEATHER_JSON}"
@@ -126,13 +128,13 @@ curl -fsSL --connect-timeout 5 --max-time 15 \
 # sleep 5
 
 colorEcho "${BLUE}Getting weather from ${FUCHSIA}wttr.in${BLUE}..."
-curl -fsSL --connect-timeout 5 --max-time 15 \
+curl "${CURL_DOWNLOAD_OPTS[@]}" \
         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
         "wttr.in/.png" \
         -o "${WORKDIR}/weather.png" && \
     convert -transparent black "${WORKDIR}/weather.png" "${WEATHER_PNG}"
 
-# curl -fsSL --connect-timeout 5 --max-time 15 \
+# curl "${CURL_DOWNLOAD_OPTS[@]}" \
 #         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
 #         "wttr.in/_Qtp_lang=zh_cn.png" \
 #         -o "${WORKDIR}/weather_mini.png" && \
@@ -314,17 +316,17 @@ colorEcho "${BLUE}Converting ${ORANGE} HTML ${BLUE}to${FUCHSIA} PNG${BLUE}..."
 ## https://developers.google.com/web/updates/2017/04/headless-chrome
 # if [[ -x "/opt/google/chrome/google-chrome" ]]; then
 #     /opt/google/chrome/google-chrome --headless --disable-gpu --window-size=300,500 \
-#             --screenshot="${WEATHER_HTML_PNG}" "${WEATHER_HTML}" \
-#         && convert -transparent black "${WEATHER_HTML_PNG}" "${WEATHER_MINI_PNG}"
+#             --screenshot="${WEATHER_HTML_PNG}" "${WEATHER_HTML}" && \
+#         convert -transparent black "${WEATHER_HTML_PNG}" "${WEATHER_MINI_PNG}"
 # fi
 
 # Puppeteer
 cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && \
     node ./nodejs/puppeteer_screenshot.js \
-            --url="file://${WEATHER_HTML}" \
-            --element="#weather" \
-            --output="${WEATHER_HTML_PNG}" \
-    && convert -transparent black "${WEATHER_HTML_PNG}" "${WEATHER_MINI_PNG}"
+        --url="file://${WEATHER_HTML}" \
+        --Element="#weather" \
+        --Output="${WEATHER_HTML_PNG}" && \
+    convert -transparent black "${WEATHER_HTML_PNG}" "${WEATHER_MINI_PNG}"
 
 
 cd "${CURRENT_DIR}" || exit
