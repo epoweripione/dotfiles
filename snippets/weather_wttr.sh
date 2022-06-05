@@ -122,7 +122,7 @@ WEATHER_HTML_PNG="${WORKDIR}/weather_wttr.png"
 colorEcho "${BLUE}Getting ${FUCHSIA}weather ${ORANGE}JSON${BLUE} from ${FUCHSIA}wttr.in${BLUE}..."
 curl "${CURL_DOWNLOAD_OPTS[@]}" \
     --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
-    "wttr.in/?format=j1" \
+    "wttr.in/${WEATHER_CITY}?format=j1" \
     -o "${WEATHER_JSON}"
 
 # sleep 5
@@ -130,7 +130,7 @@ curl "${CURL_DOWNLOAD_OPTS[@]}" \
 colorEcho "${BLUE}Getting weather from ${FUCHSIA}wttr.in${BLUE}..."
 curl "${CURL_DOWNLOAD_OPTS[@]}" \
         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
-        "wttr.in/.png" \
+        "wttr.in/${WEATHER_CITY}.png" \
         -o "${WORKDIR}/weather.png" && \
     convert -transparent black "${WORKDIR}/weather.png" "${WEATHER_PNG}"
 
