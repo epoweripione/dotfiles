@@ -21,14 +21,7 @@ else
     fi
 fi
 
-# Determine which desktop environment is installed from the shell
-# desktop=$(ps -e | grep -E -i "gnome|kde|mate|cinnamon|lxde|xfce|jwm")
-if [[ -n "$XDG_CURRENT_DESKTOP" ]]; then
-    desktop=$(echo "$XDG_DATA_DIRS" | sed 's/.*\(gnome\|kde\|mate\|cinnamon\|lxde\|xfce\|jwm\).*/\1/')
-else
-    desktop=$XDG_CURRENT_DESKTOP
-fi
-
+[[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
 
 # custom configuration
 colorEcho "${BLUE}Source custom configuration ${FUCHSIA}~/.dotfiles/zsh/zsh_custom_conf.sh${BLUE} in ${ORANGE}.zshrc${BLUE}..."
@@ -49,6 +42,7 @@ sed -i 's/[#]*[ ]*HIST_STAMPS.*/HIST_STAMPS="yyyy-mm-dd"/' "$HOME/.zshrc"
 
 # disable auto update
 sed -i "s/[#]*[ ]*DISABLE_AUTO_UPDATE.*/DISABLE_AUTO_UPDATE=\"true\"/" "$HOME/.zshrc"
+sed -i "s/^# zstyle ':omz:update' mode disabled/zstyle ':omz:update' mode disabled/" "$HOME/.zshrc"
 
 
 # custom theme
@@ -77,7 +71,7 @@ if [[ -s "${MY_SHELL_SCRIPTS}/zsh/${custom_theme}.sh" ]]; then
     sed -i "/^ZSH_THEME=.*/a\source ~/.dotfiles/zsh/${custom_theme}.sh" "$HOME/.zshrc"
 fi
 
-# if [[ -n "$desktop" ]]; then
+# if [[ -n "${OS_INFO_DESKTOP}" ]]; then
 #   cp ~/.dotfiles/zsh/zsh_custom_env_xterm.sh "$HOME/.zshenv"
 #   sed -i "s/^ZSH_THEME=.*/ZSH_THEME=\"powerlevel9k\"/" "$HOME/.zshrc"
 #   sed -i "/zsh_custom_theme_.*/d" "$HOME/.zshrc"

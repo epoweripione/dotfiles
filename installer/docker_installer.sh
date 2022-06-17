@@ -7,7 +7,7 @@
 
 trap 'rm -rf "${WORKDIR}"' EXIT
 
-[[ -z "${WORKDIR}" || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
+[[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
 [[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
 
 # Load custom functions
@@ -280,16 +280,13 @@ if [[ "${SET_REGISTRY_MIRROR}" == "y" || "${SET_REGISTRY_MIRROR}" == "Y" ]]; the
     if [[ -x "$(command -v jq)" ]]; then
         [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
-        # cat "/etc/docker/daemon.json" \
-        #     | jq -r '."registry-mirrors"=."registry-mirrors" + ["https://hub-mirror.c.163.com"]' \
+        # jq -r '."registry-mirrors"=."registry-mirrors" + ["https://hub-mirror.c.163.com"]' "/etc/docker/daemon.json" \
         #     | sudo tee "/etc/docker/daemon.json" >/dev/null
 
-        # cat "/etc/docker/daemon.json" \
-        #     | jq -r 'del(."registry-mirrors")' \
+        # jq -r 'del(."registry-mirrors")' "/etc/docker/daemon.json" \
         #     | sudo tee "/etc/docker/daemon.json" >/dev/null
 
-        cat "/etc/docker/daemon.json" \
-            | jq -r ".\"registry-mirrors\"=[${REGISTRY_MIRRORS}]" \
+        jq -r ".\"registry-mirrors\"=[${REGISTRY_MIRRORS}]" "/etc/docker/daemon.json" \
             | sudo tee "/etc/docker/daemon.json" >/dev/null
 
         sudo systemctl daemon-reload && sudo systemctl restart docker
@@ -315,6 +312,18 @@ EOF
     sudo systemctl daemon-reload && sudo systemctl restart docker
     sudo systemctl show --property=Environment docker
 fi
+
+## Relocating the Docker root directory
+## docker info -f '{{ .DockerRootDir}}' # /var/lib/docker
+# DATA_ROOT="/data/docker" && sudo mkdir -p "${DATA_ROOT}"
+# if [[ -x "$(command -v jq)" ]]; then
+#     [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
+
+#     jq -r ".\"data-root\"=[${DATA_ROOT}]" "/etc/docker/daemon.json" \
+#         | sudo tee "/etc/docker/daemon.json" >/dev/null
+
+#     sudo systemctl daemon-reload && sudo systemctl restart docker
+# fi
 
 ## container runtime proxy
 # tee "$HOME/.docker/config.json" >/dev/null <<-EOF

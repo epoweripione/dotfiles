@@ -2,7 +2,7 @@
 
 trap 'rm -rf "${WORKDIR}"' EXIT
 
-[[ -z "${WORKDIR}" || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
+[[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
 [[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
 
 [[ -z "${MY_SHELL_SCRIPTS}" ]] && MY_SHELL_SCRIPTS="$HOME/.dotfiles"
@@ -44,18 +44,18 @@ if [[ ! -x "$(command -v snap)" ]]; then
 fi
 
 if [[ -x "$(command -v snap)" ]]; then
-    sudo systemctl enable --now snapd.socket
+    [[ $(systemctl is-enabled snapd.socket 2>/dev/null) ]] || sudo systemctl enable --now snapd.socket
 
     # enable classic snap support
-    [[ ! -d "/var/lib/snapd/snap" ]] && sudo ln -s /var/lib/snapd/snap /snap
+    [[ ! -d "/snap" && -d "/var/lib/snapd/snap" ]] && sudo ln -s /var/lib/snapd/snap /snap
 
     sudo snap install core
 
     [[ ":$PATH:" != *":/snap/bin:"* ]] && export PATH=$PATH:/snap/bin
 
-    # test
-    sudo snap install hello-world
-    hello-world
+    ## test
+    # sudo snap install hello-world
+    # hello-world
 fi
 
 ## System options

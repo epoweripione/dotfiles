@@ -2,7 +2,7 @@
 
 trap 'rm -rf "${WORKDIR}"' EXIT
 
-[[ -z "${WORKDIR}" || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
+[[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
 [[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
 
 [[ -z "${MY_SHELL_SCRIPTS}" ]] && MY_SHELL_SCRIPTS="$HOME/.dotfiles"
@@ -25,6 +25,8 @@ fi
 [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
 [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 [[ -z "${OS_INFO_VDIS}" ]] && get_sysArch
+[[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
+
 OS_INFO_WSL=$(uname -r)
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
@@ -185,23 +187,40 @@ done
 AppInstaller="${MY_SHELL_SCRIPTS}/installer/tmux_installer.sh"
 [[ -z "$TMUX" && -s "${AppInstaller}" ]] && source "${AppInstaller}"
 
-# Always install & update apps in WSL1 & WSL2, otherwise update only for manual install apps
-[[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]] && IS_UPDATE_ONLY="no" || IS_UPDATE_ONLY="yes"
+# Always install & update apps in WSL & Desktop environment, otherwise update only for manual install apps
+[[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" || -n "${OS_INFO_DESKTOP}" ]] && IS_UPDATE_ONLY="no" || IS_UPDATE_ONLY="yes"
 AppList=(
+    "bottom"
+    "btop"
+    "choose"
     "curlie"
     "distrobox"
+    "dog"
     "fq"
     "fx"
     "git-lfs"
+    "gotty"
     "httpie"
     "httpie-go"
     "httpstat"
+    "hyperfine"
     "lsd"
     "nali"
+    "ncdu"
+    "nu"
     "onefetch"
     "ohmyposh"
     # "pistol"
+    "poetry"
+    "procs"
+    "pup"
+    "rclone"
+    "re-txt"
+    "restic"
+    "sd"
     "starship"
+    "tig"
+    "usql"
     "viu"
 )
 for Target in "${AppList[@]}"; do
@@ -213,29 +232,12 @@ done
 IS_UPDATE_ONLY="yes"
 AppList=(
     # "cgit"
-    "bottom"
-    "btop"
-    "choose"
-    "dog"
     "frp"
     "goproxy"
-    "gotty"
     # "gvm_go"
-    "hyperfine"
     # "inlets"
-    "ncdu"
-    "nu"
-    "poetry"
-    "procs"
     # "proxychains"
-    "pup"
-    "rclone"
-    "re-txt"
-    "restic"
     "safe-rm"
-    "sd"
-    "tig"
-    "usql"
     "clash"
     "subconverter"
     "trojan"

@@ -2,7 +2,7 @@
 
 trap 'rm -rf "${WORKDIR}"' EXIT
 
-[[ -z "${WORKDIR}" || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
+[[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
 [[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
 
 [[ -z "${MY_SHELL_SCRIPTS}" ]] && MY_SHELL_SCRIPTS="$HOME/.dotfiles"
@@ -81,9 +81,8 @@ if [[ -x "$(command -v pacman)" ]]; then
     done
 fi
 
-if [[ ! -x "$(command -v snap)" ]]; then
-    [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
-fi
+# Init snap
+[[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
 
 if [[ -x "$(command -v snap)" && ! -x "$(command -v android-studio)" ]]; then
     sudo snap install android-studio --classic

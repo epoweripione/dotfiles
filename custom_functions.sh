@@ -55,12 +55,13 @@ function colorEchoAllColor() {
 [[ -n "${HOSTIP_ALL}" ]] && HOSTIP_ALL="${HOSTIP_ALL% }" && HOSTIP_ALL="${HOSTIP_ALL// /,}" && export HOSTIP_ALL
 
 # no proxy lists
-NO_PROXY_LISTS="localhost,127.0.0.1,.local,.localdomain,.internal,.corp,::1"
-[[ -n "${HOSTNAME}" ]] && NO_PROXY_LISTS="${NO_PROXY_LISTS},${HOSTNAME}"
-[[ -n "${HOSTIP_ALL}" ]] && NO_PROXY_LISTS="${NO_PROXY_LISTS},${HOSTIP_ALL}"
-NO_PROXY_LISTS="${NO_PROXY_LISTS},fastgit.org,fastgit.xyz,gitclone.com,npmmirror.com"
-NO_PROXY_LISTS="${NO_PROXY_LISTS},ip.sb,ip-api.com,ident.me,ifconfig.co,icanhazip.com,ipinfo.io"
+GLOBAL_NO_PROXY="localhost,127.0.0.1,.local,.localdomain,.internal,.corp,::1"
+[[ -n "${HOSTNAME}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${HOSTNAME}"
+[[ -n "${HOSTIP_ALL}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${HOSTIP_ALL}"
+GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},fastgit.org,fastgit.xyz,gitclone.com,npmmirror.com"
+GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},ip.sb,ip-api.com,ident.me,ifconfig.co,icanhazip.com,ipinfo.io"
 
+export GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY}"
 
 ## Get OS type, architecture etc.
 ## https://en.wikipedia.org/wiki/Uname
@@ -164,23 +165,21 @@ function get_os_release_type() {
     OS_INFO_RELEASE_TYPE=$osname
 }
 
-# Determine which desktop environment is installed from the shell
-# OSDesktopENV=$(ps -e | grep -E -i "gnome|kde|mate|cinnamon|lxde|xfce|jwm")
+# Determine which desktop environment is installed from the shell: KDE,XFCE,GNOME...
 function get_os_desktop() {
     local osdesktop
 
-    if [[ -x "$(command -v wmctrl)" ]]; then
-        osdesktop=$(wmctrl -m)
-    else
-        if [[ -z "$XDG_CURRENT_DESKTOP" ]]; then
-            osdesktop=$(echo "$XDG_DATA_DIRS" | sed 's/.*\(gnome\|kde\|mate\|cinnamon\|lxde\|xfce\|jwm\).*/\1/')
-        else
-            osdesktop=$XDG_CURRENT_DESKTOP
-        fi
-    fi
+    [[ -x "$(command -v wmctrl)" ]] && osdesktop=$(wmctrl -m)
 
-    # OS_INFO_DESKTOP="${osdesktop,,}" # to lowercase
-    OS_INFO_DESKTOP="${osdesktop}"
+    [[ -z "${osdesktop}" ]] && osdesktop=${XDG_CURRENT_DESKTOP}
+
+    # to lowercase
+    # OS_INFO_DESKTOP="${osdesktop,,}"
+    # OS_INFO_DESKTOP=$(tr '[:upper:]' '[:lower:]' <<<"${osdesktop}")
+
+    # to uppercase
+    # OS_INFO_DESKTOP="${osdesktop^^}"
+    OS_INFO_DESKTOP=$(tr '[:lower:]' '[:upper:]' <<<"${osdesktop}")
 }
 
 function get_arch() {
@@ -528,6 +527,37 @@ function check_release_package_manager() {
     fi
 }
 
+# https://www.freedesktop.org/software/systemd/man/systemd-detect-virt.html
+# https://www.howtogeek.com/803839/how-to-let-linux-scripts-detect-theyre-running-in-virtual-machines/
+function get_os_virtualized() {
+    local virtualEnv
+
+    # systemd-detect-virt --list
+    if [[ -x "$(command -v systemd-detect-virt)" ]]; then
+        virtualEnv=$(systemd-detect-virt)
+    elif [[ -x "$(command -v hostnamectl)" ]]; then
+        virtualEnv=$(hostnamectl | grep -i 'virtualization' | cut -d':' -f2 | sed 's/\s//g')
+    fi
+
+    [[ -z "${virtualEnv}" ]] && virtualEnv="none"
+
+    OS_INFO_VIRTUALIZED="${virtualEnv}"
+}
+
+function check_os_virtualized() {
+    local virtualEnv
+
+    # systemd-detect-virt --list
+    if [[ -x "$(command -v systemd-detect-virt)" ]]; then
+        virtualEnv=$(systemd-detect-virt)
+    elif [[ -x "$(command -v hostnamectl)" ]]; then
+        virtualEnv=$(hostnamectl | grep -i 'virtualization' | cut -d':' -f2 | sed 's/\s//g')
+    fi
+
+    [[ -z "${virtualEnv}" ]] && virtualEnv="none"
+
+    [[ "${virtualEnv}" != "none" ]] && return 0 || return 1
+}
 
 ## version compare functions
 function version_gt() { test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"; } # >
@@ -658,6 +688,7 @@ function ver_compare_le() {
 # Get local machine network interfaces
 function get_network_interface_list() {
     unset NETWORK_INTERFACE_LIST
+
     if [[ -x "$(command -v ip)" ]]; then
         NETWORK_INTERFACE_LIST=$(ip link 2>/dev/null | awk -F: '$0 !~ "lo|vir|^[^0-9]" {print $2;getline}')
         # Without wireless
@@ -669,6 +700,7 @@ function get_network_interface_list() {
 
 function get_network_interface_default() {
     unset NETWORK_INTERFACE_DEFAULT
+
     if [[ -x "$(command -v ip)" ]]; then
         NETWORK_INTERFACE_DEFAULT=$(ip route 2>/dev/null | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//" -e "s/[ \t]//g" | head -n1)
         if [[ -z "${NETWORK_INTERFACE_DEFAULT}" ]]; then
@@ -676,6 +708,26 @@ function get_network_interface_default() {
         fi
     elif [[ -x "$(command -v netstat)" ]]; then
         NETWORK_INTERFACE_DEFAULT=$(netstat -rn 2>/dev/null | awk '/^0.0.0.0/ {thif=substr($0,74,10); print thif;} /^default.*UG/ {thif=substr($0,65,10); print thif;}')
+    fi
+}
+
+function get_network_wireless_interface_list() {
+    local wireless_dev
+
+    unset NETWORK_WIRELESS_INTERFACE_LIST
+
+    if [[ -x "$(command -v iw)" ]]; then
+        NETWORK_WIRELESS_INTERFACE_LIST=$(iw dev 2>/dev/null | awk '$1=="Interface"{print $2}')
+    else
+        for wireless_dev in /sys/class/net/*; do
+            if [[ -e "${wireless_dev}"/wireless ]]; then
+                if [[ -z "${NETWORK_WIRELESS_INTERFACE_LIST}" ]]; then
+                    NETWORK_WIRELESS_INTERFACE_LIST="${wireless_dev##*/}"
+                else
+                    NETWORK_WIRELESS_INTERFACE_LIST="${NETWORK_WIRELESS_INTERFACE_LIST}\n${wireless_dev##*/}"
+                fi
+            fi
+        done
     fi
 }
 
@@ -936,12 +988,12 @@ function set_proxy() {
     [[ -z "${PROXY_ADDRESS}" ]] && PROXY_ADDRESS="http://127.0.0.1:8080"
 
     export {http,https,ftp,all}_proxy=${PROXY_ADDRESS}
-    export no_proxy="${NO_PROXY_LISTS}"
+    export no_proxy="${GLOBAL_NO_PROXY}"
     # export no_proxy="localhost,127.0.0.0/8,*.local"
 
     # for curl
     export {HTTP,HTTPS,FTP,ALL}_PROXY=${PROXY_ADDRESS}
-    export NO_PROXY="${NO_PROXY_LISTS}"
+    export NO_PROXY="${GLOBAL_NO_PROXY}"
 }
 
 function get_proxy() {
@@ -1362,7 +1414,7 @@ function set_wget_proxy() {
         echo "http_proxy=http://${PROXY_ADDRESS}/" >> "$WGET_CONFIG"
         echo "https_proxy=http://${PROXY_ADDRESS}/" >> "$WGET_CONFIG"
         echo "ftp_proxy=http://${PROXY_ADDRESS}/" >> "$WGET_CONFIG"
-        echo "no_proxy=${NO_PROXY_LISTS}" >> "$WGET_CONFIG"
+        echo "no_proxy=${GLOBAL_NO_PROXY}" >> "$WGET_CONFIG"
     fi
 }
 
@@ -1380,7 +1432,7 @@ function set_curl_socks_proxy() {
 
     if [[ -n "$PROXY_ADDRESS" ]]; then
         echo "socks5-hostname=${PROXY_ADDRESS}" >> "${CURL_CONFIG}"
-        echo "noproxy=${NO_PROXY_LISTS}" >> "${CURL_CONFIG}"
+        echo "noproxy=${GLOBAL_NO_PROXY}" >> "${CURL_CONFIG}"
     fi
 }
 
@@ -1958,7 +2010,7 @@ function Install_systemd_Service() {
     fi
 
     [[ -z "$filename" || ! -f "$filename" ]] && colorEcho "${FUCHSIA}${filename}${RED} doesn't exist!" && return 1
-    [[ -z "$service_workdir" || ! -d "$service_workdir" ]]&& colorEcho "${FUCHSIA}${service_workdir}${RED} doesn't exist!" && return 1
+    [[ -z "$service_workdir" || ! -d "$service_workdir" ]] && colorEcho "${FUCHSIA}${service_workdir}${RED} doesn't exist!" && return 1
 
     service_file="/etc/systemd/system/${service_name}.service"
     if [[ ! -s "$service_file" ]]; then

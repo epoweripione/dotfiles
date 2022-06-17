@@ -56,7 +56,7 @@ EOF
 sudo mkdir -p /etc/dnsmasq.d
 
 # https://github.com/felixonmars/dnsmasq-china-list
-[[ -z "${WORKDIR}" || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
+[[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
 # SERVERS=(114.114.114.114 114.114.115.115 180.76.76.76)
 # Not using best possible CDN pop: 1.2.4.8 210.2.4.8 223.5.5.5 223.6.6.6
 # Dirty cache: 119.29.29.29 182.254.116.116

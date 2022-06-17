@@ -22,13 +22,10 @@ fi
 [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
 
 
-# Local WAN IP
-if [[ -z "$WAN_NET_IP" ]]; then
-    get_network_wan_ipv4
-    get_network_wan_geo
-fi
+# Local WAN IP GEO
+[[ -z "${NETWORK_WAN_NET_IP_GEO}" ]] && get_network_wan_geo
 
-if [[ "${WAN_NET_IP_GEO}" =~ 'China' || "${WAN_NET_IP_GEO}" =~ 'CN' ]]; then
+if [[ "${NETWORK_WAN_NET_IP_GEO}" =~ 'China' || "${NETWORK_WAN_NET_IP_GEO}" =~ 'CN' ]]; then
     :
 else
     colorEcho "${BLUE}You are not in china! Congratulations!"
@@ -37,7 +34,7 @@ else
     [[ -z "$EXIT_CONTINUE" || "$EXIT_CONTINUE" == "n" || "$EXIT_CONTINUE" == "N" ]] && exit 0
 fi
 
-if [[ -z "$WAN_NET_IP" ]]; then
+if [[ -z "${NETWORK_WAN_NET_IP}" ]]; then
     colorEcho "${RED}Can't get local WAN IP address!"
     exit 1
 fi
@@ -222,12 +219,12 @@ for TargetHost in "${HostsList[@]}"; do
         if [[ "$CHECK_METHOD" == "dig" ]]; then
             TargetIP=$(dig +short "${TargetHost}" @"${DIG_DNS_SERVER}" \
                         | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
-                        | grep -v "${WAN_NET_IP}" | head -n1)
+                        | grep -v "${NETWORK_WAN_NET_IP}" | head -n1)
         else
             TargetIP=$(curl -fsSL --connect-timeout 5 --max-time 15 "${TargetURL}" \
                         | grep -Eo '<main>.*</main>' \
                         | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
-                        | grep -v "${WAN_NET_IP}" | head -n1)
+                        | grep -v "${NETWORK_WAN_NET_IP}" | head -n1)
         fi
     fi
 

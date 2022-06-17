@@ -96,7 +96,7 @@ EOF
 
 
 trap 'rm -rf "${WORKDIR}"' EXIT
-[[ -z "${WORKDIR}" || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
+[[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
 
 DOWNLOAD_URL=${1:-""}
 SUB_LIST_FILE=${2:-"/etc/clash/clash_client_subscription.list"}

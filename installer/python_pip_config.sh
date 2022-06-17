@@ -2,7 +2,7 @@
 
 trap 'rm -rf "${WORKDIR}"' EXIT
 
-[[ -z "${WORKDIR}" || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
+[[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
 [[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
 
 # Load custom functions
@@ -106,10 +106,13 @@ if [[ -d "$HOME/.local/bin" ]]; then
     export PATH=$PATH:$HOME/.local/bin
 fi
 
-## WARNING: Discarding xxx has inconsistent version: filename has 'x.y.z', but metadata has 'x.y.z
-## https://forum.manjaro.org/t/cant-install-anything-with-pip3/92890/11
-# sed -i 's/self._regex.search(version)/self._regex.search(str(version))/' "/usr/lib/python3.10/site-packages/packaging/version.py"
-# python -m pip install --user -U pip --use-deprecated=legacy-resolver
+# WARNING: Discarding xxx has inconsistent version: filename has 'x.y.z', but metadata has 'x.y.z'
+# https://forum.manjaro.org/t/cant-install-anything-with-pip3/92890/11
+CURRENT_VERSION=$(pip -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+if version_lt "${CURRENT_VERSION}" "22.0.0"; then
+    sudo sed -i 's/self._regex.search(version)/self._regex.search(str(version))/' "/usr/lib/python3.10/site-packages/packaging/version.py"
+    sudo ${PYTHON_CMD} -m pip install -U pip --use-deprecated=legacy-resolver
+fi
 
 # pip.conf
 mkdir -p "$HOME/.pip"
@@ -148,7 +151,8 @@ cat "${PIP_CONFIG}"
 if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
     # fix: ERROR: Could not install packages due to an OSError: Missing dependencies for SOCKS support.
     colorEcho "${BLUE}Installing ${FUCHSIA}pip package ${ORANGE}pysocks${BLUE}..."
-    noproxy_cmd ${PYTHON_CMD} -m pip install --user -U pysocks
+    # noproxy_cmd ${PYTHON_CMD} -m pip install --user -U pysocks
+    sudo ${PYTHON_CMD} -m pip install -U pysocks
 
     ## pipq: Yet another pip search
     # pipq search numpy
@@ -176,7 +180,10 @@ if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
     # noproxy_cmd pipx install pgclt
 fi
 
-# noproxy_cmd python3 -m pip install --user -U setuptools wheel
-# pip list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 pip install -U
 
-# colorEcho "${BLUE}Done!"
+# Upgrade installed system packages
+# pip configurations for root user
+if [[ ! -s "/root/.pip/pip.conf" ]]; then
+    sudo mkdir -p "/root/.pip" && sudo cp -f "${PIP_CONFIG}" "/root/.pip"
+fi
+sudo pip list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 sudo pip install -U

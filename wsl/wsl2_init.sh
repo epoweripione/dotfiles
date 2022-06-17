@@ -176,8 +176,8 @@ sudo apt install -y binutils build-essential di dnsutils g++ gcc keychain \
 ## Enable broadcast WINS
 # colorEcho "${BLUE}Enable broadcast ${FUCHSIA}WINS${BLUE}..."
 # sudo apt install -y libnss-winbind
-# if ! grep -q "wins" /etc/nsswitch.conf 2>/dev/null; then
-#     sudo sed -i 's/dns/wins dns/' /etc/nsswitch.conf
+# if ! grep -q "wins" "/etc/nsswitch.conf" 2>/dev/null; then
+#     sudo sed -i 's/ dns$/ wins dns/' "/etc/nsswitch.conf"
 # fi
 # sudo service winbind start # /etc/init.d/winbind start
 

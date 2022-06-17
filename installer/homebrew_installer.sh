@@ -57,8 +57,10 @@ if [[ "${BREW_RUBY_VERSION}" != "${SYSTEM_RUBY_VERSION}" ]]; then
                 echo 'eval "$(rbenv init -)"' >> "$HOME/.zshrc"
             fi
 
-            Git_Clone_Update_Branch "andorchen/rbenv-china-mirror" "$(rbenv root)/plugins/rbenv-china-mirror"
-            export RUBY_BUILD_MIRROR_URL="https://cache.ruby-china.com"
+            if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+                Git_Clone_Update_Branch "andorchen/rbenv-china-mirror" "$(rbenv root)/plugins/rbenv-china-mirror"
+                export RUBY_BUILD_MIRROR_URL="https://cache.ruby-china.com"
+            fi
 
             Git_Clone_Update_Branch "rbenv/ruby-build" "$(rbenv root)/plugins/ruby-build"
 

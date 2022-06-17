@@ -19,21 +19,6 @@ fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 
-# if [[ ! -x "$(command -v npm)" ]]; then
-#     colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm${RED} first!"
-#     exit 1
-# fi
-
-# if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
-#     colorEcho "${BLUE}Installing ${FUCHSIA}node modules${BLUE}..."
-#     cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && npm install
-# fi
-
-if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
-    colorEcho "${FUCHSIA}node_modules${RED} not found, use \`${ORANGE}npm install${RED}\` to install first!"
-    exit 1
-fi
-
 # https://github.com/chubin/wttr.in/blob/master/lib/constants.py
 declare -A WWO_CODE=(
     ["113"]="Sunny"
@@ -319,6 +304,29 @@ colorEcho "${BLUE}Converting ${ORANGE} HTML ${BLUE}to${FUCHSIA} PNG${BLUE}..."
 #             --screenshot="${WEATHER_HTML_PNG}" "${WEATHER_HTML}" && \
 #         convert -transparent black "${WEATHER_HTML_PNG}" "${WEATHER_MINI_PNG}"
 # fi
+
+# Nodejs
+if [[ ! -x "$(command -v npm)" ]]; then
+    # nvs
+    [[ -d "$HOME/.nvs" ]] && export NVS_HOME="$HOME/.nvs" && source "$NVS_HOME/nvs.sh"
+    # nvm
+    [[ -d "$HOME/.nvm" ]] && export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh"
+fi
+
+if [[ ! -x "$(command -v npm)" ]]; then
+    colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm${RED} first!"
+    cd "${CURRENT_DIR}" && exit 1
+fi
+
+if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}node modules${BLUE}..."
+    cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && npm install
+fi
+
+if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
+    colorEcho "${FUCHSIA}node_modules${RED} not found, use \`${ORANGE}npm install${RED}\` to install first!"
+    cd "${CURRENT_DIR}" && exit 1
+fi
 
 # Puppeteer
 cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && \

@@ -586,13 +586,8 @@ if [[ -d "$HOME/.nvs" ]]; then
     if type 'nvs' 2>/dev/null | grep -q 'function'; then
         :
     else
-        export NVS_HOME="$HOME/.nvs"
-        [ -s "$NVS_HOME/nvs.sh" ] && . "$NVS_HOME/nvs.sh"
+        export NVS_HOME="$HOME/.nvs" && source "$NVS_HOME/nvs.sh"
     fi
-
-    # if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    #     nvs remote node https://npmmirror.com/mirrors/node/
-    # fi
 fi
 
 # nvm
@@ -600,17 +595,14 @@ if [[ -d "$HOME/.nvm" ]]; then
     if type 'nvm' 2>/dev/null | grep -q 'function'; then
         :
     else
-        export NVM_DIR="$HOME/.nvm"
-        source "$NVM_DIR/nvm.sh"
-        # export NVM_DIR="${XDG_CONFIG_HOME:-$HOME}/.nvm"
-        # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh"
     fi
 
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
         export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node
     fi
 
-    if [[ "$NVM_LOAD_NVMRC_IN_CURRENT_DIRECTORY" == true ]]; then
+    if [[ "${NVM_LOAD_NVMRC_IN_CURRENT_DIRECTORY}" == true ]]; then
         # use specified node version for the current directory with .nvmrc
         # echo "lts/*" > .nvmrc # to default to the latest LTS version
         # echo "node" > .nvmrc # to default to the latest version
