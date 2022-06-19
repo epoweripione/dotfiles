@@ -115,6 +115,8 @@ esac
 # yay --noconfirm -Sc
 # [[ -s "$1" ]] && rm "$1"
 
+# /usr/bin/axel -n 5 -a -o $1 $url || /usr/bin/axel -N -n 5 -a -o $1 $2
+
 /usr/bin/axel -n 5 -a -o $1 $url || /usr/bin/curl -qgb "" -fLC - --retry 3 --retry-delay 3 -o $1 $2
 EOF
 
