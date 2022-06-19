@@ -36,8 +36,6 @@ else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
 fi
 
-[[ ! -x "$(command -v cargo)" && ! -x "$(command -v brew)" ]] && IS_INSTALL="no"
-
 if [[ "${IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
 
@@ -53,11 +51,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     if [[ -x "$(command -v poetry)" ]]; then
         poetry self update
     else
-        if [[ -x "$(command -v python)" ]]; then
-            curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-        elif [[ -x "$(command -v python3)" ]]; then
-            curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
-        fi
+        curl -sSL https://install.python-poetry.org | python3 -
     fi
 fi
 

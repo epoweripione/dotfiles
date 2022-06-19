@@ -698,7 +698,7 @@ export GIT_CLONE_DEFAULT_OPTION
 
 [[ -z "${GIT_CLONE_OPTS[*]}" ]] && Get_Git_Clone_Options
 
-# Accelerate the speed of accessing GitHub
+# curl options for App_Installer_Install()
 INSTALLER_CHECK_CURL_OPTION="-fsL --connect-timeout 5"
 INSTALLER_DOWNLOAD_CURL_OPTION="-fSL --connect-timeout 5"
 

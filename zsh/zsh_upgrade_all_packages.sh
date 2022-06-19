@@ -319,6 +319,18 @@ if [[ -x "$(command -v tldr)" ]]; then
     fi
 fi
 
+if [[ -x "$(command -v snap)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}all Snap packages${BLUE}..."
+    sudo snap refresh
+fi
+
+if [[ -x "$(command -v brew)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}all homebrew packages${BLUE}..."
+    # brew cleanup
+    brew update
+    brew upgrade
+fi
+
 if [[ -n "$ZSH" ]]; then
     if [[ -s "${MY_SHELL_SCRIPTS}/zsh/zsh_update.sh" ]]; then
         colorEcho "${BLUE}Updating ${FUCHSIA}oh-my-zsh & custom stuff${BLUE}..."

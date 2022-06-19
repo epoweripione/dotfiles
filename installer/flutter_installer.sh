@@ -85,6 +85,7 @@ fi
 [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
 
 if [[ -x "$(command -v snap)" && ! -x "$(command -v android-studio)" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}Android Studio${BLUE}..."
     sudo snap install android-studio --classic
 fi
 
@@ -154,6 +155,8 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${IS_INSTALL}" == "yes" && -n "${REMOTE_FILEPATH}" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+
     DOWNLOAD_URL="${FLUTTER_STORAGE_BASE_URL}/flutter_infra_release/releases/${REMOTE_FILEPATH}"
 
     # DOWNLOAD_FILENAME=$(echo ${DOWNLOAD_URL} | awk -F"/" '{print $NF}')
@@ -185,8 +188,11 @@ if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" ]]; then
     fi
 
     # proxy_http_cmd flutter precache
-    proxy_http_cmd flutter doctor
+    # proxy_http_cmd flutter doctor
 fi
+
+
+[[ "${IS_INSTALL}" == "yes" ]] && flutter doctor
 
 
 ## Launch the Android Studio

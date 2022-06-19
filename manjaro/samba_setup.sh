@@ -92,7 +92,7 @@ if [[ -s "/usr/lib/systemd/system/winbind.service" ]]; then
     sudo sed -i '/^After/a\Wants=network-online.target' "/usr/lib/systemd/system/winbind.service"
 fi
 
-sudo systemctl start winbind
+sudo systemctl daemon-reload && sudo systemctl start winbind
 
 
 ## pdbedit
@@ -243,18 +243,19 @@ sudo systemctl start winbind
 # PDF printer
 # /etc/cups/cups-pdf.conf
 # http://distro.ibiblio.org/smeserver/contribs/rvandenaker/testing/smeserver-cups/documentation/howtos/cups-pdf-printer.html
+PDF_OUTPUT_DIR="$(xdg-user-dir DOCUMENTS)"
 if ! lpstat -v 2>/dev/null | grep -q 'Print_to_PDF:'; then
-    PDF_OUTPUT_DIR="$(xdg-user-dir DOCUMENTS)"
+    colorEcho "${BLUE}Setting ${FUCHSIA}Print to PDF${BLUE} printer..."
     if [[ -d "${PDF_OUTPUT_DIR}" ]]; then
         sudo sed -i "s|^[#]*Out .*|Out ${PDF_OUTPUT_DIR}|" "/etc/cups/cups-pdf.conf"
         sudo systemctl restart cups
     fi
 
-    [[ -d "/var/spool/cups-pdf/ANONYMOUS" ]] && \
-        ln -s "/var/spool/cups-pdf/ANONYMOUS" "${PDF_OUTPUT_DIR}/PrintedPDF"
-
     lpadmin -p "Print_to_PDF" -E -v "cups-pdf:/" -m "CUPS-PDF_opt.ppd"
 fi
+
+[[ ! -d "${PDF_OUTPUT_DIR}/PrintedPDF" && -d "/var/spool/cups-pdf/ANONYMOUS" ]] && \
+    ln -s "/var/spool/cups-pdf/ANONYMOUS" "${PDF_OUTPUT_DIR}/PrintedPDF"
 
 # Printer Sharing
 # http://www.cups.org/doc/sharing.html
@@ -301,6 +302,7 @@ lpadmin -p "Print_to_PDF" -o printer-is-shared=true
 # https://wiki.archlinux.org/title/SANE
 # https://wiki.archlinux.org/title/SANE/Scanner-specific_problems
 # https://blog.tangbao.me/2019/09/rpi-printer-scanner-server/
+colorEcho "${BLUE}Installing ${FUCHSIA}SANE Scanner Server${BLUE}..."
 yay --noconfirm --needed -S sane sane-airscan
 # sudo sane-find-scanner
 # sudo scanimage -L

@@ -87,18 +87,27 @@ elif [[ -x "$(command -v python)" ]]; then
 fi
 
 # pip
-if [[ ! -x "$(command -v pip)" || ! -x "$(command -v pip3)" ]]; then
+INSTALL_PIP_LATEST="NO"
+PIP_CURRENT_VERSION="0.0.0"
+if [[ -x "$(command -v pip)" ]]; then
+    PIP_CURRENT_VERSION=$(sudo ${PYTHON_CMD} -m pip -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+fi
+
+if version_lt "${PIP_CURRENT_VERSION}" "22.0.0"; then
+    INSTALL_PIP_LATEST="YES"
+fi
+
+if [[ "${INSTALL_PIP_LATEST}" == "YES" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}pip${BLUE}..."
-    # sudo curl "https://bootstrap.pypa.io/get-pip.py" -o get-pip.py && sudo python3 get-pip.py && sudo rm -f get-pip.py
     curl "https://bootstrap.pypa.io/get-pip.py" -o get-pip.py && \
-        noproxy_cmd ${PYTHON_CMD} get-pip.py && \
+        sudo ${PYTHON_CMD} get-pip.py && \
         rm -f get-pip.py
 fi
 
 if [[ ! -x "$(command -v pip)" || ! -x "$(command -v pip3)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}pip${BLUE}..."
-    ${PYTHON_CMD} -m ensurepip
-    ${PYTHON_CMD} -m pip install --user -U pip
+    sudo ${PYTHON_CMD} -m ensurepip
+    sudo ${PYTHON_CMD} -m pip install -U pip
 fi
 
 colorEcho "${BLUE}Setting ${FUCHSIA}pip${BLUE}..."
@@ -106,13 +115,12 @@ if [[ -d "$HOME/.local/bin" ]]; then
     export PATH=$PATH:$HOME/.local/bin
 fi
 
-# WARNING: Discarding xxx has inconsistent version: filename has 'x.y.z', but metadata has 'x.y.z'
-# https://forum.manjaro.org/t/cant-install-anything-with-pip3/92890/11
-CURRENT_VERSION=$(pip -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-if version_lt "${CURRENT_VERSION}" "22.0.0"; then
-    sudo sed -i 's/self._regex.search(version)/self._regex.search(str(version))/' "/usr/lib/python3.10/site-packages/packaging/version.py"
-    sudo ${PYTHON_CMD} -m pip install -U pip --use-deprecated=legacy-resolver
-fi
+## WARNING: Discarding xxx has inconsistent version: filename has 'x.y.z', but metadata has 'x.y.z'
+## https://forum.manjaro.org/t/cant-install-anything-with-pip3/92890/11
+# if version_lt "${PIP_CURRENT_VERSION}" "22.0.0"; then
+#     sudo sed -i 's/self._regex.search(version)/self._regex.search(str(version))/' "/usr/lib/python3.10/site-packages/packaging/version.py"
+#     sudo ${PYTHON_CMD} -m pip install -U pip --use-deprecated=legacy-resolver
+# fi
 
 # pip.conf
 mkdir -p "$HOME/.pip"
@@ -181,9 +189,10 @@ if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
 fi
 
 
-# Upgrade installed system packages
 # pip configurations for root user
 if [[ ! -s "/root/.pip/pip.conf" ]]; then
     sudo mkdir -p "/root/.pip" && sudo cp -f "${PIP_CONFIG}" "/root/.pip"
 fi
-sudo pip list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 sudo pip install -U
+
+## Upgrade installed system packages
+# sudo pip list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 sudo pip install -U

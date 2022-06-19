@@ -19,9 +19,9 @@ fi
 
 # httpie: a user-friendly command-line HTTP client for the API era
 # https://httpie.io/
-APP_INSTALL_NAME="heepie"
+APP_INSTALL_NAME="httpie"
 EXEC_INSTALL_NAME="http"
-PIP_PACKAGE_NAME="heepie"
+PIP_PACKAGE_NAME="httpie"
 
 [[ ! -x "$(command -v ${EXEC_INSTALL_NAME})" ]] && IS_INSTALL="yes" || IS_INSTALL="no"
 [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"

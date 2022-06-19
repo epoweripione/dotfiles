@@ -68,8 +68,9 @@ changeTheme() {
     # fi
 
     if [[ "$theme" == "powerlevel10k" || "$theme" == "powerlevel9k" ]]; then
-        echo "" >> "$HOME/.zshrc"
-        echo "POWERLEVEL9K_TIME_FORMAT='%D{%H:%M}'" >> "$HOME/.zshrc"
+        echo -e "\nTime format for powerlevel10k\nPOWERLEVEL9K_TIME_FORMAT='%D{%H:%M}'" >> "$HOME/.zshrc"
+        echo -e '\n# When using Powerlevel10k with instant prompt, prompt_cr must be unset' >> "$HOME/.zshrc"
+        echo '(( ! ${+functions[p10k]} )) || p10k finalize' >> "$HOME/.zshrc"
     fi
 
     colorEcho "${GREEN}ZSH theme has change to ${theme}，please exit and restart ZSH Shell!"
