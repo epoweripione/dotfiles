@@ -81,11 +81,11 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     #     nohup /srv/frp/frps -c /srv/frp/frps.ini >/dev/null 2>&1 & disown
     # fi
 
-    # [[ $(systemctl is-enabled frp-server 2>/dev/null) ]] || {
+    # systemctl is-enabled frp-server >/dev/null 2>&1 || {
     #         Install_systemd_Service "frp-server" "/srv/frp/frps -c /srv/frp/frps-server.ini"
     #     }
 
-    [[ $(systemctl is-enabled frp-server 2>/dev/null) ]] && sudo systemctl restart frp-server
+    systemctl is-enabled frp-server >/dev/null 2>&1 && sudo systemctl restart frp-server
 fi
 
 

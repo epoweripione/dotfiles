@@ -87,7 +87,7 @@ EOF
     fi
 
     sudo systemctl enable "$service_name" && sudo systemctl restart "$service_name"
-    if [[ $(systemctl is-enabled "$service_name" 2>/dev/null) ]]; then
+    if systemctl is-enabled "$service_name" >/dev/null 2>&1; then
         colorEcho "${GREEN}  systemd service ${FUCHSIA}${service_name}${GREEN} installed!"
     else
         colorEcho "${RED}  systemd service ${FUCHSIA}${service_name}${GREEN} install failed!"
@@ -123,7 +123,7 @@ fi
 if ! pgrep -f "clash" >/dev/null 2>&1; then
     [[ -d "/srv/subconverter" ]] && Install_systemd_Service "subconverter" "/srv/subconverter/subconverter"
     [[ -d "/srv/clash" ]] && Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash" "root"
-    [[ $(systemctl is-enabled clash 2>/dev/null) ]] && sudo systemctl restart clash
+    systemctl is-enabled clash >/dev/null 2>&1 && sudo systemctl restart clash
 fi
 
 if ! pgrep -f "clash" >/dev/null 2>&1; then
@@ -221,7 +221,7 @@ if [[ -s "${SUB_LIST_FILE}" ]]; then
                 sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
 
                 # if pgrep -f "clash" >/dev/null 2>&1; then
-                if [[ $(systemctl is-enabled clash 2>/dev/null) ]]; then
+                if systemctl is-enabled clash >/dev/null 2>&1; then
                     colorEcho "${BLUE}Checking clash connectivity..."
                     sudo systemctl restart clash && sleep 3
 

@@ -152,10 +152,10 @@ EOF
     # /usr/bin/rsync --port=873 --daemon
     # ps -ef | grep rsync
 
-    [[ $(systemctl is-enabled "rsyncd_${RSYNC_MODULE}" 2>/dev/null) ]] || {
+    systemctl is-enabled "rsyncd_${RSYNC_MODULE}" >/dev/null 2>&1 || {
         Install_systemd_Service "rsyncd_${RSYNC_MODULE}" "/usr/bin/rsync --port=873 --daemon"
     }
-    [[ $(systemctl is-enabled "rsyncd_${RSYNC_MODULE}" 2>/dev/null) ]] && sudo systemctl restart "rsyncd_${RSYNC_MODULE}"
+    systemctl is-enabled "rsyncd_${RSYNC_MODULE}" >/dev/null 2>&1 && sudo systemctl restart "rsyncd_${RSYNC_MODULE}"
 
     colorEcho "${FUCHSIA}rsyncd${GREEN} service successfully installed!"
     colorEcho "${FUCHSIA}rsyncd config file: ${GREEN}/etc/rsyncd.conf"
@@ -237,10 +237,10 @@ EOF
     ## start lsyncd service
     # lsyncd -nodaemon -delay 30 /etc/lsyncd.conf
 
-    # [[ $(systemctl is-enabled "lsyncd_${RSYNC_MODULE}" 2>/dev/null) ]] || {
+    # systemctl is-enabled "lsyncd_${RSYNC_MODULE}" >/dev/null 2>&1 || {
     #     Install_systemd_Service "lsyncd_${RSYNC_MODULE}" "/usr/bin/lsyncd /etc/lsyncd.conf"
     # }
-    # [[ $(systemctl is-enabled "lsyncd_${RSYNC_MODULE}" 2>/dev/null) ]] && sudo systemctl restart "lsyncd_${RSYNC_MODULE}"
+    # systemctl is-enabled "lsyncd_${RSYNC_MODULE}" >/dev/null 2>&1 && sudo systemctl restart "lsyncd_${RSYNC_MODULE}"
     # colorEcho "${FUCHSIA}lsyncd${GREEN} service successfully installed!"
 
     colorEcho "${FUCHSIA}lsyncd config file: ${GREEN}/etc/lsyncd.conf"

@@ -26,9 +26,9 @@ fi
 ## https://wiki.archlinux.org/title/Systemd-networkd
 ## ls /etc/systemd/network/
 ## journalctl --boot=0 --unit=systemd-networkd
-# [[ $(systemctl is-enabled network 2>/dev/null) ]] && sudo systemctl disable network && sudo systemctl stop network
-# [[ $(systemctl is-enabled networking 2>/dev/null) ]] && sudo systemctl disable networking && sudo systemctl stop networking
-# [[ $(systemctl is-enabled NetworkManager 2>/dev/null) ]] && sudo systemctl disable NetworkManager && sudo systemctl stop NetworkManager
+# systemctl is-enabled network >/dev/null 2>&1 && sudo systemctl disable network && sudo systemctl stop network
+# systemctl is-enabled networking >/dev/null 2>&1 && sudo systemctl disable networking && sudo systemctl stop networking
+# systemctl is-enabled NetworkManager >/dev/null 2>&1 && sudo systemctl disable NetworkManager && sudo systemctl stop NetworkManager
 
 # [[ -s "/etc/network/interfaces" ]] && sudo mv "/etc/network/interfaces" "/etc/network/interfaces.save"
 

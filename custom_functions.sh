@@ -1660,11 +1660,13 @@ function flush_dns_cache() {
 
     [[ -s "/etc/init.d/dns-clean" ]] && /etc/init.d/dns-clean start
 
-    [[ $(systemctl is-enabled systemd-resolved 2>/dev/null) ]] && \
+    if systemctl is-enabled systemd-resolved >/dev/null 2>&1; then
         sudo systemctl restart systemd-resolved.service >/dev/null 2>&1
+    fi
 
-    [[ $(systemctl is-enabled dnsmasq 2>/dev/null) ]] && \
+    if systemctl is-enabled dnsmasq >/dev/null 2>&1; then
         sudo systemctl restart dnsmasq.service >/dev/null 2>&1
+    fi
 }
 
 
@@ -2036,7 +2038,7 @@ EOF
     fi
 
     sudo systemctl enable "$service_name" && sudo systemctl restart "$service_name"
-    if [[ $(systemctl is-enabled "$service_name" 2>/dev/null) ]]; then
+    if systemctl is-enabled "$service_name" >/dev/null 2>&1; then
         colorEcho "${GREEN}  systemd service ${FUCHSIA}${service_name}${GREEN} installed!"
     else
         colorEcho "${RED}  systemd service ${FUCHSIA}${service_name}${RED} install failed!"

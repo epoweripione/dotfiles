@@ -195,7 +195,7 @@ fi
 
 # Launch the Android Studio to install the Android SDK components
 [[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
-[[ -d "$HOME/Android/Sdk/platform-tools" ]] && export PATH=$PATH:$HOME/Android/Sdk/platform-tools
+# [[ -d "$HOME/Android/Sdk/platform-tools" ]] && export PATH=$PATH:$HOME/Android/Sdk/platform-tools
 android-studio
 
 [[ "${IS_INSTALL}" == "yes" ]] && flutter doctor

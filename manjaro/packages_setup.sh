@@ -115,9 +115,9 @@ esac
 # yay --noconfirm -Sc
 # [[ -s "$1" ]] && rm "$1"
 
-# /usr/bin/axel -n 5 -a -o $1 $url || /usr/bin/axel -N -n 5 -a -o $1 $2
+# /usr/bin/axel -N -n5 -a -o $1 $url || /usr/bin/axel -N -n 5 -a -o $1 $2
 
-/usr/bin/axel -n 5 -a -o $1 $url || /usr/bin/curl -qgb "" -fLC - --retry 3 --retry-delay 3 -o $1 $2
+/usr/bin/axel -N -n5 -a -o $1 $url || /usr/bin/curl -qgb "" -fLC - --retry 3 --retry-delay 3 -o $1 $2
 EOF
 
     sudo chmod +x "/etc/makepkg_axel.sh"
@@ -157,7 +157,7 @@ fi
 # sshd
 if [[ "${OS_INFO_VIRTUALIZED}" != "none" ]]; then
     colorEcho "${BLUE}Enabling ${FUCHSIA}sshd${BLUE}..."
-    [[ $(systemctl is-enabled sshd 2>/dev/null) ]] || \
+    systemctl is-enabled sshd >/dev/null 2>&1 || \
         { sudo systemctl enable sshd; sudo systemctl start sshd; }
 fi
 

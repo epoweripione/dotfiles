@@ -462,8 +462,8 @@ if [[ -d "$HOME/flutter/bin" ]]; then
     [[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && \
         export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
 
-    [[ -d "$HOME/Android/Sdk/platform-tools" ]] && \
-        export PATH=$PATH:$HOME/Android/Sdk/platform-tools
+    # [[ -d "$HOME/Android/Sdk/platform-tools" ]] && \
+    #     export PATH=$PATH:$HOME/Android/Sdk/platform-tools
 fi
 
 # rustup & cargo
@@ -758,7 +758,7 @@ if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; the
 
     ## start services upon WSL launch: libnss-winbind
     # if (( $(ps -ef | grep -v grep | grep winbind | wc -l) == 0 )); then
-    #     [[ $(systemctl is-enabled winbind 2>/dev/null) ]] && \
+    #     systemctl is-enabled winbind >/dev/null 2>&1 && \
     #         sudo service winbind start
     #     # if systemctl list-unit-files --type=service | grep "winbind.service" | grep "enabled" >/dev/null 2>&1; then
     #     #     service winbind start

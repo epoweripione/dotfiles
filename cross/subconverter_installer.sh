@@ -119,7 +119,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
         fi
     fi
 
-    [[ $(systemctl is-enabled subconverter 2>/dev/null) ]] || {
+    systemctl is-enabled subconverter >/dev/null 2>&1 || {
         # [[ "${IS_UPDATE}" == "no" ]] && \
         #         colorEchoN "${ORANGE}Install clash subconverter service?[y/${CYAN}N${ORANGE}]: " && \
         #         read -r CHOICE
@@ -128,7 +128,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     }
 
     if [[ "${IS_UPDATE}" == "yes" ]]; then
-        [[ $(systemctl is-enabled subconverter 2>/dev/null) ]] && sudo systemctl restart subconverter
+        systemctl is-enabled subconverter >/dev/null 2>&1 && sudo systemctl restart subconverter
     fi
 fi
 

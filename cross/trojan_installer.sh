@@ -52,7 +52,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 
-    [[ $(systemctl is-enabled trojan 2>/dev/null) ]] && sudo systemctl stop trojan
+    systemctl is-enabled trojan >/dev/null 2>&1 && sudo systemctl stop trojan
 
     DOWNLOAD_FILENAME="${WORKDIR}/trojan.tar.xz"
     DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/trojan-gfw/trojan/releases/download/v${REMOTE_VERSION}/trojan-${REMOTE_VERSION}-${OS_INFO_TYPE}-${OS_INFO_ARCH}.tar.xz"
@@ -87,8 +87,8 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     fi
 
     # nohup /srv/trojan/trojan -c /etc/trojan/trojan.json >/dev/null 2>&1 & disown
-    [[ $(systemctl is-enabled trojan 2>/dev/null) ]] || sudo systemctl enable trojan
-    [[ $(systemctl is-enabled trojan 2>/dev/null) ]] && sudo systemctl restart trojan
+    systemctl is-enabled trojan >/dev/null 2>&1 || sudo systemctl enable trojan
+    systemctl is-enabled trojan >/dev/null 2>&1 && sudo systemctl restart trojan
 fi
 
 cd "${CURRENT_DIR}" || exit

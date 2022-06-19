@@ -350,7 +350,7 @@ function use_clash() {
                 return 1
             }
 
-        [[ $(systemctl is-enabled subconverter 2>/dev/null) ]] || {
+        systemctl is-enabled subconverter >/dev/null 2>&1 || {
                 Install_systemd_Service "subconverter" "/srv/subconverter/subconverter"
             }
 
@@ -360,11 +360,11 @@ function use_clash() {
                 return 1
             }
 
-        [[ $(systemctl is-enabled clash 2>/dev/null) ]] || {
+        systemctl is-enabled clash >/dev/null 2>&1 || {
                 Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash"
             }
 
-        if [[ $(systemctl is-enabled clash 2>/dev/null) ]]; then
+        if systemctl is-enabled clash >/dev/null 2>&1; then
             # # get clash config
             # [[ ! -s "$last_update" ]] && date -d "1 day ago" +"%F" > "$last_update"
             # # only update config one time per day

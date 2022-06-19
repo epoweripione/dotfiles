@@ -51,7 +51,7 @@ sudo swapoff -a
 # Check network adapters
 
 # Disable firewall
-if [[ $(systemctl is-enabled firewalld 2>/dev/null) ]]; then
+if systemctl is-enabled firewalld >/dev/null 2>&1; then
     sudo systemctl stop firewalld && sudo systemctl disable firewalld
     sudo iptables -F && sudo iptables -X && sudo iptables -F -t nat && sudo iptables -X -t nat
     sudo iptables -P FORWARD ACCEPT

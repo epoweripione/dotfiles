@@ -155,7 +155,7 @@ for TargetURL in "${SUB_LIST[@]}"; do
             sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
 
             # if pgrep -f "clash" >/dev/null 2>&1; then
-            if [[ $(systemctl is-enabled clash 2>/dev/null) ]]; then
+            if systemctl is-enabled clash >/dev/null 2>&1; then
                 colorEcho "${BLUE}Checking clash connectivity..."
                 sudo systemctl restart clash && sleep 3
 

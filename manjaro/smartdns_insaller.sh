@@ -75,7 +75,7 @@ DNSStubListener=no
 EOF
 
 # Disable dnsmasq DNS Server
-if [[ $(systemctl is-enabled dnsmasq 2>/dev/null) ]]; then
+if systemctl is-enabled dnsmasq >/dev/null 2>&1; then
     sudo sed -i "s/[#]*[ ]*port=.*/port=0/" "/etc/dnsmasq.conf"
     sudo systemctl restart dnsmasq
 else
@@ -91,9 +91,9 @@ sudo systemctl enable smartdns && sudo systemctl start smartdns
 
 # Restart network
 colorEcho "${BLUE}Restarting ${FUCHSIA}Network${BLUE}..."
-[[ $(systemctl is-enabled network 2>/dev/null) ]] && sudo systemctl restart NetworkManager
-[[ $(systemctl is-enabled networking 2>/dev/null) ]] && sudo systemctl restart NetworkManager
-[[ $(systemctl is-enabled NetworkManager 2>/dev/null) ]] && sudo systemctl restart NetworkManager
+systemctl is-enabled network >/dev/null 2>&1 && sudo systemctl restart NetworkManager
+systemctl is-enabled networking >/dev/null 2>&1 && sudo systemctl restart NetworkManager
+systemctl is-enabled NetworkManager >/dev/null 2>&1 && sudo systemctl restart NetworkManager
 
 sudo systemctl restart systemd-resolved
 sudo systemctl restart systemd-networkd

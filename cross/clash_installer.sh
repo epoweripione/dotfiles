@@ -175,7 +175,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
             echo "${REMOTE_VERSION}" | sudo tee "/srv/clash/mmdb.ver" >/dev/null
     fi
 
-    [[ $(systemctl is-enabled clash 2>/dev/null) ]] || {
+    systemctl is-enabled clash >/dev/null 2>&1 || {
         if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
             Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash" "root"
         else
@@ -187,7 +187,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     }
 
     if [[ "${IS_UPDATE}" == "yes" ]]; then
-        [[ $(systemctl is-enabled clash 2>/dev/null) ]] && sudo systemctl restart clash && sleep 3
+        systemctl is-enabled clash >/dev/null 2>&1 && sudo systemctl restart clash && sleep 3
     fi
 
     # if [[ -d "/srv/clash" && ! -s "/srv/clash/cache.db" ]]; then

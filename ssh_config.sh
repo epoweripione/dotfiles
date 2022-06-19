@@ -53,8 +53,8 @@ fi
 
 
 # Restart ssh service
-[[ $(systemctl is-enabled ssh 2>/dev/null) ]] && sudo systemctl restart ssh
-[[ $(systemctl is-enabled sshd 2>/dev/null) ]] && sudo systemctl restart sshd
+systemctl is-enabled ssh >/dev/null 2>&1 && sudo systemctl restart ssh
+systemctl is-enabled sshd >/dev/null 2>&1 && sudo systemctl restart sshd
 
 
 ## Generate ssh key

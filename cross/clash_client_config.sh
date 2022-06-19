@@ -156,7 +156,7 @@ if [[ -s "$SUB_LIST_FILE" ]]; then
                 sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
 
                 # if pgrep -f "clash" >/dev/null 2>&1; then
-                if [[ $(systemctl is-enabled clash 2>/dev/null) ]]; then
+                if systemctl is-enabled clash >/dev/null 2>&1; then
                     colorEcho "${BLUE}Checking clash connectivity..."
                     sudo systemctl restart clash && sleep 3
 
@@ -181,7 +181,7 @@ if ! pgrep -f "subconverter" >/dev/null 2>&1; then
     # if [[ -s "/srv/subconverter/subconverter" ]]; then
     #     nohup /srv/subconverter/subconverter >/dev/null 2>&1 & disown
     # fi
-    [[ $(systemctl is-enabled subconverter 2>/dev/null) ]] && sudo systemctl restart subconverter
+    systemctl is-enabled subconverter >/dev/null 2>&1 && sudo systemctl restart subconverter
 fi
 
 if ! pgrep -f "subconverter" >/dev/null 2>&1; then

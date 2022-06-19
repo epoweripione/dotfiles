@@ -69,7 +69,7 @@ if ! pgrep -f "subconverter" >/dev/null 2>&1; then
     # if [[ -s "/srv/subconverter/subconverter" ]]; then
     #     nohup /srv/subconverter/subconverter >/dev/null 2>&1 & disown
     # fi
-    [[ $(systemctl is-enabled subconverter 2>/dev/null) ]] && sudo systemctl restart subconverter
+    systemctl is-enabled subconverter >/dev/null 2>&1 && sudo systemctl restart subconverter
 fi
 
 if ! pgrep -f "subconverter" >/dev/null 2>&1; then
