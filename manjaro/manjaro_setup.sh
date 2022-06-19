@@ -157,9 +157,8 @@ sudo pacman --noconfirm --needed -S picom rofi feh inkscape mate-power-manager m
 # Apps
 # Broswer
 colorEcho "${BLUE}Installing ${FUCHSIA}broswer${BLUE}..."
-yay --noconfirm --needed -S chromium google-chrome
+yay --noconfirm --needed -S chromium google-chrome google-chrome-dev
 # yay --noconfirm --needed -S google-chrome-beta
-# yay --noconfirm --needed -S google-chrome-dev
 # yay --noconfirm --needed -S microsoft-edge-stable-bin
 
 # Clipborad
@@ -168,6 +167,7 @@ sudo pacman --noconfirm --needed -S copyq
 
 # Develop
 colorEcho "${BLUE}Installing ${FUCHSIA}develop tools${BLUE}..."
+sudo pacman --noconfirm --needed -S jre17-openjdk
 sudo pacman --noconfirm --needed -S dbeaver wireshark-qt
 yay --noconfirm --needed -S visual-studio-code-bin
 

@@ -31,15 +31,12 @@ if [[ -d "$HOME/.nvm" ]]; then
     if type 'nvm' 2>/dev/null | grep -q 'function'; then
         :
     else
-        export NVM_DIR="$HOME/.nvm"
-        source "$NVM_DIR/nvm.sh"
-        # export NVM_DIR="${XDG_CONFIG_HOME:-$HOME}/.nvm"
-        # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh"
     fi
 fi
 
-## Install nodejs
-if type 'nvm' 2>/dev/null | grep -q 'function'; then
+# Install nodejs
+if [[ "$(command -v nvm)" ]]; then
     if [[ ! "$(command -v node)" ]]; then
         if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
             colorEcho "${BLUE}Installing ${FUCHSIA}node LTS${BLUE}..."

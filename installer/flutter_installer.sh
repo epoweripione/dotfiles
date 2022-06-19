@@ -54,9 +54,10 @@ fi
 # https://developer.android.com/studio/install
 
 # Install desired Java version
-if [[ "$(command -v asdf)" ]]; then
-    # [[ ! -x "$(command -v java)" ]] && asdf_App_Install java openjdk-11
-    [[ ! -x "$(command -v java)" ]] && asdf_App_Install java zulu-11
+if [[ ! -x "$(command -v java)" ]]; then
+    [[ ! "$(command -v asdf)" && -d "$HOME/.asdf" ]] && source "$HOME/.asdf/asdf.sh"
+    # [[ "$(command -v asdf)" ]] && asdf_App_Install java openjdk-17
+    [[ "$(command -v asdf)" ]] && asdf_App_Install java zulu-17
 fi
 
 if [[ -x "$(command -v pacman)" ]]; then
@@ -192,11 +193,12 @@ if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" ]]; then
 fi
 
 
+# Launch the Android Studio to install the Android SDK components
+[[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
+[[ -d "$HOME/Android/Sdk/platform-tools" ]] && export PATH=$PATH:$HOME/Android/Sdk/platform-tools
+android-studio
+
 [[ "${IS_INSTALL}" == "yes" ]] && flutter doctor
-
-
-## Launch the Android Studio
-# android-studio
 
 ## sdkmanager
 ## https://developer.android.com/studio/command-line/sdkmanager

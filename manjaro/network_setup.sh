@@ -64,14 +64,14 @@ sudo systemctl enable systemd-resolved && sudo systemctl start systemd-resolved
 
 # SmartDNS
 if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
-    [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/smartdns_insaller.sh" ]] && \
-        source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/smartdns_insaller.sh"
+    [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/smartdns_insaller.sh" ]] && \
+        source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/smartdns_insaller.sh"
 fi
 
 
 # Samba
-[[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/samba_setup.sh" ]] && \
-    source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/samba_setup.sh"
+[[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/samba_setup.sh" ]] && \
+    source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/samba_setup.sh"
 
 
 cd "${CURRENT_DIR}" || exit

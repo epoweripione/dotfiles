@@ -82,6 +82,7 @@ if [[ -s "$HOME/.config/conky/hybrid/hybrid.conf" ]]; then
 
     # Disk
     sed -i 's|/opt|/var|g' "$HOME/.config/conky/hybrid/hybrid.conf"
+    sed -i 's|/opt|/var|g' "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
 
     ## monitor the temperature of CPU & GPU
     # sensors
@@ -122,7 +123,7 @@ if [[ -s "$HOME/.config/conky/hybrid/hybrid.conf" ]]; then
     # acpi -b
     BATTERY_DEVICE=$(upower -e | grep -Eo 'BAT[0-9]+' | sort | head -n1)
     [[ -n "${BATTERY_DEVICE}" ]] && \
-        sed -i "s/BAT1/${BATTERY_DEVICE}/g" "$HOME/.config/conky/hybrid/hybrid.conf"
+        sed -i "s/BAT1/${BATTERY_DEVICE}/g" "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
 
     sed -i -e 's/own_window_transparent.*/own_window_transparent = true,/' \
         -e 's/update_interval.*/update_interval = 3.0,/' \

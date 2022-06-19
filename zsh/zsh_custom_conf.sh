@@ -462,7 +462,7 @@ if [[ -d "$HOME/flutter/bin" ]]; then
     [[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && \
         export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
 
-    [[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && \
+    [[ -d "$HOME/Android/Sdk/platform-tools" ]] && \
         export PATH=$PATH:$HOME/Android/Sdk/platform-tools
 fi
 

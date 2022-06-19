@@ -57,8 +57,10 @@ fi
 
 if [[ "${IS_INSTALL}" == "yes" && -x "$(command -v poetry)" ]]; then
     export PATH=$PATH:$HOME/.poetry/bin
-    mkdir -p "$ZSH_CUSTOM/plugins/poetry" && \
-        poetry completions zsh > "$ZSH_CUSTOM/plugins/poetry/_poetry"
+    if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}" ]]; then
+        mkdir -p "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/poetry" && \
+            poetry completions zsh > "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/poetry/_poetry"
+    fi
 fi
 
 # poetry config --list
