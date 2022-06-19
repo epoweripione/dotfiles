@@ -157,8 +157,13 @@ if [[ "${IS_INSTALL}" == "yes" && -n "${REMOTE_FILENAME}" ]]; then
         [[ -z "${ARCHIVE_EXEC_DIR}" || ! -d "${ARCHIVE_EXEC_DIR}" ]] && ARCHIVE_EXEC_DIR=${WORKDIR}
 
         if echo "${ARCHIVE_EXEC_NAME}" | grep -q '\*'; then
-            ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}") && \
-                ARCHIVE_EXEC_NAME=$(basename "${ARCHIVE_EXEC_NAME}")
+            if [[ -n "${ARCHIVE_EXT}" ]]; then
+                ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" -not -name "*.${ARCHIVE_EXT}") && \
+                    ARCHIVE_EXEC_NAME=$(basename "${ARCHIVE_EXEC_NAME}")
+            else
+                ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}") && \
+                    ARCHIVE_EXEC_NAME=$(basename "${ARCHIVE_EXEC_NAME}")
+            fi
         fi
         [[ -z "${ARCHIVE_EXEC_NAME}" || ! -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]] && ARCHIVE_EXEC_NAME=${EXEC_INSTALL_NAME}
 
