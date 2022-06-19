@@ -26,7 +26,7 @@ APP_INSTALL_NAME="nushell"
 GITHUB_REPO_NAME="nushell/nushell"
 
 ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_DIR="nushell-*"
+ARCHIVE_EXEC_DIR=""
 ARCHIVE_EXEC_NAME="nu"
 
 EXEC_INSTALL_PATH="/usr/local/bin/nushell"
@@ -84,18 +84,35 @@ if [[ "${INSTALL_FROM_SOURCE}" == "yes" ]]; then
     [[ ! -x "$(command -v cargo)" && -x "$(command -v brew)" ]] && brew install nushell
 elif [[ "${INSTALL_FROM_SOURCE}" == "no" ]]; then
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
+    [[ -z "${OS_INFO_VDIS}" ]] && get_sysArch
 
     case "${OS_INFO_TYPE}" in
         darwin)
-            ARCHIVE_EXT="zip"
-            REMOTE_FILENAME="nu_${REMOTE_VERSION//./_}_macOS.${ARCHIVE_EXT}"
+            case "${OS_INFO_VDIS}" in
+                64)
+                    REMOTE_FILENAME="nu-${REMOTE_VERSION}-x86_64-apple-${OS_INFO_TYPE}.${ARCHIVE_EXT}"
+                    ;;
+                arm64)
+                    REMOTE_FILENAME="nu-${REMOTE_VERSION}-aarch64-apple-${OS_INFO_TYPE}.${ARCHIVE_EXT}"
+                    ;;
+            esac
+            ;;
+        linux)
+            case "${OS_INFO_VDIS}" in
+                64)
+                    REMOTE_FILENAME="nu-${REMOTE_VERSION}-x86_64-unknown-${OS_INFO_TYPE}-musl.${ARCHIVE_EXT}"
+                    ;;
+                arm)
+                    REMOTE_FILENAME="nu-${REMOTE_VERSION}-armv7-unknown-${OS_INFO_TYPE}-gnueabihf.${ARCHIVE_EXT}"
+                    ;;
+                arm64)
+                    REMOTE_FILENAME="nu-${REMOTE_VERSION}-aarch64-unknown-${OS_INFO_TYPE}-gnu.${ARCHIVE_EXT}"
+                    ;;
+            esac
             ;;
         windows)
             ARCHIVE_EXT="zip"
-            REMOTE_FILENAME="nu_${REMOTE_VERSION//./_}_${OS_INFO_TYPE}.${ARCHIVE_EXT}"
-            ;;
-        linux)
-            REMOTE_FILENAME="nu_${REMOTE_VERSION//./_}_${OS_INFO_TYPE}.${ARCHIVE_EXT}"
+            REMOTE_FILENAME="nu-${REMOTE_VERSION}-x86_64-pc-${OS_INFO_TYPE}-msvc.${ARCHIVE_EXT}"
             ;;
     esac
 
@@ -123,6 +140,8 @@ if [[ "${IS_INSTALL}" == "yes" && "${INSTALL_FROM_SOURCE}" == "no" ]]; then
     fi
 
     # Download file
+    DOWNLOAD_FILENAME="${WORKDIR}/${APP_INSTALL_NAME}.tar.gz"
+
     DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/${REMOTE_VERSION}/${REMOTE_FILENAME}"
     colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
@@ -166,8 +185,9 @@ if [[ "${IS_INSTALL}" == "yes" && "${INSTALL_FROM_SOURCE}" == "no" ]]; then
         [[ -z "${ARCHIVE_EXEC_DIR}" || ! -d "${ARCHIVE_EXEC_DIR}" ]] && ARCHIVE_EXEC_DIR=${WORKDIR}
 
         if [[ -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]]; then
+            rm "${DOWNLOAD_FILENAME}"
             sudo mkdir -p "${EXEC_INSTALL_PATH}" && \
-                sudo cp -f "${ARCHIVE_EXEC_DIR}"/* "${EXEC_INSTALL_PATH}" && \
+                sudo cp -f "${ARCHIVE_EXEC_DIR}"/nu* "${EXEC_INSTALL_PATH}" && \
                 sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
                 sudo ln -sv "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" "/usr/local/bin/nu" || true
         fi
