@@ -54,6 +54,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         dbus-glib-devel
         gobject-introspection
         gobject-introspection-devel
+        pkgconf
         pkg-config
         python3-dev
         python3-devel

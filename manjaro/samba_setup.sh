@@ -27,7 +27,7 @@ colorEcho "${BLUE}Setting share folder to ${FUCHSIA}${HOME}/share${BLUE}..."
 sudo mv "/etc/samba/smb.conf" "/etc/samba/smb.conf.bak"
 
 # Create a Linux user `guest` which anonymous Samba users will be mapped to
-[[ $(id guest 2>/dev/null) ]] && sudo useradd guest -s /bin/nologin
+id guest 2>/dev/null || sudo useradd guest -s /bin/nologin
 
 SAMBA_WORKGROUP=${1:-"WORKGROUP"}
 SAMBA_NETBIOS_NAME=$(uname -n 2>/dev/null)

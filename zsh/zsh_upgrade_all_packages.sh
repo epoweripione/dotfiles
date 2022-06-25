@@ -93,25 +93,6 @@ if [[ -x "$(command -v micro)" ]]; then
 fi
 
 
-# if [[ -x "$(command -v pear)" ]]; then
-#     colorEcho "${BLUE}Updating ${FUCHSIA}pear${BLUE}..."
-#     pear upgrade --force PEAR && pear upgrade -all
-#     # pecl update-channels && rm -rf /tmp/pear "$HOME/.pearrc"
-# fi
-
-
-# if [[ -x "$(command -v pip)" ]]; then
-#     colorEcho "${BLUE}Updating ${FUCHSIA}pip packages${BLUE}..."
-#     sudo pip list -o | grep -E -v '^-|^Package' | cut -d' ' -f1 | sudo xargs -n1 pip install -U
-# fi
-
-
-# if [[ "$(command -v fuck)" && -x "$(command -v pip)" ]]; then
-#     colorEcho "${BLUE}Updating ${FUCHSIA}thefuck${BLUE}..."
-#     sudo pip install thefuck --upgrade
-# fi
-
-
 if [[ -d "$HOME/.jabba" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}jabba${BLUE}..."
     if type 'jabba' 2>/dev/null | grep -q 'function'; then
@@ -171,6 +152,7 @@ AppList=(
     "git-delta"
     "lazygit"
     "lnav"
+    "magic-wormhole"
     # "nano"
     "navi"
     "nnn"
@@ -256,14 +238,6 @@ unset AppInstaller
 unset OS_INFO_WSL
 unset IS_UPDATE_ONLY
 
-# if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
-#     colorEcho "${BLUE}Updating ${FUCHSIA}pip installed packages${BLUE}..."
-#     if [[ -x "$(command -v pip)" ]]; then
-#         pip list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 pip install --user --ignore-installed -U 2>/dev/null
-#     elif [[ -x "$(command -v pip3)" ]]; then
-#         pip3 list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 pip3 install --user --ignore-installed -U 2>/dev/null
-#     fi
-# fi
 
 if [[ -x "$(command -v conda)" ]]; then
     # colorEcho "${BLUE}Updating ${FUCHSIA}conda${BLUE}..."
@@ -329,6 +303,12 @@ if [[ -x "$(command -v brew)" ]]; then
     # brew cleanup
     brew update
     brew upgrade
+fi
+
+if [[ -x "$(command -v pip)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}pip installed packages${BLUE}..."
+    # sudo pip list -o | grep -E -v '^-|^Package' | cut -d" " -f1 | sudo xargs -n1 pip install -U
+    pip list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 pip install --user -U
 fi
 
 if [[ -n "$ZSH" ]]; then

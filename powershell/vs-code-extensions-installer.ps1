@@ -28,7 +28,6 @@ $extensions = @(
     # Editing
     "aaron-bond.better-comments"
 	"esbenp.prettier-vscode"
-	"Hookyqr.beautify"
 	"oderwat.indent-rainbow"
 	"tabnine.tabnine-vscode"
     ## Core
@@ -71,7 +70,7 @@ $extensions = @(
     ## powershell
 	"ms-vscode.powershell"
 	## rust
-	"rust-lang.rust"
+	"rust-lang.rust-analyzer"
 	"bungcip.better-toml"
 	"serayuzgur.crates"
 	## cht.sh snippets

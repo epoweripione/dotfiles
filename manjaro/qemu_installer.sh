@@ -144,45 +144,10 @@ sudo virsh net-start default
 ## Import the VM
 # sudo virsh define [name_of_vm].xml
 
-
-## Run Windows apps
-## https://github.com/Osmium-Linux/winapps
-# Git_Clone_Update_Branch "Osmium-Linux/winapps" "$HOME/winapps"
-
-## Set up KVM to run as your user instead of root and allow it through AppArmor
-# sudo sed -i "s/#user = \"root\"/user = \"$(id -un)\"/g" "/etc/libvirt/qemu.conf"
-# sudo sed -i "s/#group = \"root\"/group = \"$(id -gn)\"/g" "/etc/libvirt/qemu.conf"
-# sudo usermod -a -G kvm "$(id -un)"
-# sudo usermod -a -G libvirt "$(id -un)"
-# sudo systemctl restart libvirtd
-## sudo ln -s /etc/apparmor.d/usr.sbin.libvirtd /etc/apparmor.d/disable/
-# sleep 5
-## Marked network default as autostarted
-# sudo virsh net-autostart default
-# sudo virsh net-start default
-
-# mkdir -p "$HOME/.config/winapps/"
-# tee "$HOME/.config/winapps/winapps.conf" >/dev/null <<-EOF
-# RDP_USER="MyWindowsUser"
-# RDP_PASS="MyWindowsPassword"
-# #RDP_DOMAIN="MYDOMAIN"
-# #RDP_IP="192.168.123.111"
-# #RDP_SCALE=100
-# #RDP_FLAGS=""
-# #MULTIMON="true"
-# #DEBUG="true"
-# #VIRT_MACHINE_NAME="machine-name"
-# #VIRT_NEEDS_SUDO="true"
-# #RDP_SECRET="account"
-# EOF
-
-## add the RDP password for lookup using secret tool
-# secret-tool store --label='winapps' winapps account
-
-# if [[ -d "$HOME/winapps" ]]; then
-#     cd "$HOME/winapps" && bin/winapps check
-#     ./installer.sh --user
-# fi
+## Find the IP addresses of VMs
+# sudo virsh net-info default
+# sudo virsh net-dhcp-leases default
+# sudo virsh domifaddr [name_of_vm]
 
 
 cd "${CURRENT_DIR}" || exit

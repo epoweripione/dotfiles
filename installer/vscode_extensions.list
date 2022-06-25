@@ -14,9 +14,6 @@ christian-kohler.npm-intellisense
 christian-kohler.path-intellisense
 esbenp.prettier-vscode
 fernandoescolar.vscode-solution-explorer
-formulahendry.auto-close-tag
-formulahendry.auto-rename-tag
-hookyqr.beautify
 oderwat.indent-rainbow
 streetsidesoftware.code-spell-checker
 visualstudioexptteam.vscodeintellicode
@@ -69,7 +66,6 @@ syler.sass-indented
 sidthesloth.html5-boilerplate
 stylelint.vscode-stylelint
 vincaslt.highlight-matching-tag
-formulahendry.auto-rename-tag
 bradlc.vscode-tailwindcss
 ## JAVA
 redhat.java
@@ -106,7 +102,9 @@ msjsdiag.cordova-tools
 svelte.svelte-vscode
 ardenivanov.svelte-intellisense
 fivethree.vscode-svelte-snippets
+resvelte.resvelte
 ## Vue
+octref.vetur
 johnsoncodehk.volar
 dariofuzinato.vue-peek
 abdelaziz18003.quasar-snippets
@@ -153,7 +151,7 @@ ms-vscode.powershell
 ## ruby
 rebornix.ruby
 ## rust
-rust-lang.rust
+rust-lang.rust-analyzer
 bungcip.better-toml
 serayuzgur.crates
 ## cht.sh snippets

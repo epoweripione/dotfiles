@@ -76,7 +76,8 @@ sudo pacman --noconfirm --needed -S firefox-i18n-zh-cn thunderbird-i18n-zh-cn ma
 [[ -x "$(command -v gimp)" ]] && sudo pacman --noconfirm --needed -S gimp-help-zh_cn
 
 # Build deps
-sudo pacman --noconfirm --needed -S cmake patch pkg-config automake
+sudo pacman --noconfirm --needed -S base-devel
+sudo pacman --noconfirm --needed -S cmake
 
 # pre-requisite packages
 colorEcho "${BLUE}Installing ${FUCHSIA}pre-requisite packages${BLUE}..."

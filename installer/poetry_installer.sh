@@ -47,6 +47,19 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${IS_INSTALL}" == "yes" ]]; then
+    if [[ -x "$(command -v pacman)" ]]; then
+        # Pre-requisite packages
+        PackagesList=(
+            python3-venv
+        )
+        for TargetPackage in "${PackagesList[@]}"; do
+            if checkPackageNeedInstall "${TargetPackage}"; then
+                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
+                sudo pacman --noconfirm -S "${TargetPackage}"
+            fi
+        done
+    fi
+
     colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
     if [[ -x "$(command -v poetry)" ]]; then
         poetry self update

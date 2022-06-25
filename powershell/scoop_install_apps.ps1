@@ -262,6 +262,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "lsd"
         "mkcert"
         "nu"
+        "openark"
         "procs"
         "smartmontools"
         "usql"
