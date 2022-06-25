@@ -307,8 +307,8 @@ fi
 
 if [[ -x "$(command -v pip)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}pip installed packages${BLUE}..."
-    # sudo pip list -o | grep -E -v '^-|^Package' | cut -d" " -f1 | sudo xargs -n1 pip install -U
-    pip list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 pip install --user -U
+    # noproxy_cmd sudo pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | sudo xargs --no-run-if-empty -n1 pip install -U
+    noproxy_cmd pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs --no-run-if-empty -n1 pip install --user -U
 fi
 
 if [[ -n "$ZSH" ]]; then

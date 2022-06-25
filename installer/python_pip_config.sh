@@ -35,8 +35,7 @@ fi
 # python3 -m pip install --user -U setuptools wheel
 
 ## update all outdated packages
-# pip3 list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 pip3 install -U
-# pip list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 pip install -U
+# noproxy_cmd pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs --no-run-if-empty -n1 pip install --user -U
 
 ## Install and use pip in a local directory without root/sudo access
 ## https://gist.github.com/saurabhshri/46e4069164b87a708b39d947e4527298
@@ -129,10 +128,14 @@ PIP_CONFIG="$HOME/.pip/pip.conf"
 
 # fix `pip list` warning
 if ! grep -q "format=columns" "${PIP_CONFIG}" 2>/dev/null; then
-    echo -e "[global]\nformat=columns" >> "${PIP_CONFIG}"
+    if ! grep -q "^\[global\]" "${PIP_CONFIG}" 2>/dev/null; then
+        echo "[global]" >> "${PIP_CONFIG}"
+    fi
+    sed -i "/^\[global\]/a\format=columns" "${PIP_CONFIG}"
 fi
 
-# pip mirror
+## pip mirror
+# pip config list
 # alias pip="pip --proxy 127.0.0.1:8080"
 # alias pipinstall='pip install -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com'
 PIP_MIRROR_URL=https://mirrors.aliyun.com/pypi/simple/
@@ -155,6 +158,15 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]] && ! grep -q "${PIP_MIRROR_HOST}" "${P
 fi
 
 cat "${PIP_CONFIG}"
+
+: '
+[global]
+index-url=https://mirrors.aliyun.com/pypi/simple/
+format=columns
+
+[install]
+trusted-host=mirrors.aliyun.com
+# '
 
 
 if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
@@ -196,4 +208,4 @@ if [[ ! -s "/root/.pip/pip.conf" ]]; then
 fi
 
 ## Upgrade installed system packages
-# sudo pip list -o | grep -Ev "^-|^Package" | cut -d" " -f1 | xargs -n1 sudo pip install -U
+# noproxy_cmd sudo pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | sudo xargs --no-run-if-empty -n1 pip install -U
