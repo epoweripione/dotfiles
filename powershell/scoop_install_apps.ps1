@@ -191,6 +191,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "beekeeper-studio"
         "dbeaver"
         "dbgate"
+        "notepad3"
+        "notepadplusplus"
         # "vscode"
         # "wechatdevtools"
         "wireshark"
