@@ -81,6 +81,9 @@ if [[ ${curl_download_status} -eq 0 ]]; then
     pip install "${DOWNLOAD_FILENAME}"
 fi
 
+# $HOME/.config/casualrdh/config.json
+# $HOME/.config/casualrdh/casualrdh.log
+
 ## Launch cassowary configuration utility with:
 # python3 -m cassowary -a
 
@@ -95,6 +98,31 @@ fi
 ## Now you can find application on your application menu 
 ## which you can use to launch apps easily You can explore other commandline usage of cassowary by running:
 # python -m cassowary -h
+
+## Launch VM
+# xfreerdp /d:"{domain}" /u:"{user}" /p:"{passd}" /v:"{ip}" \
+#     +auto-reconnect +clipboard +decorations -wallpaper \
+#     /f /floatbar:sticky:on,default:visible,show:always \
+#     /a:drive,root,"$HOME"  \
+#     /cert-ignore /span /wm-class:"cassowary" 1>/dev/null 2>&1 &
+
+# Installing desktop menu items
+# https://linux.die.net/man/1/xdg-desktop-menu
+mkdir -p "$HOME/.local/share/desktop-directories"
+tee "$HOME/.local/share/desktop-directories/CasualRDH-apps.directory" >/dev/null <<-'EOF'
+[Desktop Entry]
+Version=1.0
+Type=Directory
+Name=CasualRDH
+Name[zh_CN]=CasualRDH 应用
+Icon=distributor-logo-windows
+EOF
+
+grep -E 'Cassowary|CasualRDH;' "$HOME/.local/share/applications/"* | cut -d: -f1 \
+    | xargs --no-run-if-empty -n1 xdg-desktop-menu install --noupdate \
+        "$HOME/.local/share/desktop-directories/CasualRDH-apps.directory"
+
+xdg-desktop-menu forceupdate
 
 
 cd "${CURRENT_DIR}" || exit

@@ -169,6 +169,9 @@ sudo pacman --noconfirm --needed -S copyq
 colorEcho "${BLUE}Installing ${FUCHSIA}develop tools${BLUE}..."
 sudo pacman --noconfirm --needed -S jre17-openjdk
 sudo pacman --noconfirm --needed -S dbeaver wireshark-qt
+yay --noconfirm --needed -S community/geany community/geany-plugins aur/geany-themes
+# yay --noconfirm --needed -S aur/notepadqq-git
+# yay --noconfirm --needed -S aur/notepadnext
 yay --noconfirm --needed -S visual-studio-code-bin
 
 # Dictionary

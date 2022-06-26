@@ -60,6 +60,15 @@ if [[ -d "$HOME/winapps" ]]; then
     ./installer.sh --user
 fi
 
+# Keyboard layout
+# xfreerdp /kbd-list | grep "Chinese"
+
+## xfreerdp options
+# if [[ -s "$HOME/.local/bin/winapps" ]]; then
+#     sed -i 's|+clipboard|/floatbar:sticky:on,default:visible,show:always +clipboard|g' "$HOME/.local/bin/winapps"
+#     sed -i 's/+clipboard/+clipboard +aero +menu-anims +gestures +multitouch/g' "$HOME/.local/bin/winapps"
+# fi
+
 ## BIN_PATH="${HOME}/.local/bin"
 ## APP_PATH="${HOME}/.local/share/applications"
 ## SYS_PATH="${HOME}/.local/share/winapps"
@@ -67,6 +76,25 @@ fi
 ## Run windows apps
 ## Microsoft Word (Office 365)
 # cd "$HOME/winapps" && ./bin/winapps manual "C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE"
+
+
+# Installing desktop menu items
+# https://linux.die.net/man/1/xdg-desktop-menu
+mkdir -p "$HOME/.local/share/desktop-directories"
+tee "$HOME/.local/share/desktop-directories/WinApps-apps.directory" >/dev/null <<-'EOF'
+[Desktop Entry]
+Version=1.0
+Type=Directory
+Name=WinApps
+Name[zh_CN]=Windows 应用
+Icon=distributor-logo-windows
+EOF
+
+grep 'WinApps;' "$HOME/.local/share/applications/"* | cut -d: -f1 \
+    | xargs --no-run-if-empty -n1 xdg-desktop-menu install --noupdate \
+        "$HOME/.local/share/desktop-directories/WinApps-apps.directory"
+
+xdg-desktop-menu forceupdate
 
 
 cd "${CURRENT_DIR}" || exit

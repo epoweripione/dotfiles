@@ -72,7 +72,7 @@ EOF
 
 ## apt mirror
 # apt edit-sources
-# termux-change-repo
+termux-change-repo
 
 # colorEcho "${BLUE}Setting ${FUCHSIA}apt mirror${BLUE}..."
 # sed -i 's/^deb /# deb /g' "$PREFIX/etc/apt/sources.list"
