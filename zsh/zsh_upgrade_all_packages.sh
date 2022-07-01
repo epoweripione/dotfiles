@@ -305,7 +305,7 @@ if [[ -x "$(command -v brew)" ]]; then
     brew upgrade
 fi
 
-if [[ -x "$(command -v pip)" ]]; then
+if [[ $UID -ne 0 && -x "$(command -v pip)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}pip installed packages${BLUE}..."
     # noproxy_cmd sudo pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | sudo xargs --no-run-if-empty -n1 pip install -U
     noproxy_cmd pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs --no-run-if-empty -n1 pip install --user -U

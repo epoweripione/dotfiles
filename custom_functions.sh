@@ -2217,6 +2217,9 @@ function asdf_App_Update() {
         colorEcho "${BLUE}  Updating ${FUCHSIA}${InstalledApp}${BLUE} to ${YELLOW}${latestVersion}${BLUE}..."
         asdf plugin update "${InstalledApp}"
 
+        # Uninstall first if specify appVersion (stable, lts...)
+        [[ "${latestVersion}" == "${currentVersion}" ]] && asdf uninstall "${InstalledApp}" "${currentVersion}"
+
         if [[ "${appName}" == "nodejs" ]]; then
             [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
             if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
@@ -2233,8 +2236,10 @@ function asdf_App_Update() {
         fi
 
         if [[ ${appInstallStatus} -eq 0 ]]; then
-            asdf uninstall "${InstalledApp}" "${currentVersion}"
             asdf global "${InstalledApp}" "${latestVersion}"
+
+            # Uninstall old version
+            [[ "${latestVersion}" == "${currentVersion}" ]] || asdf uninstall "${InstalledApp}" "${currentVersion}"
         fi
     done <<<"${InstalledPlugins}"
 }

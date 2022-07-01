@@ -175,6 +175,9 @@ if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
     # noproxy_cmd ${PYTHON_CMD} -m pip install --user -U pysocks
     sudo ${PYTHON_CMD} -m pip install -U pysocks
 
+    colorEcho "${BLUE}Installing ${FUCHSIA}pip package ${ORANGE}virtualenv${BLUE}..."
+    sudo ${PYTHON_CMD} -m pip install -U virtualenv
+
     ## pipq: Yet another pip search
     # pipq search numpy
     # pipq pkg numpy

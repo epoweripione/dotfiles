@@ -1,17 +1,14 @@
 // https://www.baeldung.com/linux/command-line-website-screenshots
 // npm install minimist puppeteer puppeteer-extra puppeteer-extra-plugin-stealth
+// npx envinfo@latest --system --binaries --npmPackages '*(puppeteer*|playwright*|automation-extra*|@extra*)'
 
-// // print process.argv
 // process.argv.forEach(function (val, index, array) {
 //     console.log(index + ': ' + val);
 // });
 const args = require('minimist')(process.argv.slice(2));
 
-// puppeteer run js
-// https://xiday.com/2019/09/21/puppeteer-run-js/
-
-// node nodejs/puppeteer_screenshot.js --url="https://nodejs.org/en/" --element="#logo > img" --output="$HOME/screenshot.png"
-// node nodejs/puppeteer_screenshot.js --url="file://$HOME/.config/conky/hybrid/weather_wttr.html" --element="#weather" --output="$HOME/.config/conky/hybrid/weather_wttr.png"
+// node nodejs/puppeteer_screenshot.js --url="https://nodejs.org/en/" --Element="#logo > img" --Output="$HOME/screenshot.png"
+// node nodejs/puppeteer_screenshot.js --url="file://$HOME/.config/conky/hybrid/weather_wttr.html" --Element="#weather" --Output="$HOME/.config/conky/hybrid/weather_wttr.png"
 // node nodejs/puppeteer_screenshot.js --url="https://wannianli.tianqi.com/" \
 //     --Element="#cal_body" \
 //     --RemoveElement=".xcx_erweima,.info,.elevator-module,.more,.ming_ci_jie_shi,.copy,#cal_funcbar" \
@@ -19,14 +16,16 @@ const args = require('minimist')(process.argv.slice(2));
 //     --ReplaceWithHTML="<span>历史上的今天</span>" \
 //     --Output="$HOME/.config/conky/hybrid/calendar.png"
 // console.log(args.url): https://nodejs.org/en/
-// console.log(args.element): #logo > img
+// console.log(args.Element): #logo > img
 const url = args.url;
-const Element = args.Element;
+const CaptureElement = args.Element;
 const RemoveElement = args.RemoveElement;
 const AcceptCookies = args.AcceptCookies;
 const ReplaceElement = args.ReplaceElement;
 const ReplaceWithHTML = args.ReplaceWithHTML;
 const Output = args.Output;
+
+const DisableStealth = args.DisableStealth;
 
 // Avoid Detection of Headless Chromium
 // https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth
@@ -34,8 +33,10 @@ const Output = args.Output;
 // it augments the installed puppeteer with plugin functionality
 const puppeteer = require('puppeteer-extra');
 // add stealth plugin and use defaults (all evasion techniques)
-const pluginStealth = require('puppeteer-extra-plugin-stealth')();
-puppeteer.use(pluginStealth);
+if (! DisableStealth) {
+    const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+    puppeteer.use(StealthPlugin());
+}
 
 const os = require("os");
 const fs = require('fs');
@@ -85,7 +86,11 @@ const PuppeteerScreenshotFull = async () => {
     const browser = await puppeteer.launch({headless: true, userDataDir: `${UserDataDir}`});
     const page = await browser.newPage();
 
+    // await page.setViewport({width: 1024, height: 768});
+
     await page.goto(url);
+
+    // await page.waitForTimeout(3000);
 
     // Remove element before screenshot
     if (RemoveElement) {
@@ -126,9 +131,13 @@ const PuppeteerScreenshotElement = async () => {
     const browser = await puppeteer.launch({headless: true, userDataDir: `${UserDataDir}`});
     const page = await browser.newPage();
 
+    await page.setViewport({width: 1024, height: 768});
+
     await page.goto(url);
 
-    await page.waitForSelector(Element);
+    // await page.waitForTimeout(3000);
+
+    await page.waitForSelector(CaptureElement);
 
     // Remove element before screenshot
     if (RemoveElement) {
@@ -155,7 +164,7 @@ const PuppeteerScreenshotElement = async () => {
         }, ReplaceElement, ReplaceWithHTML);
     }
 
-    const pageElement = await page.$(Element);
+    const pageElement = await page.$(CaptureElement);
     await pageElement.screenshot({
         path: `${OutputFile}`
     });
@@ -168,7 +177,7 @@ if (AcceptCookies) {
     PuppeteerAcceptCookies();
 }
 
-if (Element) {
+if (CaptureElement) {
     PuppeteerScreenshotElement();
 } else {
     PuppeteerScreenshotFull();
