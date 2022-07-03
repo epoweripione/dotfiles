@@ -25,7 +25,7 @@ APP_INSTALL_NAME="git-lfs"
 GITHUB_REPO_NAME="git-lfs/git-lfs"
 
 ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_DIR=""
+ARCHIVE_EXEC_DIR="git-lfs*"
 ARCHIVE_EXEC_NAME="git-lfs"
 
 EXEC_INSTALL_PATH="/usr/local/bin"
@@ -121,6 +121,14 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
             sudo cp -f "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
                 sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
                 [[ -n "${VERSION_FILENAME}" ]] && echo "${REMOTE_VERSION}" | sudo tee "${VERSION_FILENAME}" >/dev/null || true
+        fi
+
+        if [[ -d "${ARCHIVE_EXEC_DIR}/man/man1" ]]; then
+            sudo cp -f "${ARCHIVE_EXEC_DIR}/man/man1/"* "/usr/share/man/man1"
+        fi
+
+        if [[ -d "${ARCHIVE_EXEC_DIR}/man/man5" ]]; then
+            sudo cp -f "${ARCHIVE_EXEC_DIR}/man/man5/"* "/usr/share/man/man5"
         fi
     fi
 

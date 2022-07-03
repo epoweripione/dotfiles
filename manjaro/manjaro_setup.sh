@@ -78,6 +78,9 @@ fi
 # Setup pacman repository & AUR & install pre-requisite packages
 [[ -s "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh"
 
+# snap
+[[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
+
 # Network
 [[ -s "${MY_SHELL_SCRIPTS}/manjaro/network_setup.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/network_setup.sh"
 
@@ -252,7 +255,7 @@ sudo tlp start
 
 # System
 colorEcho "${BLUE}Installing ${FUCHSIA}system tools${BLUE}..."
-sudo pacman --noconfirm --needed -S btop font-manager filelight peek redshift ventoy-bin
+sudo pacman --noconfirm --needed -S font-manager filelight peek redshift ventoy-bin
 # yay --noconfirm --needed -S easystroke
 
 # Terminal

@@ -83,7 +83,10 @@ if [[ -x "$(command -v pacman)" ]]; then
 fi
 
 # Init snap
-[[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
+if [[ ! -d "/snap" && -x "$(command -v snap)" && -d "/var/lib/snapd/snap" ]]; then
+    [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && \
+        source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
+fi
 
 if [[ -x "$(command -v snap)" && ! -x "$(command -v android-studio)" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}Android Studio${BLUE}..."

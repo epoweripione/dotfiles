@@ -69,6 +69,7 @@ mkdir -p "${WORKDIR}/FiraCode-Mono" && \
 # fc-list | grep "FiraCode" | column -t -s ":"
 
 # CJK fontconfig & colour emoji
+# [用 fontconfig 治理 Linux 中的字体](https://catcat.cc/post/2021-03-07/)
 # https://wiki.archlinux.org/title/Localization_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)/Simplified_Chinese_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
 colorEcho "${BLUE}Setting ${FUCHSIA}CJK fontconfig & colour emoji${BLUE}..."
 sudo tee "/etc/fonts/local.conf" >/dev/null <<-'EOF'
@@ -139,7 +140,15 @@ sudo pacman --noconfirm --needed -Rs "$(pacman -Qsq fcitx)"
 sudo pacman --noconfirm --needed -S fcitx5-im && \
     sudo pacman --noconfirm --needed -S fcitx5-material-color fcitx5-chinese-addons && \
     sudo pacman --noconfirm --needed -S fcitx5-pinyin-zhwiki fcitx5-pinyin-moegirl
-# sudo pacman --noconfirm --needed -S fcitx5-anthy fcitx5-rime rime-cloverpinyin
+
+# fcitx5-chinese-addons: 简体中文 | Simplified Chinese
+# fcitx5-rime: 繁體中文 | Traditional Chinese
+# fcitx5-mozc: 日本語 | Japanese
+# fcitx5-anthy: 日本語 | Japanese
+# fcitx5-hangul: 한국어 | Korean
+# fcitx5-unikey: Tiếng Việt | Vietnamese
+# fcitx5-m17n: other languages provided by M17n(http://www.nongnu.org/m17n/)
+sudo pacman --noconfirm --needed -S fcitx5-m17n 
 
 if ! grep -q "^GTK_IM_MODULE" "$HOME/.pam_environment" 2>/dev/null; then
     tee -a "$HOME/.pam_environment" >/dev/null <<-'EOF'
@@ -166,6 +175,188 @@ fcitx5 &
 EOF
 fi
 
+# Rime
+# https://github.com/rime/home/wiki/UserGuide
+# rime-cloverpinyin
+# https://github.com/fkxxyz/rime-cloverpinyin
+# ~/.local/share/fcitx5/rime/
+colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 Rime support${BLUE}..."
+sudo pacman --noconfirm --needed -S fcitx5-rime rime-cloverpinyin
+
+# Rime Emoji & Symbols
+yay --noconfirm --needed -S rime-opencc-emoji-symbols-git
+
+# merge emoji & symbol
+# /usr/share/rime-data/opencc/symbol_category.txt
+if  [[ -s "/usr/share/rime-data/opencc/symbol_category.txt" && -s "/usr/share/rime-data/opencc/emoji_category.txt" ]]; then
+    awk '{print $1}' \
+            "/usr/share/rime-data/opencc/emoji_category.txt" \
+            "/usr/share/rime-data/opencc/emoji_word.txt" \
+        | uniq > "${WORKDIR}/wordlist.txt"
+
+    grep -wvf "${WORKDIR}/wordlist.txt" "/usr/share/rime-data/opencc/symbol_category.txt" \
+        | grep -Ev '^\s' \
+        | sudo tee -a "/usr/share/rime-data/opencc/emoji_category.txt" >/dev/null
+fi
+
+# /usr/share/rime-data/opencc/symbol_word.txt
+if  [[ -s "/usr/share/rime-data/opencc/symbol_word.txt" && -s "/usr/share/rime-data/opencc/emoji_word.txt" ]]; then
+    awk '{print $1}' \
+            "/usr/share/rime-data/opencc/emoji_category.txt" \
+            "/usr/share/rime-data/opencc/emoji_word.txt" \
+        | uniq > "${WORKDIR}/wordlist.txt"
+    
+    DUPLICATE_ENTRY=$(awk '{print $1}' "/usr/share/rime-data/opencc/symbol_word.txt" | sort | uniq -cd | awk '{print $2}')
+    while read -r DUPLICATE_WORD; do
+        [[ -z "${DUPLICATE_WORD}" ]] && continue
+        sudo sed -i "0,/${DUPLICATE_WORD}/b; /${DUPLICATE_WORD}/d" "/usr/share/rime-data/opencc/symbol_word.txt"
+    done <<<"${DUPLICATE_ENTRY}"
+
+    grep -wvf "${WORKDIR}/wordlist.txt" "/usr/share/rime-data/opencc/symbol_word.txt" \
+        | grep -Ev '^\s' \
+        | sudo tee -a "/usr/share/rime-data/opencc/emoji_word.txt" >/dev/null
+fi
+
+# /usr/share/rime-data/opencc/es.txt
+if  [[ -s "/usr/share/rime-data/opencc/es.txt" && -s "/usr/share/rime-data/opencc/emoji_word.txt" ]]; then
+    awk '{print $1}' \
+            "/usr/share/rime-data/opencc/emoji_category.txt" \
+            "/usr/share/rime-data/opencc/emoji_word.txt" \
+        | uniq > "${WORKDIR}/wordlist.txt"
+    
+    DUPLICATE_ENTRY=$(awk '{print $1}' "/usr/share/rime-data/opencc/es.txt" | sort | uniq -cd | awk '{print $2}')
+    while read -r DUPLICATE_WORD; do
+        [[ -z "${DUPLICATE_WORD}" ]] && continue
+        sudo sed -i "0,/${DUPLICATE_WORD}/b; /${DUPLICATE_WORD}/d" "/usr/share/rime-data/opencc/es.txt"
+    done <<<"${DUPLICATE_ENTRY}"
+
+    grep -wvf "${WORKDIR}/wordlist.txt" "/usr/share/rime-data/opencc/es.txt" \
+        | grep -Ev '^\s' \
+        | sudo tee -a "/usr/share/rime-data/opencc/emoji_word.txt" >/dev/null
+fi
+
+# setting rime-cloverpinyin
+tee "$HOME/.local/share/fcitx5/rime/default.custom.yaml" >/dev/null <<-'EOF'
+patch:
+  "menu/page_size": 9
+  schema_list:
+    - schema: clover
+EOF
+
+# https://github.com/fkxxyz/rime-cloverpinyin/wiki/issues
+tee "$HOME/.local/share/fcitx5/rime/clover.custom.yaml" >/dev/null <<-'EOF'
+patch:
+  speller/algebra:
+    # 模糊音定义
+    # 需要哪组就删去行首的 # 号，单双向任选
+    #- derive/^([zcs])h/$1/             # zh, ch, sh => z, c, s
+    - derive/^([zcs])([^h])/$1h$2/     # z, c, s => zh, ch, sh
+
+    #- derive/^n/l/                     # n => l
+    #- derive/^l/n/                     # l => n
+
+    # 这两组一般是单向的
+    #- derive/^r/l/                     # r => l
+
+    #- derive/^ren/yin/                 # ren => yin, reng => ying
+    #- derive/^r/y/                     # r => y
+
+    # 下面 hu <=> f 这组写法复杂一些，分情况讨论
+    #- derive/^hu$/fu/                  # hu => fu
+    #- derive/^hong$/feng/              # hong => feng
+    #- derive/^hu([in])$/fe$1/          # hui => fei, hun => fen
+    #- derive/^hu([ao])/f$1/            # hua => fa, ...
+
+    #- derive/^fu$/hu/                  # fu => hu
+    #- derive/^feng$/hong/              # feng => hong
+    #- derive/^fe([in])$/hu$1/          # fei => hui, fen => hun
+    #- derive/^f([ao])/hu$1/            # fa => hua, ...
+
+    # 韵母部份
+    #- derive/^([bpmf])eng$/$1ong/      # meng = mong, ...
+    #- derive/([ei])n$/$1ng/            # en => eng, in => ing
+    #- derive/([ei])ng$/$1n/            # eng => en, ing => in
+
+    # 反模糊音？
+    # 谁说方言没有普通话精确、有模糊音，就能有反模糊音。
+    # 示例为分尖团的中原官话：
+    #- derive/^ji$/zii/   # 在设计者安排下鸠占鹊巢，尖音 i 只好双写了
+    #- derive/^qi$/cii/
+    #- derive/^xi$/sii/
+    #- derive/^ji/zi/
+    #- derive/^qi/ci/
+    #- derive/^xi/si/
+    #- derive/^ju/zv/
+    #- derive/^qu/cv/
+    #- derive/^xu/sv/
+
+    # 韵母部份，只能从大面上覆盖
+    #- derive/^([bpm])o$/$1eh/          # bo => beh, ...
+    #- derive/(^|[dtnlgkhzcs]h?)e$/$1eh/  # ge => geh, se => sheh, ...
+    #- derive/^([gkh])uo$/$1ue/         # guo => gue, ...
+    #- derive/^([gkh])e$/$1uo/          # he => huo, ...
+    #- derive/([uv])e$/$1o/             # jue => juo, lve => lvo, ...
+    #- derive/^fei$/fi/                 # fei => fi
+    #- derive/^wei$/vi/                 # wei => vi
+    #- derive/^([nl])ei$/$1ui/          # nei => nui, lei => lui
+    #- derive/^([nlzcs])un$/$1vn/       # lun => lvn, zun => zvn, ... 
+    #- derive/^([nlzcs])ong$/$1iong/    # long => liong, song => siong, ...
+    # 这个办法虽从拼写上做出了区分，然而受词典制约，候选字仍是混的。
+    # 只有真正的方音输入方案才能做到！但「反模糊音」这个玩法快速而有效！
+
+    # 模糊音定义先于简拼定义，方可令简拼支持以上模糊音
+    - abbrev/^([a-z]).+$/$1/           # 簡拼（首字母）
+    - abbrev/^([zcs]h).+$/$1/          # 簡拼（zh, ch, sh）
+
+    # 以下是一组容错拼写，《汉语拼音》方案以前者为正
+    - derive/^([nl])ve$/$1ue/          # nve = nue, lve = lue
+    - derive/^([jqxy])u/$1v/           # ju = jv,
+    - derive/un$/uen/                  # gun = guen,
+    - derive/ui$/uei/                  # gui = guei,
+    - derive/iu$/iou/                  # jiu = jiou,
+
+    # 自动纠正一些常见的按键错误
+    - derive/([aeiou])ng$/$1gn/        # dagn => dang 
+    - derive/([dtngkhrzcs])o(u|ng)$/$1o/  # zho => zhong|zhou
+    - derive/ong$/on/                  # zhonguo => zhong guo
+    - derive/ao$/oa/                   # hoa => hao
+    - derive/([iu])a(o|ng?)$/a$1$2/    # tain => tian
+
+#   switches:
+#     - name: zh_simp_s2t
+#       reset: 0
+#       states: [ 简, 繁 ]
+#     - name: emoji_suggestion
+#       reset: 1
+#       states: [ "🈚️️\uFE0E", "🈶️️\uFE0F" ]
+#     - name: symbol_support
+#       reset: 1
+#       states: [ "无符", "符" ]
+#     - name: ascii_punct
+#       reset: 0
+#       states: [ 。，, ．， ]
+#     - name: full_shape
+#       reset: 0
+#       states: [ 半, 全 ]
+#     - name: ascii_mode
+#       reset: 0
+#       states: [ 中, 英 ]
+#     - name: show_es
+#       reset: 1
+#       states: [ 😔, 😀 ]
+
+#   engine:
+#     filters:
+#       - simplifier@es_conversion
+
+#   es_conversion:
+#     opencc_config: es.json
+#     option_name: show_es
+
+#   "switches/@5/reset": 1
+EOF
+
+
 # fcitx5 theme
 # https://github.com/hosxy/Fcitx5-Material-Color
 mkdir -p "$HOME/.config/fcitx5/conf"
@@ -178,6 +369,86 @@ Font="更纱黑体 SC Medium 13"
 Theme=Material-Color-Blue
 EOF
 fi
+
+# emoji emoticons
+# https://github.com/levinit/fcitx-emoji
+if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/QuickPhrase.mb" ]]; then
+    cat "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/QuickPhrase.mb" >> "$HOME/.local/share/fcitx5/data/QuickPhrase.mb"
+fi
+
+
+## How to Insert Emojis & Special Characters
+## [Unicode Character Code Charts](http://unicode.org/charts/)
+## [Linux keyboard shortcuts for text symbols](https://fsymbols.com/keyboard/linux/)
+## Linux keyboard: Unicode hex codes composition
+# Hold down `Ctrl+Shift+U` keys (at the same time).
+# Release the keys.
+# Enter Unicode symbol's hex code.
+# Enter hexadecimal (base 16 - 0123456789abcdef) code of symbol you want to type.
+# For example try 266A to get ♪. Or 1F44F for 👏
+# Press [Space] key
+
+## GNOME: Insert Special Characters via `GNOME Characters` App
+## KDE: [krunner-symbols](https://github.com/domschrei/krunner-symbols)
+##      [KCharSelect](https://utils.kde.org/projects/kcharselect/)
+## GNOME Characters
+# if [[ -x "$(command -v snap)" && ! -x "$(command -v gnome-characters)" ]]; then
+#     colorEcho "${BLUE}Installing ${FUCHSIA}GNOME Characters${BLUE}..."
+#     sudo snap install gnome-characters
+# fi
+
+## Emoji keyboard
+## https://github.com/OzymandiasTheGreat/emoji-keyboard
+# GITHUB_REPO_NAME="OzymandiasTheGreat/emoji-keyboard"
+# DOWNLOAD_FILENAME="$(xdg-user-dir DESKTOP)/emoji-keyboard.AppImage"
+# CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
+# REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+# DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/${REMOTE_VERSION}/emoji-keyboard-${REMOTE_VERSION}.AppImage"
+# colorEcho "${BLUE}Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+# colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
+# curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+
+# Emote: Modern popup emoji picker
+# Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E` 
+# and select one or more emojis to paste them into the currently focussed app.
+if [[ -x "$(command -v snap)" && ! -x "$(command -v emote)" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}emote${BLUE}..."
+    sudo snap install emote
+fi
+# add to autostart
+if [[ -x "$(command -v emote)" ]]; then
+    tee "$HOME/.config/autostart/emote.desktop" >/dev/null <<-'EOF'
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=emote
+Icon=emote-love
+Comment=Modern popup emoji picker
+Exec=/usr/bin/python3 "$(which emote)"
+StartupNotify=false
+Terminal=false
+Hidden=false
+EOF
+fi
+
+# [Onboard Onscreen Keyboard](https://launchpad.net/onboard)
+sudo pacman --noconfirm --needed -S onboard
+
+
+## Pinyin shortcut
+# Ctrl+Alt+Shift+u: Unicode encoding & emoji & special characters
+# Ctrl+.: switch between symbols ASCII Punctuation and Chinese Punctuation Marks
+# ; v: QuickPhrase
+
+## rime-cloverpinyin shortcut
+# Ctrl+Shift+2 Ctrl+Shift+f: switch between Traditional Chinese and Simplified Chinese
+# Ctrl+Shift+3: emoji
+# Ctrl+Shift+4: special characters
+# Ctrl+Shift+5 Ctrl+, Ctrl+.: switch between symbols ASCII Punctuation and Chinese Punctuation Marks
+# Ctrl+Shift+6 Shift+Space: switch between halfwidth and fullwidth punctuation
+
+## 快速输入带声调的汉语拼音
+# 切换至 拼音符号(M17N) 输入法，然后用 拼音 + 数字1234
 
 
 cd "${CURRENT_DIR}" || exit

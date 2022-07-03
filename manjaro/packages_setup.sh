@@ -31,6 +31,15 @@ fi
 # Show colorful output on the terminal
 sudo sed -i 's|^#Color|Color|' /etc/pacman.conf
 
+# Enable AUR, Snap, Flatpak in pamac
+sudo sed -i -e 's|^#EnableAUR|EnableAUR|' \
+    -e 's|^#EnableSnap|EnableSnap|' \
+    -e 's|^#EnableFlatpak|EnableFlatpak|' /etc/pamac.conf
+
+# sudo sed -i -e 's|^#CheckAURUpdates|CheckAURUpdates|' \
+#     -e 's|^#CheckAURVCSUpdates|CheckAURVCSUpdates|' \
+#     -e 's|^#CheckFlatpakUpdates|CheckFlatpakUpdates|' /etc/pamac.conf
+
 # Arch Linux Chinese Community Repository
 # https://github.com/archlinuxcn/mirrorlist-repo
 if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
@@ -76,8 +85,13 @@ sudo pacman --noconfirm --needed -S firefox-i18n-zh-cn thunderbird-i18n-zh-cn ma
 [[ -x "$(command -v gimp)" ]] && sudo pacman --noconfirm --needed -S gimp-help-zh_cn
 
 # Build deps
+colorEcho "${BLUE}Installing ${FUCHSIA}Build deps${BLUE}..."
 sudo pacman --noconfirm --needed -S base-devel
 sudo pacman --noconfirm --needed -S cmake
+
+# Appimages
+colorEcho "${BLUE}Installing ${FUCHSIA}Build deps${BLUE}..."
+sudo pacman --noconfirm --needed -S appimagelauncher
 
 # pre-requisite packages
 colorEcho "${BLUE}Installing ${FUCHSIA}pre-requisite packages${BLUE}..."

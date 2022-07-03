@@ -44,6 +44,7 @@ if [[ ! -x "$(command -v snap)" ]]; then
 fi
 
 if [[ -x "$(command -v snap)" ]]; then
+    colorEcho "${BLUE}Setting ${FUCHSIA}snap${BLUE}..."
     systemctl is-enabled snapd.socket >/dev/null 2>&1 || sudo systemctl enable --now snapd.socket
 
     # enable classic snap support

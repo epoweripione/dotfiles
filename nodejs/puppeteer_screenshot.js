@@ -119,7 +119,7 @@ const PuppeteerScreenshotFull = async () => {
 
     await page.screenshot({
         path: `${OutputFile}`,
-        fullPage: true
+        fullPage: true,
     });
 
     await page.close();
@@ -166,7 +166,7 @@ const PuppeteerScreenshotElement = async () => {
 
     const pageElement = await page.$(CaptureElement);
     await pageElement.screenshot({
-        path: `${OutputFile}`
+        path: `${OutputFile}`,
     });
 
     await page.close();
