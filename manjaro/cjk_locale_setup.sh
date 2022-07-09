@@ -408,7 +408,7 @@ fi
 # colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
 # curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
 
-# Emote: Modern popup emoji picker
+# [Emote](https://github.com/tom-james-watson/Emote): Modern popup emoji picker
 # Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E` 
 # and select one or more emojis to paste them into the currently focussed app.
 if [[ -x "$(command -v snap)" && ! -x "$(command -v emote)" ]]; then

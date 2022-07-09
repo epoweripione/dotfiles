@@ -65,15 +65,22 @@ if [[ -x "$(command -v nvim)" ]]; then
     #     nvim +'hi NormalFloat guibg=#1e222a' +PackerSync
     # fi
 
-    # AstroVim is an aesthetic and feature-rich neovim config that is extensible and easy to use with a great set of plugins
-    # https://github.com/kabinspace/AstroVim
-    if ! grep -q 'AstroVim' "${NEOVIM_CUSTOM}/README.md" 2>/dev/null; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}AstroVim${BLUE}..."
-        [[ -d "${NEOVIM_CUSTOM}.backup" ]] && rm -rf "${NEOVIM_CUSTOM}.backup"
-        [[ -d "${NEOVIM_CUSTOM}" ]] && mv "${NEOVIM_CUSTOM}" "${NEOVIM_CUSTOM}.backup"
-        Git_Clone_Update_Branch "kabinspace/AstroVim" "${NEOVIM_CUSTOM}"
-        nvim +PackerSync
-    fi
+    ## AstroVim is an aesthetic and feature-rich neovim config that is extensible and easy to use with a great set of plugins
+    ## https://github.com/kabinspace/AstroVim
+    # if ! grep -q 'AstroVim' "${NEOVIM_CUSTOM}/README.md" 2>/dev/null; then
+    #     colorEcho "${BLUE}  Installing ${FUCHSIA}AstroVim${BLUE}..."
+    #     [[ -d "${NEOVIM_CUSTOM}.backup" ]] && rm -rf "${NEOVIM_CUSTOM}.backup"
+    #     [[ -d "${NEOVIM_CUSTOM}" ]] && mv "${NEOVIM_CUSTOM}" "${NEOVIM_CUSTOM}.backup"
+    #     Git_Clone_Update_Branch "kabinspace/AstroVim" "${NEOVIM_CUSTOM}"
+    #     nvim +PackerSync
+    # fi
+
+    # SpaceVim: A community-driven vim distribution
+    # https://spacevim.org/
+    colorEcho "${BLUE}  Installing ${FUCHSIA}SpaceVim${BLUE}..."
+    [[ -d "${NEOVIM_CUSTOM}.backup" ]] && rm -rf "${NEOVIM_CUSTOM}.backup"
+    [[ -d "${NEOVIM_CUSTOM}" ]] && mv "${NEOVIM_CUSTOM}" "${NEOVIM_CUSTOM}.backup"
+    curl -sLf https://spacevim.org/install.sh | bash
 fi
 
 
