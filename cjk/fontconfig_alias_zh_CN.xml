@@ -1,0 +1,68 @@
+<?xml version="1.0"?><!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+    <alias>
+        <family>sans-serif</family>
+        <prefer>
+            <family>Noto Sans CJK SC</family>
+            <family>Noto Sans CJK TC</family>
+            <family>Noto Sans CJK HK</family>
+            <family>Noto Sans CJK JP</family>
+            <family>Noto Sans CJK KR</family>
+            <family>Noto Sans</family>
+            <family>Twemoji</family>
+            <family>Noto Color Emoji</family>
+            <family>Sarasa Gothic SC</family>
+            <family>Sarasa Gothic TC</family>
+            <family>Sarasa Gothic HC</family>
+            <family>Sarasa Gothic J</family>
+            <family>Sarasa Gothic K</family>
+            <family>DejaVu Sans</family>
+        </prefer>
+    </alias>
+    <alias>
+        <family>serif</family>
+        <prefer>
+            <family>Noto Serif CJK SC</family>
+            <family>Noto Serif CJK TC</family>
+            <family>Noto Serif CJK HK</family>
+            <family>Noto Serif CJK JP</family>
+            <family>Noto Serif CJK KR</family>
+            <family>Noto Serif</family>
+            <family>Twemoji</family>
+            <family>Noto Color Emoji</family>
+            <family>Sarasa Gothic SC</family>
+            <family>Sarasa Gothic TC</family>
+            <family>Sarasa Gothic HC</family>
+            <family>Sarasa Gothic J</family>
+            <family>Sarasa Gothic K</family>
+            <family>DejaVu Serif</family>
+        </prefer>
+    </alias>
+    <alias>
+        <family>monospace</family>
+        <prefer>
+            <family>FiraCode Nerd Font Mono</family>
+            <family>JetBrainsMono Nerd Font Mono</family>
+            <family>Iosevka Term</family>
+            <family>Twemoji</family>
+            <family>Noto Color Emoji</family>
+            <family>Noto Sans Mono CJK SC</family>
+            <family>Noto Sans Mono CJK TC</family>
+            <family>Noto Sans Mono CJK HK</family>
+            <family>Noto Sans Mono CJK JP</family>
+            <family>Noto Sans Mono CJK KR</family>
+            <family>Noto Sans Mono</family>
+            <family>Sarasa Mono SC</family>
+            <family>Sarasa Mono TC</family>
+            <family>Sarasa Mono HC</family>
+            <family>Sarasa Mono J</family>
+            <family>Sarasa Mono K</family>
+            <family>Sarasa Term SC</family>
+            <family>Sarasa Term TC</family>
+            <family>Sarasa Term HC</family>
+            <family>Sarasa Term J</family>
+            <family>Sarasa Term K</family>
+            <family>DejaVu Sans Mono</family>
+        </prefer>
+    </alias>
+</fontconfig>

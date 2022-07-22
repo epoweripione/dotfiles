@@ -91,7 +91,7 @@ fi
 
 # fix location in cron jobs
 if [[ -x "$(command -v crontab)" ]]; then
-    if crontab -l | grep -q '/terminal-custom/' 2>/dev/null; then
+    if crontab -l 2>/dev/null | grep -q '/terminal-custom/' 2>/dev/null; then
         crontab -l | sed "s|/terminal-custom/|/.dotfiles/|g" | crontab -
     fi
 fi
@@ -106,5 +106,10 @@ if [[ -d "$ZSH/custom" ]]; then
 fi
 
 colorEcho "${ORANGE}Dotfiles & Scripts ${GREEN}successfully downloaded to ${FUCHSIA}${MY_SHELL_SCRIPTS}${GREEN}!"
+
+if [[ -x "$(command -v npm)" && -d "${MY_SHELL_SCRIPTS}/node_modules" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}node modules${BLUE}..."
+    cd "${MY_SHELL_SCRIPTS}" && npm install
+fi
 
 cd "${CURRENT_DIR}" || exit

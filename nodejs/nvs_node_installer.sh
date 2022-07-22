@@ -58,4 +58,9 @@ fi
 if [[ -x "$(command -v npm)" ]]; then
     [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]] && \
         source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh"
+
+    if [[ ! -x "$(command -v npm-check)" ]]; then
+        colorEcho "${BLUE}Installing ${FUCHSIA}npm-check${BLUE}..."
+        npm install -g npm-check
+    fi
 fi

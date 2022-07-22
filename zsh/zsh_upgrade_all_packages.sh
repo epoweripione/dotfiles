@@ -225,6 +225,7 @@ AppList=(
     "trojan"
     "v2ray"
     "xray"
+    "flutter"
 )
 for Target in "${AppList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
@@ -305,10 +306,11 @@ if [[ -x "$(command -v brew)" ]]; then
     brew upgrade
 fi
 
-if [[ $UID -ne 0 && -x "$(command -v pip)" ]]; then
-    colorEcho "${BLUE}Updating ${FUCHSIA}pip installed packages${BLUE}..."
-    # noproxy_cmd sudo pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | sudo xargs --no-run-if-empty -n1 pip install -U
-    noproxy_cmd pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs --no-run-if-empty -n1 pip install --user -U
+if [[ -x "$(command -v pip)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}pip installed user packages${BLUE}..."
+    # https://stackoverflow.com/questions/68673221/warning-running-pip-as-the-root-user
+    noproxy_cmd pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 \
+        | xargs --no-run-if-empty -n1 pip install --root-user-action=ignore --user -U
 fi
 
 if [[ -n "$ZSH" ]]; then

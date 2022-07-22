@@ -100,14 +100,14 @@ fi
 if [[ "${INSTALL_PIP_LATEST}" == "YES" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}pip${BLUE}..."
     curl "https://bootstrap.pypa.io/get-pip.py" -o get-pip.py && \
-        sudo ${PYTHON_CMD} get-pip.py && \
+        sudo ${PYTHON_CMD} get-pip.py --user && \
         rm -f get-pip.py
 fi
 
 if [[ ! -x "$(command -v pip)" || ! -x "$(command -v pip3)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}pip${BLUE}..."
-    sudo ${PYTHON_CMD} -m ensurepip
-    sudo ${PYTHON_CMD} -m pip install -U pip
+    sudo ${PYTHON_CMD} -m ensurepip --upgrade
+    # sudo ${PYTHON_CMD} -m pip install -U pip
 fi
 
 colorEcho "${BLUE}Setting ${FUCHSIA}pip${BLUE}..."

@@ -16,19 +16,7 @@ fi
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
 
-if [[ -x "$(command -v npm-check)" ]]; then
-    colorEcho "${BLUE}Updating ${FUCHSIA}npm global packages${BLUE}..."
-    npm-check -y -g
-fi
-
-
-if [[ -x "$(command -v yarn)" ]]; then
-    colorEcho "${BLUE}Updating ${FUCHSIA}yarn global packages${BLUE}..."
-    yarn global upgrade --latest
-fi
-
-
-if [[ -z "$NVM_NOT_UPDATE" && -d "$HOME/.nvm" ]]; then
+if [[ -z "${NVM_NOT_UPDATE}" && -d "$HOME/.nvm" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}nvm${BLUE}..."
     if type 'nvm' 2>/dev/null | grep -q 'function'; then
         :
@@ -95,4 +83,19 @@ if [[ -z "$NVM_NOT_UPDATE" && -d "$HOME/.nvm" ]]; then
     #     [ -L "/usr/bin/npm" ] && rm -f /usr/bin/npm
     #     ln -s "$(which node)" /usr/bin/node && ln -s "$(which npm)" /usr/bin/npm
     # fi
+fi
+
+
+if [[ -x "$(command -v npm-check)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}npm global packages${BLUE}..."
+    npm-check -u -g -y
+elif [[ -x "$(command -v npm)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}npm global packages${BLUE}..."
+    npm update --location=global
+fi
+
+
+if [[ -x "$(command -v yarn)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}yarn global packages${BLUE}..."
+    yarn global upgrade --latest
 fi

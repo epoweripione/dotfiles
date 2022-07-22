@@ -1,0 +1,87 @@
+/* ==UserStyle==
+@name        Noto Font CSS Style
+@description 使用 CSS 样式替换字体为思源字体
+@namespace   https://github.com/epoweripione/dotfiles
+@version     1.0.0
+==/UserStyle== */
+
+/* [Stylus](https://chrome.google.com/webstore/detail/stylus/clngdbkpkpeebahjckkjfobafhncgmne) */
+
+/*
+[lang|="zh-Hans"] {
+    font-family: 'Noto Sans CJK SC';
+}
+
+[lang|="zh-Hant"] {
+    font-family: 'Noto Sans CJK TC';
+}
+
+[lang="ja"] {
+    font-family: 'Noto Sans CJK JP';
+}
+
+[lang="ko"] {
+    font-family: 'Noto Sans CJK KR';
+}
+*/
+
+html:lang(zh-CN),html:lang(zh-SG) {
+    font-family: 'Noto Sans', 'Noto Sans CJK SC', emoji;
+}
+
+html:lang(zh-TW) {
+    font-family: 'Noto Sans', 'Noto Sans CJK TC', emoji;
+}
+
+html:lang(zh-HK),html:lang(zh-MO) {
+    font-family: 'Noto Sans', 'Noto Sans CJK HK', emoji;
+}
+
+html:lang(ja) {
+    font-family: 'Noto Sans', 'Noto Sans CJK JP', emoji;
+}
+
+html:lang(ko) {
+    font-family: 'Noto Sans', 'Noto Sans CJK KR', emoji;
+}
+
+body {
+    -webkit-font-smoothing: subpixel-antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+    font-family: inherit;
+}
+
+@font-face {
+    font-family: 'Noto Sans CJK SC';
+    src: local('Noto Sans');
+}
+
+@font-face {
+    font-family: 'Noto Sans CJK SC';
+    src: local('Noto Sans CJK SC');
+    unicode-range: U+3400-4DBF,U+4E00-9FFF,U+F900-FAFF,U+D840-D87A,U+D880-D884,U+DC00-DFFF,U+3040-309F,U+30A0-30FF,U+DC00-DC01,U+31F0-31FF,U+FF66-FF9F,U+D82C,U+1100-11FF,U+3130-318F,U+A960-A97C,U+AC00-D7A3,U+D7B0-D7FB,U+FFA1-FFDC;
+}
+
+pre,code,kbd,samp {
+    font-family: 'FiraCode Nerd Font Mono', 'Noto Sans Mono CJK SC', emoji, sans-serif !important;
+}
+
+html.han-la hanla:after {
+    content: " ";
+    display: inline;
+    font-family: Arial;
+    font-size: 0.89em;
+}
+
+html.han-la code hanla,
+html.han-la pre hanla,
+html.han-la kbd hanla,
+html.han-la samp hanla {
+    display: none;
+}
+
+html.han-la ol > hanla,
+html.han-la ul > hanla {
+    display: none;
+}

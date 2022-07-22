@@ -327,4 +327,13 @@ yay --noconfirm -Sc && yay --noconfirm -Yc
 # (crontab -l 2>/dev/null || true; echo "0 20 * * * sync && shutdown -h now") | crontab -
 
 
+## Others
+# mute tone when logout
+echo -e "\n# Disable BIOS sound\nxset -b" | sudo tee -a "/etc/xprofile" > /dev/null
+
+# Disable PC speaker
+# su -c 'modprobe -r pcspkr && echo "blacklist pcspkr" >> /etc/modprobe.d/50-blacklist.conf'
+echo -e "\n# Disable PC speaker\nblacklist pcspkr" | sudo tee "/etc/modprobe.d/nobeep.conf"
+
+
 cd "${CURRENT_DIR}" || exit

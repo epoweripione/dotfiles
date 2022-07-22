@@ -48,8 +48,13 @@ fi
 # Fonts
 colorEcho "${BLUE}Installing ${FUCHSIA}fonts${BLUE}..."
 yay --noconfirm --needed -S powerline-fonts ttf-fira-code ttf-sarasa-gothic \
-    ttf-hannom noto-fonts noto-fonts-extra noto-fonts-emoji noto-fonts-cjk \
-    ttf-twemoji unicode-emoji
+    ttf-hannom noto-fonts noto-fonts-extra noto-fonts-cjk \
+    ttf-nerd-fonts-symbols ttf-iosevka-term ttf-jetbrains-mono nerd-fonts-jetbrains-mono \
+    ttf-lato ttf-lora-cyrillic ttf-playfair-display \
+    archlinuxcn/ttf-twemoji
+
+# yay --noconfirm --needed -S noto-fonts-emoji unicode-emoji
+# yay --noconfirm --needed -S ttf-ms-win11-auto
 
 # yay --noconfirm --needed -S ttf-dejavu ttf-droid ttf-hack ttf-font-awesome otf-font-awesome \
 #     ttf-lato ttf-liberation ttf-linux-libertine ttf-opensans ttf-roboto ttf-ubuntu-font-family
@@ -57,6 +62,10 @@ yay --noconfirm --needed -S powerline-fonts ttf-fira-code ttf-sarasa-gothic \
 # yay --noconfirm --needed -S adobe-source-code-pro-fonts adobe-source-sans-fonts adobe-source-serif-fonts \
 #     adobe-source-han-sans-cn-fonts adobe-source-han-sans-hk-fonts adobe-source-han-sans-tw-fonts \
 #     adobe-source-han-serif-cn-fonts wqy-zenhei wqy-microhei
+
+# [Font Manager](https://github.com/FontManager/font-manager)
+colorEcho "${BLUE}Installing ${FUCHSIA}Font Manager${BLUE}..."
+sudo pacman --noconfirm --needed -S font-manager
 
 # FiraCode Nerd Font Complete Mono
 colorEcho "${BLUE}Installing ${FUCHSIA}FiraCode Nerd Font Complete Mono${BLUE}..."
@@ -69,67 +78,28 @@ mkdir -p "${WORKDIR}/FiraCode-Mono" && \
 # fc-list | grep "FiraCode" | column -t -s ":"
 
 # CJK fontconfig & colour emoji
-# [用 fontconfig 治理 Linux 中的字体](https://catcat.cc/post/2021-03-07/)
 # https://wiki.archlinux.org/title/Localization_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)/Simplified_Chinese_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
 colorEcho "${BLUE}Setting ${FUCHSIA}CJK fontconfig & colour emoji${BLUE}..."
-sudo tee "/etc/fonts/local.conf" >/dev/null <<-'EOF'
-<?xml version="1.0"?>
-<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
-<fontconfig>
-    <alias>
-        <family>sans-serif</family>
-        <prefer>
-            <family>Noto Sans CJK SC</family>
-            <family>Noto Sans CJK TC</family>
-            <family>Noto Sans CJK HK</family>
-            <family>Noto Sans CJK JP</family>
-            <family>Noto Sans CJK KR</family>
-            <family>Noto Sans</family>
-            <family>Sarasa Gothic SC</family>
-            <family>FiraCode Nerd Font Mono</family>
-            <family>JetBrainsMono Nerd Font Mono</family>
-            <family>Noto Color Emoji</family>
-            <family>DejaVu Sans</family>
-        </prefer>
-    </alias>
+SYSTEM_LOCALE=$(localectl status | grep 'LANG=' | cut -d= -f2 | cut -d. -f1)
+# if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cjk/fontconfig_alias_${SYSTEM_LOCALE}.xml" ]]; then
+#     sudo cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cjk/fontconfig_alias_${SYSTEM_LOCALE}.xml" "/etc/fonts/local.conf"
+# fi
 
-    <alias>
-        <family>serif</family>
-        <prefer>
-            <family>Noto Serif CJK SC</family>
-            <family>Noto Serif CJK TC</family>
-            <family>Noto Serif CJK HK</family>
-            <family>Noto Serif CJK JP</family>
-            <family>Noto Serif CJK KR</family>
-            <family>Noto Serif</family>
-            <family>Sarasa Gothic SC</family>
-            <family>FiraCode Nerd Font Mono</family>
-            <family>JetBrainsMono Nerd Font Mono</family>
-            <family>Noto Color Emoji</family>
-            <family>DejaVu Serif</family>
-        </prefer>
-    </alias>
-
-    <alias>
-        <family>monospace</family>
-        <prefer>
-            <family>FiraCode Nerd Font Mono</family>
-            <family>JetBrainsMono Nerd Font Mono</family>
-            <family>Sarasa Mono SC</family>
-            <family>Noto Sans Mono CJK SC</family>
-            <family>Noto Sans Mono CJK TC</family>
-            <family>Noto Sans Mono CJK HK</family>
-            <family>Noto Sans Mono CJK JP</family>
-            <family>Noto Sans Mono CJK KR</family>
-            <family>Noto Sans Mono</family>
-            <family>Noto Color Emoji</family>
-            <family>DejaVu Sans Mono</family>
-        </prefer>
-    </alias>
-</fontconfig>
-EOF
+## [用 fontconfig 治理 Linux 中的字体](https://catcat.cc/post/2021-03-07/)
+## [Linux 下的字体调校指南](https://szclsya.me/zh-cn/posts/fonts/linux-config-guide/)
+## [Font configuration/Examples](https://wiki.archlinux.org/title/Font_configuration/Examples)
+## [Having multiple values in <test>](https://bbs.archlinuxcn.org/viewtopic.php?id=2736)
+# fc-match -s | less
+# fc-match sans-serif; fc-match serif; fc-match monospace
+# fc-match mono-9:lang=zh-CN
+if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cjk/fontconfig_${SYSTEM_LOCALE}.xml" ]]; then
+    # sudo cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cjk/fontconfig_${SYSTEM_LOCALE}.xml" "/etc/fonts/local.conf"
+    mkdir -p "$HOME/.config/fontconfig/"
+    cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cjk/fontconfig_${SYSTEM_LOCALE}.xml" "$HOME/.config/fontconfig/fonts.conf"
+fi
 
 # update font cache
+colorEcho "${BLUE}Updating ${FUCHSIA}fontconfig cache${BLUE}..."
 sudo fc-cache -fv
 
 # Fcitx5 input methods for Chinese Pinyin
@@ -235,6 +205,7 @@ if  [[ -s "/usr/share/rime-data/opencc/es.txt" && -s "/usr/share/rime-data/openc
         | sudo tee -a "/usr/share/rime-data/opencc/emoji_word.txt" >/dev/null
 fi
 
+mkdir -p "$HOME/.local/share/fcitx5/rime/"
 # setting rime-cloverpinyin
 tee "$HOME/.local/share/fcitx5/rime/default.custom.yaml" >/dev/null <<-'EOF'
 patch:
@@ -373,6 +344,7 @@ fi
 # emoji emoticons
 # https://github.com/levinit/fcitx-emoji
 if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/QuickPhrase.mb" ]]; then
+    mkdir -p "$HOME/.local/share/fcitx5/data/"
     cat "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/QuickPhrase.mb" >> "$HOME/.local/share/fcitx5/data/QuickPhrase.mb"
 fi
 

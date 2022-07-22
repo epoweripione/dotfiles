@@ -42,7 +42,10 @@ fi
 
 if [[ -x "$(command -v npm-check)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}npm global packages${BLUE}..."
-    npm-check -y -g
+    npm-check -u -g -y
+elif [[ -x "$(command -v npm)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}npm global packages${BLUE}..."
+    npm update --location=global
 fi
 
 

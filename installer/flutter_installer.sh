@@ -37,63 +37,6 @@ if [[ ! -x "$(command -v jq)" ]]; then
 fi
 
 
-# macOS
-# https://flutter.dev/docs/get-started/install/macos
-if [[ "${OS_INFO_TYPE}" == "darwin" && ! -x "$(command -v xcodebuild)" ]]; then
-    # sudo xcode-select --install
-    sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
-    # xcode-select --print-path
-    # sudo xcode-select --reset
-
-    # sudo xcodebuild -license
-    sudo xcodebuild -runFirstLaunch
-fi
-
-
-# Android Studio
-# https://developer.android.com/studio/install
-
-# Install desired Java version
-if [[ ! -x "$(command -v java)" ]]; then
-    [[ ! "$(command -v asdf)" && -d "$HOME/.asdf" ]] && source "$HOME/.asdf/asdf.sh"
-    # [[ "$(command -v asdf)" ]] && asdf_App_Install java openjdk-17
-    [[ "$(command -v asdf)" ]] && asdf_App_Install java zulu-17
-fi
-
-if [[ -x "$(command -v pacman)" ]]; then
-    # Pre-requisite packages
-    PackagesList=(
-        libc6:i386
-        libncurses5:i386
-        libstdc++6:i386
-        lib32z1
-        libbz2-1.0:i386
-        zlib.i686
-        ncurses-libs.i686
-        bzip2-libs.i686
-        cmake
-        ninja
-    )
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
-fi
-
-# Init snap
-if [[ ! -d "/snap" && -x "$(command -v snap)" && -d "/var/lib/snapd/snap" ]]; then
-    [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && \
-        source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
-fi
-
-if [[ -x "$(command -v snap)" && ! -x "$(command -v android-studio)" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}Android Studio${BLUE}..."
-    sudo snap install android-studio --classic
-fi
-
-
 # https://flutter.dev/docs/get-started/install/linux
 APP_INSTALL_NAME="flutter"
 
@@ -127,6 +70,7 @@ fi
 # flutter doctor
 
 if [[ -x "$(command -v flutter)" ]]; then
+    IS_UPDATE="yes"
     CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
@@ -159,6 +103,61 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${IS_INSTALL}" == "yes" && -n "${REMOTE_FILEPATH}" ]]; then
+    # macOS
+    # https://flutter.dev/docs/get-started/install/macos
+    if [[ "${IS_UPDATE}" == "no" && "${OS_INFO_TYPE}" == "darwin" && ! -x "$(command -v xcodebuild)" ]]; then
+        # sudo xcode-select --install
+        sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+        # xcode-select --print-path
+        # sudo xcode-select --reset
+
+        # sudo xcodebuild -license
+        sudo xcodebuild -runFirstLaunch
+    fi
+
+    # Android Studio
+    # https://developer.android.com/studio/install
+    # Install desired Java version
+    if [[ ! -x "$(command -v java)" ]]; then
+        [[ ! "$(command -v asdf)" && -d "$HOME/.asdf" ]] && source "$HOME/.asdf/asdf.sh"
+        # [[ "$(command -v asdf)" ]] && asdf_App_Install java openjdk-17
+        [[ "$(command -v asdf)" ]] && asdf_App_Install java zulu-17
+    fi
+
+    if [[ -x "$(command -v pacman)" ]]; then
+        # Pre-requisite packages
+        PackagesList=(
+            libc6:i386
+            libncurses5:i386
+            libstdc++6:i386
+            lib32z1
+            libbz2-1.0:i386
+            zlib.i686
+            ncurses-libs.i686
+            bzip2-libs.i686
+            cmake
+            ninja
+        )
+        for TargetPackage in "${PackagesList[@]}"; do
+            if checkPackageNeedInstall "${TargetPackage}"; then
+                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
+                sudo pacman --noconfirm -S "${TargetPackage}"
+            fi
+        done
+    fi
+
+    # Init snap
+    if [[ ! -d "/snap" && -x "$(command -v snap)" && -d "/var/lib/snapd/snap" ]]; then
+        [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && \
+            source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
+    fi
+
+    # Install Android Studio
+    if [[ -x "$(command -v snap)" && ! -x "$(command -v android-studio)" ]]; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}Android Studio${BLUE}..."
+        sudo snap install android-studio --classic
+    fi
+
     colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
 
     DOWNLOAD_URL="${FLUTTER_STORAGE_BASE_URL}/flutter_infra_release/releases/${REMOTE_FILEPATH}"
@@ -199,7 +198,9 @@ fi
 # Launch the Android Studio to install the Android SDK components
 [[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
 # [[ -d "$HOME/Android/Sdk/platform-tools" ]] && export PATH=$PATH:$HOME/Android/Sdk/platform-tools
-android-studio
+if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" && -x "$(command -v android-studio)" ]]; then
+    android-studio
+fi
 
 [[ "${IS_INSTALL}" == "yes" ]] && flutter doctor
 
