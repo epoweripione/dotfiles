@@ -332,6 +332,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "JetBrainsMono-NF"
         "CascadiaCode-NF"
         # "Noto-NF"
+        "LXGWWenKai"
+        "LXGWWenKaiMono"
     )
 
     # Use list file if exists

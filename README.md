@@ -32,8 +32,14 @@ or
 1. Use `npm outdated` to discover dependencies that are out of date.
 2. Use `npm update` to perform safe dependency upgrades.
 3. Use `npm install <packagename>@latest` to upgrade to the latest major version of a package.
-4. Use `npm install -g npm-check-updates` to install the `npm-check-updates` package globally.
-5. Use `npx npm-check-updates -u` and `npm install` to upgrade all dependencies to their latest major versions.
+
+### npm-check
+1. Use `npm install -g npm-check` to install the `npm-check` package globally.
+2. Use `npm-check -u -y` to upgrade all dependencies to their latest major versions.
+
+### npm-check-updates
+1. Use `npm install -g npm-check-updates` to install the `npm-check-updates` package globally.
+2. Use `npm-check-updates -u` and `npm install` to upgrade all dependencies to their latest major versions.
 
 ## commitizen
 `${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/commitizen-relax_installer.sh`

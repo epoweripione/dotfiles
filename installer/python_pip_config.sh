@@ -80,6 +80,7 @@ if [[ -x "$(command -v pacman)" ]]; then
     # [[ -x "$(command -v dnf)" ]] && sudo dnf group install -y "Development Tools"
 fi
 
+PYTHON_CMD=""
 if [[ -x "$(command -v python3)" ]]; then
     PYTHON_CMD="python3"
 elif [[ -x "$(command -v python)" ]]; then
@@ -88,6 +89,11 @@ fi
 
 # pip
 INSTALL_PIP_LATEST="NO"
+PYTHON_CURRENT_VERSION="0.0.0"
+if [[ -n "${PYTHON_CMD}" ]]; then
+    PYTHON_CURRENT_VERSION=$(sudo ${PYTHON_CMD} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+fi
+
 PIP_CURRENT_VERSION="0.0.0"
 if [[ -x "$(command -v pip)" ]]; then
     PIP_CURRENT_VERSION=$(sudo ${PYTHON_CMD} -m pip -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
@@ -99,9 +105,12 @@ fi
 
 if [[ "${INSTALL_PIP_LATEST}" == "YES" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}pip${BLUE}..."
-    curl "https://bootstrap.pypa.io/get-pip.py" -o get-pip.py && \
-        sudo ${PYTHON_CMD} get-pip.py --user && \
-        rm -f get-pip.py
+    if version_lt "${PYTHON_CURRENT_VERSION}" "3.7.0"; then
+        PIP_DOWNLOAD_URL="https://bootstrap.pypa.io/pip/3.6/get-pip.py"
+    else
+        PIP_DOWNLOAD_URL="https://bootstrap.pypa.io/get-pip.py"
+    fi
+    curl "${PIP_DOWNLOAD_URL}" -o get-pip.py && sudo ${PYTHON_CMD} get-pip.py --user && rm -f get-pip.py
 fi
 
 if [[ ! -x "$(command -v pip)" || ! -x "$(command -v pip3)" ]]; then

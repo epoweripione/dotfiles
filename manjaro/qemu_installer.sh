@@ -55,6 +55,26 @@ sudo pacman --noconfirm --needed -S virtio-win
 # qemu-system-x86_64 -net nic -net user,smb=<shared_folder_path> ...
 ## Custom Network Location: \\10.0.2.4\qemu\
 
+## [Sharing files with Virtiofs](https://libvirt.org/kbase/virtiofs.html)
+## mkdir -p /mnt/share && chmod a+w /mnt/share
+## Add the following domain XML elements to share the host directory /path with the guest
+# <filesystem type="mount" accessmode="passthrough">
+#   <driver type="virtiofs" queue="1024"/>
+#   <source dir="/mnt/share"/>
+#   <target dir="share"/>
+#   <address type="pci" domain="0x0000" bus="0x07" slot="0x00" function="0x0"/>
+# </filesystem>
+## [How to install virtiofs drivers on Windows](https://virtio-fs.gitlab.io/howto-windows.html)
+## 1. Installing the virtiofs PCI device driver(virtio-win.iso):
+##    virtio-win-guest-tools.exe 
+##    Device Manager→Other devices→Mass Storage Controller→Update driver
+## 2. Installing [WinFsp](https://github.com/billziss-gh/winfsp/releases/latest)
+## 3. Installing the virtiofs service
+##    Run as administrator the Command Prompt and execute the following command:
+## sc create VirtioFsSvc binpath="C:\Program Files\Virtio-Win\VioFS\virtiofs.exe" start=auto depend="WinFsp.Launcher/VirtioFsDrv" DisplayName="Virtio FS Service"
+## sc config VirtioFsSvc start=auto
+## sc start VirtioFsSvc
+
 ## Add physical disk to kvm virtual machine
 # sudo env EDITOR=nano virsh edit [name_of_vm]
 
@@ -62,10 +82,12 @@ sudo pacman --noconfirm --needed -S virtio-win
 ## https://libvirt.org/manpages/virsh.html
 # sudo virsh nodeinfo
 # sudo virsh list --all
-# sudo virsh domxml-to-native qemu-argv --domain [name_of_vm]
 # sudo virsh domblklist [name_of_vm]
 # sudo virsh start [name_of_vm]
 # sudo virsh shutdown [name_of_vm]
+
+## Convert libvirt xml into qemu command line
+# sudo virsh domxml-to-native qemu-argv --domain [name_of_vm]
 
 ## network
 # brctl show

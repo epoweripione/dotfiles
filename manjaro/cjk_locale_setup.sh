@@ -50,6 +50,7 @@ colorEcho "${BLUE}Installing ${FUCHSIA}fonts${BLUE}..."
 yay --noconfirm --needed -S powerline-fonts ttf-fira-code ttf-sarasa-gothic \
     ttf-hannom noto-fonts noto-fonts-extra noto-fonts-cjk \
     ttf-nerd-fonts-symbols ttf-iosevka-term ttf-jetbrains-mono nerd-fonts-jetbrains-mono \
+    ttf-lxgw-wenkai \
     ttf-lato ttf-lora-cyrillic ttf-playfair-display \
     archlinuxcn/ttf-twemoji
 
@@ -406,6 +407,10 @@ fi
 # [Onboard Onscreen Keyboard](https://launchpad.net/onboard)
 sudo pacman --noconfirm --needed -S onboard
 
+# SDDM: Virtual Keyboard on Login screen
+if [[ -s "/etc/sddm.conf" ]]; then
+    sudo sed -i 's|^InputMethod=.*|InputMethod=qtvirtualkeyboard|' "/etc/sddm.conf"
+fi
 
 ## Pinyin shortcut
 # Ctrl+Alt+Shift+u: Unicode encoding & emoji & special characters

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<title>图片编辑器</title>
+		<link
+        rel="stylesheet"
+        href="https://uicdn.toast.com/tui-color-picker/latest/tui-color-picker.min.css"
+        />
+		<link
+        rel="stylesheet"
+        href="https://uicdn.toast.com/tui-image-editor/latest/tui-image-editor.min.css"
+        />
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+            }
+        </style>
+        <script>var errorLogs=[];window.onerror=function(o,r,e,n){errorLogs.push({message:o,source:r,lineno:e,colno:n})};</script>
+	</head>
+	<body>
+		<div id="tui-image-editor-container"></div>
+            <script src="https://cdn.bootcdn.net/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+            <script src="https://uicdn.toast.com/tui.code-snippet/latest/tui-code-snippet.min.js"></script>
+            <script src="https://uicdn.toast.com/tui-color-picker/latest/tui-color-picker.min.js"></script>
+            <script src="https://uicdn.toast.com/tui-image-editor/latest/tui-image-editor.min.js"></script>
+        </div>
+
+		<script>
+            const removeElement = (el) => document.querySelectorAll(el).forEach(node => node.remove());
+
+            const blackTheme = {
+                'common.bi.image': 'https://uicdn.toast.com/toastui/img/tui-image-editor-bi.png',
+                'common.bisize.width': '251px',
+                'common.bisize.height': '21px',
+                'common.backgroundImage': 'none',
+                'common.backgroundColor': '#1e1e1e',
+                'common.border': '0px',
+
+                // header
+                'header.backgroundImage': 'none',
+                'header.backgroundColor': 'transparent',
+                'header.border': '0px',
+
+                // load button
+                'loadButton.backgroundColor': '#fff',
+                'loadButton.border': '1px solid #ddd',
+                'loadButton.color': '#222',
+                'loadButton.fontFamily': "'Noto Sans', sans-serif",
+                'loadButton.fontSize': '12px',
+
+                // download button
+                'downloadButton.backgroundColor': '#fdba3b',
+                'downloadButton.border': '1px solid #fdba3b',
+                'downloadButton.color': '#fff',
+                'downloadButton.fontFamily': "'Noto Sans', sans-serif",
+                'downloadButton.fontSize': '12px',
+
+                // main icons
+                'menu.normalIcon.color': '#8a8a8a',
+                'menu.activeIcon.color': '#555555',
+                'menu.disabledIcon.color': '#434343',
+                'menu.hoverIcon.color': '#e9e9e9',
+                'menu.iconSize.width': '24px',
+                'menu.iconSize.height': '24px',
+
+                // submenu icons
+                'submenu.normalIcon.color': '#8a8a8a',
+                'submenu.activeIcon.color': '#e9e9e9',
+                'submenu.iconSize.width': '32px',
+                'submenu.iconSize.height': '32px',
+
+                // submenu primary color
+                'submenu.backgroundColor': '#1e1e1e',
+                'submenu.partition.color': '#3c3c3c',
+
+                // submenu labels
+                'submenu.normalLabel.color': '#8a8a8a',
+                'submenu.normalLabel.fontWeight': 'lighter',
+                'submenu.activeLabel.color': '#fff',
+                'submenu.activeLabel.fontWeight': 'lighter',
+
+                // checkbox style
+                'checkbox.border': '0px',
+                'checkbox.backgroundColor': '#fff',
+
+                // range style
+                'range.pointer.color': '#fff',
+                'range.bar.color': '#666',
+                'range.subbar.color': '#d1d1d1',
+
+                'range.disabledPointer.color': '#414141',
+                'range.disabledBar.color': '#282828',
+                'range.disabledSubbar.color': '#414141',
+
+                'range.value.color': '#fff',
+                'range.value.fontWeight': 'lighter',
+                'range.value.fontSize': '11px',
+                'range.value.border': '1px solid #353535',
+                'range.value.backgroundColor': '#151515',
+                'range.title.color': '#fff',
+                'range.title.fontWeight': 'lighter',
+
+                // colorpicker style
+                'colorpicker.button.border': '1px solid #1e1e1e',
+                'colorpicker.title.color': '#fff',
+            };
+
+            const whiteTheme = {
+                'common.bi.image': 'https://uicdn.toast.com/toastui/img/tui-image-editor-bi.png',
+                'common.bisize.width': '251px',
+                'common.bisize.height': '21px',
+                'common.backgroundImage': './img/bg.png',
+                'common.backgroundColor': '#fff',
+                'common.border': '1px solid #c1c1c1',
+
+                // header
+                'header.backgroundImage': 'none',
+                'header.backgroundColor': 'transparent',
+                'header.border': '0px',
+
+                // load button
+                'loadButton.backgroundColor': '#fff',
+                'loadButton.border': '1px solid #ddd',
+                'loadButton.color': '#222',
+                'loadButton.fontFamily': "'Noto Sans', sans-serif",
+                'loadButton.fontSize': '12px',
+
+                // download button
+                'downloadButton.backgroundColor': '#fdba3b',
+                'downloadButton.border': '1px solid #fdba3b',
+                'downloadButton.color': '#fff',
+                'downloadButton.fontFamily': "'Noto Sans', sans-serif",
+                'downloadButton.fontSize': '12px',
+
+                // main icons
+                'menu.normalIcon.color': '#8a8a8a',
+                'menu.activeIcon.color': '#555555',
+                'menu.disabledIcon.color': '#434343',
+                'menu.hoverIcon.color': '#e9e9e9',
+                'menu.iconSize.width': '24px',
+                'menu.iconSize.height': '24px',
+
+                // submenu icons
+                'submenu.normalIcon.color': '#8a8a8a',
+                'submenu.activeIcon.color': '#555555',
+                'submenu.iconSize.width': '32px',
+                'submenu.iconSize.height': '32px',
+
+                // submenu primary color
+                'submenu.backgroundColor': 'transparent',
+                'submenu.partition.color': '#e5e5e5',
+
+                // submenu labels
+                'submenu.normalLabel.color': '#858585',
+                'submenu.normalLabel.fontWeight': 'normal',
+                'submenu.activeLabel.color': '#000',
+                'submenu.activeLabel.fontWeight': 'normal',
+
+                // checkbox style
+                'checkbox.border': '1px solid #ccc',
+                'checkbox.backgroundColor': '#fff',
+
+                // rango style
+                'range.pointer.color': '#333',
+                'range.bar.color': '#ccc',
+                'range.subbar.color': '#606060',
+
+                'range.disabledPointer.color': '#d3d3d3',
+                'range.disabledBar.color': 'rgba(85,85,85,0.06)',
+                'range.disabledSubbar.color': 'rgba(51,51,51,0.2)',
+
+                'range.value.color': '#000',
+                'range.value.fontWeight': 'normal',
+                'range.value.fontSize': '11px',
+                'range.value.border': '0',
+                'range.value.backgroundColor': '#f5f5f5',
+                'range.title.color': '#000',
+                'range.title.fontWeight': 'lighter',
+
+                // colorpicker style
+                'colorpicker.button.border': '0px',
+                'colorpicker.title.color': '#000',
+            };
+
+            const locale_zh_CN = {
+                'Apply': '应用',
+                'Arrow': '箭头',
+                'Arrow-2': '箭头 2',
+                'Arrow-3': '箭头 3',
+                'Blend': '混合',
+                'Blur': '模糊',
+                'Bold': '加粗',
+                'Brightness': '亮度',
+                'Bubble': '泡泡',
+                'Cancel': '取消',
+                'Center': '居中',
+                'Circle': '圆形',
+                'Color': '颜色',
+                'Color Filter': '颜色滤镜',
+                'Crop': '裁剪',
+                'Custom': '自定义',
+                'Custom icon': '自定义图标',
+                'Delete': '删除',
+                'DeleteAll': '删除所有',
+                'Distance': '距离',
+                'Download': '下载',
+                'Draw': '画笔',
+                'Emboss': '浮雕',
+                'Fill': '填充',
+                'Filter': '滤镜',
+                'Flip': '翻转',
+                'Flip X': 'X 轴翻转',
+                'Flip Y': 'Y 轴翻转',
+                'Free': '自由',
+                'Grayscale': '灰度化',
+                'Hand': '手形',
+                'Heart': '心形',
+                'Height': '高度',
+                'History': '历史',
+                'Icon': '图标',
+                'Invert': '反色',
+                'Italic': '斜体',
+                'Left': '左对齐',
+                'Load': '载入',
+                'Load Mask Image': '载入遮罩图片',
+                'Location': '位置',
+                'Lock Aspect Ratio': '锁定比例',
+                'Mask': '遮罩',
+                'Multiply': '叠加',
+                'Noise': '噪点',
+                'Opacity': '透明度',
+                'Pixelate': '像素化',
+                'Polygon': '多边形',
+                'Range': '角度',
+                'Rectangle': '长方形',
+                'Redo': '重做',
+                'Remove White': '移除白色',
+                'Reset': '重置',
+                'Resize': '调整大小',
+                'Right': '右对齐',
+                'Rotate': '旋转',
+                'Sepia': '深褐色',
+                'Sepia2': '深褐色 2',
+                'Shape': '形状',
+                'Sharpen': '锐化',
+                'Square': '正方形',
+                'Star-1': '星星 1',
+                'Star-2': '星星 2',
+                'Straight': '直线',
+                'Stroke': '边框',
+                'Text': '文字',
+                'Text size': '文字大小',
+                'Threshold': '阈值',
+                'Tint': '色调',
+                'Triangle': '三角形',
+                'Underline': '下划线',
+                'Undo': '撤销',
+                'Value': '值',
+                'Width': '宽度',
+                'ZoomIn': '放大',
+                'ZoomOut': '缩小',
+            };
+
+            const maxWidth = document.body.clientWidth;
+            const maxHeight = window.innerHeight;
+
+            const imageSrc = "https://github.githubassets.com/images/modules/logos_page/Octocat.png";
+
+            let imageEditor = new tui.ImageEditor('#tui-image-editor-container', {
+                includeUI: {
+                    loadImage: {
+                        path: imageSrc,
+                        name: 'image',
+                    },
+                    locale: locale_zh_CN,
+                    theme: blackTheme, // or whiteTheme
+                    initMenu: 'filter',
+                    menuBarPosition: 'bottom',
+                },
+                cssMaxWidth: 1000, // maxWidth,
+                cssMaxHeight: 800, //maxHeight,
+                // selectionStyle: {
+                //     cornerSize: 20,
+                //     rotatingPointOffset: 70,
+                // },
+                usageStatistics: false,
+            });
+
+            window.onresize = function() {
+                imageEditor.ui.resizeEditor();
+            };
+
+            // imageEditor.loadImageFromURL(imageSrc, 'image');
+
+            // removeElement('.tui-image-editor-header');
+            removeElement('.tui-image-editor-header-logo');
+		</script>
+	</body>
+</html>

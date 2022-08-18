@@ -306,12 +306,14 @@ if [[ -x "$(command -v brew)" ]]; then
     brew upgrade
 fi
 
-if [[ -x "$(command -v pip)" ]]; then
-    colorEcho "${BLUE}Updating ${FUCHSIA}pip installed user packages${BLUE}..."
-    # https://stackoverflow.com/questions/68673221/warning-running-pip-as-the-root-user
-    noproxy_cmd pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 \
-        | xargs --no-run-if-empty -n1 pip install --root-user-action=ignore --user -U
-fi
+# if [[ -x "$(command -v pip)" ]]; then
+#     colorEcho "${BLUE}Updating ${FUCHSIA}pip installed user packages${BLUE}..."
+#     # https://stackoverflow.com/questions/68673221/warning-running-pip-as-the-root-user
+#     # pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 \
+#     #     | xargs --no-run-if-empty -n1 pip install --root-user-action=ignore --user -U
+#     pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 \
+#         | xargs --no-run-if-empty -n1 pip install --user -U
+# fi
 
 if [[ -n "$ZSH" ]]; then
     if [[ -s "${MY_SHELL_SCRIPTS}/zsh/zsh_update.sh" ]]; then

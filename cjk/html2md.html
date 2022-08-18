@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<title>HTML 转为 Markdown</title>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css"
+		/>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css" />
+		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js"></script>
+		<style>
+			html {
+				font-size: 16px;
+				line-height: 1.5;
+			}
+
+			#wrap {
+				display: flex;
+				justify-content: space-between;
+				margin: 8px;
+			}
+
+			#html-md .syncScrTxt {
+				font-size: 0.8rem;
+				width: 48%;
+				resize: horizontal;
+				min-width: 20%;
+				height: 70vh;
+			}
+
+			#html-md #inputHTML {
+				border: 1px solid #a9a9a9;
+				overflow: auto;
+			}
+
+			#html-md #outputMD {
+				resize: none;
+				flex: 1;
+			}
+
+			textarea {
+				line-height: 1.5;
+			}
+
+			.infoWrap {
+				display: flex;
+				justify-content: space-evenly;
+			}
+
+			.info {
+				font-size: 1rem;
+				font-weight: bold;
+			}
+
+			#syncScrBtnRender {
+				border: 1px;
+				background: lightgreen;
+				padding: 0.2rem;
+				border-radius: 4px;
+				margin: 0.5rem;
+				display: inline-block;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="html-md"></div>
+		<div>
+			<label for="syncScrBtn" id="syncScrBtnRender">sync scroll</label>
+			<input type="checkbox" id="syncScrBtn" checked style="font-size:1rem" />
+		</div>
+
+		<script>
+			const html2mdInput = '';
+			const html2mdInnerHTML =`
+<div class="infoWrap">
+	<span class="info">html</span>
+	<span class="info">markdown</span>
+</div>
+<div id="wrap" class="markdown-body ">
+	<textarea id="inputHTML" class="syncScrTxt"></textarea>
+	<textarea id="outputMD" readonly class="syncScrTxt"></textarea>
+</div>
+`;
+		</script>
+
+		<script>
+			window.onload = () => {
+				let hljs = window.hljs,
+					mdItObj = window.markdownit({
+						html: true,
+						highlight: function(str, lang) {
+							let langClass = '"hljs language-' + lang + '"';
+							if (lang && hljs.getLanguage(lang)) {
+								try {
+									return (
+										'<pre class=' +
+										langClass +
+										'><code>' +
+										hljs.highlight(lang, str, true).value +
+										'</code></pre>'
+									);
+								} catch (__) {}
+							}
+							return '<pre class="hljs"><code>' + mdItObj.utils.escapeHtml(str) + '</code></pre>';
+						},
+					}),
+					mdIt = mdItObj.render.bind(mdItObj),
+					marked = window.marked,
+					html2md = window.html2md,
+					md2Html = mdIt,
+					delay = false,
+					timer = null;
+				marked.setOptions({
+					highlight: function(str, lang) {
+						if (lang && hljs.getLanguage(lang)) {
+							try {
+								return hljs.highlight(lang, str, true).value;
+							} catch (__) {}
+						}
+
+						return mdItObj.utils.escapeHtml(str);
+					},
+				});
+
+				let syncScrTxt = document.getElementsByClassName('syncScrTxt'),
+					syncScrBtn = document.getElementById('syncScrBtn');
+
+				function fillInputHTML() {
+					let innerHTML = document.getElementById("html-md");
+					if(innerHTML.innerHTML.trim() === '') innerHTML.innerHTML = html2mdInnerHTML;
+
+					let inputHTML = document.getElementById('inputHTML');
+					if (inputHTML.value === '') inputHTML.value = html2mdInput;
+					inputHTML.addEventListener('input', afterInputHTML);
+
+					afterInputHTML();
+					checkIfBindScr();
+				}
+
+				function afterInputHTML() {
+					let inputHTML = document.querySelector('#html-md #inputHTML'),
+						outputMD = document.querySelector('#html-md #outputMD');
+					show(null, inputHTML, outputMD);
+					console.log('all done');
+				}
+
+				function syncScroll(ev) {
+					let ele = ev.target;
+					if (!delay) {
+						clearTimeout(timer);
+						delay = true;
+						if (ele.className === 'syncScrTxt') {
+							let scrRatio = ele.scrollTop / ele.scrollHeight;
+							for (let j = 0; j < syncScrTxt.length; j++) {
+								if (syncScrTxt[j] === ele) continue;
+								syncScrTxt[j].scrollTo({
+									top: syncScrTxt[j].scrollHeight * scrRatio,
+								});
+							}
+						}
+						timer = setTimeout(() => {
+							delay = false;
+						}, 30);
+					}
+				}
+
+				function bindScr(syncScrTxt) {
+					for (let i = 0; i < syncScrTxt.length; i++) {
+						let ele = syncScrTxt[i];
+						ele.addEventListener('scroll', syncScroll);
+					}
+				}
+
+				function unbindScr(syncScrTxt) {
+					for (let i = 0; i < syncScrTxt.length; i++) {
+						let ele = syncScrTxt[i];
+						ele.removeEventListener('scroll', syncScroll);
+					}
+				}
+
+				function toggleSyncScroll(ev) {
+					if (ev.target.checked) {
+						bindScr(syncScrTxt);
+					} else {
+						unbindScr(syncScrTxt);
+					}
+				}
+
+				function show(inputMd, HTML, outputMd) {
+					render(md2Html, html2md, inputMd, HTML, outputMd);
+				}
+
+				function checkIfBindScr() {
+					let checked = syncScrBtn.checked;
+					if (checked) {
+						bindScr(syncScrTxt);
+					} else {
+						unbindScr(syncScrTxt);
+					}
+				}
+
+				syncScrBtn.addEventListener('change', toggleSyncScroll);
+				fillInputHTML();
+				checkIfBindScr();
+			};
+		</script>
+
+		<script>
+			function render(md2Html, html2md, ele1, ele2, ele3) {
+				let htmlTxt = null,
+					output;
+				if (ele1) {
+					let mdInp = ele1.value;
+					console.time('md->html');
+					htmlTxt = md2Html(mdInp);
+					console.timeEnd('md->html');
+				} else {
+					htmlTxt = ele2.value;
+				}
+				console.time('html->md');
+				output = html2md(htmlTxt);
+				console.timeEnd('html->md');
+
+				if (ele1) ele2.innerHTML = htmlTxt;
+				ele3.value = output;
+				console.log('render done');
+			}
+		</script>
+
+		<script>
+			let unescapeMap = {};
+			let escapeMap = {
+				'&': '&amp;',
+				'<': '&lt;',
+				'>': '&gt;',
+				'"': '&quot;',
+				"'": '&#39;',
+				'`': '&#x60;',
+			};
+
+			for (let key in escapeMap) {
+				unescapeMap[escapeMap[key]] = key;
+			}
+
+			let reUnescapedHtml = /[&<>"'`]/g;
+			let reHasUnescapedHtml = RegExp(reUnescapedHtml.source);
+			let reEscapedHtml = /&(?:amp|lt|gt|quot|#39|#x60);/g;
+			let reHasEscapedHtml = RegExp(reEscapedHtml.source);
+
+			function escape(s) {
+				return s && reHasUnescapedHtml.test(s) ? s.replace(reUnescapedHtml, (chr) => escapeMap[chr]) : s;
+			}
+
+			function unescape(s) {
+				return s && reHasEscapedHtml.test(s) ? s.replace(reEscapedHtml, (entity) => unescapeMap[entity]) : s;
+			}
+
+			window.unescape = unescape;
+		</script>
+
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/html-to-md/dist/index.js"></script>
+	</body>
+</html>

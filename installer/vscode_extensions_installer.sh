@@ -108,6 +108,7 @@ extensions=(
 	"tyriar.sort-lines"
 	"russell.any-rule"
 	"hediet.vscode-drawio"
+	"redhat.vscode-extension-bpmn-editor"
 	"mqycn.huile8"
 	"wscats.search"
 	"idleberg.innosetup"

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<title>图片查看器</title>
+		<link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.10.5/viewer.min.css"
+        />
+		<link
+        rel="stylesheet"
+        href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css"
+        />
+        <style>
+            #image {
+                display: none;
+            }
+
+            .doc-pictures {
+                display: flex;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                gap: 10px;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .doc-pictures > li {
+                border: 1px solid transparent;
+                float: left;
+                height: calc(100% / 3);
+                margin: 0 -1px -1px 0;
+                overflow: hidden;
+                width: calc(100% / 3);
+            }
+
+            .doc-pictures > li > img {
+                cursor: -webkit-zoom-in;
+                cursor: zoom-in;
+                width: 100%;
+            }
+
+            .gallery {
+                display: flex;
+                margin: 0;
+                padding: 0;
+                gap: 10px;
+                justify-content: center;
+                align-items: center;
+                transition: 0.3s;
+            }
+
+            .gallery:hover .gallery-image {
+                filter: grayscale(1);
+            }
+
+            .gallery-column {
+                display: flex;
+                flex-direction: column;
+                width: calc(100% / 3);
+            }
+
+            .gallery-link {
+                margin: 2px;
+                overflow: hidden;
+            }
+
+            .gallery-link:hover .gallery-image {
+                filter: grayscale(0);
+            }
+
+            .gallery-link:hover .gallery-caption {
+                opacity: 1;
+            }
+
+            .gallery-thumb {
+                position: relative;
+            }
+
+            .gallery-image {
+                display: block;
+                width: 100%;
+                transition: 0.3s;
+            }
+
+            .gallery-image:hover {
+                transform: scale(1.1);
+            }
+
+            .gallery-caption {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                padding: 25px 15px 15px;
+                width: 100%;
+                font-family: 'Noto Sans', sans-serif;
+                font-size: 16px;
+                color: white;
+                opacity: 0;
+                background: linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+                transition: 0.3s;
+            }
+
+            .card-img-top {
+                max-height: 250px;
+                overflow: hidden;
+            }
+
+            .card-title a:link {
+                font-size: 30px;
+                background-color: transparent;
+                color: #000000;
+                text-decoration: none;
+            }
+
+            .card-title a:hover {
+                color: red;
+                background-color: transparent;
+                text-decoration: underline;
+            }
+
+            .photo-gallery {
+                color:#313437;
+                background-color:#fff;
+            }
+
+            .photo-gallery p {
+                color:#7d8285;
+            }
+
+            .photo-gallery h2 {
+                font-weight:bold;
+                margin-bottom:40px;
+                padding-top:40px;
+                color:inherit;
+            }
+
+            @media (max-width:767px) {
+                .photo-gallery h2 {
+                    margin-bottom:25px;
+                    padding-top:25px;
+                    font-size:24px;
+                }
+            }
+
+            .photo-gallery .intro {
+                font-size:16px;
+                max-width:500px;
+                margin:0 auto 40px;
+            }
+
+            .photo-gallery .intro p {
+                margin-bottom:0;
+            }
+
+            .photo-gallery .photos {
+                padding-bottom:20px;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .photo-gallery .item {
+                padding-bottom:30px;
+            }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.10.5/viewer.min.js"></script>
+        <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.0/js/bootstrap.bundle.min.js"></script>
+	</head>
+	<body>
+		<div>
+            <img id="image" src="https://github.githubassets.com/images/modules/logos_page/Octocat.png" alt="Octocat">
+        </div>
+
+        <!--
+            [JavaScript image viewer](https://github.com/fengyuanchen/viewerjs)
+            [57 CSS Galleries](https://freefrontend.com/css-gallery/)
+            [How to create a responsive image gallery with CSS flexbox](https://blog.logrocket.com/how-create-responsive-image-gallery-css-flexbox/)
+        -->
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="mx-3 my-3">
+                        <ul id="images" class="doc-pictures">
+                            <li>
+                                <img src="https://github.githubassets.com/images/modules/logos_page/Octocat.png" alt="Octocat">
+                            </li>
+                            <li>
+                                <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png" alt="GitHub-Logo">
+                            </li>
+                            <li>
+                                <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub-Mark">
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flex image gallery with hover effect -->
+        <div class="container">
+            <h1 class="fw-light text-center text-lg-start mt-4 mb-0">Flex image gallery with hover effect</h1>
+            <hr class="mt-2 mb-5">
+            <div class="gallery">
+                <div class="gallery-column">
+                    <a class="gallery-link" href="https://github.githubassets.com/images/modules/logos_page/Octocat.png">
+                        <figure class="gallery-thumb">
+                            <img class="gallery-image" src="https://github.githubassets.com/images/modules/logos_page/Octocat.png" alt="Octocat">
+                            <figcaption class="gallery-caption">Octocat</figcaption>
+                        </figure>
+                    </a>
+                </div>
+                <div class="gallery-column">
+                    <a class="gallery-link" href="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png">
+                        <figure class="gallery-thumb">
+                            <img class="gallery-image" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png" alt="GitHub-Logo">
+                            <figcaption class="gallery-caption">GitHub-Logo</figcaption>
+                        </figure>
+                    </a>
+                </div>
+                <div class="gallery-column">
+                    <a class="gallery-link" href="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png">
+                        <figure class="gallery-thumb">
+                            <img class="gallery-image" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub-Mark">
+                            <figcaption class="gallery-caption">GitHub-Mark</figcaption>
+                        </figure>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Gallery -->
+        <div class="container">
+            <h1 class="fw-light text-center text-lg-start mt-4 mb-0">Image Gallery</h1>
+            <hr class="mt-2 mb-5">
+            <div class="row text-center text-lg-start">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="col-md-4">
+                        <a href="https://github.githubassets.com/images/modules/logos_page/Octocat.png">
+                            <img class="img-fluid img-thumbnail rounded" src="https://github.githubassets.com/images/modules/logos_page/Octocat.png" alt="Octocat">
+                            <div class="text-center"><p>Octocat</p></div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png">
+                            <img class="img-fluid img-thumbnail rounded" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png" alt="GitHub-Logo">
+                            <div class="text-center"><p>GitHub-Logo</p></div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png">
+                            <img class="img-fluid img-thumbnail rounded" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub-Mark">
+                            <div class="text-center"><p>GitHub-Mark</p></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Gallery with Thumbnails -->
+        <div class="container">
+            <h1 class="fw-light text-center text-lg-start mt-4 mb-0">Image Gallery with Thumbnails</h1>
+            <hr class="mt-2 mb-5">
+            <div class="row text-center text-lg-start">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="col-lg-3 col-md-4 col-6 mx-auto">
+                        <a href="https://github.githubassets.com/images/modules/logos_page/Octocat.png" class="d-block mb-4 h-100">
+                            <img class="img-fluid img-thumbnail rounded" src="https://github.githubassets.com/images/modules/logos_page/Octocat.png" alt="Octocat">
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-6 mx-auto">
+                        <a href="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png" class="d-block mb-4 h-100">
+                            <img class="img-fluid img-thumbnail rounded" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png" alt="GitHub-Logo">
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-4 col-6 mx-auto">
+                        <a href="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="d-block mb-4 h-100">
+                            <img class="img-fluid img-thumbnail rounded" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub-Mark">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards Gallery -->
+        <div class="container">
+            <h1 class="fw-light text-center text-lg-start mt-4 mb-0">Cards Gallery</h1>
+            <hr class="mt-2 mb-5">
+            <div class="row text-center">
+                <div class="card-group">
+                    <div class="card">
+                        <img src="https://github.githubassets.com/images/modules/logos_page/Octocat.png" class="card-image-top" alt="Octocat">
+                        <div class="card-body">
+                            <h3 class="card-title"><a href="#" class="text-secondary">Octocat</a></h3>
+                            <p class="card-text">Octocat</p>
+                            <a href="#" class="btn btn-primary">Read More</a>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Last updated 3 mins ago</small>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png" class="card-image-top" alt="GitHub-Logo">
+                        <div class="card-body">
+                            <h3 class="card-title"><a href="#" class="text-secondary">GitHub-Logo</a></h3>
+                            <p class="card-text">GitHub-Logo</p>
+                            <a href="#" class="btn btn-primary">Read More</a>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Last updated 3 mins ago</small>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" class="card-image-top" alt="GitHub-Mark">
+                        <div class="card-body">
+                            <h3 class="card-title"><a href="#" class="text-secondary">GitHub-Mark</a></h3>
+                            <p class="card-text">GitHub-Mark</p>
+                            <a href="#" class="btn btn-primary">Read More</a>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">Last updated 3 mins ago</small>
+                        </div>
+                    </div>
+            </div>
+        </div>
+
+        <!-- Lightbox Gallery -->
+        <div class="photo-gallery">
+            <div class="container">
+                <h1 class="fw-light text-center text-lg-start mt-4 mb-0">Lightbox Gallery</h1>
+                <hr class="mt-2 mb-5">
+                <div class="row photos">
+                    <div class="col-sm-6 col-md-4 col-lg-3 item">
+                        <a href="https://github.githubassets.com/images/modules/logos_page/Octocat.png" data-lightbox="photos">
+                            <img class="img-fluid" src="https://github.githubassets.com/images/modules/logos_page/Octocat.png" alt="Octocat">
+                        </a>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-lg-3 item">
+                        <a href="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png" data-lightbox="photos">
+                            <img class="img-fluid" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Logo.png" alt="GitHub-Logo">
+                        </a>
+                    </div>
+                    <div class="col-sm-6 col-md-4 col-lg-3 item">
+                        <a href="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" data-lightbox="photos">
+                            <img class="img-fluid" src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub-Mark">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+		<script>
+            const image = document.querySelector('#image');
+            const images = document.querySelector('#images');
+
+            const options = {
+                // inline: true,
+                url: 'data-original',
+                viewed() {
+                    viewer.zoomTo(1);
+                },
+            };
+
+            // const viewer = new Viewer(image, options);
+            // Then, show the image by clicking it, or call `viewer.show()`.
+
+            // View a list of images.
+            // Note: All images within the container will be found by calling `element.querySelectorAll('img')`.
+            const gallery = new Viewer(images);
+            // Then, show one image by click it, or call `gallery.show()`.
+            gallery.show();
+        </script>
+	</body>
+</html>
