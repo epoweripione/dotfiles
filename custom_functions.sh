@@ -2491,13 +2491,13 @@ function App_Installer_Download_Extract() {
     # Download
     [[ -n "${GITHUB_DOWNLOAD_URL}" ]] && download_url="${download_url//${github_url}/${GITHUB_DOWNLOAD_URL}}"
     colorEcho "${BLUE}  From ${ORANGE}${download_url}"
-    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -N -o "${download_filename}" "${download_url}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}"
     curl_rtn_code=$?
 
     if [[ ${curl_rtn_code} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
         download_url="${download_url//${GITHUB_DOWNLOAD_URL}/${github_url}}"
         colorEcho "${BLUE}  From ${ORANGE}${download_url}"
-        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}"
         curl_rtn_code=$?
     fi
 
@@ -2888,6 +2888,25 @@ function Get_Installer_CURL_Options() {
         fi
     fi
     [[ -z "${CURL_DOWNLOAD_OPTS[*]}" ]] && CURL_DOWNLOAD_OPTS=(-fSL)
+
+    return 0
+}
+
+
+function Get_Installer_AXEL_Options() {
+    local opts
+
+    [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
+
+    AXEL_DOWNLOAD_OPTS=()
+    if [[ -n "${INSTALLER_DOWNLOAD_AXEL_OPTION}" ]]; then
+        if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" AXEL_DOWNLOAD_OPTS <<< "${INSTALLER_DOWNLOAD_AXEL_OPTION}" 2>/dev/null; then
+            while read -r opts; do
+                AXEL_DOWNLOAD_OPTS+=("${opts}")
+            done < <(echo "${INSTALLER_DOWNLOAD_AXEL_OPTION}" | tr ' ' '\n')
+        fi
+    fi
+    [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && AXEL_DOWNLOAD_OPTS=(--num-connections=5 --timeout=30 --alternate)
 
     return 0
 }

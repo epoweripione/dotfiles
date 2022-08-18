@@ -70,12 +70,12 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
         linux)
             case "${OS_INFO_ARCH}" in
                 amd64)
-                    REMOTE_FILENAME="nnn-nerd-static-${REMOTE_VERSION}.x86_64.${ARCHIVE_EXT}"
+                    REMOTE_FILENAME="nnn-nerd-static-${REMOTE_VERSION}.x86_64.tar.gz"
                     ;;
             esac
             ;;
         darwin)
-            REMOTE_FILENAME="nnn-nerd-static-${REMOTE_VERSION}.x86_64.${ARCHIVE_EXT}"
+            REMOTE_FILENAME="nnn-nerd-static-${REMOTE_VERSION}.x86_64.tar.gz"
             ;;
     esac
 
@@ -88,13 +88,13 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     # Download file
     DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
     colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -N -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
         DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
         colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 

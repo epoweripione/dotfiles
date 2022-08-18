@@ -38,7 +38,7 @@ if [[ ! -s "$HOME/.local/share/funky/funky.sh" ]]; then
     DOWNLOAD_FILENAME="${WORKDIR}/funky.sh"
     DOWNLOAD_URL="https://raw.githubusercontent.com/bbugyi200/funky/master/scripts/shell/funky.sh"
     colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -N -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -eq 0 ]]; then

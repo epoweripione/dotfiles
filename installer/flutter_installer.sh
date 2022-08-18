@@ -167,7 +167,7 @@ if [[ "${IS_INSTALL}" == "yes" && -n "${REMOTE_FILEPATH}" ]]; then
 
     DOWNLOAD_FILENAME="${WORKDIR}/${DOWNLOAD_URL##*/}"
     colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -N -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -eq 0 ]]; then
