@@ -2492,7 +2492,7 @@ function App_Installer_Download_Extract() {
     # Download
     [[ -n "${GITHUB_DOWNLOAD_URL}" ]] && download_url="${download_url//${github_url}/${GITHUB_DOWNLOAD_URL}}"
     colorEcho "${BLUE}  From ${ORANGE}${download_url}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -N -o "${download_filename}" "${download_url}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}"
     curl_rtn_code=$?
 
     if [[ ${curl_rtn_code} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then

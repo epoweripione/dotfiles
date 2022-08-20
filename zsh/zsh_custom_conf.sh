@@ -74,6 +74,8 @@ if [[ -s "${MY_SHELL_SCRIPTS}/custom_functions.sh" ]]; then
     [[ "${THE_WORLD_BLOCKED}" == "true" ]] && check_set_global_proxy 7891 7890
 fi
 
+# Environment variables
+[[ -s "$HOME/.dotfiles.env.local" ]] && source "$HOME/.dotfiles.env.local"
 
 # aliases
 if [[ -x "$(command -v nano)" ]]; then
@@ -720,8 +722,6 @@ export INSTALLER_DOWNLOAD_AXEL_OPTION=${INSTALLER_DOWNLOAD_AXEL_OPTION:-"--num-c
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     # GITHUB_HUB_URL="https://hub.fastgit.xyz"
     # GITHUB_HUB_URL="https://gitclone.com/github.com"
-    [[ -s "$HOME/.github_mirror.local" ]] && source "$HOME/.github_mirror.local"
-
     export GITHUB_MIRROR_USE_FASTGIT=${GITHUB_MIRROR_USE_FASTGIT:-"true"}
     if [[ "${GITHUB_MIRROR_USE_FASTGIT}" == "true" ]]; then
         GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"https://download.fastgit.org"}
