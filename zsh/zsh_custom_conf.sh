@@ -120,6 +120,14 @@ alias hisrate='fc -l -n 1 | grep -v "^\.\/" | sort | uniq -c | sort -rn | sed "s
 
 # alias histop="awk -F';' '{print $2}' ${HISTFILE} | sort | uniq -c | sort -rn"
 
+# skim aliases
+if [[ -x "$(command -v sk)" ]]; then
+    alias sk-grep='sk --ansi -i -c '"'"'grep -rI --color=always --line-number "{}" .'"'"''
+    alias sk-ack='sk --ansi -i -c '"'"'ack --color "{}"'"'"''
+    alias sk-ag='sk --ansi -i -c '"'"'ag --color "{}"'"'"''
+    alias sk-rg='sk --ansi -i -c '"'"'rg --color=always --line-number "{}"'"'"''
+fi
+
 # docker aliases
 if [[ -x "$(command -v docker)" ]]; then
     alias dockerpullall='sudo docker images | grep -Ev "REPOSITORY|<none>" | awk '"'"'{print $1,$2}'"'"' OFS='"'"':'"'"' | xargs -L1 sudo docker pull'
@@ -775,7 +783,9 @@ fi
 
 # Autostart Tmux/screen Session On Remote System When Logging In Via SSH
 if [[ -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
-    if [[ "$(command -v tmux)" ]]; then
+    if [[ "$(command -v zellij)" ]]; then
+        newZellijSession
+    elif [[ "$(command -v tmux)" ]]; then
         newTmuxSession
     elif [[ -x "$(command -v screen)" ]]; then
         newScreenSession

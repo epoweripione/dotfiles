@@ -37,18 +37,24 @@ else
 fi
 
 if App_Installer_Install; then
-    # Autostart on shell creation
-    # bash
-    if ! grep -q "zellij setup" "$HOME/.bashrc" 2>/dev/null; then
-        echo -e '\n# Autostart a new zellij shell\nexport ZELLIJ_AUTO_ATTACH=true' >> "$HOME/.bashrc"
-        echo 'eval "$(zellij setup --generate-auto-start bash)"' >> "$HOME/.bashrc"
-    fi
+    mkdir -p "$HOME/.config/zellij"
+    # zellij setup --dump-config > "$HOME/.config/zellij/config.yaml"
 
-    # zsh
-    if ! grep -q "zellij setup" "$HOME/.zshrc" 2>/dev/null; then
-        echo -e '\n# Autostart a new zellij shell\nexport ZELLIJ_AUTO_ATTACH=true' >> "$HOME/.zshrc"
-        echo 'eval "$(zellij setup --generate-auto-start zsh)"' >> "$HOME/.zshrc"
-    fi
+    # mkdir -p "$HOME/.config/zellij/layouts"
+    # zellij setup --dump-layout default > "$HOME/.config/zellij/layouts/default.yaml"
+
+    ## Autostart on shell creation
+    ## bash
+    # if ! grep -q "zellij setup" "$HOME/.bashrc" 2>/dev/null; then
+    #     echo -e '\n# Autostart a new zellij shell\nexport ZELLIJ_AUTO_ATTACH=true' >> "$HOME/.bashrc"
+    #     echo 'eval "$(zellij setup --generate-auto-start bash)"' >> "$HOME/.bashrc"
+    # fi
+
+    ## zsh
+    # if ! grep -q "zellij setup" "$HOME/.zshrc" 2>/dev/null; then
+    #     echo -e '\n# Autostart a new zellij shell\nexport ZELLIJ_AUTO_ATTACH=true' >> "$HOME/.zshrc"
+    #     echo 'eval "$(zellij setup --generate-auto-start zsh)"' >> "$HOME/.zshrc"
+    # fi
 else
     colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
 fi

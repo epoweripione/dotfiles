@@ -2783,6 +2783,31 @@ function newTmuxSession() {
     fi
 }
 
+# zellij: List current sessions, attach to a running session, or create a new one
+function newZellijSession() {
+    local ZJ_SESSIONS NO_SESSIONS
+
+    ZJ_SESSIONS=$(zellij list-sessions)
+    NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
+
+    if [ "${NO_SESSIONS}" -ge 2 ]; then
+        zellij attach "$(echo "${ZJ_SESSIONS}" | sk)"
+    else
+        zellij attach -c
+    fi
+}
+
+# zellij: List layout files saved in the default layout directory, opens the selected layout file
+function newZellijLayout() {
+    local ZJ_LAYOUT_DIR ZJ_LAYOUT
+
+    ZJ_LAYOUT_DIR=$(zellij setup --check | grep "LAYOUT DIR" - | grep -o '".*"' - | tr -d '"')
+
+    if [[ -d "${ZJ_LAYOUT_DIR}" ]];then
+            ZJ_LAYOUT="$(fd --type file . "${ZJ_LAYOUT_DIR}" | sed 's|.*/||' | sk || exit)"
+        zellij --layout "${ZJ_LAYOUT}"
+    fi
+}
 
 # docker mirrors
 function Set_Docker_Mirrors() {

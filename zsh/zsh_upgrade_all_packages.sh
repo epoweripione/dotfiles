@@ -157,6 +157,7 @@ AppList=(
     # "nano"
     "navi"
     "nnn"
+    "skim"
     "tealdeer"
     "yq"
     "zoxide"
@@ -166,9 +167,16 @@ for Target in "${AppList[@]}"; do
     [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
 done
 
+# zellij
+AppInstaller="${MY_SHELL_SCRIPTS}/installer/zellij_installer.sh"
+# [[ -z "${ZELLIJ}" && -z "${ZELLIJ_SESSION_NAME}" && -s "${AppInstaller}" ]] && source "${AppInstaller}"
+[[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
+
 # tmux
-AppInstaller="${MY_SHELL_SCRIPTS}/installer/tmux_installer.sh"
-[[ -z "$TMUX" && -s "${AppInstaller}" ]] && source "${AppInstaller}"
+if [[ ! -x "$(command -v zellij)" ]]; then
+    AppInstaller="${MY_SHELL_SCRIPTS}/installer/tmux_installer.sh"
+    [[ -z "${TMUX}" && -s "${AppInstaller}" ]] && source "${AppInstaller}"
+fi
 
 # Always install & update apps in WSL & Desktop environment, otherwise update only for manual install apps
 [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" || -n "${OS_INFO_DESKTOP}" ]] && IS_UPDATE_ONLY="no" || IS_UPDATE_ONLY="yes"
