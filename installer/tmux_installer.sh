@@ -23,6 +23,7 @@ if [[ -n "$TMUX" ]]; then
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # https://github.com/tmux/tmux
 APP_INSTALL_NAME="tmux"

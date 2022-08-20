@@ -23,6 +23,7 @@ fi
 
 [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # fix "command not found" when running via cron
 DirList=(

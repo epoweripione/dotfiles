@@ -18,6 +18,7 @@ else
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # v2ray
 # https://github.com/v2fly/v2ray-core

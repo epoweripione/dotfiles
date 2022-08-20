@@ -18,6 +18,7 @@ else
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # Use proxy or mirror when some sites were blocked or low speed
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env

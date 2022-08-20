@@ -18,6 +18,7 @@ else
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # https://github.com/chubin/wttr.in/blob/master/lib/constants.py
 declare -A WWO_CODE=(

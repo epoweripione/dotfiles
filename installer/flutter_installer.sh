@@ -20,6 +20,7 @@ else
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
 
@@ -147,7 +148,7 @@ if [[ "${IS_INSTALL}" == "yes" && -n "${REMOTE_FILEPATH}" ]]; then
     fi
 
     # Init snap
-    if [[ ! -d "/snap" && -x "$(command -v snap)" && -d "/var/lib/snapd/snap" ]]; then
+    if [[ ! -x "$(command -v snap)" || ! -d "/snap" ]]; then
         [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && \
             source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
     fi

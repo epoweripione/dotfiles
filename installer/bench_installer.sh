@@ -39,6 +39,7 @@ fi
 ## Besttrack
 # wget -qO- git.io/besttrace | bash
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/besttrace" "https://github.com/zq/shell/raw/master/besttrace2021" && \
     sudo cp -f "${WORKDIR}/besttrace" "/usr/local/bin/besttrace" && \

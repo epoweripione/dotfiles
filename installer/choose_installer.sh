@@ -18,6 +18,7 @@ else
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # choose: A human-friendly and fast alternative to cut and (sometimes) awk
 # https://github.com/theryangeary/choose

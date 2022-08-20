@@ -18,6 +18,7 @@ else
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 USBDISK=${1:-"sdb1"}
 [[ ! -d "/mnt/${USBDISK}" && -b "/dev/${USBDISK}" ]] && mkdir "/mnt/${USBDISK}" && mount -o rw,noatime "/dev/${USBDISK}" "/mnt/${USBDISK}"

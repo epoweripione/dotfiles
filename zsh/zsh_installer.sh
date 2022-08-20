@@ -30,6 +30,7 @@ if [[ ! -x "$(command -v pacman)" ]]; then
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # Install ZSH Shell
 if [[ -x "$(command -v pacman)" ]]; then
@@ -217,6 +218,16 @@ if [[ "${ZSH_VERSION:-unset}" = "unset" ]]; then
 fi
 EOF
     fi
+fi
+
+# axel
+if [[ ! -x "$(command -v axel)" ]]; then
+    if [[ ! -x "$(command -v snap)" ]]; then
+        [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/snap_installer.sh" ]] && \
+            source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/snap_installer.sh"
+    fi
+
+    [[ -x "$(command -v snap)" ]] && sudo snap install axel
 fi
 
 ## Install oh-my-zsh

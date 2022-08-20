@@ -697,20 +697,12 @@ export GIT_CLONE_DEFAULT_OPTION
 
 [[ -z "${GIT_CLONE_OPTS[*]}" ]] && Get_Git_Clone_Options
 
-# curl default options
-INSTALLER_CHECK_CURL_OPTION="-fsL --connect-timeout 5"
-INSTALLER_DOWNLOAD_CURL_OPTION="-fSL --connect-timeout 5"
-
-export INSTALLER_CHECK_CURL_OPTION=${INSTALLER_CHECK_CURL_OPTION:-""}
-export INSTALLER_DOWNLOAD_CURL_OPTION=${INSTALLER_DOWNLOAD_CURL_OPTION:-""}
+# curl & axel default options
+export INSTALLER_CHECK_CURL_OPTION=${INSTALLER_CHECK_CURL_OPTION:-"-fsL --connect-timeout 5"}
+export INSTALLER_DOWNLOAD_CURL_OPTION=${INSTALLER_DOWNLOAD_CURL_OPTION:-"-fSL --connect-timeout 5"}
+export INSTALLER_DOWNLOAD_AXEL_OPTION=${INSTALLER_DOWNLOAD_AXEL_OPTION:-"--num-connections=5 --timeout=30 --alternate"}
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-
-# axel default options
-INSTALLER_DOWNLOAD_AXEL_OPTION="--num-connections=5 --timeout=30 --alternate"
-
-export INSTALLER_DOWNLOAD_AXEL_OPTION=${INSTALLER_DOWNLOAD_AXEL_OPTION:-""}
-
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # Accelerate the speed of accessing GitHub

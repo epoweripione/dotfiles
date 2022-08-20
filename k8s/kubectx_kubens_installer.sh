@@ -20,6 +20,7 @@ else
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # kubectx + kubens: Power tools for kubectl
 # https://github.com/ahmetb/kubectx

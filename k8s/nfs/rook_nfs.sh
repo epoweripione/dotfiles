@@ -20,6 +20,7 @@ else
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 K8S_WORKDIR="$HOME/k8s" && mkdir -p "${K8S_WORKDIR}"
 

@@ -22,6 +22,7 @@ if [[ ! -x "$(command -v pecl)" ]]; then
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 ### fix PHP Fatal error: Cannot use result of built-in function in write context in /usr/share/php/Archive/Tar.php on line 639
 ### https://www.dotkernel.com/php-troubleshooting/fix-installing-pear-packages-with-php-7-2/

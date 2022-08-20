@@ -18,6 +18,7 @@ else
 fi
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # if [[ ! -x "$(command -v rustup)" && ! -x "$(command -v cargo)" ]]; then
 #     colorEcho "${FUCHSIA}rustup & cargo${RED} is not installed!"

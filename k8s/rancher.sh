@@ -50,6 +50,7 @@ fi
 
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # Setting up a High-availability RKE2 Kubernetes Cluster for Rancher
 # https://rancher.com/docs/rancher/v2.6/en/installation/resources/k8s-tutorials/ha-rke2/

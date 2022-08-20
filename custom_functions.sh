@@ -2410,6 +2410,7 @@ function App_Installer_Get_Remote() {
     [[ -z "${multi_match_filter}" ]] && multi_match_filter="musl|static"
 
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+    [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
     remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
     [[ -z "${remote_content}" ]] && colorEcho "${RED}  Error occurred while downloading from ${FUCHSIA}${remote_url}${RED}!" && return 1
