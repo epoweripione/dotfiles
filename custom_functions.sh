@@ -2787,13 +2787,20 @@ function newTmuxSession() {
 function newZellijSession() {
     local ZJ_SESSIONS NO_SESSIONS
 
-    ZJ_SESSIONS=$(zellij list-sessions)
-    NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
+    if [[ "$(command -v zellij)" ]]; then
+        if [[ -z "${ZELLIJ}" && -z "${ZELLIJ_SESSION_NAME}" ]]; then
+            ZJ_SESSIONS=$(zellij list-sessions)
+            NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
 
-    if [ "${NO_SESSIONS}" -ge 2 ]; then
-        zellij attach "$(echo "${ZJ_SESSIONS}" | sk)"
+            if [ "${NO_SESSIONS}" -ge 2 ]; then
+                zellij attach "$(echo "${ZJ_SESSIONS}" | sk)"
+            else
+                zellij attach -c
+            fi
+        fi
     else
-        zellij attach -c
+        colorEcho "${FUCHSIA}zellij${RED} is not installed!"
+        return 1
     fi
 }
 
@@ -2801,11 +2808,16 @@ function newZellijSession() {
 function newZellijLayout() {
     local ZJ_LAYOUT_DIR ZJ_LAYOUT
 
-    ZJ_LAYOUT_DIR=$(zellij setup --check | grep "LAYOUT DIR" - | grep -o '".*"' - | tr -d '"')
+    if [[ "$(command -v zellij)" ]]; then
+        ZJ_LAYOUT_DIR=$(zellij setup --check | grep "LAYOUT DIR" - | grep -o '".*"' - | tr -d '"')
 
-    if [[ -d "${ZJ_LAYOUT_DIR}" ]];then
+        if [[ -d "${ZJ_LAYOUT_DIR}" ]];then
             ZJ_LAYOUT="$(fd --type file . "${ZJ_LAYOUT_DIR}" | sed 's|.*/||' | sk || exit)"
-        zellij --layout "${ZJ_LAYOUT}"
+            zellij --layout "${ZJ_LAYOUT}"
+        fi
+    else
+        colorEcho "${FUCHSIA}zellij${RED} is not installed!"
+        return 1
     fi
 }
 
