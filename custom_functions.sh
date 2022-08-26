@@ -2793,9 +2793,9 @@ function newZellijSession() {
             NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
 
             if [ "${NO_SESSIONS}" -ge 2 ]; then
-                zellij attach "$(echo "${ZJ_SESSIONS}" | sk)"
+                zellij attach "$(echo "${ZJ_SESSIONS}" | sk)" options --default-mode=locked --disable-mouse-mode
             else
-                zellij attach -c
+                zellij attach -c options --default-mode=locked --disable-mouse-mode
             fi
         fi
     else

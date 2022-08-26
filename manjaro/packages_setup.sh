@@ -90,7 +90,7 @@ sudo pacman --noconfirm --needed -S base-devel
 sudo pacman --noconfirm --needed -S cmake
 
 # Appimages
-colorEcho "${BLUE}Installing ${FUCHSIA}Build deps${BLUE}..."
+colorEcho "${BLUE}Installing ${FUCHSIA}Appimages${BLUE}..."
 sudo pacman --noconfirm --needed -S appimagelauncher
 
 # pre-requisite packages

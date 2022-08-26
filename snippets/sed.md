@@ -48,3 +48,12 @@ echo -n "😊" |              # -n ignore trailing newline                     \
     sed -r 's/^0+/0x/' |        # remove leading 0's, replace with 0x            \
     xargs printf 'U+%04X\n'     # pretty print the code point
 ```
+
+# add line before match line
+`echo -e "line1\nline2\nline4" | sed '/^line4/i\line3'`
+
+# add line after match line
+`echo -e "line1\nline2\nline4" | sed '/^line2/a\line3'`
+
+# comment lines
+`echo -e "line1\nline2" | sed 's/^line1/# &/g'`

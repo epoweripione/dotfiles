@@ -172,10 +172,9 @@ sudo pacman --noconfirm --needed -S copyq
 colorEcho "${BLUE}Installing ${FUCHSIA}develop tools${BLUE}..."
 sudo pacman --noconfirm --needed -S jre17-openjdk
 sudo pacman --noconfirm --needed -S dbeaver wireshark-qt
-yay --noconfirm --needed -S community/geany community/geany-plugins aur/geany-themes
-# yay --noconfirm --needed -S aur/notepadqq-git
-# yay --noconfirm --needed -S aur/notepadnext
 yay --noconfirm --needed -S visual-studio-code-bin
+yay --noconfirm --needed -S community/geany community/geany-plugins aur/geany-themes
+# yay --noconfirm --needed -S aur/notepadnext
 
 # Dictionary
 # sudo pacman --noconfirm --needed -S goldendict-git
@@ -310,6 +309,9 @@ yay --noconfirm --needed -S wps-office-fonts ttf-wps-fonts wps-office-all-dicts-
 
 # Homebrew
 [[ -s "${MY_SHELL_SCRIPTS}/installer/homebrew_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/homebrew_installer.sh"
+
+# Notepadqq
+[[ -s "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh"
 
 
 # Clean jobs

@@ -107,4 +107,16 @@ sleep 3
 # dig -querytype=ptr google.com @127.0.0.1
 
 
+## Windows 11 DoH support
+## https://docs.microsoft.com/zh-cn/windows-server/networking/dns/doh-client-support
+# Add-DnsClientDohServerAddress -ServerAddress '<resolver-IP-address>' -DohTemplate '<resolver-DoH-template>' -AllowFallbackToUdp $False -AutoUpgrade $True
+# Add-DnsClientDohServerAddress -ServerAddress '223.5.5.5' -DohTemplate 'https://dns.alidns.com/dns-query' -AllowFallbackToUdp $True -AutoUpgrade $True
+
+# nslookup dns.ipv6dns.com 240C::6666
+# Add-DnsClientDohServerAddress -ServerAddress '2408:873c:10:1::149' -DohTemplate 'https://dns.ipv6dns.com/dns-query' -AllowFallbackToUdp $False -AutoUpgrade $False
+# Add-DnsClientDohServerAddress -ServerAddress '122.194.14.149' -DohTemplate 'https://dns.ipv6dns.com/dns-query' -AllowFallbackToUdp $False -AutoUpgrade $False
+
+# Get-DNSClientDohServerAddress
+
+
 cd "${CURRENT_DIR}" || exit
