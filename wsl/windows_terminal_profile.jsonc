@@ -52,7 +52,7 @@
             "opacity": 1.0,
             "useAcrylic": true,
             "antialiasingMode": "grayscale",
-            "closeOnExit": "graceful",
+            "closeOnExit": "always",
             "cursorShape": "underscore",
             "historySize": 9001,
             "padding": "8, 8, 8, 8",

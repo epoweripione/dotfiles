@@ -70,9 +70,12 @@ fi
 
 # pnpm
 if [[ -x "$(command -v pnpm)" ]]; then
-    colorEcho "${BLUE}Setting pnpm config..."
-    mkdir -p "$HOME/.pnpm-store"
-    pnpm config set store-dir "$HOME/.pnpm-store"
+    PNPM_STORE=$(pnpm config get store-dir)
+    if [[ -z "${PNPM_STORE}" ]]; then
+        colorEcho "${BLUE}Setting pnpm store dir..."
+        mkdir -p "$HOME/.pnpm-store"
+        pnpm config set store-dir "$HOME/.pnpm-store"
+    fi
 fi
 
 
