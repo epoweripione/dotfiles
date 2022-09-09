@@ -17,6 +17,9 @@ else
     fi
 fi
 
+[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+
 # Poetry: Dependency Management for Python
 # https://python-poetry.org/
 APP_INSTALL_NAME="poetry"
