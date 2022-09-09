@@ -9,13 +9,13 @@
 // @license           MIT
 // @match             http://*/*
 // @match             https://*/*
-// @require           https://cdn.bootcss.com/jquery/3.6.0/jquery.min.js
+// @require           https://cdn.bootcss.com/jquery/3.6.1/jquery.min.js
 // @require           https://cdn.bootcdn.net/ajax/libs/findAndReplaceDOMText/0.4.6/findAndReplaceDOMText.min.js
 // @require           https://cdn.jsdelivr.net/gh/hsynlms/theroomjs/dist/theroom.min.js
 // @require           https://html2canvas.hertzen.com/dist/html2canvas.min.js
 // @require           https://cdn.jsdelivr.net/npm/dom-to-image-more/dist/dom-to-image-more.min.js
 // @require           https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.10.5/viewer.min.js
-// @require           https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.4/beautify-html.min.js
+// @require           https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify-html.min.js
 // @require           https://unpkg.com/turndown/dist/turndown.js
 // @require           https://unpkg.com/@guyplusplus/turndown-plugin-gfm/dist/turndown-plugin-gfm.js
 // @require           https://cdn.jsdelivr.net/npm/html-to-md/dist/index.js
@@ -33,7 +33,7 @@
 // ==/UserScript==
 
 // [Console Importer](https://chrome.google.com/webstore/detail/console-importer/hgajpakhafplebkdljleajgbpdmplhie)
-// $i('https://cdn.bootcss.com/jquery/3.6.0/jquery.min.js');
+// $i('https://cdn.bootcss.com/jquery/3.6.1/jquery.min.js');
 // $i('https://cdn.bootcdn.net/ajax/libs/findAndReplaceDOMText/0.4.6/findAndReplaceDOMText.min.js');
 // $i('https://cdn.jsdelivr.net/npm/chinese-characters-codepoints-converter/index.js');
 
