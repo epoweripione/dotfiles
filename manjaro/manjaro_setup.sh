@@ -313,6 +313,9 @@ yay --noconfirm --needed -S wps-office-fonts ttf-wps-fonts wps-office-all-dicts-
 # Notepadqq
 [[ -s "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh"
 
+# Themes
+# [[ -s "${MY_SHELL_SCRIPTS}/installer/desktop_themes.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/desktop_themes.sh"
+
 
 # Clean jobs
 # sudo pacman -Rns $(pacman -Qtdq)
