@@ -836,6 +836,8 @@ function LatinCJKSpaceStyle() {
 
 // [findAndReplaceDOMText](https://github.com/padolsey/findAndReplaceDOMText)
 function addSpaceBetweenLatinCJK() {
+    $('hanla').remove();
+
     $('body').each(function() {
         // let hanzi = `[${UNICODE_CJK_ALL.join('')}]`,
         // let hanzi = '[\u2E80-\u2FFF\u31C0-\u31EF\u3300-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F]',
@@ -880,8 +882,9 @@ function addSpaceBetweenLatinCJK() {
         this.normalize();
 
         $('* > hanla:first-child').parent().each(function() {
+            // An Element node like <p> or <div>
             if (this.firstChild.nodeType == 1) {
-                $(this).before($('<hanla/>'));
+                // $(this).before($('<hanla/>'));
                 $(this).find('hanla:first-child').remove();
             }
         });
@@ -1412,7 +1415,7 @@ function fetchImageBase64(url, callback) {
             headers: {referer: host},
             responseType: "blob",
             onload: (res) => {
-                var blob = res.response;
+                let blob = res.response;
                 let oFileReader = new FileReader();
                 oFileReader.onloadend = (e) => {
                     let base64 = e.target.result;
@@ -2630,8 +2633,8 @@ function toggleDarkmode(mode) {
 // return a new function to pass to called that has a timeout wrapper on it
 // $(document).ready(timeoutFn(() => console.log('timeout 5s'), 5000));
 function timeoutFn(fn, t) {
-    var fired = false;
-    var timer;
+    let fired = false;
+    let timer;
     function run() {
         clearTimeout(timer);
         timer = null;
@@ -2915,11 +2918,39 @@ function getWikiListFonts() {
     }
 
     if (!waitForElement) {
-        waitForElementOperation();
+        // waitForElementOperation();
+        // delay the function call to fix `DOMException: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node` on some sites
+        setTimeout(() => waitForElementOperation(), 1000);
     }
 
     // 监听键盘事件
     document.addEventListener('keydown', onKeydown, true);
+
+    // 监听滚动事件，以处理 自动无缝翻页（Autopager）
+    // let beforeScrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    // window.addEventListener('scroll', () => {
+    //     let scrollTop = document.documentElement.scrollTop || document.body.scrollTop,
+    //         clientHeight = document.documentElement.clientHeight || document.body.clientHeight,
+    //         scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight,
+    //         afterScrollTop = document.documentElement.scrollTop || document.body.scrollTop,
+    //         delta = afterScrollTop - beforeScrollTop;
+    //     if (delta <= 0) return false;//scroll up
+
+    //     beforeScrollTop = afterScrollTop;
+    //     if (delta > 0 && scrollTop + clientHeight + 10 <= scrollHeight) {
+    //         if (cssSpaceStyle) addSpaceBetweenLatinCJK();
+    //     }
+    // }, false);
+    let beforeScrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+    window.addEventListener('scroll', () => {
+        let afterScrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+
+        if (afterScrollHeight > beforeScrollHeight) {
+            waitForElementOperation();
+        }
+
+        beforeScrollHeight = afterScrollHeight;
+    }, false);
 
     //dom is fully loaded, but maybe waiting on images & css files
     // document.addEventListener("DOMContentLoaded", () => {
