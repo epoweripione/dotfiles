@@ -41,6 +41,7 @@ $extensions = @(
 	"alexisvt.flutter-snippets"
 	## GO
 	"golang.go"
+	"fr-str.vscode-postfix-go-fr"
 	## HTML/CSS
 	"ms-vscode.brackets-pack"
 	"sidthesloth.html5-boilerplate"
@@ -96,6 +97,7 @@ $extensions = @(
 	"shan.code-settings-sync"
 	"anseki.vscode-color"
 	"mkxml.vscode-filesize"
+	"doggy8088.quicktype-refresh"
 	"wayou.vscode-todo-highlight"
 	"wwm.better-align"
 	"tyriar.sort-lines"

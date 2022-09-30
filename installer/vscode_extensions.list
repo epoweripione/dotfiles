@@ -57,6 +57,7 @@ gornivv.vscode-flutter-files
 alexisvt.flutter-snippets
 ## GO
 golang.go
+fr-str.vscode-postfix-go-fr
 ## HTML/CSS
 ms-vscode.brackets-pack
 thekalinga.bootstrap4-vscode
@@ -133,7 +134,6 @@ yzane.markdown-pdf
 shanoor.vscode-nginx
 ## Node
 christian-kohler.npm-intellisense
-eg2.vscode-npm-script
 leizongmin.node-module-intellisense
 ## PHP
 felixfbecker.php-intellisense
@@ -195,7 +195,7 @@ vsls-contrib.codetour
 joelday.docthis
 k--kato.docomment
 mkxml.vscode-filesize
-quicktype.quicktype
+doggy8088.quicktype-refresh
 wayou.vscode-todo-highlight
 obkoro1.korofileheader
 kisstkondoros.vscode-gutter-preview
