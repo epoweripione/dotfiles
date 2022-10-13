@@ -71,12 +71,12 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
         linux)
             case "${OS_INFO_ARCH}" in
                 amd64)
-                    REMOTE_FILENAME="lnav-${REMOTE_VERSION}-musl-64bit.${ARCHIVE_EXT}"
+                    REMOTE_FILENAME="lnav-${REMOTE_VERSION}-x86_64-linux-musl.${ARCHIVE_EXT}"
                     ;;
             esac
             ;;
         darwin)
-            REMOTE_FILENAME="lnav-${REMOTE_VERSION}-os-x.${ARCHIVE_EXT}"
+            REMOTE_FILENAME="lnav-${REMOTE_VERSION}-x86_64-macos.${ARCHIVE_EXT}"
             ;;
     esac
 
