@@ -114,8 +114,8 @@ alias service-failed='systemctl --type=service --state=failed'
     alias sshproxy='ssh -o ProxyCommand='"'"'nc -X 5 -x ${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_SOCKS_PORT} %h %p'"'"''
 
 # most used history commands
-alias histop='fc -l -n 1 | grep -v "^\.\/" | sort | uniq -c | sort -rn | sed "s/^[ ]*[0-9]\+[ ]*//"'
-alias hisrate='fc -l -n 1 | grep -v "^\.\/" | sort | uniq -c | sort -rn | sed "s/^[ ]*//" \
+alias histop='fc -l -n 1 | grep -v "^\./" | sort | uniq -c | sort -rn | sed "s/^[ ]*[0-9]\+[ ]*//"'
+alias hisrate='fc -l -n 1 | grep -v "^\./" | sort | uniq -c | sort -rn | sed "s/^[ ]*//" \
         | awk '"'"'BEGIN{i=0;total=0} \
             {CMD[i]=$0;RATE[i]=$1;i++;total=total+$1} \
             END{for (i=0; i in RATE; i++)print RATE[i]/total*100 "% " CMD[i];}'"'"''
