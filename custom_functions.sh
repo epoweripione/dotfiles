@@ -3237,6 +3237,28 @@ function load_ssh_keys() {
 }
 
 
+# Check if app is Microsoft Windows executable file (EXE file) in WSL
+# Usage: if check_wsl_windows_exe "/c/Users/user01/scoop/shims/flutter"; then echo 'The app is Windows executable file!'; fi
+function check_wsl_windows_exe() {
+    local appPath=$1
+    local os_wsl
+    local wslPath
+
+    os_wsl=$(uname -r)
+    if [[ "${os_wsl}" =~ "Microsoft" || "${os_wsl}" =~ "microsoft" ]]; then
+        wslPath=$(wslpath -w "${appPath}")
+        # C:\Users\user01\scoop\shims\flutter
+        if [[ "${wslPath}" =~ ':\\' ]]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+
+    return 1
+}
+
+
 ## ProgressBar
 # bar=''
 # for ((i=0;$i<=100;i++)); do

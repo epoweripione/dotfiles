@@ -71,8 +71,13 @@ fi
 # flutter doctor
 
 if [[ -x "$(command -v flutter)" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    # `flutter` is Windows executable file in WSL
+    if check_wsl_windows_exe "$(which flutter)"; then
+        IS_INSTALL="no"
+    else
+        IS_UPDATE="yes"
+        CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    fi
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
 fi

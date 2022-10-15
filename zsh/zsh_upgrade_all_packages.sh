@@ -235,7 +235,7 @@ AppList=(
     "trojan"
     "v2ray"
     "xray"
-    # "flutter"
+    "flutter"
 )
 for Target in "${AppList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
