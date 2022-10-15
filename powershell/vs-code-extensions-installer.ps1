@@ -108,6 +108,7 @@ $extensions = @(
 	"wscats.search"
 	"idleberg.innosetup"
 	"unbug.codelf"
+	"jeff-hykin.polacode-2019"
 )
 
 $cmd = "code --list-extensions"

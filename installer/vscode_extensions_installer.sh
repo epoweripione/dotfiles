@@ -115,6 +115,7 @@ extensions=(
 	"wscats.search"
 	"idleberg.innosetup"
 	"unbug.codelf"
+	"jeff-hykin.polacode-2019"
 )
 
 # How to export installed extensions list
