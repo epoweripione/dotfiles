@@ -35,18 +35,38 @@ if [[ -z "${NVM_NOT_UPDATE}" && -d "$HOME/.nvm" ]]; then
         curl -fsSL -o- "https://raw.githubusercontent.com/creationix/nvm/v$REMOTE_VERSION/install.sh" | bash
     fi
 
+    NVM_DEFAULT_VERSION=$(nvm version default)
+    NVM_LTS_VERSION=$(nvm version 'lts/*')
+    NVM_NODE_VERSION=$(nvm version node)
+
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
         colorEcho "${BLUE}Updating ${FUCHSIA}node LTS${BLUE}..."
-        NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install --lts
+        if [[ "${NVM_DEFAULT_VERSION}" == "N/A" ]]; then
+            NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install --lts
+        else
+            NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install --lts --reinstall-packages-from=default
+        fi
 
         colorEcho "${BLUE}Updating ${FUCHSIA}node latest${BLUE}..."
-        NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install node --reinstall-packages-from=node
+        if [[ "${NVM_DEFAULT_VERSION}" == "N/A" ]]; then
+            NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install node
+        else
+            NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install node --reinstall-packages-from=default
+        fi
     else
         colorEcho "${BLUE}Updating ${FUCHSIA}node LTS${BLUE}..."
-        nvm install --lts
+        if [[ "${NVM_DEFAULT_VERSION}" == "N/A" ]]; then
+            nvm install --lts
+        else
+            nvm install --lts --reinstall-packages-from=default
+        fi
 
         colorEcho "${BLUE}Updating ${FUCHSIA}node latest${BLUE}..."
-        nvm install node --reinstall-packages-from=node
+        if [[ "${NVM_DEFAULT_VERSION}" == "N/A" ]]; then
+            nvm install node
+        else
+            nvm install node --reinstall-packages-from=default
+        fi
     fi
 
     # nvm use node
@@ -83,6 +103,17 @@ if [[ -z "${NVM_NOT_UPDATE}" && -d "$HOME/.nvm" ]]; then
     #     [ -L "/usr/bin/npm" ] && rm -f /usr/bin/npm
     #     ln -s "$(which node)" /usr/bin/node && ln -s "$(which npm)" /usr/bin/npm
     # fi
+
+    # delete old version
+    NVM_NEW_LTS_VERSION=$(nvm version 'lts/*')
+    if [[ "${NVM_LTS_VERSION}" != "N/A" && "${NVM_NEW_LTS_VERSION}" != "N/A" && "${NVM_LTS_VERSION}" != "${NVM_NEW_LTS_VERSION}" ]]; then
+        nvm uninstall "${NVM_LTS_VERSION}"
+    fi
+
+    NVM_NEW_NODE_VERSION=$(nvm version node)
+    if [[ "${NVM_NODE_VERSION}" != "N/A" && "${NVM_NEW_NODE_VERSION}" != "N/A" && "${NVM_NODE_VERSION}" != "${NVM_NEW_NODE_VERSION}" ]]; then
+        nvm uninstall "${NVM_NODE_VERSION}"
+    fi
 fi
 
 
