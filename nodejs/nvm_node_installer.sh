@@ -15,15 +15,16 @@ fi
 # Use proxy or mirror when some sites were blocked or low speed
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
+# Node Version Manager: https://github.com/nvm-sh/nvm
+APP_INSTALL_NAME="nvm"
+GITHUB_REPO_NAME="nvm-sh/nvm"
 
 colorEcho "${BLUE}Installing ${FUCHSIA}nvm & nodejs${BLUE}..."
-## Install nvm
-# https://github.com/creationix/nvm
 if [[ ! -d "$HOME/.nvm" ]]; then
-    CHECK_URL="https://api.github.com/repos/creationix/nvm/releases/latest"
+    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
     REMOTE_VERSION=$(wget -qO- $CHECK_URL | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
     if [[ -n "$REMOTE_VERSION" ]]; then
-        curl -fsSL -o- "https://raw.githubusercontent.com/creationix/nvm/v$REMOTE_VERSION/install.sh" | bash
+        curl -fsSL -o- "https://raw.githubusercontent.com/c${GITHUB_REPO_NAME}/v$REMOTE_VERSION/install.sh" | bash
     fi
 fi
 
@@ -31,7 +32,9 @@ if [[ -d "$HOME/.nvm" ]]; then
     if type 'nvm' 2>/dev/null | grep -q 'function'; then
         :
     else
-        export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh"
+        export NVM_DIR="$HOME/.nvm"
+        [[ -s "$NVM_DIR/nvm.sh" ]] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [[ -s "$NVM_DIR/bash_completion" ]] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
     fi
 fi
 

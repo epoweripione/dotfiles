@@ -15,6 +15,9 @@ fi
 # Use proxy or mirror when some sites were blocked or low speed
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
+# Node Version Manager: https://github.com/nvm-sh/nvm
+APP_INSTALL_NAME="nvm"
+GITHUB_REPO_NAME="nvm-sh/nvm"
 
 if [[ -z "${NVM_NOT_UPDATE}" && -d "$HOME/.nvm" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}nvm${BLUE}..."
@@ -22,17 +25,16 @@ if [[ -z "${NVM_NOT_UPDATE}" && -d "$HOME/.nvm" ]]; then
         :
     else
         export NVM_DIR="$HOME/.nvm"
-        source "$NVM_DIR/nvm.sh"
-        # export NVM_DIR="${XDG_CONFIG_HOME:-$HOME}/.nvm"
-        # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        [[ -s "$NVM_DIR/nvm.sh" ]] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [[ -s "$NVM_DIR/bash_completion" ]] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
     fi
 
-    CHECK_URL="https://api.github.com/repos/creationix/nvm/releases/latest"
+    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
 
     CURRENT_VERSION=$(nvm --version)
     REMOTE_VERSION=$(wget -qO- "$CHECK_URL" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
     if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        curl -fsSL -o- "https://raw.githubusercontent.com/creationix/nvm/v$REMOTE_VERSION/install.sh" | bash
+        curl -fsSL -o- "https://raw.githubusercontent.com/${GITHUB_REPO_NAME}/v$REMOTE_VERSION/install.sh" | bash
     fi
 
     NVM_DEFAULT_VERSION=$(nvm version default)

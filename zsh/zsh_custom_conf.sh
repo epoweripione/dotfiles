@@ -604,7 +604,9 @@ if [[ -d "$HOME/.nvm" ]]; then
     if type 'nvm' 2>/dev/null | grep -q 'function'; then
         :
     else
-        export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh"
+        export NVM_DIR="$HOME/.nvm"
+        [[ -s "$NVM_DIR/nvm.sh" ]] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [[ -s "$NVM_DIR/bash_completion" ]] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
     fi
 
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
