@@ -17,6 +17,8 @@ else
     fi
 fi
 
+RSYNC_REMOTE="$1" # root@10.0.0.2:/srv/web/www/public
+
 OS_INFO_WSL=$(uname -r)
 
 # WSL1 & WSL2
@@ -53,8 +55,15 @@ if [[ -s "${PROFILE}" ]]; then
 
         DOWNLOAD_FILENAME="${WORKDIR}/${PROFILE_FILE}"
 
-        colorEcho "${BLUE}Downloading ${FUCHSIA}${DOWNLOAD_URL}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        if [[ -z "${RSYNC_REMOTE}" ]]; then
+            colorEcho "${BLUE}Downloading ${FUCHSIA}${DOWNLOAD_URL}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
+            axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        else
+            colorEcho "${BLUE}Downloading ${FUCHSIA}${RSYNC_REMOTE}/${REMOTE_FILENAME}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
+            REMOTE_FILENAME=$(echo "${DOWNLOAD_URL}" | awk -F'/' '{print $NF}' | cut -d'?' -f1)
+            rsync -avz --progress "${RSYNC_REMOTE}/${REMOTE_FILENAME}" "${DOWNLOAD_FILENAME}"
+        fi
+
         curl_download_status=$?
         if [[ ${curl_download_status} -eq 0 ]]; then
             cp -f "${DOWNLOAD_FILENAME}" "${PROFILE_DIR}/${PROFILE_FILE}"
@@ -92,8 +101,15 @@ if [[ -s "${PROFILE}" ]]; then
 
         DOWNLOAD_FILENAME="${WORKDIR}/${PROFILE_FILE}"
 
-        colorEcho "${BLUE}Downloading ${FUCHSIA}${DOWNLOAD_URL}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        if [[ -z "${RSYNC_REMOTE}" ]]; then
+            colorEcho "${BLUE}Downloading ${FUCHSIA}${DOWNLOAD_URL}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
+            axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        else
+            colorEcho "${BLUE}Downloading ${FUCHSIA}${RSYNC_REMOTE}/${REMOTE_FILENAME}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
+            REMOTE_FILENAME=$(echo "${DOWNLOAD_URL}" | awk -F'/' '{print $NF}' | cut -d'?' -f1)
+            rsync -avz --progress "${RSYNC_REMOTE}/${REMOTE_FILENAME}" "${DOWNLOAD_FILENAME}"
+        fi
+
         curl_download_status=$?
         if [[ ${curl_download_status} -eq 0 ]]; then
             cp -f "${DOWNLOAD_FILENAME}" "${PROFILE_DIR}/${PROFILE_FILE}"
