@@ -1,12 +1,12 @@
 {
   "dependencies": {
     "minimist": "^1.2.7",
-    "puppeteer": "^18.2.1",
+    "puppeteer": "^19.0.0",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-stealth": "^2.11.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.3",
+    "@babel/core": "^7.19.6",
     "@babel/preset-env": "^7.19.4",
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
