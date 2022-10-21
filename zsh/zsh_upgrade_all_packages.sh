@@ -232,6 +232,7 @@ AppList=(
     "safe-rm"
     "clash"
     "subconverter"
+    "sing-box"
     "trojan"
     "v2ray"
     "xray"
