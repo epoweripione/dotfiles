@@ -273,6 +273,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "smartmontools"
         "usql"
         "wget"
+        "win32yank"
         "winmtr"
         "zoxide"
         "jq"
