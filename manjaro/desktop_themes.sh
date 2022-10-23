@@ -55,7 +55,9 @@ fi
 if [[ "${OS_INFO_DESKTOP}" == "XFCE" ]]; then
     # [Vala Panel Application Menu](https://github.com/rilian-la-te/vala-panel-appmenu)
     colorEcho "${BLUE}Installing ${FUCHSIA}Vala Panel Application Menu${BLUE}..."
-    yay --noconfirm --needed -S appmenu-gtk-module vala-panel-appmenu-common vala-panel-appmenu-registrar vala-panel-appmenu-xfce
+    yay --noconfirm --needed -S community/appmenu-gtk-module \
+        chaotic-aur/vala-panel-appmenu-common chaotic-aur/vala-panel-appmenu-registrar chaotic-aur/vala-panel-appmenu-xfce \
+        archlinuxcn/thunderbird-appmenu archlinuxcn/firefox-appmenu
 
     xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true
     xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true
