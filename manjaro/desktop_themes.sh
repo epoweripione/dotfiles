@@ -29,8 +29,8 @@ sudo pacman --noconfirm --needed -S plank
 # plank settings: on any icon on Plank Dock, just do `CTRL+RightClick`
 # plank --preferences
 
-# add to autostart
 if [[ -x "$(command -v plank)" ]]; then
+    # add to autostart
     tee "$HOME/.config/autostart/plank.desktop" >/dev/null <<-'EOF'
 [Desktop Entry]
 Encoding=UTF-8
@@ -45,6 +45,11 @@ StartupNotify=false
 Terminal=false
 Hidden=false
 EOF
+
+    # [plank themes](https://github.com/erikdubois/plankthemes)
+    Git_Clone_Update_Branch "erikdubois/plankthemes" "${THEMES_DIR}/plankthemes" && \
+        mkdir -p "$HOME/.local/share/plank/themes" && \
+        cp -Rf "${THEMES_DIR}/plankthemes/"* "$HOME/.local/share/plank/themes"
 fi
 
 if [[ "${OS_INFO_DESKTOP}" == "XFCE" ]]; then
