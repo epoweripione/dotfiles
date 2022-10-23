@@ -30,7 +30,7 @@ sudo pacman --noconfirm --needed -S plank
 # plank --preferences
 
 # add to autostart
-if [[ -x "$(command -v emote)" ]]; then
+if [[ -x "$(command -v plank)" ]]; then
     tee "$HOME/.config/autostart/plank.desktop" >/dev/null <<-'EOF'
 [Desktop Entry]
 Encoding=UTF-8
@@ -63,9 +63,28 @@ if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
         community/kvantum-theme-materia community/kvantum-theme-matcha community/nx-kvantum-theme \
         archlinuxcn/kvantum-theme-nordic-git
 
+    # [Lightly: A modern style for qt applications](https://github.com/Luwx/Lightly)
+    colorEcho "${BLUE}Installing ${FUCHSIA}Lightly${BLUE}..."
+    yay --noconfirm --needed -S chaotic-aur/lightly-qt
+
     # [Latte-Dock](https://github.com/KDE/latte-dock)
     colorEcho "${BLUE}Installing ${FUCHSIA}Latte-Dock${BLUE}..."
     sudo pacman --noconfirm --needed -S latte-dock
+
+    # [Materia KDE](https://github.com/PapirusDevelopmentTeam/materia-kde)
+    colorEcho "${BLUE}Installing ${FUCHSIA}Materia KDE Theme${BLUE}..."
+    sudo pacman --noconfirm --needed -S materia-kde kvantum-theme-materia
+
+    # [Aritim-Light Theme](https://github.com/Mrcuve0/Aritim-Light)
+    # [Aritim-Dark Theme](https://github.com/Mrcuve0/Aritim-Dark)
+    colorEcho "${BLUE}Installing ${FUCHSIA}Aritim Theme${BLUE}..."
+    yay --noconfirm --needed -S aur/aritim-light-kde-git aur/aritim-dark-kde-git
+
+    # [Canta KDE Theme](https://github.com/vinceliuice/Canta-kde)
+    colorEcho "${BLUE}Installing ${FUCHSIA}Canta KDE Theme${BLUE}..."
+    Git_Clone_Update_Branch "vinceliuice/Canta-kde" "${THEMES_DIR}/Canta-kde" && \
+        cd "${THEMES_DIR}/Canta-kde" && \
+        ./install.sh
 
     # [WhiteSur KDE Theme](https://github.com/vinceliuice/WhiteSur-kde)
     colorEcho "${BLUE}Installing ${FUCHSIA}WhiteSur KDE Theme${BLUE}..."
@@ -73,6 +92,17 @@ if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
         cd "${THEMES_DIR}/WhiteSur-kde" && \
         ./install.sh
 else
+    # [Aritim-Light Theme](https://github.com/Mrcuve0/Aritim-Light)
+    # [Aritim-Dark Theme](https://github.com/Mrcuve0/Aritim-Dark)
+    colorEcho "${BLUE}Installing ${FUCHSIA}Aritim Theme${BLUE}..."
+    yay --noconfirm --needed -S aur/aritim-light-gtk-git aur/aritim-dark-gtk-git
+
+    # [Canta-gtk-theme](https://github.com/vinceliuice/Canta-theme)
+    colorEcho "${BLUE}Installing ${FUCHSIA}Canta Theme${BLUE}..."
+    Git_Clone_Update_Branch "vinceliuice/Canta-theme" "${THEMES_DIR}/Canta-theme" && \
+        cd "${THEMES_DIR}/Canta-theme" && \
+        ./install.sh
+
     # [WhiteSur GTK Theme](https://github.com/vinceliuice/WhiteSur-gtk-theme)
     colorEcho "${BLUE}Installing ${FUCHSIA}WhiteSur GTK Theme${BLUE}..."
     Git_Clone_Update_Branch "vinceliuice/WhiteSur-gtk-theme" "${THEMES_DIR}/WhiteSur-gtk-theme" && \

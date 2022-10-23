@@ -40,12 +40,25 @@ sudo sed -i -e 's|^#EnableAUR|EnableAUR|' \
 #     -e 's|^#CheckAURVCSUpdates|CheckAURVCSUpdates|' \
 #     -e 's|^#CheckFlatpakUpdates|CheckFlatpakUpdates|' /etc/pamac.conf
 
+# [Chaotic-AUR: Automated building repo for AUR packages](https://aur.chaotic.cx/)
+if ! grep -q "chaotic-aur" /etc/pacman.conf 2>/dev/null; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}Chaotic-AUR${BLUE}..."
+    sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
+    sudo pacman-key --lsign-key FBA220DFC880C036
+    sudo pacman --noconfirm -U \
+        'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' \
+        'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+
+    echo -e "\n[chaotic-aur]" | sudo tee -a /etc/pacman.conf >/dev/null
+    echo "Include = /etc/pacman.d/chaotic-mirrorlist" | sudo tee -a /etc/pacman.conf >/dev/null
+fi
+
 # Arch Linux Chinese Community Repository
 # https://github.com/archlinuxcn/mirrorlist-repo
 if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
     colorEcho "${BLUE}Installing${FUCHSIA} archlinuxcn ${BLUE} repo..."
     if ! grep -q "archlinuxcn" /etc/pacman.conf 2>/dev/null; then
-        echo "[archlinuxcn]" | sudo tee -a /etc/pacman.conf >/dev/null
+        echo -e "\n[archlinuxcn]" | sudo tee -a /etc/pacman.conf >/dev/null
         # echo "Server = https://repo.archlinuxcn.org/\$arch" | sudo tee -a /etc/pacman.conf >/dev/null
         echo "Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/\$arch" | sudo tee -a /etc/pacman.conf >/dev/null
     fi
