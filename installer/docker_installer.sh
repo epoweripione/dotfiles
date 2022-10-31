@@ -86,12 +86,28 @@ if [[ ! -x "$(command -v docker)" ]]; then
     exit 1
 fi
 
+## [CLI Plugins](https://github.com/docker/cli/issues/1534)
+CLI_PLUGINS_DIR=""
+DirList=(
+    "/usr/local/lib/docker/cli-plugins"
+    "/usr/local/libexec/docker/cli-plugins"
+    "/usr/lib/docker/cli-plugins"
+    "/usr/libexec/docker/cli-plugins"
+)
+for TargetDir in "${DirList[@]}"; do
+    [[ -d "${TargetDir}" ]] && CLI_PLUGINS_DIR="${TargetDir}" && break
+done
+
+if [[ -z "${CLI_PLUGINS_DIR}" ]]; then
+    CLI_PLUGINS_DIR="$HOME/.docker/cli-plugins"
+    mkdir -p "${CLI_PLUGINS_DIR}"
+fi
 
 ## buildx
 IS_INSTALL="yes"
 CURRENT_VERSION="0.0.0"
 
-if [[ -f "$HOME/.docker/cli-plugins/docker-buildx" ]]; then
+if [[ -f "${CLI_PLUGINS_DIR}/docker-buildx" ]]; then
     CURRENT_VERSION=$(docker buildx version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 fi
 
@@ -129,9 +145,11 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     fi
 
     if [[ ${curl_download_status} -eq 0 ]]; then
-        mkdir -p "$HOME/.docker/cli-plugins" && \
-            mv -f "${DOWNLOAD_FILENAME}" "$HOME/.docker/cli-plugins/docker-buildx" && \
-            chmod a+x "$HOME/.docker/cli-plugins/docker-buildx"
+        [[ "${CLI_PLUGINS_DIR}" != "$HOME/.docker/cli-plugins" && -f "$HOME/.docker/cli-plugins/docker-buildx" ]] && \
+            rm -f "$HOME/.docker/cli-plugins/docker-buildx"
+
+        sudo cp -f "${DOWNLOAD_FILENAME}" "${CLI_PLUGINS_DIR}/docker-buildx" && \
+            sudo chmod a+x "${CLI_PLUGINS_DIR}/docker-buildx"
     fi
 fi
 
@@ -140,7 +158,7 @@ fi
 IS_INSTALL="yes"
 CURRENT_VERSION="0.0.0"
 
-if [[ -f "$HOME/.docker/cli-plugins/docker-compose" ]]; then
+if [[ -f "${CLI_PLUGINS_DIR}/docker-compose" ]]; then
     CURRENT_VERSION=$(docker compose version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 elif [[ -x "$(command -v docker-compose)" ]]; then
     CURRENT_VERSION=$(docker-compose -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
@@ -180,11 +198,11 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     fi
 
     if [[ ${curl_download_status} -eq 0 ]]; then
-        # sudo mv -f "${DOWNLOAD_FILENAME}" "/usr/local/bin/docker-compose" && \
-        #     sudo chmod +x "/usr/local/bin/docker-compose"
-        mkdir -p "$HOME/.docker/cli-plugins" && \
-            mv -f "${DOWNLOAD_FILENAME}" "$HOME/.docker/cli-plugins/docker-compose" && \
-            chmod a+x "$HOME/.docker/cli-plugins/docker-compose"
+        [[ "${CLI_PLUGINS_DIR}" != "$HOME/.docker/cli-plugins" && -f "$HOME/.docker/cli-plugins/docker-compose" ]] && \
+            rm -f "$HOME/.docker/cli-plugins/docker-compose"
+
+        sudo cp -f "${DOWNLOAD_FILENAME}" "${CLI_PLUGINS_DIR}/docker-compose" && \
+            sudo chmod a+x "${CLI_PLUGINS_DIR}/docker-compose"
     fi
 
     ## Compose V2
