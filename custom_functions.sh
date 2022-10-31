@@ -299,6 +299,60 @@ function get_arch_float() {
     esac
 }
 
+# https://en.wikipedia.org/wiki/X86-64#Microarchitecture_levels
+# https://unix.stackexchange.com/questions/631217/how-do-i-check-if-my-cpu-supports-x86-64-v2
+# https://utcc.utoronto.ca/~cks/space/blog/programming/GoAmd64ArchitectureLevels
+function get_cpu_arch_level() {
+    local flags level verbose
+
+    verbose=$1
+
+    # awk 'BEGIN {
+    #     while (!/flags/) if (getline < "/proc/cpuinfo" != 1) return 1
+    #     if (/lm/&&/cmov/&&/cx8/&&/fpu/&&/fxsr/&&/mmx/&&/syscall/&&/sse2/) level = 1
+    #     if (level == 1 && /cx16/&&/lahf_lm/&&/popcnt/&&/sse4_1/&&/sse4_2/&&/ssse3/) level = 2
+    #     if (level == 2 && /avx/&&/avx2/&&/bmi1/&&/bmi2/&&/f16c/&&/fma/&&/abm/&&/movbe/&&/xsave/) level = 3
+    #     if (level == 3 && /avx512f/&&/avx512bw/&&/avx512cd/&&/avx512dq/&&/avx512vl/) level = 4
+    #     # if (level > 0) { print "CPU supports x86-64-v" level }
+    # }'
+
+    flags=$(grep '^flags\b' </proc/cpuinfo | head -n1)
+    flags=" ${flags#*:} "
+
+    has_flags() {
+        # https://unix.stackexchange.com/questions/417292/bash-for-loop-without-a-in-foo-bar-part
+        # If `in WORDS ...;' is not present, then `in "$@"' is assumed.
+        for flag; do
+            case "$flags" in
+                *" $flag "*)
+                    :
+                    ;;
+                *)
+                    [[ -n "$verbose" ]] && echo >&2 "Missing $flag for the next level"
+                    return 1
+                    ;;
+            esac
+        done
+    }
+
+    determine_level() {
+        level=0
+        has_flags lm cmov cx8 fpu fxsr mmx syscall sse2 || return 0
+        level=1
+        has_flags cx16 lahf_lm popcnt sse4_1 sse4_2 ssse3 || return 0
+        level=2
+        has_flags avx avx2 bmi1 bmi2 f16c fma abm movbe xsave || return 0
+        level=3
+        has_flags avx512f avx512bw avx512cd avx512dq avx512vl || return 0
+        level=4
+    }
+
+    determine_level
+    # echo "CPU supports x86-64-v$level"
+
+    CPU_ARCH_LEVEL=$level
+}
+
 function get_os_icon() {
     local OS_ICON OS_RELEASE_ID os_wsl
 
@@ -2317,6 +2371,7 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
     [[ -z "${OS_INFO_FLOAT}" ]] && get_arch_float
+    [[ -z "${CPU_ARCH_LEVEL}" ]] && get_cpu_arch_level
 
     OS_INFO_MATCH_TYPE="${OS_INFO_TYPE}"
     case "${OS_INFO_TYPE}" in
@@ -2382,6 +2437,12 @@ function App_Installer_Get_OS_Info_Match_Cond() {
                 || OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|gnueabihf|musleabihf"
             ;;
     esac
+
+    # [sing-box](https://github.com/SagerNet/sing-box/blob/main/.goreleaser.yaml)
+    # [Clash.Meta](https://github.com/MetaCubeX/Clash.Meta/blob/Meta/Makefile)
+    OS_INFO_MATCH_CPU_LEVEL=""
+    [[ CPU_ARCH_LEVEL -le 2 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64-compatible|amd64v1|amd64v2"
+    [[ CPU_ARCH_LEVEL -ge 3 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64v3"
 }
 
 # Get release information from github repository using github API
@@ -2397,7 +2458,8 @@ function App_Installer_Get_Remote() {
     local file_match_pattern=$2
     local version_match_pattern=$3
     local multi_match_filter=$4
-    local remote_content match_urls match_result match_result_type match_result_arch match_result_float match_cnt
+    local remote_content match_urls match_result match_cnt
+    local match_result_type match_result_arch match_result_float match_result_cpu_level
 
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
@@ -2442,6 +2504,7 @@ function App_Installer_Get_Remote() {
     match_result_type=""
     match_result_arch=""
     match_result_float=""
+    match_result_cpu_level=""
 
     if [[ -n "${OS_INFO_MATCH_TYPE}" ]]; then
         match_result_type=$(echo "${match_urls}" | grep -Ei "${OS_INFO_MATCH_TYPE}")
@@ -2459,6 +2522,11 @@ function App_Installer_Get_Remote() {
     if [[ -n "${OS_INFO_MATCH_FLOAT}" ]]; then
         match_result_float=$(echo "${match_urls}" | grep -Ei "${OS_INFO_MATCH_FLOAT}")
         [[ -n "${match_result_float}" ]] && match_urls="${match_result_float}"
+    fi
+
+    if [[ -n "${OS_INFO_MATCH_CPU_LEVEL}" ]]; then
+        match_result_cpu_level=$(echo "${match_urls}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}")
+        [[ -n "${match_result_cpu_level}" ]] && match_urls="${match_result_cpu_level}"
     fi
 
     # Filter more than one file
