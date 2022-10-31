@@ -20,6 +20,7 @@ fi
 # Use proxy or mirror when some sites were blocked or low speed
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
+[[ -z "${OS_INFO_TYPE}" ]] && get_os_type
 [[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
 
 # Setup network proxy in desktop environment
@@ -86,6 +87,24 @@ fi
 # keep proxy env when running command with `sudo`
 echo 'Defaults env_keep += "http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY"' \
     | sudo tee "/etc/sudoers.d/keep_env_proxy" >/dev/null
+
+
+# Increase the number of connections per proxy to 99
+# 99 is the maximum value for MaxConnectionsPerProxy
+# [MaxConnectionsPerProxy](https://cloud.google.com/docs/chrome-enterprise/policies/?policy=MaxConnectionsPerProxy)
+case "${OS_INFO_TYPE}" in
+    linux | freebsd | openbsd)
+        sudo mkdir -p "/etc/chromium/policies/managed"
+        echo '{ "MaxConnectionsPerProxy": 99 }' | sudo tee "/etc/chromium/policies/managed/proxy.json" >/dev/null
+        ;;
+    darwin)
+        defaults write com.google.Chrome MaxConnectionsPerProxy -int 99
+        ;;
+    # windows)
+	# 	reg add HKLM\Software\Policies\Google\Chrome /v MaxConnectionsPerProxy /t reg_dword /d 00000063 /f
+	# 	reg add HKLM\Software\Policies\Chromium /v MaxConnectionsPerProxy /t reg_dword /d 00000063 /f
+    #     ;;
+esac
 
 
 cd "${CURRENT_DIR}" || exit
