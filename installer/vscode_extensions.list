@@ -130,6 +130,8 @@ shd101wyy.markdown-preview-enhanced
 orangex4.better-markdown-latex-shortcuts
 darkriszty.markdown-table-prettify
 yzane.markdown-pdf
+## caddy
+matthewpi.caddyfile-support
 ## nginx
 shanoor.vscode-nginx
 ## Node

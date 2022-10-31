@@ -70,6 +70,8 @@ extensions=(
 	"mushan.vscode-paste-image"
 	"shd101wyy.markdown-preview-enhanced"
 	"orangex4.better-markdown-latex-shortcuts"
+	## caddy
+	"matthewpi.caddyfile-support"
     ## nginx
 	"shanoor.vscode-nginx"
     ## plsql
