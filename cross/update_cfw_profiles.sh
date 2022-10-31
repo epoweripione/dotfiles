@@ -120,3 +120,46 @@ if [[ -s "${PROFILE}" ]]; then
         fi
     done
 fi
+
+# Replace `clash` with `clash-meta`
+App_Installer_Reset
+
+[[ -z "${OS_INFO_MATCH_TYPE}" ]] && App_Installer_Get_OS_Info_Match_Cond
+
+CFW_CLASH_BIN="${WSL_USERPROFILE}/scoop/apps/clash-for-windows/current/resources/static/files/win/x64/clash-win64.exe"
+if [[ -n "${WSL_USERPROFILE}" && -s "${CFW_CLASH_BIN}" ]]; then
+    DOWNLOAD_FILENAME="${WORKDIR}/clash-windows.zip"
+    ARCHIVE_EXEC_NAME="Clash.Meta-windows-amd64.exe"
+
+    REMOTE_DOWNLOAD_URL=$(curl "${CURL_CHECK_OPTS[@]}" https://api.github.com/repos/MetaCubeX/Clash.Meta/releases \
+        | jq -r 'map(select(.prerelease)) | first | .assets[].browser_download_url' \
+        | grep -Ei "windows" | grep -Ei "${OS_INFO_MATCH_ARCH}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}" | head -n1)
+
+    colorEcho "${BLUE}Downloading ${FUCHSIA}Clash.Meta${BLUE} to ${ORANGE}${CFW_CLASH_BIN}${BLUE}..."
+    if App_Installer_Download_Extract "${REMOTE_DOWNLOAD_URL}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
+        [[ -L "${CFW_CLASH_BIN}" ]] && sudo rm -f "${CFW_CLASH_BIN}"
+        [[ ! -s "${CFW_CLASH_BIN}.orig" ]] && sudo mv -f "${CFW_CLASH_BIN}" "${CFW_CLASH_BIN}.orig"
+        [[ -s "${WORKDIR}/${ARCHIVE_EXEC_NAME}" ]] && sudo cp -f "${WORKDIR}/${ARCHIVE_EXEC_NAME}" "${CFW_CLASH_BIN}"
+    fi
+fi
+
+CFW_CLASH_BIN="/opt/clash-for-windows-bin/resources/static/files/linux/x64/clash-linux"
+if [[ -s "${CFW_CLASH_BIN}" ]]; then
+    DOWNLOAD_FILENAME="${WORKDIR}/clash-linux.gz"
+    ARCHIVE_EXEC_NAME="clash-linux"
+
+    REMOTE_DOWNLOAD_URL=$(curl "${CURL_CHECK_OPTS[@]}" https://api.github.com/repos/MetaCubeX/Clash.Meta/releases \
+        | jq -r 'map(select(.prerelease)) | first | .assets[].browser_download_url' \
+        | grep -Ei "${OS_INFO_MATCH_TYPE}" | grep -Ei "${OS_INFO_MATCH_ARCH}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}" | head -n1)
+
+    colorEcho "${BLUE}Downloading ${FUCHSIA}Clash.Meta${BLUE} to ${ORANGE}${CFW_CLASH_BIN}${BLUE}..."
+    if App_Installer_Download_Extract "${REMOTE_DOWNLOAD_URL}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
+        [[ -L "${CFW_CLASH_BIN}" ]] && sudo rm -f "${CFW_CLASH_BIN}"
+        [[ ! -s "${CFW_CLASH_BIN}.orig" ]] && sudo mv -f "${CFW_CLASH_BIN}" "${CFW_CLASH_BIN}.orig"
+        [[ -s "${WORKDIR}/${ARCHIVE_EXEC_NAME}" ]] && sudo cp -f "${WORKDIR}/${ARCHIVE_EXEC_NAME}" "${CFW_CLASH_BIN}"
+        sudo chmod +x "${CFW_CLASH_BIN}"
+    fi
+fi
+
+
+cd "${CURRENT_DIR}" || exit

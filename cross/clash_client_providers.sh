@@ -211,6 +211,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         fi
 
         # Compact proxies
+        sed -i '/^\s*#/d' "${DOWNLOAD_FILE}"
         sed -i 's/^\s*-/-/g' "${DOWNLOAD_FILE}"
         sed -i -e 's/":/: /g' -e 's/:"/: /g' -e 's/",/, /g' -e 's/,"/, /g' -e 's/"//g' "${DOWNLOAD_FILE}"
         sed -i -e "s/':/: /g" -e "s/:'/: /g" -e "s/',/, /g" -e "s/,'/, /g" -e "s/'//g" "${DOWNLOAD_FILE}"
