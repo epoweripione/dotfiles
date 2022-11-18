@@ -63,6 +63,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         # autojump
         # autojump-zsh
         bind-utils
+        bind9-utils
         binutils
         build-essential
         connect-proxy
