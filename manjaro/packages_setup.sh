@@ -130,9 +130,13 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
 
 URL_DOMAIN=$(cut -f3 -d'/' <<< "$2")
 URL_OTHERS=$(cut -f4- -d'/' <<< "$2")
+
 case "${URL_DOMAIN}" in
     "github.com")
-        url="https://download.fastgit.org/${URL_OTHERS}"
+        url="${GITHUB_DOWNLOAD_URL:-https://github.com}/${URL_OTHERS}"
+        ;;
+    "raw.githubusercontent.com")
+        url="${GITHUB_RAW_URL:-https://raw.githubusercontent.com}/${URL_OTHERS}"
         ;;
     *)
         url=$2
