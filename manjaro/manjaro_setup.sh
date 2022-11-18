@@ -188,6 +188,17 @@ colorEcho "${BLUE}Installing ${FUCHSIA}docker${BLUE}..."
 sudo pacman --noconfirm --needed -S docker docker-compose
 # yay -S kitematic
 
+## [Podman](https://wiki.archlinux.org/title/Podman)
+# yay --noconfirm --needed -S community/podman community/cni-plugins community/buildah
+# yay --noconfirm --needed -S community/podman-docker community/podman-compose chaotic-aur/podman-desktop
+
+## Rootless Podman
+## sysctl kernel.unprivileged_userns_clone
+## If it is currently set to 0, enable it by setting 1 via sysctl or kernel parameter
+# sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 "$USER"
+# yay --noconfirm --needed -S community/fuse-overlayfs community/podman-dnsname community/slirp4netns
+# podman system migrate
+
 # File & dir compare
 colorEcho "${BLUE}Installing ${FUCHSIA}meld${BLUE}..."
 sudo pacman --noconfirm --needed -S meld
