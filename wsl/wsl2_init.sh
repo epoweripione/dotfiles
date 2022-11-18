@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 
 ## https://docs.microsoft.com/zh-cn/windows/wsl/
-## https://docs.microsoft.com/zh-cn/windows/wsl/install-win10
 ## https://docs.microsoft.com/zh-cn/windows/wsl/wsl-config
+
 ## Please make sure that virtualization is enabled inside BIOS
+
+## https://learn.microsoft.com/en-us/windows/wsl/install
 ## 1. run PowerShell as Admin
+# wsl --list --online
+## wsl --install -d <DistroName>
+# wsl --install -d Debian
+# wsl --status
+
 # Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart
 # Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
 ## or:

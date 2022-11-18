@@ -219,7 +219,7 @@
 # Get-ScheduledTask -TaskPath "\UpdateTasks\*"
 
 ## Create schedule task
-# $Action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NonInteractive -NoLogo -NoProfile -File 'C:\MyScript.ps1'"
+# $Action = New-ScheduledTaskAction -Execute 'pwsh.exe' -Argument '-NonInteractive -NoLogo -NoProfile -WorkingDirectory "%USERPROFILE%" -WindowStyle "Hidden" -File "C:\MyScript.ps1"'
 # $Trigger = New-ScheduledTaskTrigger -Once -At 3am
 ## To run every time during startup:
 # $Trigger = New-ScheduledTaskTrigger -AtStartup
@@ -236,8 +236,8 @@
 ## Stop scheduled task
 # Stop-ScheduledTask -TaskName "ScanSoftware"
 
-## Disable-ScheduledTask
-## Enable-ScheduledTask
+## Disable-ScheduledTask -TaskName "ScanSoftware"
+## Enable-ScheduledTask -TaskName "ScanSoftware"
 
 ## Export a Scheduled Task into XML File
 # Export-ScheduledTask "StartupScript_PS" | Out-File c:\tmp\StartupScript_PS.xml
