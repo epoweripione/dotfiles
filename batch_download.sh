@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+trap 'rm -rf "${WORKDIR}"' EXIT
+
+[[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
+[[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
+
 # Load custom functions
 if type 'colorEcho' 2>/dev/null | grep -q 'function'; then
     :
@@ -55,102 +60,155 @@ function get_timestamp() {
 # remotefilemodt=$( get_remote_file_timestamp_modified https://www.raycloud.tk/nerd-fonts.zip )
 # [[ "$currenttime" -ne "$remotefilemodt" ]] && echo "no match"
 
+function get_remote_download_list() {
+    local remote_url=$1
+    local file_pattern=$2
+    local match_pattern=$3
+    local filter_pattern=$4
+    local remote_content match_urls match_result
 
-# Download from remote server
-colorEchoN "${ORANGE}Please input download DIR?[${CYAN}/tmp${ORANGE}]: "
-read -r DOWNLOAD_DIR
-[[ -z "$DOWNLOAD_DIR" ]] && DOWNLOAD_DIR="/tmp"
-if [[ ! -d "$DOWNLOAD_DIR" ]]; then
-    colorEcho "${FUCHSIA}${DOWNLOAD_DIR}${RED} does not exist or not a valid directory!"
+    remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+    [[ -z "${remote_content}" ]] && colorEcho "${RED}  Error occurred while downloading from ${FUCHSIA}${remote_url}${RED}!" && return 1
+
+    REMOTE_URL_LIST=""
+
+    # extract download urls
+    if grep -q -E "^jq=" <<<"${file_pattern}"; then
+        # use `jq` if start with `jq=`
+        # jq=.assets[].browser_download_url
+        # jq=map(select(.prerelease))|first|.assets[].browser_download_url
+        match_urls=$(jq -r "${file_pattern/jq=/}" <<<"${remote_content}")
+    else
+        match_urls=$(grep -E "${file_pattern}" <<<"${remote_content}" \
+            | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
+
+        if ! grep -q -E "${file_pattern}" <<<"${match_urls}"; then
+            match_urls=""
+        fi
+
+        [[ -z "${match_urls}" ]] && match_urls=$(grep -Eo "${file_pattern}" <<<"${remote_content}")
+    fi
+
+    [[ -n "${match_pattern}" && "${match_pattern}" != "*" ]] && match_urls=$(grep -Ei "${match_pattern}" <<<"${match_urls}")
+
+    [[ -n "${filter_pattern}" && "${filter_pattern}" != "*" ]] && match_result=$(grep -Evi "${filter_pattern}" <<<"${match_urls}")
+    [[ -z "${match_result}" ]] && match_result="${match_urls}"
+
+    REMOTE_URL_LIST="${match_result}"
+}
+
+# download list format: local-save-filename remote-url remote-file-pattern match-pattern filter-pattern
+# - https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest \.tar\.gz linux-musl arm|aarch64
+# - https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest jq=.assets[].browser_download_url linux-musl arm|aarch64
+# - https://api.github.com/repos/ajeetdsouza/zoxide/releases jq=map(select(.prerelease))|first|.assets[].browser_download_url linux-musl arm|aarch64
+# -: extract filename from URL
+# result: https://github.com/ajeetdsouza/zoxide/releases/download/v<version>/zoxide-<version>-x86_64-unknown-linux-musl.tar.gz
+if [[ $# != 2 ]]; then
+    echo "Usage: $(basename "$0") download-list download-to-directory"
+    echo "eg: $(basename "$0") download-files-url.txt /tmp"
     exit 1
 fi
 
-# colorEchoN "${ORANGE}Please input download URL?[${CYAN}https://example.com/downloads${ORANGE}]: "
-# read -r DOWNLOAD_URL
-# DOWNLOAD_URL=$(echo $DOWNLOAD_URL \
-#                 | grep -Eo '(https|http|ftp)://[a-zA-Z0-9\+\!\.\?\|,:;/=~_-$%#&@]*')
-# # trim last character with /
-# while [[ "${DOWNLOAD_URL: -1}" == "/" ]]; do
-#     DOWNLOAD_URL="${DOWNLOAD_URL%/}"
-# done
+DOWNLOAD_LIST="$1"
 
-# if [[ -z "$DOWNLOAD_URL" ]]; then
-#     colorEcho "${RED}Please input valid download URL!"
+DOWNLOAD_DIR="$2"
+[[ -z "${DOWNLOAD_DIR}" ]] && DOWNLOAD_DIR="${CURRENT_DIR}"
+
+if [[ ! -s "${DOWNLOAD_LIST}" ]]; then
+    colorEcho "${FUCHSIA}${DOWNLOAD_LIST}${RED} does not exist!"
+    exit 1
+fi
+
+# colorEchoN "${ORANGE}Please input download DIR?[${CYAN}/tmp${ORANGE}]: "
+# read -r DOWNLOAD_DIR
+# [[ -z "${DOWNLOAD_DIR}" ]] && DOWNLOAD_DIR="/tmp"
+# if [[ ! -d "${DOWNLOAD_DIR}" ]]; then
+#     colorEcho "${FUCHSIA}${DOWNLOAD_DIR}${RED} does not exist or not a valid directory!"
 #     exit 1
 # fi
 
-# DOWNLOAD_FILES=(
-#     oh-my-zsh-custom.zip
-#     Harmattan.zip
-#     nerd-fonts.zip
-#     FuraCode-Mono.zip
-# )
-
-# for TargetFile in ${DOWNLOAD_FILES[@]}; do
-#     colorEcho "${BLUE}Downloading ${TargetFile}..."
-#     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_DIR}/${TargetFile}" "${DOWNLOAD_URL}/${TargetFile}"
-# done
-
-
-if [[ $# != 1 ]]; then
-    echo "Usage: $(basename "$0") download-files-url-list"
-    echo "eg: $(basename "$0") download-files-url.txt"
+if [[ ! -d "${DOWNLOAD_DIR}" ]]; then
+    colorEcho "${FUCHSIA}${DOWNLOAD_DIR}${RED} does not exist!"
     exit 1
 fi
 
-DOWNLOAD_FILES_URL="$1"
+GLOBAL_MATCH_PATTERN=""
+GLOBAL_FITLER_PATTERN=""
+GLOBAL_REMOVE_FILE_VERSION=false
+while read -r TargetList; do
+    [[ -z "${TargetList}" ]] && continue
 
-if [[ ! -s "$DOWNLOAD_FILES_URL" ]]; then
-    echo "${DOWNLOAD_FILES_URL} does not exist!"
-    exit 1
-fi
+    TargetFile=$(awk '{print $1}' <<<"${TargetList}")
+    [[ -z "${TargetFile}" || "${TargetFile}" == "#" ]] && continue
 
-CD "${DOWNLOAD_DIR}"
-while read -r TargetUrl; do
-    if [[ -n "${TargetUrl}" ]]; then
-        colorEcho "${BLUE}Downloading ${TargetUrl}..."
-        # TargetFileName=$(echo "${TargetUrl}" | awk -F '/' '{print $NF}')
-        # curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${TargetFileName}" "${TargetUrl}"
-        wget -c "${TargetUrl}"
+    TargetUrl=$(awk '{print $2}' <<<"${TargetList}")
+    [[ -z "${TargetUrl}" ]] && continue
+
+    # global options
+    [[ "${TargetFile}" == "GLOBAL_MATCH_PATTERN" ]] && GLOBAL_MATCH_PATTERN="${TargetUrl}" && continue
+    [[ "${TargetFile}" == "GLOBAL_FILTER_PATTERN" ]] && GLOBAL_FILTER_PATTERN="${TargetUrl}" && continue
+    [[ "${TargetFile}" == "GLOBAL_REMOVE_FILE_VERSION" ]] && GLOBAL_REMOVE_FILE_VERSION="${TargetUrl}" && continue
+
+    # get download file url that match patterns
+    TargetFilePattern=$(awk '{print $3}' <<<"${TargetList}")
+    TargetMatchPattern=$(awk '{print $4}' <<<"${TargetList}")
+    TargetFilterPattern=$(awk '{print $5}' <<<"${TargetList}")
+    if [[ -n "${TargetFilePattern}" ]]; then
+        colorEcho "${BLUE}Checking download url from ${FUCHSIA}${TargetUrl}${BLUE}..."
+        [[ -z "${TargetMatchPattern}" ]] && TargetMatchPattern="${GLOBAL_MATCH_PATTERN}"
+        [[ -z "${TargetFilterPattern}" ]] && TargetFilterPattern="${GLOBAL_FILTER_PATTERN}"
+        if ! get_remote_download_list "${TargetUrl}" "${TargetFilePattern}" "${TargetMatchPattern}" "${TargetFilterPattern}"; then
+            continue
+        fi
+    else
+        REMOTE_URL_LIST="${TargetUrl}"
     fi
-done < "$DOWNLOAD_FILES_URL"
 
+    [[ -z "${REMOTE_URL_LIST}" ]] && continue
 
-# # oh-my-zsh custom
-# # cd ~/.oh-my-zsh && \
-# #     zip -qyr ~/oh-my-zsh-custom.zip ./custom && \
-# #     mv ~/oh-my-zsh-custom.zip /srv/web/www/default
-# if [[ -s "${DOWNLOAD_DIR}/oh-my-zsh-custom.zip" && -d "$HOME/.oh-my-zsh" ]]; then
-#     rm -rf "$HOME/.oh-my-zsh/custom"
-#     unzip -q "${DOWNLOAD_DIR}/oh-my-zsh-custom.zip" -d "$HOME/.oh-my-zsh"
-# fi
+    while read -r DOWNLOAD_URL; do
+        [[ -z "${DOWNLOAD_URL}" ]] && continue
 
-# # Harmattan
-# # if [[ -d "$HOME/Harmattan" ]]; then
-# #     cd "$HOME/Harmattan" && git pull
-# # else
-# #     git clone https://github.com/zagortenay333/Harmattan "$HOME/Harmattan"
-# # fi
-# # cd ~ && \
-# #     zip -qyr ~/Harmattan.zip ./Harmattan && \
-# #     mv ~/Harmattan.zip /srv/web/www/default
-# if [[ -s "${DOWNLOAD_DIR}/Harmattan.zip" ]]; then
-#     [[ -d "$HOME/Harmattan" ]] && rm -rf "$HOME/Harmattan"
-#     unzip -q "${DOWNLOAD_DIR}/Harmattan.zip" -d "$HOME"
-# fi
+        if [[ "${TargetFile}" == "-" ]]; then
+            # extract filename from URL
+            DOWNLOAD_FILENAME=$(basename "${DOWNLOAD_URL}" | cut -d'?' -f1)
+        else
+            DOWNLOAD_FILENAME="${TargetFile}"
+        fi
 
-# # nerd-fonts repository
-# # git clone --depth 1 https://github.com/ryanoasis/nerd-fonts ~/nerd-fonts && \
-# # 	rm -rf ~/nerd-fonts/patched-fonts ~/nerd-fonts/.git && \
-# # 	: && \
-# # 	# fix latest version issue patch char i,j not correct
-# # 	# rm -f ~/nerd-fonts/font-patcher && \
-# # 	# 	curl "${CURL_DOWNLOAD_OPTS[@]}" -o ~/nerd-fonts/font-patcher \
-# # 	# 		https://github.com/ryanoasis/nerd-fonts/raw/3241ea6e44191ec89c0260f51112dec691363ebd/font-patcher
-# # 	# : && \
-# # 	cd ~ && zip -qyr nerd-fonts.zip ./nerd-fonts && \
-# # 	mv ~/nerd-fonts.zip /srv/web/www/default
-# if [[ -s "${DOWNLOAD_DIR}/nerd-fonts.zip" ]]; then
-#     [[ -d "$HOME/nerd-fonts" ]] && rm -rf "$HOME/nerd-fonts"
-#     unzip -q "${DOWNLOAD_DIR}/nerd-fonts.zip" -d "$HOME"
-# fi
+        # remove version string if download filename contains version
+        if [[ "${GLOBAL_REMOVE_FILE_VERSION}" == "true" ]]; then
+            FILE_VERSION=$(grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' <<<"${DOWNLOAD_FILENAME}")
+            [[ -n "${FILE_VERSION}" ]] && DOWNLOAD_FILENAME=$(sed "s/[vV_\.\-]*${FILE_VERSION}//g" <<<"${DOWNLOAD_FILENAME}")
+        fi
+
+        # use github mirror if download from github
+        DOWNLOAD_FROM_GITHUB="N"
+        if [[ -n "${GITHUB_DOWNLOAD_URL}" ]]; then
+            if grep -q -E "^https://github.com" <<<"${DOWNLOAD_URL}"; then
+                DOWNLOAD_FROM_GITHUB="Y"
+                DOWNLOAD_URL="${DOWNLOAD_URL//https:\/\/github.com/${GITHUB_DOWNLOAD_URL}}"
+            fi
+        fi
+
+        colorEcho "${BLUE}Downloading ${FUCHSIA}${DOWNLOAD_URL}${BLUE} to ${ORANGE}${DOWNLOAD_DIR}/${DOWNLOAD_FILENAME}${BLUE}..."
+
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        curl_download_status=$?
+
+        if [[ ${curl_download_status} -gt 0 && "${DOWNLOAD_FROM_GITHUB}" == "Y" && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
+            DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+            colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
+            axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+            curl_download_status=$?
+        fi
+
+        if [[ ${curl_download_status} -eq 0 ]]; then
+            mv -f "${WORKDIR}/${DOWNLOAD_FILENAME}" "${DOWNLOAD_DIR}/${DOWNLOAD_FILENAME}"
+        fi
+    done <<<"${REMOTE_URL_LIST}"
+
+    echo ""
+done < "${DOWNLOAD_LIST}"
+
+cd "${CURRENT_DIR}" || exit
