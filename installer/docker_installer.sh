@@ -40,6 +40,16 @@ if [[ ! -x "$(command -v jq)" ]]; then
     fi
 fi
 
+# [Manage Docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/)
+if [[ $UID -ne 0 ]]; then
+    if id -nG "$USER" | grep -qw "$GROUP"; then
+        sudo groupadd docker
+        sudo usermod -aG docker "$USER"
+
+        [[ -d "$HOME/.docker" ]] && sudo chown -R "$USER":"$USER" "$HOME/.docker" && sudo chmod -R g+rwx "$HOME/.docker"
+    fi
+fi
+
 ## Docker
 # https://github.com/docker/docker-install
 if [[ ! -x "$(command -v docker)" ]]; then
@@ -265,9 +275,10 @@ fi
 # docker mirrors
 SET_REGISTRY_MIRROR="N"
 if [[ "${IS_INSTALL}" == "yes" && "${THE_WORLD_BLOCKED}" == "true" && ! -s "/etc/docker/daemon.json" ]]; then
-    colorEchoN "${ORANGE}Setting docker registry-mirrors?[y/${CYAN}N${ORANGE}]: "
-    read -r -t 5 SET_REGISTRY_MIRROR
-    echo ""
+    # colorEchoN "${ORANGE}Setting docker registry-mirrors?[y/${CYAN}N${ORANGE}]: "
+    # read -r -t 5 SET_REGISTRY_MIRROR
+    # echo ""
+    SET_REGISTRY_MIRROR="Y"
 fi
 
 if [[ "${SET_REGISTRY_MIRROR}" == "y" || "${SET_REGISTRY_MIRROR}" == "Y" ]]; then
@@ -280,22 +291,20 @@ if [[ "${SET_REGISTRY_MIRROR}" == "y" || "${SET_REGISTRY_MIRROR}" == "Y" ]]; the
 
     # https GET "https://mirror.baidubce.com/v2/library/nginx/tags/list"
     # ht GET "https://hub-mirror.c.163.com/v2/library/nginx/tags/list"
-    # curl -ikL -X GET "https://docker.mirrors.ustc.edu.cn/v2/library/nginx/tags/list"
-    # curl -ikL -X GET "https://docker.mirrors.ustc.edu.cn/v2/library/nginx/manifests/latest"
+    # curl -ikL -X GET "https://docker.mirrors.sjtug.sjtu.edu.cn/v2/library/nginx/tags/list"
+    # curl -ikL -X GET "https://docker.mirrors.sjtug.sjtu.edu.cn/v2/library/nginx/manifests/latest"
 
 #     sudo tee /etc/docker/daemon.json >/dev/null <<-'EOF'
 # {
 #     "registry-mirrors": [
-#         "https://ustc-edu-cn.mirror.aliyuncs.com",
+#         "https://dockerproxy.com",
 #         "https://docker.mirrors.sjtug.sjtu.edu.cn",
-#         "https://mirror.baidubce.com",
 #         "https://hub-mirror.c.163.com"
 #     ]
 # }
 # EOF
 
-    # "https://mirror.ccs.tencentyun.com"
-    REGISTRY_MIRRORS='"https://ustc-edu-cn.mirror.aliyuncs.com","https://docker.mirrors.sjtug.sjtu.edu.cn","https://mirror.baidubce.com","https://hub-mirror.c.163.com"'
+    REGISTRY_MIRRORS='"https://docker.mirrors.sjtug.sjtu.edu.cn","https://hub-mirror.c.163.com"'
     if [[ -x "$(command -v jq)" ]]; then
         [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
@@ -311,6 +320,11 @@ if [[ "${SET_REGISTRY_MIRROR}" == "y" || "${SET_REGISTRY_MIRROR}" == "Y" ]]; the
         sudo systemctl daemon-reload && sudo systemctl restart docker
     fi
 fi
+
+## remove unuse mirrors
+# jq -r '."registry-mirrors"=."registry-mirrors" - ["https://docker.mirrors.ustc.edu.cn","https://ustc-edu-cn.mirror.aliyuncs.com","https://mirror.baidubce.com","https://mirror.ccs.tencentyun.com","https://dockerproxy.com"]' "/etc/docker/daemon.json" \
+#     | sudo tee "/etc/docker/daemon.json" >/dev/null
+# sudo systemctl daemon-reload && sudo systemctl restart docker
 
 # docker proxy
 SET_DOCKER_PROXY="N"
