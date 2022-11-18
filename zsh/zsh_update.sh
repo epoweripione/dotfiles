@@ -338,6 +338,9 @@ fi
 [[ "$(command -v fuck)" ]] && Plugins="${Plugins} thefuck"
 
 if [[ -x "$(command -v fzf)" || -d "$HOME/.fzf" ]]; then
+    # use `fzf` plugin for zsh
+    sed -i '/source ~\/\.fzf\.zsh/d' "$HOME/.zshrc"
+
     Plugins="${Plugins} fzf"
     if [[ -d "${ZSH_CUSTOM}/plugins/fzf-tab" ]]; then
         Plugins="${Plugins} fzf-tab"
