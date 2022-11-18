@@ -132,38 +132,40 @@ fi
 
 # docker aliases
 if [[ -x "$(command -v docker)" ]]; then
-    alias dockerpullall='sudo docker images | grep -Ev "REPOSITORY|<none>" | awk '"'"'{print $1,$2}'"'"' OFS='"'"':'"'"' | xargs -L1 sudo docker pull'
-    alias dockerps='sudo docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}"'
-    alias dockerpsall='sudo docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Ports}}\t{{.Networks}}\t{{.Command}}\t{{.Size}}"'
-    alias dockerclean='sudo docker ps -a | awk '"'"'/Exited/ {print $1}'"'"' | xargs sudo docker rm'
+    alias dockerpullall='docker images | grep -Ev "REPOSITORY|<none>" | awk '"'"'{print $1,$2}'"'"' OFS='"'"':'"'"' | xargs -L1 docker pull'
+    alias dockerps='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}"'
+    alias dockerpsall='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Ports}}\t{{.Networks}}\t{{.Command}}\t{{.Size}}"'
+    alias dockerclean='docker ps -a | awk '"'"'/Exited/ {print $1}'"'"' | xargs docker rm'
 
     # https://github.com/jesseduffield/lazydocker
-    alias docker-lazy='sudo docker run --rm -it --name lazy -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.config/lazydocker:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
+    alias docker-lazy='docker run --rm -it --name lazy -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.config/lazydocker:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
     # https://github.com/nicolargo/glances
-    alias docker-glances='sudo docker run --rm -it --name glances --pid host --network host -v /var/run/docker.sock:/var/run/docker.sock:ro nicolargo/glances:latest-full'
+    alias docker-glances='docker run --rm -it --name glances --pid host --network host -v /var/run/docker.sock:/var/run/docker.sock:ro nicolargo/glances:latest-full'
     # https://hub.docker.com/r/aksakalli/gtop
-    alias docker-gtop='sudo docker run --rm -it --name gtop --pid host --network host aksakalli/gtop'
+    alias docker-gtop='docker run --rm -it --name gtop --pid host --network host aksakalli/gtop'
     # https://github.com/Ciphey/Ciphey
-    alias docker-ciphey='sudo docker run --rm -it --name ciphey remnux/ciphey'
+    alias docker-ciphey='docker run --rm -it --name ciphey remnux/ciphey'
     # https://github.com/wagoodman/dive
-    alias docker-dive='sudo docker run --rm -it --name dive -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive'
+    alias docker-dive='docker run --rm -it --name dive -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive'
     # https://github.com/lavie/runlike
-    alias docker-runlike='sudo docker run --rm --name runlike -v /var/run/docker.sock:/var/run/docker.sock assaflavie/runlike'
+    alias docker-runlike='docker run --rm --name runlike -v /var/run/docker.sock:/var/run/docker.sock assaflavie/runlike'
     # https://github.com/P3GLEG/Whaler
-    alias docker-whaler='sudo docker run --rm -t --name whaler -v /var/run/docker.sock:/var/run/docker.sock:ro pegleg/whaler'
+    alias docker-whaler='docker run --rm -t --name whaler -v /var/run/docker.sock:/var/run/docker.sock:ro pegleg/whaler'
     # https://www.nushell.sh
-    alias docker-nushell='sudo docker run --rm -it --name nushell quay.io/nushell/nu'
+    alias docker-nushell='docker run --rm -it --name nushell quay.io/nushell/nu'
     # https://xon.sh/
-    alias docker-xonsh='sudo docker run --rm -it --name xonsh xonsh/xonsh:slim'
+    alias docker-xonsh='docker run --rm -it --name xonsh xonsh/xonsh:slim'
     # https://www.portainer.io/
-    alias docker-portainer='sudo docker run -d --name portainer -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/portainer_data:/data portainer/portainer-ce'
-    alias docker-portainer-agent='sudo docker run -d --name portainer_agent -p 9001:9001 -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker/volumes:/var/lib/docker/volumes portainer/agent'
+    alias docker-portainer='docker run -d --name portainer -p 8000:8000 -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/portainer_data:/data portainer/portainer-ce'
+    alias docker-portainer-agent='docker run -d --name portainer_agent -p 9001:9001 -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker/volumes:/var/lib/docker/volumes portainer/agent'
     # https://github.com/SelfhostedPro/Yacht
-    alias docker-yacht='sudo docker run -d --name yacht -p 8000:8000 -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/yacht:/config selfhostedpro/yacht'
+    alias docker-yacht='docker run -d --name yacht -p 8000:8000 -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/yacht:/config selfhostedpro/yacht'
     # https://github.com/AlDanial/cloc
-    alias docker-cloc='sudo docker run --rm -v $PWD:/tmp aldanial/cloc'
+    alias docker-cloc='docker run --rm -v $PWD:/tmp aldanial/cloc'
     # https://filebrowser.org
-    alias docker-filebrowser='sudo docker run -d --name filebrowser --user $(id -u):$(id -g) -p 80:80 -v $PWD:/srv -v $PWD/filebrowser.db:/database.db filebrowser/filebrowser'
+    alias docker-filebrowser='docker run -d --name filebrowser --user $(id -u):$(id -g) -p 80:80 -v $PWD:/srv -v $PWD/filebrowser.db:/database.db filebrowser/filebrowser'
+    # https://testssl.sh/
+    alias docker-testssl='docker run --rm -it --name testssl drwetter/testssl.sh'
 fi
 
 [[ -x "$(command -v microk8s)" ]] && alias mkctl="microk8s kubectl"
@@ -722,12 +724,23 @@ export INSTALLER_DOWNLOAD_AXEL_OPTION=${INSTALLER_DOWNLOAD_AXEL_OPTION:-"--num-c
 # https://www.gitclone.com/
 # https://raw.hellogithub.com/hosts
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    # GITHUB_HUB_URL="https://hub.fastgit.xyz"
     # GITHUB_HUB_URL="https://gitclone.com/github.com"
-    export GITHUB_MIRROR_USE_FASTGIT=${GITHUB_MIRROR_USE_FASTGIT:-"true"}
+    # GITHUB_HUB_URL="https://hub.fgit.ml/"
+    export GITHUB_MIRROR_USE_FASTGIT=${GITHUB_MIRROR_USE_FASTGIT:-"false"}
     if [[ "${GITHUB_MIRROR_USE_FASTGIT}" == "true" ]]; then
+        # GITHUB_HUB_URL="https://hub.fastgit.xyz"
         GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"https://download.fastgit.org"}
         GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.fastgit.org"}
+    fi
+
+    # https://github.com/hunshcn/gh-proxy
+    # https://ghps.cc/ https://ghproxy.net/ https://proxy.zyun.vip/
+    export GITHUB_MIRROR_USE_GHPROXY=${GITHUB_MIRROR_USE_GHPROXY:-"true"}
+    if [[ "${GITHUB_MIRROR_USE_GHPROXY}" == "true" ]]; then
+        GITHUB_MIRROR_GHPROXY_URL=${GITHUB_MIRROR_GHPROXY_URL:-"https://ghproxy.com/"}
+        # GITHUB_HUB_URL="${GITHUB_MIRROR_GHPROXY_URL}https://github.com"
+        GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"${GITHUB_MIRROR_GHPROXY_URL}https://github.com"}
+        GITHUB_RAW_URL=${GITHUB_RAW_URL:-"${GITHUB_MIRROR_GHPROXY_URL}https://raw.githubusercontent.com"}
     fi
 fi
 

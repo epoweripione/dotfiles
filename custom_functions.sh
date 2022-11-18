@@ -58,7 +58,7 @@ function colorEchoAllColor() {
 GLOBAL_NO_PROXY="localhost,127.0.0.1,.local,.localdomain,.internal,.corp,::1"
 [[ -n "${HOSTNAME}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${HOSTNAME}"
 [[ -n "${HOSTIP_ALL}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${HOSTIP_ALL}"
-GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},fastgit.org,fastgit.xyz,gitclone.com,npmmirror.com"
+GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},fastgit.org,fastgit.xyz,fgit.ml,ghproxy.com,gitclone.com,npmmirror.com"
 GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},ip.sb,ip-api.com,ident.me,ifconfig.co,icanhazip.com,ipinfo.io"
 
 export GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY}"
@@ -182,6 +182,7 @@ function get_os_desktop() {
     OS_INFO_DESKTOP=$(tr '[:lower:]' '[:upper:]' <<<"${osdesktop}")
 }
 
+# https://github.com/systemd/systemd/blob/main/src/basic/architecture.c
 function get_arch() {
 	local architecture spruce_type
 
@@ -2386,13 +2387,13 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     OS_INFO_MATCH_ARCH="${OS_INFO_ARCH}"
     case "${OS_INFO_ARCH}" in
         amd64)
-            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|x86_64|64bit"
+            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|x86_64|x64|64bit"
             ;;
         386)
-            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|486|586|686|x86|32bit"
+            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|486|586|686|x86|32bit|ia32"
             [[ -z "${OS_INFO_UNMATCH_COND}" ]] \
-                && OS_INFO_UNMATCH_COND="x86_64" \
-                || OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|x86_64"
+                && OS_INFO_UNMATCH_COND="x86_64|x64|64bit" \
+                || OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|x86_64|x64|64bit"
             ;;
         arm64)
             OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|armv8|aarch64"
@@ -2442,7 +2443,7 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     # [Clash.Meta](https://github.com/MetaCubeX/Clash.Meta/blob/Meta/Makefile)
     OS_INFO_MATCH_CPU_LEVEL=""
     [[ CPU_ARCH_LEVEL -le 2 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64-compatible|amd64v1|amd64v2"
-    [[ CPU_ARCH_LEVEL -ge 3 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64v3"
+    [[ CPU_ARCH_LEVEL -ge 3 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64v3|amd64-v3"
 }
 
 # Get release information from github repository using github API
@@ -2463,7 +2464,7 @@ function App_Installer_Get_Remote() {
 
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+    [[ -n "${APP_INSTALL_NAME}" ]] && colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
 
     REMOTE_VERSION=""
     REMOTE_DOWNLOAD_URL=""
@@ -2517,7 +2518,7 @@ function App_Installer_Get_Remote() {
     fi
 
     # Not match any of the platform type & architecture
-    [[ -z "${match_result_type}" && -z "${match_result_arch}" ]] && match_urls=""
+    # [[ -z "${match_result_type}" && -z "${match_result_arch}" ]] && match_urls=""
 
     if [[ -n "${OS_INFO_MATCH_FLOAT}" ]]; then
         match_result_float=$(echo "${match_urls}" | grep -Ei "${OS_INFO_MATCH_FLOAT}")
