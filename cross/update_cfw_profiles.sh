@@ -17,6 +17,9 @@ else
     fi
 fi
 
+[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+
 RSYNC_REMOTE="$1" # root@10.0.0.2:/srv/web/www/public
 
 OS_INFO_WSL=$(uname -r)
@@ -59,8 +62,8 @@ if [[ -s "${PROFILE}" ]]; then
             colorEcho "${BLUE}Downloading ${FUCHSIA}${DOWNLOAD_URL}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
             axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
         else
-            colorEcho "${BLUE}Downloading ${FUCHSIA}${RSYNC_REMOTE}/${REMOTE_FILENAME}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
             REMOTE_FILENAME=$(echo "${DOWNLOAD_URL}" | awk -F'/' '{print $NF}' | cut -d'?' -f1)
+            colorEcho "${BLUE}Downloading ${FUCHSIA}${RSYNC_REMOTE}/${REMOTE_FILENAME}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
             rsync -avz --progress "${RSYNC_REMOTE}/${REMOTE_FILENAME}" "${DOWNLOAD_FILENAME}"
         fi
 
@@ -105,8 +108,8 @@ if [[ -s "${PROFILE}" ]]; then
             colorEcho "${BLUE}Downloading ${FUCHSIA}${DOWNLOAD_URL}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
             axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
         else
-            colorEcho "${BLUE}Downloading ${FUCHSIA}${RSYNC_REMOTE}/${REMOTE_FILENAME}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
             REMOTE_FILENAME=$(echo "${DOWNLOAD_URL}" | awk -F'/' '{print $NF}' | cut -d'?' -f1)
+            colorEcho "${BLUE}Downloading ${FUCHSIA}${RSYNC_REMOTE}/${REMOTE_FILENAME}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
             rsync -avz --progress "${RSYNC_REMOTE}/${REMOTE_FILENAME}" "${DOWNLOAD_FILENAME}"
         fi
 
@@ -132,14 +135,23 @@ if [[ -n "${WSL_USERPROFILE}" && -s "${CFW_CLASH_BIN}" ]]; then
     ARCHIVE_EXEC_NAME="Clash.Meta-windows-amd64.exe"
 
     REMOTE_DOWNLOAD_URL=$(curl "${CURL_CHECK_OPTS[@]}" https://api.github.com/repos/MetaCubeX/Clash.Meta/releases \
-        | jq -r 'map(select(.prerelease)) | first | .assets[].browser_download_url' \
-        | grep -Ei "windows" | grep -Ei "${OS_INFO_MATCH_ARCH}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}" | head -n1)
+        | jq -r 'map(select(.prerelease)) | first | .assets[].browser_download_url')
 
-    colorEcho "${BLUE}Downloading ${FUCHSIA}Clash.Meta${BLUE} to ${ORANGE}${CFW_CLASH_BIN}${BLUE}..."
-    if App_Installer_Download_Extract "${REMOTE_DOWNLOAD_URL}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
-        [[ -L "${CFW_CLASH_BIN}" ]] && sudo rm -f "${CFW_CLASH_BIN}"
-        [[ ! -s "${CFW_CLASH_BIN}.orig" ]] && sudo mv -f "${CFW_CLASH_BIN}" "${CFW_CLASH_BIN}.orig"
-        [[ -s "${WORKDIR}/${ARCHIVE_EXEC_NAME}" ]] && sudo cp -f "${WORKDIR}/${ARCHIVE_EXEC_NAME}" "${CFW_CLASH_BIN}"
+    MATCH_URL=$(grep -Ei "windows" <<<"${REMOTE_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}")
+    if [[ -z "${MATCH_URL}" ]]; then
+        REMOTE_DOWNLOAD_URL=$(grep -Ei "windows" <<<"${REMOTE_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}")
+    else
+        REMOTE_DOWNLOAD_URL="${MATCH_URL}"
+    fi
+
+    REMOTE_DOWNLOAD_URL=$(head -n1 <<<"${REMOTE_DOWNLOAD_URL}")
+    if [[ -n "${REMOTE_DOWNLOAD_URL}" ]]; then
+        colorEcho "${BLUE}Downloading ${FUCHSIA}${REMOTE_DOWNLOAD_URL}${BLUE} to ${ORANGE}${CFW_CLASH_BIN}${BLUE}..."
+        if App_Installer_Download_Extract "${REMOTE_DOWNLOAD_URL}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
+            [[ -L "${CFW_CLASH_BIN}" ]] && sudo rm -f "${CFW_CLASH_BIN}"
+            [[ ! -s "${CFW_CLASH_BIN}.orig" ]] && sudo mv -f "${CFW_CLASH_BIN}" "${CFW_CLASH_BIN}.orig"
+            [[ -s "${WORKDIR}/${ARCHIVE_EXEC_NAME}" ]] && sudo cp -f "${WORKDIR}/${ARCHIVE_EXEC_NAME}" "${CFW_CLASH_BIN}"
+        fi
     fi
 fi
 
@@ -149,15 +161,24 @@ if [[ -s "${CFW_CLASH_BIN}" ]]; then
     ARCHIVE_EXEC_NAME="clash-linux"
 
     REMOTE_DOWNLOAD_URL=$(curl "${CURL_CHECK_OPTS[@]}" https://api.github.com/repos/MetaCubeX/Clash.Meta/releases \
-        | jq -r 'map(select(.prerelease)) | first | .assets[].browser_download_url' \
-        | grep -Ei "${OS_INFO_MATCH_TYPE}" | grep -Ei "${OS_INFO_MATCH_ARCH}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}" | head -n1)
+        | jq -r 'map(select(.prerelease)) | first | .assets[].browser_download_url')
 
-    colorEcho "${BLUE}Downloading ${FUCHSIA}Clash.Meta${BLUE} to ${ORANGE}${CFW_CLASH_BIN}${BLUE}..."
-    if App_Installer_Download_Extract "${REMOTE_DOWNLOAD_URL}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
-        [[ -L "${CFW_CLASH_BIN}" ]] && sudo rm -f "${CFW_CLASH_BIN}"
-        [[ ! -s "${CFW_CLASH_BIN}.orig" ]] && sudo mv -f "${CFW_CLASH_BIN}" "${CFW_CLASH_BIN}.orig"
-        [[ -s "${WORKDIR}/${ARCHIVE_EXEC_NAME}" ]] && sudo cp -f "${WORKDIR}/${ARCHIVE_EXEC_NAME}" "${CFW_CLASH_BIN}"
-        sudo chmod +x "${CFW_CLASH_BIN}"
+    MATCH_URL=$(grep -Ei "${OS_INFO_MATCH_TYPE}" <<<"${REMOTE_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}")
+    if [[ -z "${MATCH_URL}" ]]; then
+        REMOTE_DOWNLOAD_URL=$(grep -Ei "${OS_INFO_MATCH_TYPE}" <<<"${REMOTE_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}")
+    else
+        REMOTE_DOWNLOAD_URL="${MATCH_URL}"
+    fi
+
+    REMOTE_DOWNLOAD_URL=$(head -n1 <<<"${REMOTE_DOWNLOAD_URL}")
+    if [[ -n "${REMOTE_DOWNLOAD_URL}" ]]; then
+        colorEcho "${BLUE}Downloading ${FUCHSIA}${REMOTE_DOWNLOAD_URL}${BLUE} to ${ORANGE}${CFW_CLASH_BIN}${BLUE}..."
+        if App_Installer_Download_Extract "${REMOTE_DOWNLOAD_URL}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
+            [[ -L "${CFW_CLASH_BIN}" ]] && sudo rm -f "${CFW_CLASH_BIN}"
+            [[ ! -s "${CFW_CLASH_BIN}.orig" ]] && sudo mv -f "${CFW_CLASH_BIN}" "${CFW_CLASH_BIN}.orig"
+            [[ -s "${WORKDIR}/${ARCHIVE_EXEC_NAME}" ]] && sudo cp -f "${WORKDIR}/${ARCHIVE_EXEC_NAME}" "${CFW_CLASH_BIN}"
+            sudo chmod +x "${CFW_CLASH_BIN}"
+        fi
     fi
 fi
 
