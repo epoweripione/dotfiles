@@ -305,26 +305,45 @@ if [[ "${SET_REGISTRY_MIRROR}" == "y" || "${SET_REGISTRY_MIRROR}" == "Y" ]]; the
 # EOF
 
     REGISTRY_MIRRORS='"https://docker.mirrors.sjtug.sjtu.edu.cn","https://hub-mirror.c.163.com"'
-    if [[ -x "$(command -v jq)" ]]; then
-        [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
-        # jq -r '."registry-mirrors"=."registry-mirrors" + ["https://hub-mirror.c.163.com"]' "/etc/docker/daemon.json" \
-        #     | sudo tee "/etc/docker/daemon.json" >/dev/null
+    [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
-        # jq -r 'del(."registry-mirrors")' "/etc/docker/daemon.json" \
-        #     | sudo tee "/etc/docker/daemon.json" >/dev/null
+    # jq -r '."registry-mirrors"=."registry-mirrors" + ["https://hub-mirror.c.163.com"]' "/etc/docker/daemon.json" \
+    #     | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
 
-        jq -r ".\"registry-mirrors\"=[${REGISTRY_MIRRORS}]" "/etc/docker/daemon.json" \
-            | sudo tee "/etc/docker/daemon.json" >/dev/null
+    # jq -r 'del(."registry-mirrors")' "/etc/docker/daemon.json" \
+    #     | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
 
-        sudo systemctl daemon-reload && sudo systemctl restart docker
-    fi
+    jq -r ".\"registry-mirrors\"=[${REGISTRY_MIRRORS}]" "/etc/docker/daemon.json" \
+        | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
+
+    [[ -f "/etc/docker/daemon_temp.json" ]] && sudo mv -f "/etc/docker/daemon_temp.json" "/etc/docker/daemon.json"
+    sudo systemctl daemon-reload && sudo systemctl restart docker
 fi
 
-## remove unuse mirrors
-# jq -r '."registry-mirrors"=."registry-mirrors" - ["https://docker.mirrors.ustc.edu.cn","https://ustc-edu-cn.mirror.aliyuncs.com","https://mirror.baidubce.com","https://mirror.ccs.tencentyun.com","https://dockerproxy.com"]' "/etc/docker/daemon.json" \
-#     | sudo tee "/etc/docker/daemon.json" >/dev/null
-# sudo systemctl daemon-reload && sudo systemctl restart docker
+# remove unuse mirrors
+UNUSE_MIRRORS=(
+    '"https://docker.mirrors.ustc.edu.cn"'
+    '"https://ustc-edu-cn.mirror.aliyuncs.com"'
+    '"https://mirror.baidubce.com"'
+    '"https://mirror.ccs.tencentyun.com"'
+    '"https://dockerproxy.com"'
+)
+
+REMOVE_MIRRORS=""
+for Target in "${UNUSE_MIRRORS[@]}"; do
+    if grep -q "${Target}" "/etc/docker/daemon.json"; then
+        [[ -z "${REMOVE_MIRRORS}" ]] && REMOVE_MIRRORS="${Target}" || REMOVE_MIRRORS="${REMOVE_MIRRORS},${Target}"
+    fi
+done
+
+if [[ -n "${REMOVE_MIRRORS}" ]]; then
+    jq -r ".\"registry-mirrors\"=.\"registry-mirrors\" - [${REMOVE_MIRRORS}]" "/etc/docker/daemon.json" \
+        | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
+
+    [[ -f "/etc/docker/daemon_temp.json" ]] && sudo mv -f "/etc/docker/daemon_temp.json" "/etc/docker/daemon.json"
+    sudo systemctl daemon-reload && sudo systemctl restart docker
+fi
 
 # docker proxy
 SET_DOCKER_PROXY="N"
@@ -353,8 +372,9 @@ fi
 #     [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
 #     jq -r ".\"data-root\"=[${DATA_ROOT}]" "/etc/docker/daemon.json" \
-#         | sudo tee "/etc/docker/daemon.json" >/dev/null
+#         | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
 
+#     [[ -f "/etc/docker/daemon_temp.json" ]] && sudo mv -f "/etc/docker/daemon_temp.json" "/etc/docker/daemon.json"
 #     sudo systemctl daemon-reload && sudo systemctl restart docker
 # fi
 
