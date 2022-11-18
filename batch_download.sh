@@ -89,9 +89,9 @@ function get_remote_download_list() {
         [[ -z "${match_urls}" ]] && match_urls=$(grep -Eo "${file_pattern}" <<<"${remote_content}")
     fi
 
-    [[ -n "${match_pattern}" && "${match_pattern}" != "*" ]] && match_urls=$(grep -Ei "${match_pattern}" <<<"${match_urls}")
+    [[ -n "${match_pattern}" && "${match_pattern}" != "*" ]] && match_urls=$(grep -Pi "${match_pattern}" <<<"${match_urls}")
 
-    [[ -n "${filter_pattern}" && "${filter_pattern}" != "*" ]] && match_result=$(grep -Evi "${filter_pattern}" <<<"${match_urls}")
+    [[ -n "${filter_pattern}" && "${filter_pattern}" != "*" ]] && match_result=$(grep -Pvi "${filter_pattern}" <<<"${match_urls}")
     [[ -z "${match_result}" ]] && match_result="${match_urls}"
 
     REMOTE_URL_LIST="${match_result}"
@@ -103,7 +103,7 @@ function get_remote_download_list() {
 # - https://api.github.com/repos/ajeetdsouza/zoxide/releases jq=map(select(.prerelease))|first|.assets[].browser_download_url linux-musl arm|aarch64
 # -: extract filename from URL
 # result: https://github.com/ajeetdsouza/zoxide/releases/download/v<version>/zoxide-<version>-x86_64-unknown-linux-musl.tar.gz
-if [[ $# != 2 ]]; then
+if [[ $# -lt 2 ]]; then
     echo "Usage: $(basename "$0") download-list download-to-directory"
     echo "eg: $(basename "$0") download-files-url.txt /tmp"
     exit 1
@@ -118,6 +118,8 @@ if [[ ! -s "${DOWNLOAD_LIST}" ]]; then
     colorEcho "${FUCHSIA}${DOWNLOAD_LIST}${RED} does not exist!"
     exit 1
 fi
+
+DOWNLOAD_DRYRUN="$3"
 
 # colorEchoN "${ORANGE}Please input download DIR?[${CYAN}/tmp${ORANGE}]: "
 # read -r DOWNLOAD_DIR
@@ -178,7 +180,12 @@ while read -r TargetList; do
 
         # remove version string if download filename contains version
         if [[ "${GLOBAL_REMOVE_FILE_VERSION}" == "true" ]]; then
-            FILE_VERSION=$(grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' <<<"${DOWNLOAD_FILENAME}")
+            FILE_7ZIP=$(grep -Eo '([0-9]{1,}\.)+7z$' <<<"${DOWNLOAD_FILENAME}" | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}')
+            if [[ -n "${FILE_7ZIP}" ]]; then
+                FILE_VERSION=$(grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' <<<"${DOWNLOAD_FILENAME}" | grep -v "${FILE_7ZIP}" | head -n1)
+            else
+                FILE_VERSION=$(grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' <<<"${DOWNLOAD_FILENAME}" | head -n1)
+            fi
             [[ -n "${FILE_VERSION}" ]] && DOWNLOAD_FILENAME=$(sed "s/[vV_\.\-]*${FILE_VERSION}//g" <<<"${DOWNLOAD_FILENAME}")
         fi
 
@@ -192,6 +199,8 @@ while read -r TargetList; do
         fi
 
         colorEcho "${BLUE}Downloading ${FUCHSIA}${DOWNLOAD_URL}${BLUE} to ${ORANGE}${DOWNLOAD_DIR}/${DOWNLOAD_FILENAME}${BLUE}..."
+
+        [[ -n "${DOWNLOAD_DRYRUN}" ]] && continue
 
         axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
         curl_download_status=$?
