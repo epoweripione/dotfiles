@@ -27,7 +27,7 @@ fi
 
 ## Single Node Using Docker
 ## https://rancher.com/docs/rancher/v2.6/en/installation/other-installation-methods/single-node-docker/
-# sudo docker run --privileged -d --restart=unless-stopped \
+# docker run --privileged -d --restart=unless-stopped \
 #     -p 9880:80 -p 9843:443 \
 #     -e HTTP_PROXY="http://${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_MIXED_PORT}" \
 #     -e HTTPS_PROXY="http://${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_MIXED_PORT}" \

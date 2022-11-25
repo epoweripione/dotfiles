@@ -39,7 +39,7 @@ esac
 OS_ARCH=$(uname -m)
 if [[ -n "$OS_TYPE" && ("$OS_ARCH" == "amd64" || "$OS_ARCH" == "x86_64") ]]; then
     CHECK_URL="https://api.github.com/repos/rami3l/pacaptr/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    App_Installer_Get_Remote_Version "${CHECK_URL}"
 
     if [[ -x "$(command -v pacaptr)" ]]; then
         ECHO_TYPE="Updating"

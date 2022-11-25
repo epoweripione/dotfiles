@@ -77,7 +77,7 @@ function get_remote_download_list() {
         # use `jq` if start with `jq=`
         # jq=.assets[].browser_download_url
         # jq=map(select(.prerelease))|first|.assets[].browser_download_url
-        match_urls=$(jq -r "${file_pattern/jq=/}" <<<"${remote_content}")
+        match_urls=$(jq -r "${file_pattern/jq=/}" 2>/dev/null <<<"${remote_content}")
     else
         match_urls=$(grep -E "${file_pattern}" <<<"${remote_content}" \
             | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")

@@ -327,11 +327,21 @@ yay --noconfirm --needed -S wps-office-fonts ttf-wps-fonts wps-office-all-dicts-
 # Themes
 # [[ -s "${MY_SHELL_SCRIPTS}/installer/desktop_themes.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/desktop_themes.sh"
 
+## Others
+# mute tone when logout
+echo -e "\n# Disable BIOS sound\nxset -b" | sudo tee -a "/etc/xprofile" > /dev/null
+
+# Disable PC speaker
+# su -c 'modprobe -r pcspkr && echo "blacklist pcspkr" >> /etc/modprobe.d/50-blacklist.conf'
+echo -e "\n# Disable PC speaker\nblacklist pcspkr" | sudo tee "/etc/modprobe.d/nobeep.conf"
+
 
 # Clean jobs
 # sudo pacman -Rns $(pacman -Qtdq)
 colorEcho "${BLUE}Cleaning pacman cache..."
 yay --noconfirm -Sc && yay --noconfirm -Yc
+
+sudo sh -c 'rm -rf /var/lib/snapd/cache/*'
 
 
 ## Change default data location for some applications: docker, kvm...
@@ -341,15 +351,6 @@ yay --noconfirm -Sc && yay --noconfirm -Yc
 
 # Auto shutdown at 20:00
 # (crontab -l 2>/dev/null || true; echo "0 20 * * * sync && shutdown -h now") | crontab -
-
-
-## Others
-# mute tone when logout
-echo -e "\n# Disable BIOS sound\nxset -b" | sudo tee -a "/etc/xprofile" > /dev/null
-
-# Disable PC speaker
-# su -c 'modprobe -r pcspkr && echo "blacklist pcspkr" >> /etc/modprobe.d/50-blacklist.conf'
-echo -e "\n# Disable PC speaker\nblacklist pcspkr" | sudo tee "/etc/modprobe.d/nobeep.conf"
 
 
 cd "${CURRENT_DIR}" || exit

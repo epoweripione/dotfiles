@@ -50,7 +50,7 @@ APP_INSTALL_NAME="exa"
 colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
 
 CHECK_URL="https://api.github.com/repos/ogham/exa/releases/latest"
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+App_Installer_Get_Remote_Version "${CHECK_URL}"
 
 REMOTE_FILENAME=""
 case "${OS_INFO_TYPE}" in

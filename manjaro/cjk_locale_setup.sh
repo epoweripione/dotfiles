@@ -376,7 +376,7 @@ fi
 # GITHUB_REPO_NAME="OzymandiasTheGreat/emoji-keyboard"
 # DOWNLOAD_FILENAME="$(xdg-user-dir DESKTOP)/emoji-keyboard.AppImage"
 # CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-# REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+# App_Installer_Get_Remote_Version "${CHECK_URL}"
 # DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/${REMOTE_VERSION}/emoji-keyboard-${REMOTE_VERSION}.AppImage"
 # colorEcho "${BLUE}Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
 # colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"

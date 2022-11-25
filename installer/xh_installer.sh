@@ -17,6 +17,36 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # xh: Friendly and fast tool for sending HTTP requests
 # https://github.com/ducaale/xh
-[[ ! -x "$(command -v xh)" ]] && asdf_App_Install xh
+# [[ ! -x "$(command -v xh)" ]] && asdf_App_Install xh
+if [[ -x "$(command -v xh)" && "$(command -v xh)" ]]; then
+    if asdf current "xh" >/dev/null 2>&1; then
+        asdf uninstall "xh" && asdf plugin remove "xh"
+    fi
+fi
+
+APP_INSTALL_NAME="xh"
+GITHUB_REPO_NAME="ducaale/xh"
+
+EXEC_INSTALL_NAME="xh"
+
+ARCHIVE_EXT="tar.gz"
+ARCHIVE_EXEC_DIR="xh-*"
+
+ZSH_COMPLETION_FILE="_xh"
+
+if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
+    IS_UPDATE="yes"
+    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+else
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+fi
+
+if ! App_Installer_Install; then
+    colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+fi
+
+cd "${CURRENT_DIR}" || exit

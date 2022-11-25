@@ -60,7 +60,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
 
     # CHECK_URL="https://api.github.com/repos/Dreamacro/clash/releases/latest"
-    # REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    # App_Installer_Get_Remote_Version "${CHECK_URL}"
 
     # Pre-release
     REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" -N https://github.com/Dreamacro/clash/releases \

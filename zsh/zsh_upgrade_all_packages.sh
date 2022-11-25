@@ -86,7 +86,7 @@ if [[ -x "$(command -v micro)" ]]; then
     CHECK_URL="https://api.github.com/repos/zyedidia/micro/releases/latest"
 
     CURRENT_VERSION=$(micro -version | grep Version | cut -d',' -f2)
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    App_Installer_Get_Remote_Version "${CHECK_URL}"
     if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         colorEcho "${BLUE}  Installing ${FUCHSIA}micro ${YELLOW}${REMOTE_VERSION}${BLUE}..."
         curl https://getmic.ro | bash && sudo mv micro "/usr/local/bin"
@@ -105,7 +105,7 @@ if [[ -d "$HOME/.jabba" ]]; then
     CHECK_URL="https://api.github.com/repos/shyiko/jabba/releases/latest"
 
     CURRENT_VERSION=$(jabba --version | cut -d' ' -f2)
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    App_Installer_Get_Remote_Version "${CHECK_URL}"
     if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         colorEcho "${BLUE}  Installing ${FUCHSIA}jabba ${YELLOW}${REMOTE_VERSION}${BLUE}..."
         curl -fsSL https://github.com/shyiko/jabba/raw/master/install.sh | bash && \
@@ -214,6 +214,7 @@ AppList=(
     "usql"
     "viu"
     "wrk"
+    "xh"
 )
 for Target in "${AppList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"

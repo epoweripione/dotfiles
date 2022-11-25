@@ -166,6 +166,10 @@ if [[ -x "$(command -v docker)" ]]; then
     alias docker-filebrowser='docker run -d --name filebrowser --user $(id -u):$(id -g) -p 80:80 -v $PWD:/srv -v $PWD/filebrowser.db:/database.db filebrowser/filebrowser'
     # https://testssl.sh/
     alias docker-testssl='docker run --rm -it --name testssl drwetter/testssl.sh'
+    # https://github.com/chromedp/docker-headless-shell
+    alias docker-headless-shell='docker run -d --name headless-shell -p 9222:9222 chromedp/headless-shell'
+    # https://docs.browserless.io/docs/docker.html
+    alias docker-browserless='docker run -d --name browserless -p 3000:3000 browserless/chrome'
 fi
 
 [[ -x "$(command -v microk8s)" ]] && alias mkctl="microk8s kubectl"
@@ -747,6 +751,9 @@ fi
 export GITHUB_HUB_URL=${GITHUB_HUB_URL:-"https://github.com"}
 export GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"https://github.com"}
 export GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.githubusercontent.com"}
+
+# https://docs.github.com/cn/rest/overview/resources-in-the-rest-api#rate-limiting
+export GITHUB_API_TOKEN=${GITHUB_API_TOKEN:-""}
 
 # WSL1
 if [[ "${OS_INFO_WSL}" =~ "Microsoft" ]]; then

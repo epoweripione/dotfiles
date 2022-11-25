@@ -45,9 +45,9 @@ fi
 
 # sudo apparmor_parser -r -W "/etc/apparmor/rpc_pipefs.conf"
 
-## sudo docker-compose up -d
-## sudo docker ps
-## sudo docker-compose logs
+## docker-compose up -d
+## docker ps
+## docker-compose logs
 
 ## sudo mount -v -t nfs <container-IP>:/some/export /some/local/path
 ## sudo mount -v -t nfs -o vers=3 192.168.0.200:/nfs /mnt/nfs

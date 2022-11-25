@@ -35,13 +35,13 @@ REMOTE_VERSION=""
 
 ## self-host relay server
 ## https://rustdesk.com/docs/en/self-host/install/
-# sudo docker image pull rustdesk/rustdesk-server
-# sudo docker run --name hbbs \
+# docker image pull rustdesk/rustdesk-server
+# docker run --name hbbs \
 #     --net=host \
 #     -p 21115:21115 -p 21116:21116 -p 21116:21116/udp -p 21118:21118 \
 #     -v `pwd`:/root \
 #     rustdesk/rustdesk-server hbbs -r <relay-server-ip[:port]>
-# sudo docker run --name hbbr \
+# docker run --name hbbr \
 #     --net=host \
 #     -p 21117:21117 -p 21119:21119 \
 #     -v `pwd`:/root rustdesk/rustdesk-server hbbr
@@ -128,7 +128,7 @@ if [[ "${OS_RELEASE_ID}" == "manjaro" ]]; then
 
         if [[ -z "${REMOTE_VERSION}" ]]; then
             CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-            REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+            App_Installer_Get_Remote_Version "${CHECK_URL}"
         fi
         if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
             IS_INSTALL="no"

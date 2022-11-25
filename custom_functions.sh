@@ -2446,10 +2446,58 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     [[ CPU_ARCH_LEVEL -ge 3 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64v3|amd64-v3"
 }
 
-# Get release information from github repository using github API
+# Get release version from github repository using github API or extract from github release page
+function App_Installer_Get_Remote_Version() {
+    local remote_url=$1
+    local version_match_pattern=$2
+    local remote_content
+
+    [[ -z "${remote_url}" && -n "${CHECK_URL}" ]] && remote_url="${CHECK_URL}"
+    [[ -z "${remote_url}" && -n "${GITHUB_REPO_NAME}" ]] && remote_url="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
+
+    [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
+
+    REMOTE_VERSION=""
+
+    [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+
+    # Get app version
+    remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+    if [[ -z "${remote_content}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
+        if [[ -n "${GITHUB_API_TOKEN}" ]]; then
+            # Use Github API token to fix rate limit exceeded
+            remote_content=$(curl "${CURL_CHECK_OPTS[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}" "${remote_url}" 2>/dev/null)
+        fi
+
+        # Extract from github release page
+        if [[ -z "${remote_content}" ]]; then
+            remote_url="${remote_url//api.github.com\/repos/github.com}"
+            remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+        fi
+
+        if [[ -n "${remote_content}" ]]; then
+            REMOTE_VERSION=$(grep '<title>' <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep 'Release' <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${remote_content}" | head -n1)
+        fi
+    fi
+
+    [[ -z "${remote_content}" ]] && colorEcho "${RED}  Can't get latest version from ${FUCHSIA}${remote_url}${RED}!" && return 1
+
+    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${remote_content}" | cut -d'v' -f2)
+
+    [[ -z "${REMOTE_VERSION}" && -n "${version_match_pattern}" ]] && \
+        REMOTE_VERSION=$(grep -E "${version_match_pattern}" <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+
+    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${remote_content}" | head -n1)
+
+    [[ -n "${REMOTE_VERSION}" ]] && return 0 || return 1
+}
+
+# Get remote file download address from given url that match running platform
 function App_Installer_Get_Remote() {
     # REMOTE_VERSION: release version
-    # REMOTE_DOWNLOAD_URL: download url that match running platform
+    # REMOTE_DOWNLOAD_URL: download address that match running platform
     # The download filename should contain at least one of the platform type or architecture, like: `rclone-v1.56.2-linux-amd64.zip`
     # Usage:
     # App_Installer_Get_Remote "https://api.github.com/repos/rclone/rclone/releases/latest"
@@ -2475,31 +2523,63 @@ function App_Installer_Get_Remote() {
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
     [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
-    remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
-    [[ -z "${remote_content}" ]] && colorEcho "${RED}  Error occurred while downloading from ${FUCHSIA}${remote_url}${RED}!" && return 1
-
     # Get app version
-    REMOTE_VERSION=$(echo "${remote_content}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+    if [[ -z "${remote_content}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
+        if [[ -n "${GITHUB_API_TOKEN}" ]]; then
+            # Use Github API token to fix rate limit exceeded
+            remote_content=$(curl "${CURL_CHECK_OPTS[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}" "${remote_url}" 2>/dev/null)
+        fi
+
+        # Extract from github release page
+        if [[ -z "${remote_content}" ]]; then
+            remote_url="${remote_url//api.github.com\/repos/github.com}"
+            remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+        fi
+
+        if [[ -n "${remote_content}" ]]; then
+            REMOTE_VERSION=$(grep '<title>' <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep 'Release' <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${remote_content}" | head -n1)
+
+            # Extract download urls from expanded_assets
+            remote_url=$(grep '\/expanded_assets\/' <<<"${remote_content}" \
+                | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" \
+                | head -n1)
+            [[ -n "${remote_url}" ]] && remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+
+            [[ -n "${remote_content}" ]] && \
+                remote_content=$(sed 's|<a href="/|<a href="https://github.com/|g' <<<"${remote_content}" | grep '\/releases\/download\/')
+        fi
+    fi
+
+    [[ -z "${remote_content}" ]] && colorEcho "${RED}  Can't get latest version from ${FUCHSIA}${remote_url}${RED}!" && return 1
+
+    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${remote_content}" | cut -d'v' -f2)
+
     [[ -z "${REMOTE_VERSION}" && -n "${version_match_pattern}" ]] && \
-        REMOTE_VERSION=$(echo "${remote_content}" | grep -E "${version_match_pattern}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(echo "${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        REMOTE_VERSION=$(grep -E "${version_match_pattern}" <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+
+    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${remote_content}" | head -n1)
 
     # Get download urls
-    match_urls=$(echo "${remote_content}" \
-        | grep -E "${file_match_pattern}" \
-        | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
+    match_urls=$(jq -r '.assets[].browser_download_url' 2>/dev/null <<<"${remote_content}")
+    if [[ -z "${match_urls}" ]]; then
+        match_urls=$(grep -E "${file_match_pattern}" <<<"${remote_content}" \
+            | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
+    fi
 
-    if ! echo "${match_urls}" | grep -q -E "${file_match_pattern}"; then
+    if ! grep -q -E "${file_match_pattern}" <<<"${match_urls}"; then
         match_urls=""
     fi
 
-    [[ -z "${match_urls}" ]] && match_urls=$(echo "${remote_content}" | grep -Eo "${file_match_pattern}")
+    [[ -z "${match_urls}" ]] && match_urls=$(grep -Eo "${file_match_pattern}" <<<"${remote_content}")
 
     [[ -z "${OS_INFO_MATCH_TYPE}" ]] && App_Installer_Get_OS_Info_Match_Cond
 
     # Filter download urls by unmatching condition
     if [[ -n "${OS_INFO_UNMATCH_COND}" ]]; then
-        match_urls=$(echo "${match_urls}" | grep -Evi "${OS_INFO_UNMATCH_COND}")
+        match_urls=$(grep -Evi "${OS_INFO_UNMATCH_COND}" <<<"${match_urls}")
     fi
 
     match_result_type=""
@@ -2508,12 +2588,12 @@ function App_Installer_Get_Remote() {
     match_result_cpu_level=""
 
     if [[ -n "${OS_INFO_MATCH_TYPE}" ]]; then
-        match_result_type=$(echo "${match_urls}" | grep -Ei "${OS_INFO_MATCH_TYPE}")
+        match_result_type=$(grep -Ei "${OS_INFO_MATCH_TYPE}" <<<"${match_urls}")
         [[ -n "${match_result_type}" ]] && match_urls="${match_result_type}"
     fi
 
     if [[ -n "${OS_INFO_MATCH_ARCH}" ]]; then
-        match_result_arch=$(echo "${match_urls}" | grep -Ei "${OS_INFO_MATCH_ARCH}")
+        match_result_arch=$(grep -Ei "${OS_INFO_MATCH_ARCH}" <<<"${match_urls}")
         [[ -n "${match_result_arch}" ]] && match_urls="${match_result_arch}"
     fi
 
@@ -2521,23 +2601,23 @@ function App_Installer_Get_Remote() {
     # [[ -z "${match_result_type}" && -z "${match_result_arch}" ]] && match_urls=""
 
     if [[ -n "${OS_INFO_MATCH_FLOAT}" ]]; then
-        match_result_float=$(echo "${match_urls}" | grep -Ei "${OS_INFO_MATCH_FLOAT}")
+        match_result_float=$(grep -Ei "${OS_INFO_MATCH_FLOAT}" <<<"${match_urls}")
         [[ -n "${match_result_float}" ]] && match_urls="${match_result_float}"
     fi
 
     if [[ -n "${OS_INFO_MATCH_CPU_LEVEL}" ]]; then
-        match_result_cpu_level=$(echo "${match_urls}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}")
+        match_result_cpu_level=$(grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}" <<<"${match_urls}")
         [[ -n "${match_result_cpu_level}" ]] && match_urls="${match_result_cpu_level}"
     fi
 
     # Filter more than one file
-    match_cnt=$(echo "${match_urls}" | wc -l)
+    match_cnt=$(wc -l <<<"${match_urls}")
     if [[ ${match_cnt} -gt 1 ]] && [[ -n "${multi_match_filter}" ]]; then
-        match_result=$(echo "${match_urls}" | grep -Ei "${multi_match_filter}")
+        match_result=$(grep -Ei "${multi_match_filter}" <<<"${match_urls}")
         [[ -n "${match_result}" ]] && match_urls="${match_result}"
     fi
 
-    [[ -n "${match_urls}" ]] && REMOTE_DOWNLOAD_URL=$(echo "${match_urls}" | head -n1)
+    [[ -n "${match_urls}" ]] && REMOTE_DOWNLOAD_URL=$(head -n1 <<<"${match_urls}")
 
     [[ -n "${REMOTE_DOWNLOAD_URL}" ]] && return 0 || return 1
 }
@@ -2926,7 +3006,7 @@ function dockerPullImages() {
     # https://www.linuxjournal.com/content/parallel-shells-xargs-utilize-all-your-cpu-cores-unix-and-windows
     # nproc: the number of installed processors
     # --ignore=N if possible, exclude N processing units
-    echo "$@" | xargs -P "$(nproc --ignore=1)" -n1 sudo docker pull
+    echo "$@" | xargs -P "$(nproc --ignore=1)" -n1 docker pull
 
     # for dockerImage in "$@"; do docker pull $dockerImage; done
 }
@@ -2937,30 +3017,30 @@ function dockerRemoveDangling() {
 
     colorEcho "${BLUE}Removing all dangling containers & images..."
     # container build cache
-    # list=$(sudo docker ps -a | grep -v 'CONTAINER' | awk '{print $1}')
-    list=$(sudo docker ps -aq --filter "status=exited" --filter "status=created")
+    # list=$(docker ps -a | grep -v 'CONTAINER' | awk '{print $1}')
+    list=$(docker ps -aq --filter "status=exited" --filter "status=created")
     if [[ -n "${list}" ]]; then
-        sudo docker ps -aq --filter "status=exited" --filter "status=created" | xargs -n1 sudo docker rm
+        docker ps -aq --filter "status=exited" --filter "status=created" | xargs -n1 docker rm
     fi
 
-    sudo docker container prune --force
-    sudo docker image prune --force
+    docker container prune --force
+    docker image prune --force
 
     # local images
     # The RepoDigest field in the image inspect will have a sha256 reference if you pulled the image from a registry
-    # list=$(sudo docker images --format "{{.Repository}}" | grep '_')
-    list=$(sudo docker images --filter "dangling=false" --format "{{.Repository}}:{{.Tag}}" \
+    # list=$(docker images --format "{{.Repository}}" | grep '_')
+    list=$(docker images --filter "dangling=false" --format "{{.Repository}}:{{.Tag}}" \
         | grep -v ':<none>' \
-        | xargs -n1 sudo docker image inspect \
+        | xargs -n1 docker image inspect \
             --format '{{if .RepoTags}}{{index .RepoTags 0}}{{end}} {{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' \
         | grep -v '@' | sed 's/\s//g')
     if [[ -n "${list}" ]]; then
         while read -r imageTag; do
-            sudo docker rmi "${imageTag}"
+            docker rmi "${imageTag}"
         done <<<"${list}"
     fi
 
-    sudo docker image prune --force
+    docker image prune --force
 }
 
 
@@ -2980,7 +3060,7 @@ function Get_Installer_CURL_Options() {
 
     CURL_CHECK_OPTS=()
     if [[ -n "${INSTALLER_CHECK_CURL_OPTION}" ]]; then
-        if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" CURL_CHECK_OPTS <<< "${INSTALLER_CHECK_CURL_OPTION}" 2>/dev/null; then
+        if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" CURL_CHECK_OPTS <<<"${INSTALLER_CHECK_CURL_OPTION}" 2>/dev/null; then
             while read -r opts; do
                 CURL_CHECK_OPTS+=("${opts}")
             done < <(echo "${INSTALLER_CHECK_CURL_OPTION}" | tr ' ' '\n')
@@ -2990,7 +3070,7 @@ function Get_Installer_CURL_Options() {
 
     CURL_DOWNLOAD_OPTS=()
     if [[ -n "${INSTALLER_DOWNLOAD_CURL_OPTION}" ]]; then
-        if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" CURL_DOWNLOAD_OPTS <<< "${INSTALLER_DOWNLOAD_CURL_OPTION}" 2>/dev/null; then
+        if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" CURL_DOWNLOAD_OPTS <<<"${INSTALLER_DOWNLOAD_CURL_OPTION}" 2>/dev/null; then
             while read -r opts; do
                 CURL_DOWNLOAD_OPTS+=("${opts}")
             done < <(echo "${INSTALLER_DOWNLOAD_CURL_OPTION}" | tr ' ' '\n')
@@ -3009,7 +3089,7 @@ function Get_Installer_AXEL_Options() {
 
     AXEL_DOWNLOAD_OPTS=()
     if [[ -n "${INSTALLER_DOWNLOAD_AXEL_OPTION}" ]]; then
-        if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" AXEL_DOWNLOAD_OPTS <<< "${INSTALLER_DOWNLOAD_AXEL_OPTION}" 2>/dev/null; then
+        if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" AXEL_DOWNLOAD_OPTS <<<"${INSTALLER_DOWNLOAD_AXEL_OPTION}" 2>/dev/null; then
             while read -r opts; do
                 AXEL_DOWNLOAD_OPTS+=("${opts}")
             done < <(echo "${INSTALLER_DOWNLOAD_AXEL_OPTION}" | tr ' ' '\n')
@@ -3030,7 +3110,7 @@ function Get_Git_Clone_Options() {
         GIT_CLONE_DEFAULT_OPTION="-c core.autocrlf=false -c core.filemode=false"
 
     GIT_CLONE_OPTS=()
-    if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" GIT_CLONE_OPTS <<< "${GIT_CLONE_DEFAULT_OPTION}" 2>/dev/null; then
+    if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" GIT_CLONE_OPTS <<<"${GIT_CLONE_DEFAULT_OPTION}" 2>/dev/null; then
         while read -r opts; do
             GIT_CLONE_OPTS+=("${opts}")
         done < <(echo "${GIT_CLONE_DEFAULT_OPTION}" | tr ' ' '\n')
@@ -3325,6 +3405,37 @@ function check_wsl_windows_exe() {
     fi
 
     return 1
+}
+
+
+# Run Chrome Headless docker images built upon alpine official image
+# https://github.com/Zenika/alpine-chrome
+function run_chrome_headless() {
+    local seccomp_file="$HOME/chrome_headless_seccomp.json"
+    local download_url="https://raw.githubusercontent.com/jfrazelle/dotfiles/master/etc/docker/seccomp/chrome.json"
+
+    [[ ! -s "${seccomp_file}" ]] && curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${seccomp_file}" "${download_url}"
+
+    if [[ -s "$HOME/chrome_headless_seccomp.json" ]]; then
+        docker run -d --name alpine-chrome --security-opt seccomp="${seccomp_file}" zenika/alpine-chrome
+    else
+        docker run -d --name alpine-chrome --cap-add=SYS_ADMIN zenika/alpine-chrome
+    fi
+}
+
+function run_chrome_headless_with_puppeteer() {
+    local js_path=$1
+    local seccomp_file="$HOME/chrome_headless_seccomp.json"
+    local download_url="https://raw.githubusercontent.com/jfrazelle/dotfiles/master/etc/docker/seccomp/chrome.json"
+
+    [[ ! -s "${seccomp_file}" ]] && curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${seccomp_file}" "${download_url}"
+
+    [[ -z "${js_path}" ]] && js_path="$HOME/.dotfiles/nodejs"
+    if [[ -s "$HOME/chrome_headless_seccomp.json" ]]; then
+        docker run -d --name alpine-chrome -v "${js_path}":/usr/src/app/ --security-opt seccomp="${seccomp_file}" zenika/alpine-chrome:with-puppeteer
+    else
+        docker run -d --name alpine-chrome -v "${js_path}":/usr/src/app/ --cap-add=SYS_ADMIN zenika/alpine-chrome:with-puppeteer
+    fi
 }
 
 

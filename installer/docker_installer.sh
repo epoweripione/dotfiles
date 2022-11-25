@@ -124,7 +124,7 @@ fi
 if [[ -n "${CURRENT_VERSION}" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}buildx${BLUE}..."
     CHECK_URL="https://api.github.com/repos/docker/buildx/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    App_Installer_Get_Remote_Version "${CHECK_URL}"
     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         IS_INSTALL="no"
     fi
@@ -177,7 +177,7 @@ fi
 if [[ -n "${CURRENT_VERSION}" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}docker-compose${BLUE}..."
     CHECK_URL="https://api.github.com/repos/docker/compose/releases/latest"
-    REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    App_Installer_Get_Remote_Version "${CHECK_URL}"
     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         IS_INSTALL="no"
     fi
@@ -235,7 +235,7 @@ fi
 
 colorEcho "${BLUE}Checking latest version for ${FUCHSIA}ctop${BLUE}..."
 CHECK_URL="https://api.github.com/repos/bcicen/ctop/releases/latest"
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+App_Installer_Get_Remote_Version "${CHECK_URL}"
 if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
     IS_INSTALL="no"
 fi
@@ -331,18 +331,20 @@ UNUSE_MIRRORS=(
 )
 
 REMOVE_MIRRORS=""
-for Target in "${UNUSE_MIRRORS[@]}"; do
-    if grep -q "${Target}" "/etc/docker/daemon.json"; then
-        [[ -z "${REMOVE_MIRRORS}" ]] && REMOVE_MIRRORS="${Target}" || REMOVE_MIRRORS="${REMOVE_MIRRORS},${Target}"
+if [[ -s "/etc/docker/daemon.json" ]]; then
+    for Target in "${UNUSE_MIRRORS[@]}"; do
+        if grep -q "${Target}" "/etc/docker/daemon.json" 2>/dev/null; then
+            [[ -z "${REMOVE_MIRRORS}" ]] && REMOVE_MIRRORS="${Target}" || REMOVE_MIRRORS="${REMOVE_MIRRORS},${Target}"
+        fi
+    done
+
+    if [[ -n "${REMOVE_MIRRORS}" ]]; then
+        jq -r ".\"registry-mirrors\"=.\"registry-mirrors\" - [${REMOVE_MIRRORS}]" "/etc/docker/daemon.json" \
+            | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
+
+        [[ -f "/etc/docker/daemon_temp.json" ]] && sudo mv -f "/etc/docker/daemon_temp.json" "/etc/docker/daemon.json"
+        sudo systemctl daemon-reload && sudo systemctl restart docker
     fi
-done
-
-if [[ -n "${REMOVE_MIRRORS}" ]]; then
-    jq -r ".\"registry-mirrors\"=.\"registry-mirrors\" - [${REMOVE_MIRRORS}]" "/etc/docker/daemon.json" \
-        | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
-
-    [[ -f "/etc/docker/daemon_temp.json" ]] && sudo mv -f "/etc/docker/daemon_temp.json" "/etc/docker/daemon.json"
-    sudo systemctl daemon-reload && sudo systemctl restart docker
 fi
 
 # docker proxy
