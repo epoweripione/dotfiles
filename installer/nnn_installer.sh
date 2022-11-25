@@ -25,7 +25,7 @@ fi
 APP_INSTALL_NAME="nnn"
 GITHUB_REPO_NAME="jarun/nnn"
 
-ARCHIVE_EXT="tar.bz2"
+ARCHIVE_EXT="tar.gz"
 ARCHIVE_EXEC_DIR=""
 ARCHIVE_EXEC_NAME="nnn-*"
 

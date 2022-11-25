@@ -26,7 +26,7 @@ APP_INSTALL_NAME="btop"
 GITHUB_REPO_NAME="aristocratos/btop"
 
 ARCHIVE_EXT="tbz"
-ARCHIVE_EXEC_DIR=""
+ARCHIVE_EXEC_DIR="btop"
 ARCHIVE_EXEC_NAME=""
 
 EXEC_INSTALL_PATH="/usr/local/bin"
