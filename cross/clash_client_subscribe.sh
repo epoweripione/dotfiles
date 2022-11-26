@@ -108,15 +108,17 @@ if [[ -z "${SUB_LIST_LINE}" ]]; then
     done < "${SUB_LIST_FILE}"
 else
     SUB_LIST_CONTENT=$(sed -e '/^$/d' -e '/^#/d' "${SUB_LIST_FILE}")
-    SUB_CNT=$(echo "${SUB_LIST_CONTENT}" | wc -l)
+    SUB_CNT=$(wc -l <<<"${SUB_LIST_CONTENT}")
 
     # random line
     [[ "${SUB_LIST_LINE}" == "0" ]] && SUB_LIST_LINE=$(( ( RANDOM % 10 )  + SUB_CNT - 9 + 1 ))
-    SUB_URL=$(echo "${SUB_LIST_CONTENT}" | sed -n "${SUB_LIST_LINE}p")
+    [[ "${SUB_LIST_LINE}" == "0" ]] && SUB_LIST_LINE="1"
+
+    SUB_URL=$(sed -n "${SUB_LIST_LINE}p" <<<"${SUB_LIST_CONTENT}")
 
     # empty URL fallback to line 1
     [[ -z "${SUB_URL}" ]] && SUB_LIST_LINE="1"
-    SUB_URL=$(echo "${SUB_LIST_CONTENT}" | sed -n "${SUB_LIST_LINE}p")
+    SUB_URL=$(sed -n "${SUB_LIST_LINE}p" <<<"${SUB_LIST_CONTENT}")
 
     [[ -z "${SUB_URL}" ]] && colorEcho "${RED}Can't get URL from line ${FUCHSIA}${SUB_LIST_LINE}${RED}!" && exit 1
 
