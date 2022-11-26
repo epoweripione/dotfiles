@@ -38,6 +38,9 @@ if (! DisableStealth) {
     puppeteer.use(StealthPlugin());
 }
 
+// Fix Error: An `executablePath` or `channel` must be specified for `puppeteer-core`
+const {executablePath} = require('puppeteer');
+
 const os = require("os");
 const fs = require('fs');
 
@@ -74,7 +77,11 @@ if (Output) {
 
 // Accept Cookies and Other Information
 const PuppeteerAcceptCookies = async () => {
-    const browser = await puppeteer.launch({headless: false, userDataDir: `${UserDataDir}`});
+    const browser = await puppeteer.launch({
+		headless: false,
+		userDataDir: `${UserDataDir}`,
+		executablePath: executablePath(),
+	});
     const page = await browser.newPage();
 
     // await page.setViewport({width: 360, height: 640});
@@ -83,7 +90,11 @@ const PuppeteerAcceptCookies = async () => {
 
 // Take Screenshot for a given website
 const PuppeteerScreenshotFull = async () => {
-    const browser = await puppeteer.launch({headless: true, userDataDir: `${UserDataDir}`});
+    const browser = await puppeteer.launch({
+		headless: false,
+		userDataDir: `${UserDataDir}`,
+		executablePath: executablePath(),
+	});
     const page = await browser.newPage();
 
     // await page.setViewport({width: 1024, height: 768});
@@ -128,7 +139,11 @@ const PuppeteerScreenshotFull = async () => {
 
 // Take Screenshot of an Element
 const PuppeteerScreenshotElement = async () => {
-    const browser = await puppeteer.launch({headless: true, userDataDir: `${UserDataDir}`});
+    const browser = await puppeteer.launch({
+		headless: false,
+		userDataDir: `${UserDataDir}`,
+		executablePath: executablePath(),
+	});
     const page = await browser.newPage();
 
     await page.setViewport({width: 1024, height: 768});

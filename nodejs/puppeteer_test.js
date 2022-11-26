@@ -2,6 +2,9 @@ const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 puppeteer.use(StealthPlugin());
 
+// Fix Error: An `executablePath` or `channel` must be specified for `puppeteer-core`
+const {executablePath} = require('puppeteer');
+
 // const stealth = StealthPlugin();
 // stealth.enabledEvasions.delete('user-agent-override');
 // stealth.enabledEvasions.delete('sourceurl');
@@ -29,6 +32,7 @@ const PuppeteerScreenshotTest = async () => {
         // },
         dumpio: true,
         userDataDir: `${UserDataDir}`,
+		executablePath: executablePath(),
     });
     const page = await browser.newPage();
     // await page.setViewport({width: 1024, height: 768});

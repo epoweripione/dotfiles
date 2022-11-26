@@ -1,5 +1,8 @@
 const puppeteer = require('puppeteer');
 
+// Fix Error: An `executablePath` or `channel` must be specified for `puppeteer-core`
+const {executablePath} = require('puppeteer');
+
 const args = process.argv.slice(2);
 
 const url = args[0];
@@ -17,7 +20,10 @@ const PuppeteerHTML = async () => {
     //     ]
     // });
 
-    const browser = await puppeteer.launch({headless: true});
+    const browser = await puppeteer.launch({
+        headless: true,
+		executablePath: executablePath(),
+    });
 
     const page = await browser.newPage();
 
