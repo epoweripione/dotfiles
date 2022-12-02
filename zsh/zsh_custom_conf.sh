@@ -163,13 +163,20 @@ if [[ -x "$(command -v docker)" ]]; then
     # https://github.com/AlDanial/cloc
     alias docker-cloc='docker run --rm -v $PWD:/tmp aldanial/cloc'
     # https://filebrowser.org
-    alias docker-filebrowser='docker run -d --name filebrowser --user $(id -u):$(id -g) -p 80:80 -v $PWD:/srv -v $PWD/filebrowser.db:/database.db filebrowser/filebrowser'
+    alias docker-filebrowser='docker run -d --name filebrowser --user $(id -u):$(id -g) -p 80:80 -v $PWD:/srv filebrowser/filebrowser'
     # https://testssl.sh/
     alias docker-testssl='docker run --rm -it --name testssl drwetter/testssl.sh'
     # https://github.com/chromedp/docker-headless-shell
     alias docker-headless-shell='docker run -d --name headless-shell -p 9222:9222 chromedp/headless-shell'
     # https://docs.browserless.io/docs/docker.html
     alias docker-browserless='docker run -d --name browserless -p 3000:3000 browserless/chrome'
+    # https://github.com/soulteary/apt-proxy
+    # command: --ubuntu=cn:tsinghua --debian=cn:tsinghua  --alpine=cn:tsinghua --centos=cn:tsinghua
+    # usage: docker-apt-proxy "--ubuntu=cn:tsinghua --debian=cn:tsinghua  --alpine=cn:tsinghua --centos=cn:tsinghua"
+    alias docker-apt-proxy='docker run -d --name apt-proxy -p 3142:3142 soulteary/apt-proxy'
+    # https://github.com/soulteary/certs-maker
+    # usage: docker-certs-maker "--CERT_DNS=lab.com,*.lab.com,*.data.lab.com"
+    alias docker-certs-maker='docker run --rm -it --name certs-maker -v $PWD:/ssl soulteary/certs-maker'
 fi
 
 [[ -x "$(command -v microk8s)" ]] && alias mkctl="microk8s kubectl"
