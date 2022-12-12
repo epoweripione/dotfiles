@@ -2054,24 +2054,24 @@ function Install_systemd_Service() {
     local service_exec=$2
     local service_user=${3:-"nobody"}
     local service_workdir=${4:-""}
-    local filename
-    local service_file
+    local filename service_file
 
     [[ $# -lt 2 ]] && return 1
-    [[ -z "$service_name" ]] && return 1
-    [[ -z "$service_exec" ]] && return 1
 
-    if [[ -z "$service_workdir" ]]; then
-        filename=$(echo "${service_exec}" | cut -d" " -f1)
-        service_workdir=$(dirname "$(readlink -f "$filename")")
-    fi
+    [[ -z "${service_name}" ]] && return 1
+    [[ -z "${service_exec}" ]] && return 1
 
-    [[ -z "$filename" || ! -f "$filename" ]] && colorEcho "${FUCHSIA}${filename}${RED} doesn't exist!" && return 1
-    [[ -z "$service_workdir" || ! -d "$service_workdir" ]] && colorEcho "${FUCHSIA}${service_workdir}${RED} doesn't exist!" && return 1
+    filename=$(awk '{print $1}' <<<"${service_exec}")
+    [[ -z "${service_workdir}" ]] && service_workdir=$(dirname "$(readlink -f "$filename")")
+
+    [[ ! -f "$filename" ]] && colorEcho "${FUCHSIA}${filename}${RED} doesn't exist!" && return 1
+    [[ ! -d "${service_workdir}" ]] && colorEcho "${FUCHSIA}${service_workdir}${RED} doesn't exist!" && return 1
 
     service_file="/etc/systemd/system/${service_name}.service"
-    if [[ ! -s "$service_file" ]]; then
-        sudo tee "$service_file" >/dev/null <<-EOF
+    if [[ -s "${service_file}" ]]; then
+        colorEcho "${FUCHSIA}${service_file}${RED} already exist!" && return 1
+    else
+        sudo tee "${service_file}" >/dev/null <<-EOF
 [Unit]
 Description=${service_name}
 After=network.target network-online.target nss-lookup.target
@@ -2086,14 +2086,16 @@ WorkingDirectory=${service_workdir}
 ExecReload=/bin/kill -HUP \$MAINPID
 Restart=on-failure
 RestartSec=5s
+# StandardOutput=append:/var/log/${service_name}.log
+# StandardError=append:/var/log/${service_name}.log
 
 [Install]
 WantedBy=multi-user.target
 EOF
     fi
 
-    sudo systemctl enable "$service_name" && sudo systemctl restart "$service_name"
-    if systemctl is-enabled "$service_name" >/dev/null 2>&1; then
+    sudo systemctl enable "${service_name}" && sudo systemctl restart "${service_name}"
+    if systemctl is-enabled "${service_name}" >/dev/null 2>&1; then
         colorEcho "${GREEN}  systemd service ${FUCHSIA}${service_name}${GREEN} installed!"
     else
         colorEcho "${RED}  systemd service ${FUCHSIA}${service_name}${RED} install failed!"
@@ -2567,10 +2569,8 @@ function App_Installer_Get_Remote() {
     if [[ -z "${match_urls}" ]]; then
         match_urls=$(grep -E "${file_match_pattern}" <<<"${remote_content}" \
             | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
-    fi
-
-    if ! grep -q -E "${file_match_pattern}" <<<"${match_urls}"; then
-        match_urls=""
+    else
+        match_urls=$(grep -E "${file_match_pattern}" <<<"${match_urls}")
     fi
 
     [[ -z "${match_urls}" ]] && match_urls=$(grep -Eo "${file_match_pattern}" <<<"${remote_content}")
