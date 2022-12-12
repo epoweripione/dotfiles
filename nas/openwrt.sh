@@ -201,7 +201,7 @@ opkg install dnsmasq-full
 
 opkg install luci luci-base iptables coreutils coreutils-nohup \
     bash curl jsonfilter ca-certificates ipset ip-full iptables-mod-tproxy kmod-tun luci-compat \
-    libcap libcap-bin
+    libcap libcap-bin jq perl
 
 # Pre-release
 CHECK_URL="https://api.github.com/repos/vernesong/OpenClash/tags"
@@ -217,5 +217,50 @@ fi
 
 ## remove
 ## opkg remove luci-app-openclash
+
+
+## [ChinaDNS-NG]((https://github.com/zfl9/chinadns-ng))
+## https://iwan.ga/archives/401
+## https://github.com/NagaseKouichi/openwrt-chinadns-ng
+opkg install chinadns-ng
+
+INSTALL_PKGS=(
+    # "https://github.com/NagaseKouichi/openwrt-chinadns-ng/releases/download/luci-app-chinadns-ng_1.2-1_all/chinadns-ng_1.0-beta.24-1_x86_64.ipk"
+    "https://github.com/NagaseKouichi/openwrt-chinadns-ng/releases/download/luci-app-chinadns-ng_1.2-1_all/luci-app-chinadns-ng_1.2-1_all.ipk"
+    "https://github.com/NagaseKouichi/openwrt-chinadns-ng/releases/download/luci-app-chinadns-ng_1.2-1_all/luci-i18n-chinadns-ng-zh-cn_1.2-1_all.ipk"
+)
+for TargetUrl in "${INSTALL_PKGS[@]}"; do
+    DOWNLOAD_FILENAME=$(basename "${TargetUrl}" | cut -d'?' -f1)
+    if App_Installer_Download_Extract "${TargetUrl}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
+        opkg install "${WORKDIR}/${DOWNLOAD_FILENAME}"
+    fi
+done
+
+## DNS list
+# rsync -avhz --progress /opt/chinadns-ng/*.txt root@10.0.0.1:/etc/chinadns-ng
+Git_Clone_Update_Branch "zfl9/chinadns-ng" "$HOME/chinadns-ng"
+if [[ -d "/tmp/chinadns-ng" ]]; then
+    cd "/tmp/chinadns-ng" && \
+        ./update-gfwlist.sh && ./update-chnlist.sh && ./update-chnroute.sh && ./update-chnroute6.sh
+
+    cp -f "/tmp/chinadns-ng/chnlist.txt" "/etc/chinadns-ng/chinalist.txt"
+    cp -f "/tmp/chinadns-ng/gfwlist.txt" "/etc/chinadns-ng/gfwlist.txt"
+
+    sed '1d' "/tmp/chinadns-ng/chnroute.ipset" | awk '{print $3}' | tee "/etc/chinadns-ng/chnroute.txt" >/dev/null
+    sed '1d' "/tmp/chinadns-ng/chnroute6.ipset" | awk '{print $3}' | tee "/etc/chinadns-ng/chnroute6.txt" >/dev/null
+fi
+
+
+## [naiveproxy](https://github.com/klzgrad/naiveproxy/wiki/OpenWrt-Support)
+# cat /etc/os-release
+# OPENWRT_ARCH="$(. /etc/os-release && echo "${OPENWRT_ARCH}")"
+# App_Installer_Get_Remote "https://api.github.com/repos/klzgrad/naiveproxy/releases/latest" "naiveproxy-.*openwrt-${OPENWRT_ARCH}.*\.tar\.xz"
+opkg install naiveproxy luci-app-naiveproxy
+
+
+## [procd-init-scripts](https://openwrt.org/docs/guide-developer/procd-init-scripts)
+## [openwrt procd init script 自启动脚本服务](https://blog.niekun.net/archives/2277.html)
+## [frp 自动启动](https://gist.github.com/h1code2/3a749d966ed5ef36e4836d24c3f7d3d8)
+
 
 cd "${CURRENT_DIR}" || exit
