@@ -181,7 +181,8 @@ yay --noconfirm --needed -S community/geany community/geany-plugins aur/geany-th
 
 # Download & Upload
 colorEcho "${BLUE}Installing ${FUCHSIA}download & upload tools${BLUE}..."
-sudo pacman --noconfirm --needed -S aria2 motrix you-get filezilla
+sudo pacman --noconfirm --needed -S aria2 you-get filezilla archlinuxcn/qbittorrent-enhanced-git
+sudo snap install motrix
 
 # Docker
 colorEcho "${BLUE}Installing ${FUCHSIA}docker${BLUE}..."
@@ -271,9 +272,10 @@ sudo pacman --noconfirm --needed -S font-manager filelight peek redshift ventoy-
 # Terminal
 # sudo pacman --noconfirm --needed -S konsole
 
-## Virtualbox
-# yay --noconfirm --needed -S aur/virtualbox-bin
-# yay --noconfirm --needed -S aur/virtualbox-ext-oracle
+## [Virtualbox](https://wiki.archlinux.org/title/VirtualBox)
+# yay --noconfirm --needed -S community/virtualbox community/virtualbox-guest-iso
+# yay --noconfirm --needed -S aur/virtualbox-bin aur/virtualbox-bin-guest-iso aur/virtualbox-ext-oracle
+# sudo usermod -aG vboxusers "$USER"
 
 # WPS
 colorEcho "${BLUE}Installing ${FUCHSIA}WPS Office${BLUE}..."

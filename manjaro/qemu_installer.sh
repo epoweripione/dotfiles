@@ -44,6 +44,16 @@ sudo systemctl enable libvirtd && sudo systemctl start libvirtd
 sudo pacman --noconfirm --needed -S virtio-win
 
 ## SPICE
+# Using `virt-manager` (on host) change the guest VM configuration:
+# Change the 'Video model' to 'QXL'
+# Set the 'Display' to 'Spice'
+# Add a 'spicevmc' Channel (via 'Add Hardware')
+
+## Linux guest
+# sudo pacman --noconfirm --needed -S spice-vdagent xf86-video-qxl
+# echo -e '# auto start spice-vdagent\nspice-vdagent' | tee -a "$HOME/.xprofile"
+
+## Windows guest
 ## spice-guest-tools
 ## https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe
 ## spice-webdavd
@@ -58,12 +68,16 @@ sudo pacman --noconfirm --needed -S virtio-win
 ## [Sharing files with Virtiofs](https://libvirt.org/kbase/virtiofs.html)
 ## mkdir -p /mnt/share && chmod a+w /mnt/share
 ## Add the following domain XML elements to share the host directory /path with the guest
-# <filesystem type="mount" accessmode="passthrough">
-#   <driver type="virtiofs" queue="1024"/>
-#   <source dir="/mnt/share"/>
-#   <target dir="share"/>
-#   <address type="pci" domain="0x0000" bus="0x07" slot="0x00" function="0x0"/>
-# </filesystem>
+#     <filesystem type="mount" accessmode="passthrough">
+#       <driver type="virtiofs" queue="1024"/>
+#       <source dir="/mnt/share"/>
+#       <target dir="share"/>
+#       <address type="pci" domain="0x0000" bus="0x08" slot="0x00" function="0x0"/>
+#     </filesystem>
+
+## Boot the guest and mount the filesystem
+# sudo mkdir -p /mnt/share && sudo mount -t virtiofs share /mnt/share
+
 ## [How to install virtiofs drivers on Windows](https://virtio-fs.gitlab.io/howto-windows.html)
 ## 1. Installing the virtiofs PCI device driver(virtio-win.iso):
 ##    virtio-win-guest-tools.exe 

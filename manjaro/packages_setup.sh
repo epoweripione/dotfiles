@@ -80,7 +80,7 @@ if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
     #     sudo pacman-key --populate manjaro && \
     #     sudo pacman-key --populate archlinux && \
     #     sudo pacman-key --populate archlinuxcn && \
-    #     sudo pacman -Scc && sudo pacman --noconfirm --needed -Syu
+    #     sudo pacman -Scc && sudo pacman --noconfirm -Syu
 
     sudo pacman --noconfirm -Syy && \
         sudo pacman --noconfirm --needed -S archlinuxcn-keyring && \
@@ -89,7 +89,7 @@ fi
 
 # Full update
 colorEcho "${BLUE}Updating ${FUCHSIA}full system${BLUE}..."
-sudo pacman --noconfirm --needed -Syu
+sudo pacman --noconfirm -Syu
 
 # Language packs
 colorEcho "${BLUE}Installing ${FUCHSIA}language packs${BLUE}..."
