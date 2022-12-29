@@ -23,10 +23,17 @@ fi
 
 # pacman
 # Generate custom mirrorlist
-if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
-    colorEcho "${BLUE}Generating ${FUCHSIA}mirror lists${BLUE}..."
-    sudo pacman-mirrors -i -c China -m rank
-fi
+# if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
+#     colorEcho "${BLUE}Generating ${FUCHSIA}mirror lists${BLUE}..."
+#     sudo pacman-mirrors -i -c China -m rank
+# fi
+
+# try to set up the fastest mirror
+# https://wiki.manjaro.org/index.php/Pacman-mirrors
+colorEcho "${BLUE}Setting ${FUCHSIA}pacman mirrors${BLUE}..."
+# sudo pacman-mirrors -i -c China -m rank
+# sudo pacman-mirrors -i --continent --timeout 2 -m rank
+sudo pacman-mirrors -i --geoip --timeout 2 -m rank
 
 # Show colorful output on the terminal
 sudo sed -i 's|^#Color|Color|' /etc/pacman.conf
