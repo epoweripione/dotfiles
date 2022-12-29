@@ -1042,12 +1042,12 @@ function set_proxy() {
 
     [[ -z "${PROXY_ADDRESS}" ]] && PROXY_ADDRESS="http://127.0.0.1:8080"
 
-    export {http,https,ftp,all}_proxy=${PROXY_ADDRESS}
+    export {http,https,ftp,all}_proxy="${PROXY_ADDRESS}"
     export no_proxy="${GLOBAL_NO_PROXY}"
     # export no_proxy="localhost,127.0.0.0/8,*.local"
 
     # for curl
-    export {HTTP,HTTPS,FTP,ALL}_PROXY=${PROXY_ADDRESS}
+    export {HTTP,HTTPS,FTP,ALL}_PROXY="${PROXY_ADDRESS}"
     export NO_PROXY="${GLOBAL_NO_PROXY}"
 }
 
@@ -2716,6 +2716,79 @@ function App_Installer_Download_Extract() {
     fi
 }
 
+# Extract archive file
+function Archive_File_Extract() {
+    local filename=$1
+    local workdir=$2
+    local archive_ext_list archive_ext TargetExt
+    local extract_rtn_code
+
+    [[ -z "${filename}" ]] && colorEcho "${FUCHSIA}Filename${RED} can't empty!" && return 1
+
+    [[ -z "${workdir}" ]] && workdir="$(pwd)"
+
+    extract_rtn_code=0
+    archive_ext=""
+    archive_ext_list=(
+        ".tar.bz2"
+        ".tar.bz"
+        ".tar.gz"
+        ".tar.xz"
+        ".tbz2"
+        ".tbz"
+        ".tgz"
+        ".txz"
+        ".bz2"
+        ".bz"
+        ".gz"
+        ".xz"
+        ".zip"
+        ".7z"
+    )
+    for TargetExt in "${archive_ext_list[@]}"; do
+        if echo "${filename}" | grep -q "${TargetExt}$"; then
+            archive_ext="${TargetExt}"
+            break
+        fi
+    done
+
+    case "${archive_ext}" in
+        ".zip")
+            unzip -qo "${filename}" -d "${workdir}" || extract_rtn_code=$?
+            ;;
+        ".tar.bz2" | ".tar.bz" | ".tbz2" | ".tbz")
+            tar -xjf "${filename}" -C "${workdir}" || extract_rtn_code=$?
+            ;;
+        ".tar.gz" | ".tgz")
+            tar -xzf "${filename}" -C "${workdir}" || extract_rtn_code=$?
+            ;;
+        ".tar.xz" | ".txz")
+            tar -xJf "${filename}" -C "${workdir}" || extract_rtn_code=$?
+            ;;
+        ".bz2" | ".bz")
+            cd "${workdir}" || return 1
+            bzip2 -df "${filename}" || extract_rtn_code=$?
+            ;;
+        ".gz")
+            cd "${workdir}" || return 1
+            gzip -df "${filename}" || extract_rtn_code=$?
+            ;;
+        ".xz")
+            cd "${workdir}" || return 1
+            xz -df "${filename}" || extract_rtn_code=$?
+            ;;
+        ".7z")
+            7z e "${filename}" -o"${workdir}" || extract_rtn_code=$?
+            ;;
+    esac
+
+    if [[ ${extract_rtn_code} -eq 0 ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Reset app installer variables
 function App_Installer_Reset() {
     APP_INSTALL_NAME=""
@@ -3216,7 +3289,7 @@ function remind() {
     fi
 
     # Schedule the notification
-    echo "notify-send '$MESSAGE' 'Reminder' -u critical" | at $TIME 2>/dev/null
+    echo "notify-send '$MESSAGE' 'Reminder' -u critical" | at "$TIME" 2>/dev/null
     echo "Notification scheduled at $TIME"
 }
 
