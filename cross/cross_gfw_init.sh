@@ -273,8 +273,8 @@ PROXY_ADDRESS="socks5://${PROXY_ADDRESS}"
 colorEcho "${GREEN}Usage:"
 colorEcho "${BLUE}  export {http,https,ftp,all}_proxy=\"${PROXY_ADDRESS}\""
 colorEcho "${BLUE}  export {HTTP,HTTPS,FTP,ALL}_PROXY=\"${PROXY_ADDRESS}\""
-colorEcho "${BLUE}  git config --global http.proxy \"${PROXY_ADDRESS}\""
-colorEcho "${BLUE}  git config --global https.proxy \"${PROXY_ADDRESS}\""
+# colorEcho "${BLUE}  git config --global http.proxy \"${PROXY_ADDRESS}\""
+# colorEcho "${BLUE}  git config --global https.proxy \"${PROXY_ADDRESS}\""
 
 unset PROXY_IP
 unset PROXY_ADDRESS
