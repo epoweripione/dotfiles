@@ -678,10 +678,12 @@ fi
 if [[ -x "$(command -v node)" ]]; then
     alias encodeURI="node -e \"process.stdin.on('data', data => process.stdout.write(encodeURI(data.toString())))\""
     alias decodeURI="node -e \"process.stdin.on('data', data => process.stdout.write(decodeURI(data.toString())))\""
+    # echo '文档' | tr -d '\n' | encodeURIComponent
     alias encodeURIComponent="node -e \"process.stdin.on('data', data => process.stdout.write(encodeURIComponent(data.toString())))\""
     alias decodeURIComponent="node -e \"process.stdin.on('data', data => process.stdout.write(decodeURIComponent(data.toString())))\""
 else
-    alias encodeURIComponent="xxd -p | tr -d '\n' | sed 's/\(..\)/%\1/g'"
+    [[ -x "$(command -v xxd)" ]] && alias encodeURIComponent="tr -d '\n' | xxd -plain | sed 's/\(..\)/%\1/g'"
+    [[ -x "$(command -v od)" ]] && alias encodeURIComponent="tr -d '\n' | od -An -tx1 | tr ' ' %"
     alias decodeURIComponent="sed 's/%/\\\\x/g' | xargs -0 printf '%b'"
 fi
 
