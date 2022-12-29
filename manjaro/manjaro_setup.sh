@@ -10,7 +10,7 @@
 ## New install
 # https://arch.icekylin.online/
 # 1. Terminal Emulator
-# sudo pacman-mirrors -i -c China -m rank
+# sudo pacman-mirrors -i --geoip --timeout 2 -m rank
 # sudo pacman -Syy
 # 2. GParted:
 # sudo pacman -S gparted
@@ -67,6 +67,50 @@ else
         exit 0
     fi
 fi
+
+# Force the creation of English-named directories
+# [XDG user directories](https://wiki.archlinux.org/title/XDG_user_directories)
+sudo pacman --noconfirm --needed -S xdg-user-dirs
+LC_ALL=C xdg-user-dirs-update --force
+
+FOLDER_EN=(Desktop Documents Downloads Pictures Music Videos Public Templates)
+FOLDER_CN=(桌面 文档 下载 图片 音乐 视频 公共 模板)
+FOLDER_INDEX=-1
+for TargetFolder in "${FOLDER_CN[@]}"; do
+    FOLDER_INDEX=$((FOLDER_INDEX + 1))
+    if [[ -d "${HOME:-/home/$(id -nu)}/${TargetFolder}" ]]; then
+        FOLDER_SRC="${HOME:-/home/$(id -nu)}/${TargetFolder}"
+        FOLDER_DEST="${HOME:-/home/$(id -nu)}/${FOLDER_EN[$FOLDER_INDEX]}"
+        [[ "$(ls -A "${FOLDER_SRC}")" ]] && cp -r "${FOLDER_SRC}/"* "${FOLDER_DEST}"
+        rm -rf "${HOME:-/home/$(id -nu)}/${TargetFolder}"
+    fi
+
+    # Dolphin places
+    if [[ -s "$HOME/.local/share/user-places.xbel" ]]; then
+        FOLDER_ENCODE=$(tr -d '\n' <<<"${TargetFolder}" | od -An -tx1 | tr ' ' %)
+        sed -i -e "s/${FOLDER_ENCODE}/${FOLDER_EN[$FOLDER_INDEX]}/g" "$HOME/.local/share/user-places.xbel"
+    fi
+done
+
+# sed -i -e 's|XDG_DESKTOP_DIR=.*|XDG_DESKTOP_DIR="$HOME/Desktop"|' \
+#         -e 's|XDG_DOCUMENTS_DIR=.*|XDG_DOCUMENTS_DIR="$HOME/Documents"|' \
+#         -e 's|XDG_DOWNLOAD_DIR=.*|XDG_DOWNLOAD_DIR="$HOME/Downloads"|' \
+#         -e 's|XDG_PICTURES_DIR=.*|XDG_PICTURES_DIR="$HOME/Pictures"|' \
+#         -e 's|XDG_MUSIC_DIR=.*|XDG_MUSIC_DIR="$HOME/Music"|' \
+#         -e 's|XDG_VIDEOS_DIR=.*|XDG_VIDEOS_DIR="$HOME/Videos"|' \
+#         -e 's|XDG_PUBLICSHARE_DIR=.*|XDG_PUBLICSHARE_DIR="$HOME/Public"|' \
+#         -e 's|XDG_TEMPLATES_DIR=.*|XDG_TEMPLATES_DIR="$HOME/Templates"|' \
+#     "${XDG_CONFIG_HOME:-$HOME/.config}/user-dirs.dirs"
+
+# FOLDER_INDEX=-1
+# for TargetFolder in "${FOLDER_CN[@]}"; do
+#     FOLDER_INDEX=$((FOLDER_INDEX + 1))
+#     [[ -d "${HOME:-/home/$(id -nu)}/${TargetFolder}" ]] && mv "${HOME:-/home/$(id -nu)}/${TargetFolder}" "${HOME:-/home/$(id -nu)}/${FOLDER_EN[$FOLDER_INDEX]}"
+# done
+
+# for TargetFolder in "${FOLDER_EN[@]}"; do
+#     [[ ! -d "${HOME:-/home/$(id -nu)}/${TargetFolder}" ]] && mkdir -p "${HOME:-/home/$(id -nu)}/${TargetFolder}"
+# done
 
 # Setup network proxy in desktop environment
 [[ -s "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh"
