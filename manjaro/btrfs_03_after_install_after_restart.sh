@@ -1,52 +1,27 @@
 #!/usr/bin/env bash
 
+trap 'rm -rf "${WORKDIR}"' EXIT
+
+[[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
+[[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
+
+# Load custom functions
+if type 'colorEcho' 2>/dev/null | grep -q 'function'; then
+    :
+else
+    if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/custom_functions.sh" ]]; then
+        source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/custom_functions.sh"
+    else
+        echo "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/custom_functions.sh does not exist!"
+        exit 0
+    fi
+fi
+
 ## after the first start
 
 # [Btrfs snapshots with snapper, with easy rollback](https://github.com/hrotkogabor/manjaro-btrfs)
 # [Manjaro 21.0 with btrfs + snapper + grub-btrfs](https://theduckchannel.github.io/post/2021/08/27/manjaro-21.0-with-btrfs-+-snapper-+-grub-btrfs/)
 # [Snapper](https://wiki.archlinux.org/title/snapper)
-# Colors
-NOCOLOR='\033[0m'
-RED='\033[0;31m'        # Error message
-LIGHTRED='\033[1;31m'
-GREEN='\033[0;32m'      # Success message
-LIGHTGREEN='\033[1;32m'
-ORANGE='\033[0;33m'
-YELLOW='\033[1;33m'     # Warning message
-BLUE='\033[0;34m'       # Info message
-LIGHTBLUE='\033[1;34m'
-PURPLE='\033[0;35m'
-FUCHSIA='\033[0;35m'
-LIGHTPURPLE='\033[1;35m'
-CYAN='\033[0;36m'
-LIGHTCYAN='\033[1;36m'
-DARKGRAY='\033[1;30m'
-LIGHTGRAY='\033[0;37m'
-WHITE='\033[1;37m'
-
-function colorEcho() {
-    if [[ $# -gt 1 ]]; then
-        local COLOR=$1
-        echo -e "${COLOR}${@:2}${NOCOLOR}"
-    else
-        echo -e "${@:1}${NOCOLOR}"
-    fi
-}
-
-function check_os_virtualized() {
-    local virtualEnv
-
-    # systemd-detect-virt --list
-    if [[ -x "$(command -v systemd-detect-virt)" ]]; then
-        virtualEnv=$(systemd-detect-virt)
-    elif [[ -x "$(command -v hostnamectl)" ]]; then
-        virtualEnv=$(hostnamectl | grep -i 'virtualization' | cut -d':' -f2 | sed 's/\s//g')
-    fi
-
-    [[ -z "${virtualEnv}" ]] && virtualEnv="none"
-
-    [[ "${virtualEnv}" != "none" ]] && return 0 || return 1
-}
 
 # remove timeshift, as we do it with snapper
 colorEcho "${BLUE}Removing ${FUCHSIA}timeshift${BLUE}..."
@@ -61,8 +36,11 @@ if grep -q "#EnableAUR" /etc/pamac.conf; then
 fi
 
 # try to set up the fastest mirror
+# https://wiki.manjaro.org/index.php/Pacman-mirrors
 colorEcho "${BLUE}Setting ${FUCHSIA}pacman mirrors${BLUE}..."
-sudo pacman-mirrors -i -c China -m rank
+# sudo pacman-mirrors -i -c China -m rank
+# sudo pacman-mirrors -i --continent --timeout 2 -m rank
+sudo pacman-mirrors -i --geoip --timeout 2 -m rank
 
 # do full upgrade
 colorEcho "${BLUE}Doing ${FUCHSIA}full upgrade${BLUE}..."
@@ -92,8 +70,8 @@ timedatectl status
 colorEcho "${BLUE}Installing ${FUCHSIA}yay${BLUE}..."
 sudo pacman --noconfirm --needed -S yay
 
-colorEcho "${BLUE}Installing ${FUCHSIA}manjaro-tools-base, zenity${BLUE}..."
-sudo pacman --noconfirm --needed -S manjaro-tools-base zenity
+colorEcho "${BLUE}Installing ${FUCHSIA}manjaro-tools-base, zenity, inotify-tools${BLUE}..."
+sudo pacman --noconfirm --needed -S manjaro-tools-base zenity inotify-tools
 
 # [compsize](https://github.com/kilobyte/compsize)
 colorEcho "${BLUE}Installing ${FUCHSIA}compsize${BLUE}..."
@@ -106,9 +84,34 @@ sudo pacman --noconfirm --needed -S lightdm-settings lightdm-slick-greeter
 sudo sed -i 's/greeter-session=lightdm-gtk-greeter/greeter-session=lightdm-slick-greeter/' /etc/lightdm/lightdm.conf
 
 # on 64bit systems, install the kernel bootsplash
+# https://forum.manjaro.org/t/howto-enable-bootsplash-provided-by-the-kernel/119869
 if [ "$(uname -m)" = "x86_64" ]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}kernel bootsplash${BLUE}..."
     sudo pacman --noconfirm --needed -S bootsplash-theme-manjaro bootsplash-systemd
+
+    ## Enable bootsplash-ask-password-console.path if encrypted disk is used
+    # sudo systemctl enable bootsplash-ask-password-console.path
+
+    # [Manjaro Bootsplash Manager](https://github.com/parov0z/bootsplash-manager)
+    colorEcho "${BLUE}Installing ${FUCHSIA}bootsplash-manager${BLUE}..."
+    sudo pacman --noconfirm --needed -S bootsplash-manager
+
+    # Fix: `WARNING: Possibly missing firmware for module: module_name`
+    # https://wiki.archlinux.org/title/Mkinitcpio#Possibly_missing_firmware_for_module_XXXX
+    # Identify if you need the Firmware: `sudo dmesg | grep module_name`
+    colorEcho "${BLUE}Installing ${FUCHSIA}mkinitcpio-firmware${BLUE}..."
+    # sudo dmesg | grep xhci_pci
+    yay --noconfirm --needed -S mkinitcpio-firmware
+
+    # Fix: `loadkeys: Unable to open file: cn: No such file or directory`
+    # https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration
+    # /etc/vconsole.conf
+    # /usr/share/kbd/keymaps/
+    # /usr/share/kbd/consolefonts/
+    colorEcho "${BLUE}Installing ${FUCHSIA}terminus-font${BLUE}..."
+    # localectl list-keymaps
+    sudo pacman --noconfirm --needed -S terminus-font
+    sudo sed -i -e 's/KEYMAP=.*/KEYMAP=us/' -e 's/FONT=.*/FONT=tcvn8x16/' /etc/vconsole.conf
 
     # Fix: `ERROR: module not found: bochs_drm` in KVM
     if check_os_virtualized; then
@@ -116,37 +119,69 @@ if [ "$(uname -m)" = "x86_64" ]; then
         sudo mkinitcpio -P
     fi
 
-    # set boot splash
-    if ! grep -q 'bootsplash' /etc/mkinitcpio.conf; then
-        sudo sed -i 's/HOOKS="[^"]*/& bootsplash-manjaro/' /etc/mkinitcpio.conf
-        sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& bootsplash.bootfile=bootsplash-themes\/manjaro\/bootsplash/' /etc/default/grub
-        sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet /GRUB_CMDLINE_LINUX_DEFAULT="/' /etc/default/grub
-
-        presets=''
-        for file in "/etc/mkinitcpio.d/"*; do
-            presets="${presets} -p $(sed 's/.preset//g' <<<"${file}")"
-        done
-
-        sudo mkinitcpio "${presets}"
-        sudo update-grub
+    # [Plymouth](https://wiki.manjaro.org/index.php/Plymouth)
+    # https://github.com/adi1090x/plymouth-themes
+    # /etc/plymouth/plymouthd.conf
+    # /usr/share/plymouth/themes
+    sudo pacman --noconfirm --needed -S plymouth plymouth-theme-manjaro-elegant
+    if ! grep -q 'plymouth' /etc/mkinitcpio.conf; then
+        sudo sed -i 's/HOOKS="[^"]*/& plymouth/' /etc/mkinitcpio.conf
     fi
+
+    # set boot splash
+    sudo bootsplash-manager -s manjaro
+    # if ! grep -q 'bootsplash' /etc/mkinitcpio.conf; then
+    #     colorEcho "${BLUE}Setting ${FUCHSIA}kernel bootsplash${BLUE}..."
+    #     sudo sed -i 's/HOOKS="[^"]*/& bootsplash-manjaro/' /etc/mkinitcpio.conf
+    #     sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& bootsplash.bootfile=bootsplash-themes\/manjaro\/bootsplash/' /etc/default/grub
+    #     sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet /GRUB_CMDLINE_LINUX_DEFAULT="/' /etc/default/grub
+
+    #     ## https://wiki.archlinux.org/title/mkinitcpio
+    #     # presets=()
+    #     # for file in "/etc/mkinitcpio.d/"*; do
+    #     #     presets+=("-p")
+    #     #     presets+=("$(sed 's/.preset//g' <<<"${file}")")
+    #     # done
+    #     # sudo mkinitcpio "${presets[@]}"
+
+    #     sudo mkinitcpio -P
+    # fi
 fi
 
 # disable speaker
 colorEcho "${BLUE}Disabling ${FUCHSIA}speaker${BLUE}..."
 echo "blacklist pcspkr"  | sudo tee -a /etc/modprobe.d/nobeep.conf >/dev/null
 
+# disable tmp.mount
+colorEcho "${BLUE}Disabling ${FUCHSIA}tmp.mount${BLUE}..."
+# sudo systemctl status tmp.mount && sudo systemctl is-enabled tmp.mount
+sudo systemctl disable tmp.mount
+sudo systemctl mask tmp.mount
+sudo sed -i -e 's/^tmpfs.*/# &/g' /etc/fstab
+
 # fix the "sparse file not allowed" error message on startup
 colorEcho "${BLUE}Setting ${FUCHSIA}GRUB${BLUE}..."
 sudo sed -i -e 's/^GRUB_SAVEDEFAULT=true/#GRUB_SAVEDEFAULT=true/g' \
-    -e 's/^GRUB_TIMEOUT_STYLE=hidden/#GRUB_TIMEOUT_STYLE=hidden/g' \
+    -e 's/^#GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=menu/g' \
+    -e 's/^GRUB_TIMEOUT_STYLE=hidden/GRUB_TIMEOUT_STYLE=menu/g' \
+    -e 's/^GRUB_HIDDEN_TIMEOUT=0/#GRUB_HIDDEN_TIMEOUT=0/g' \
     -e 's/^GRUB_TIMEOUT=[[:digit:]]/GRUB_TIMEOUT=3/g' /etc/default/grub
 
 if ! grep -q '^GRUB_REMOVE_LINUX_ROOTFLAGS=true' /etc/default/grub; then
     echo "GRUB_REMOVE_LINUX_ROOTFLAGS=true" | sudo tee -a /etc/default/grub >/dev/null
 fi
 
-sudo update-grub
+## [GRUB/Tips and tricks](https://wiki.archlinux.org/title/GRUB/Tips_and_tricks)
+## [Grub menu working but hidden, can't make it visible](https://askubuntu.com/questions/1142167/grub-menu-working-but-hidden-cant-make-it-visible)
+# sudo sed -i -e 's/^MODULES=(/MODULES=(i915 /'  -e 's/ )/)/g' -e 's/^MODULES="/MODULES="i915 /'  -e 's/ "/"/g' /etc/mkinitcpio.conf
+# sudo sed -i -e 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE=640x480/g' /etc/default/grub
+# sudo sed -i -e 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE=1024x768x32/g' /etc/default/grub
+# sudo sed -i -e '/^prefix/i\echo "videoinfo"' /etc/grub.d/00_header
+sudo sed -i -e '/^[\s]+load_video/i\  sleep .5' /etc/grub.d/00_header
+
+## If grub graphical mode still not showing, enable console mode
+# sudo sed -i -e 's/^#GRUB_TERMINAL=console/GRUB_TERMINAL=console/g' /etc/default/grub
+# sudo sed -i -e 's/^#GRUB_TERMINAL_OUTPUT=console/GRUB_TERMINAL_OUTPUT=console/g' /etc/default/grub
 
 # disable core dump
 colorEcho "${BLUE}Disabling ${FUCHSIA}core dump${BLUE}..."
@@ -159,7 +194,9 @@ sudo mkdir -p /etc/systemd/coredump.conf.d && \
 # skip snapshots from updatedb
 colorEcho "${BLUE}Installing ${FUCHSIA}mlocate${BLUE} & disabling ${FUCHSIA}btrfs snapshots from updatedb${BLUE}..."
 sudo pacman --noconfirm --needed -S mlocate
-sudo sed -i -e 's/PRUNENAMES = "/PRUNENAMES = ".snapshots /g' /etc/updatedb.conf
+if ! grep -q '.snapshots' /etc/updatedb.conf; then
+    sudo sed -i -e 's/PRUNENAMES = "/PRUNENAMES = ".snapshots /g' /etc/updatedb.conf
+fi
 
 # disable cron integration
 colorEcho "${BLUE}Disabling ${FUCHSIA}snapper cron integration${BLUE}..."
@@ -226,28 +263,8 @@ sudo mkdir -p /home/.snapshots && sudo mount /home/.snapshots
 sudo chmod a+rx /.snapshots && sudo chown :wheel /.snapshots
 sudo chmod a+rx /home/.snapshots && sudo chown :wheel /home/.snapshots
 
-# Access for non-root users
-# Set snapshot limits: only 5 hourly snapshots, 7 daily ones, no monthly and no yearly ones
-colorEcho "${BLUE}Setting ${FUCHSIA}snapper config${BLUE}..."
-sudo sed -i -e 's/ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' \
-        -e 's/TIMELINE_MIN_AGE=.*/TIMELINE_MIN_AGE="1800"/' \
-        -e 's/TIMELINE_LIMIT_HOURLY=.*/TIMELINE_LIMIT_HOURLY="5"/' \
-        -e 's/TIMELINE_LIMIT_DAILY=.*/TIMELINE_LIMIT_DAILY="7"/' \
-        -e 's/TIMELINE_LIMIT_WEEKLY=.*/TIMELINE_LIMIT_WEEKLY="0"/' \
-        -e 's/TIMELINE_LIMIT_MONTHLY=.*/TIMELINE_LIMIT_MONTHLY="0"/' \
-        -e 's/TIMELINE_LIMIT_YEARLY=.*/TIMELINE_LIMIT_YEARLY="0"/' \
-    /etc/snapper/configs/root
-
-sudo sed -i -e 's/ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' \
-        -e 's/TIMELINE_MIN_AGE=.*/TIMELINE_MIN_AGE="1800"/' \
-        -e 's/TIMELINE_LIMIT_HOURLY=.*/TIMELINE_LIMIT_HOURLY="5"/' \
-        -e 's/TIMELINE_LIMIT_DAILY=.*/TIMELINE_LIMIT_DAILY="7"/' \
-        -e 's/TIMELINE_LIMIT_WEEKLY=.*/TIMELINE_LIMIT_WEEKLY="0"/' \
-        -e 's/TIMELINE_LIMIT_MONTHLY=.*/TIMELINE_LIMIT_MONTHLY="0"/' \
-        -e 's/TIMELINE_LIMIT_YEARLY=.*/TIMELINE_LIMIT_YEARLY="0"/' \
-    /etc/snapper/configs/home
-
 # install btrfs stuff
+# https://github.com/Antynea/grub-btrfs
 colorEcho "${BLUE}Installing ${FUCHSIA}snap-pac, grub-btrfs, snapper-gui${BLUE}..."
 sudo pacman --noconfirm --needed -S snap-pac grub-btrfs snapper-gui
 sudo sed -i -e 's/#GRUB_BTRFS_SUBMENUNAME="Arch Linux snapshots"/GRUB_BTRFS_SUBMENUNAME="Select snapshot"/g' /etc/default/grub-btrfs/config
@@ -265,18 +282,19 @@ sudo sed -i -e 's/#GRUB_BTRFS_SUBMENUNAME="Arch Linux snapshots"/GRUB_BTRFS_SUBM
 colorEcho "${BLUE}Installing ${FUCHSIA}btrfs scripts${BLUE}..."
 sudo mkdir -p /usr/local/bin
 
-[[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_ro_alert.sh" ]] && \
+if [[ -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro" ]]; then
     sudo cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_ro_alert.sh" /usr/local/bin
-
-[[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_snapper_do_rollback.sh" ]] && \
     sudo cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_snapper_do_rollback.sh" /usr/local/bin
-
-[[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_grub_install_chroot.sh" ]] && \
     sudo cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_grub_install_chroot.sh" /usr/local/bin
+elif [[ -s "${CURRENT_DIR}/btrfs_ro_alert.sh" ]]; then
+    sudo cp "${CURRENT_DIR}/btrfs_ro_alert.sh" /usr/local/bin
+    sudo cp "${CURRENT_DIR}/btrfs_snapper_do_rollback.sh" /usr/local/bin
+    sudo cp "${CURRENT_DIR}/manjaro/btrfs_grub_install_chroot.sh" /usr/local/bin
+fi
 
-sudo chmod +x "/usr/local/bin/btrfs_ro_alert.sh"
-sudo chmod +x "/usr/local/bin/btrfs_snapper_do_rollback.sh"
-sudo chmod +x "/usr/local/bin/btrfs_grub_install_chroot.sh"
+[[ -s "/usr/local/bin/btrfs_ro_alert.sh" ]] && sudo chmod +x "/usr/local/bin/btrfs_ro_alert.sh"
+[[ -s "/usr/local/bin/btrfs_snapper_do_rollback.sh" ]] && sudo chmod +x "/usr/local/bin/btrfs_snapper_do_rollback.sh"
+[[ -s "/usr/local/bin/btrfs_grub_install_chroot.sh" ]] && sudo chmod +x "/usr/local/bin/btrfs_grub_install_chroot.sh"
 
 # run btrfs read-only check after login
 colorEcho "${BLUE}Installing script for ${FUCHSIA}btrfs read-only check after login${BLUE}..."
@@ -303,11 +321,38 @@ cd /usr/local/bin && \
 colorEcho "${BLUE}Starting the ${FUCHSIA}snapper${BLUE} services..."
 sudo systemctl enable --now snapper-timeline.timer
 sudo systemctl enable --now snapper-cleanup.timer
-sudo systemctl enable --now grub-btrfs.path
+# sudo systemctl enable --now grub-btrfs.path
+sudo systemctl enable --now grub-btrfsd.service
 
+colorEcho "${BLUE}List ${FUCHSIA}snapper configs${BLUE}..."
 snapper list-configs
-snapper -c root list
-snapper -c home list
+
+# Access for non-root users
+# Set snapshot limits: only 5 hourly snapshots, 7 daily ones, no monthly and no yearly ones
+colorEcho "${BLUE}Setting ${FUCHSIA}snapper configs${BLUE}..."
+sudo sed -i -e 's/ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' \
+        -e 's/TIMELINE_MIN_AGE=.*/TIMELINE_MIN_AGE="1800"/' \
+        -e 's/TIMELINE_LIMIT_HOURLY=.*/TIMELINE_LIMIT_HOURLY="5"/' \
+        -e 's/TIMELINE_LIMIT_DAILY=.*/TIMELINE_LIMIT_DAILY="7"/' \
+        -e 's/TIMELINE_LIMIT_WEEKLY=.*/TIMELINE_LIMIT_WEEKLY="0"/' \
+        -e 's/TIMELINE_LIMIT_MONTHLY=.*/TIMELINE_LIMIT_MONTHLY="0"/' \
+        -e 's/TIMELINE_LIMIT_YEARLY=.*/TIMELINE_LIMIT_YEARLY="0"/' \
+    /etc/snapper/configs/root
+
+sudo sed -i -e 's/ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' \
+        -e 's/TIMELINE_MIN_AGE=.*/TIMELINE_MIN_AGE="1800"/' \
+        -e 's/TIMELINE_LIMIT_HOURLY=.*/TIMELINE_LIMIT_HOURLY="5"/' \
+        -e 's/TIMELINE_LIMIT_DAILY=.*/TIMELINE_LIMIT_DAILY="7"/' \
+        -e 's/TIMELINE_LIMIT_WEEKLY=.*/TIMELINE_LIMIT_WEEKLY="0"/' \
+        -e 's/TIMELINE_LIMIT_MONTHLY=.*/TIMELINE_LIMIT_MONTHLY="0"/' \
+        -e 's/TIMELINE_LIMIT_YEARLY=.*/TIMELINE_LIMIT_YEARLY="0"/' \
+    /etc/snapper/configs/home
+
+colorEcho "${BLUE}List snapshots on ${FUCHSIA}/${BLUE}..."
+sudo snapper -c root list
+
+colorEcho "${BLUE}List snapshots on ${FUCHSIA}/home${BLUE}..."
+sudo snapper -c home list
 
 ## Manual Single snapshots
 # snapper -c home create -c number
@@ -326,6 +371,11 @@ snapper -c home list
 colorEcho "${BLUE}Installing ${FUCHSIA}snap-pac-grub${BLUE} from AUR..."
 # mkdir -p "$HOME/aur" && export GNUPGHOME="$HOME/aur"
 yay -aS --sudoloop --noredownload --norebuild --noconfirm --noeditmenu snap-pac-grub
+
+colorEcho "${BLUE}Regenerate ${FUCHSIA}GRUB2 configuration${BLUE}..."
+sudo mkinitcpio -P
+# sudo update-grub
+sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 echo ""
 colorEcho "${BLUE}Btrfs with snapper and grub ready. You should restart."

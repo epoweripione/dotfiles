@@ -336,3 +336,8 @@ compsize <MOUNT_POINT>
 ```
 
 ## [Configure Docker to use the btrfs storage driver](https://docs.docker.com/storage/storagedriver/btrfs-driver/)
+
+
+## Encrypt a Btrfs Filesystem
+### [How to Encrypt a Btrfs Filesystem?](https://linuxhint.com/encrypt-a-btrfs-filesystem/)
+### [让系统更安全 - 系统分区加密 (Btrfs on LUKS) 操作实录](https://pwd.moe/posts/btrfs-on-luks/)

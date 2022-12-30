@@ -1,11 +1,28 @@
 #!/usr/bin/env bash
 
+trap 'rm -rf "${WORKDIR}"' EXIT
+
+[[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]] && WORKDIR="$(mktemp -d)"
+[[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
+
+# Load custom functions
+if type 'colorEcho' 2>/dev/null | grep -q 'function'; then
+    :
+else
+    if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/custom_functions.sh" ]]; then
+        source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/custom_functions.sh"
+    else
+        echo "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/custom_functions.sh does not exist!"
+        exit 0
+    fi
+fi
+
 ## Install using Calamares on Manjaro Live CD
 ## Run `spice-vdagent` to copy-and-paste functionality between host and guest vm
 
 # Editing Calamares
 # Btrfs mount options
-echo 'Setting Btrfs mount options...'
+colorEcho "${BLUE}Setting Btrfs mount options..."
 sudo sed -i 's/# btrfs:.*/btrfs: noatime,nodiratime,compress=zstd,space_cache=v2/' "/usr/share/calamares/modules/fstab.conf"
 sudo sed -i 's/btrfs: defaults/# btrfs: defaults/' "/usr/share/calamares/modules/fstab.conf"
 
@@ -48,5 +65,5 @@ EOF
 # /usr/share/calamares/modules/umount.conf
 
 # Start the Manjaro Calamares installer to Install Manjaro
-echo 'Done. Now start the Manjaro installer, remember partition disk to `Btrfs`.'
+colorEcho "${BLUE}Done. Now start the Manjaro installer, remember partition disk to ${FUCHSIA}Btrfs${BLUE}."
 sudo -E "/usr/bin/calamares"
