@@ -63,35 +63,35 @@ fi
 # Arch Linux Chinese Community Repository
 # https://github.com/archlinuxcn/mirrorlist-repo
 if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
-    colorEcho "${BLUE}Installing${FUCHSIA} archlinuxcn ${BLUE} repo..."
     if ! grep -q "archlinuxcn" /etc/pacman.conf 2>/dev/null; then
+        colorEcho "${BLUE}Installing${FUCHSIA} archlinuxcn ${BLUE} repo..."
         echo -e "\n[archlinuxcn]" | sudo tee -a /etc/pacman.conf >/dev/null
         # echo "Server = https://repo.archlinuxcn.org/\$arch" | sudo tee -a /etc/pacman.conf >/dev/null
-        echo "Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/\$arch" | sudo tee -a /etc/pacman.conf >/dev/null
+        echo "Server = https://mirrors.sjtug.sjtu.edu.cn/archlinux-cn/\$arch" | sudo tee -a /etc/pacman.conf >/dev/null
+
+        ## archlinuxcn-keyring 安装时出现可能是因为时空扭曲或系统时钟，密钥生成于未来的N秒后的问题
+        # sudo pacman --noconfirm --needed -S haveged && \
+        #     sudo systemctl enable haveged && \
+        #     sudo systemctl start haveged && \
+        #     sudo rm -rf /etc/pacman.d/gnupg && \
+        #     sudo pacman-key --init && \
+        #     sudo pacman-key --populate
+
+        # sudo pacman --noconfirm --needed -S haveged && \
+        #     sudo systemctl enable haveged && \
+        #     sudo systemctl start haveged && \
+        #     sudo rm -rf /etc/pacman.d/gnupg && \
+        #     sudo pacman-key --refresh-keys && \
+        #     sudo pacman-key --init && \
+        #     sudo pacman-key --populate manjaro && \
+        #     sudo pacman-key --populate archlinux && \
+        #     sudo pacman-key --populate archlinuxcn && \
+        #     sudo pacman -Scc && sudo pacman --noconfirm -Syu
+
+        sudo pacman --noconfirm -Syy && \
+            sudo pacman --noconfirm --needed -S archlinuxcn-keyring && \
+            sudo pacman --noconfirm --needed -S archlinuxcn-mirrorlist-git
     fi
-
-    ## archlinuxcn-keyring 安装时出现可能是因为时空扭曲或系统时钟，密钥生成于未来的N秒后的问题
-    # sudo pacman --noconfirm --needed -S haveged && \
-    #     sudo systemctl enable haveged && \
-    #     sudo systemctl start haveged && \
-    #     sudo rm -rf /etc/pacman.d/gnupg && \
-    #     sudo pacman-key --init && \
-    #     sudo pacman-key --populate
-
-    # sudo pacman --noconfirm --needed -S haveged && \
-    #     sudo systemctl enable haveged && \
-    #     sudo systemctl start haveged && \
-    #     sudo rm -rf /etc/pacman.d/gnupg && \
-    #     sudo pacman-key --refresh-keys && \
-    #     sudo pacman-key --init && \
-    #     sudo pacman-key --populate manjaro && \
-    #     sudo pacman-key --populate archlinux && \
-    #     sudo pacman-key --populate archlinuxcn && \
-    #     sudo pacman -Scc && sudo pacman --noconfirm -Syu
-
-    sudo pacman --noconfirm -Syy && \
-        sudo pacman --noconfirm --needed -S archlinuxcn-keyring && \
-        sudo pacman --noconfirm --needed -S archlinuxcn-mirrorlist-git
 fi
 
 # Full update
