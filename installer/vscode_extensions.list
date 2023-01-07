@@ -43,9 +43,7 @@ schneiderpat.aspnet-helper
 tintoy.msbuild-project-tools
 alefragnani.project-manager
 ## Database
-bajdzis.vscode-database
 ms-mssql.mssql
-ms-ossdata.vscode-postgresql
 mtxr.sqltools
 ckolkman.vscode-postgres
 oracle.oracledevtools
@@ -99,6 +97,8 @@ nrwl.angular-console
 ## ionic
 loiane.ionic-extension-pack
 msjsdiag.cordova-tools
+## Rest API Client
+rangav.vscode-thunder-client
 ## Svelte
 svelte.svelte-vscode
 ardenivanov.svelte-intellisense
@@ -156,6 +156,8 @@ rebornix.ruby
 rust-lang.rust-analyzer
 bungcip.better-toml
 serayuzgur.crates
+## snippets
+tahabasri.snippets
 ## cht.sh snippets
 vscode-snippet.snippet
 ## linux/shell/vim
@@ -202,7 +204,7 @@ wayou.vscode-todo-highlight
 obkoro1.korofileheader
 kisstkondoros.vscode-gutter-preview
 tomoki1207.pdf
-wwm.better-align
+chouzz.vscode-better-align
 tyriar.sort-lines
 russell.any-rule
 hediet.vscode-drawio

@@ -51,6 +51,8 @@ $extensions = @(
 	"ms-kubernetes-tools.vscode-kubernetes-tools"
 	"ms-azuretools.vscode-docker"
 	"mindaro.mindaro"
+	## Rest API Client
+	"rangav.vscode-thunder-client"
 	## Markdown
 	"marp-team.marp-vscode"
 	"evilz.vscode-reveal"
@@ -76,6 +78,8 @@ $extensions = @(
 	"rust-lang.rust-analyzer"
 	"bungcip.better-toml"
 	"serayuzgur.crates"
+	## snippets
+	"tahabasri.snippets"
 	## cht.sh snippets
 	"vscode-snippet.snippet"
 	## linux/shell/vim
@@ -101,7 +105,7 @@ $extensions = @(
 	"mkxml.vscode-filesize"
 	"doggy8088.quicktype-refresh"
 	"wayou.vscode-todo-highlight"
-	"wwm.better-align"
+	"chouzz.vscode-better-align"
 	"tyriar.sort-lines"
 	"russell.any-rule"
 	"hediet.vscode-drawio"
