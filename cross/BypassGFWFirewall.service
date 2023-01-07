@@ -1,0 +1,17 @@
+# /etc/systemd/system/BypassGFWFirewall.service
+
+[Unit]
+Description=proxy service
+After=network.target network-online.target nss-lookup.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/BypassGFWFirewall
+ExecStart=/opt/BypassGFWFirewall/BypassGFWFirewall.sh up
+ExecStop=/opt/BypassGFWFirewall/BypassGFWFirewall.sh down
+TimeoutStartSec=0
+User=username
+
+[Install]
+WantedBy=multi-user.target
