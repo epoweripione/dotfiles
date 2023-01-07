@@ -99,15 +99,16 @@ colorEcho "${BLUE}Updating ${FUCHSIA}full system${BLUE}..."
 sudo pacman --noconfirm -Syu
 
 # Language packs
-colorEcho "${BLUE}Installing ${FUCHSIA}language packs${BLUE}..."
-sudo pacman --noconfirm --needed -S firefox-i18n-zh-cn thunderbird-i18n-zh-cn man-pages-zh_cn
+if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}language packs${BLUE}..."
+    sudo pacman --noconfirm --needed -S firefox-i18n-zh-cn thunderbird-i18n-zh-cn man-pages-zh_cn
 
-[[ -x "$(command -v gimp)" ]] && sudo pacman --noconfirm --needed -S gimp-help-zh_cn
+    [[ -x "$(command -v gimp)" ]] && sudo pacman --noconfirm --needed -S gimp-help-zh_cn
+fi
 
 # Build deps
 colorEcho "${BLUE}Installing ${FUCHSIA}Build deps${BLUE}..."
-sudo pacman --noconfirm --needed -S base-devel
-sudo pacman --noconfirm --needed -S cmake
+sudo pacman --noconfirm --needed -S base-devel cmake patch pkg-config automake
 
 # Appimages
 colorEcho "${BLUE}Installing ${FUCHSIA}Appimages${BLUE}..."

@@ -68,6 +68,16 @@ else
     fi
 fi
 
+# Setup pacman repository & AUR & install pre-requisite packages
+[[ -s "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh"
+
+# Setup network proxy in desktop environment
+[[ -s "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh"
+
+# SSH
+mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
+# cp -f ./ssh/* "$HOME/.ssh" && chmod 600 "$HOME/.ssh/"*
+
 # Force the creation of English-named directories
 # [XDG user directories](https://wiki.archlinux.org/title/XDG_user_directories)
 sudo pacman --noconfirm --needed -S xdg-user-dirs
@@ -112,15 +122,9 @@ done
 #     [[ ! -d "${HOME:-/home/$(id -nu)}/${TargetFolder}" ]] && mkdir -p "${HOME:-/home/$(id -nu)}/${TargetFolder}"
 # done
 
-# Setup network proxy in desktop environment
-[[ -s "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh"
-
 ## Configuration for locking the user after multiple failed authentication attempts
 # sudo sed -i 's/[#]*[ ]*deny.*/deny = 5/' "/etc/security/faillock.conf"
 # sudo sed -i 's/[#]*[ ]*unlock_time.*/unlock_time = 60/' "/etc/security/faillock.conf"
-
-# Setup pacman repository & AUR & install pre-requisite packages
-[[ -s "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh"
 
 # snap
 [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"

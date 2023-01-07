@@ -24,12 +24,72 @@ fi
 [[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
 
 # Setup network proxy in desktop environment
-if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
     PROXY_HTTP_HOST="${GLOBAL_PROXY_IP}" && PROXY_HTTP_PORT="${GLOBAL_PROXY_MIXED_PORT}"
     PROXY_SOCKS_HOST="${GLOBAL_PROXY_IP}" && PROXY_SOCKS_PORT="${GLOBAL_PROXY_SOCKS_PORT}"
     PROXY_NOPROXY=${GLOBAL_NO_PROXY:-""}
 
+    # Naiveproxy
+    colorEcho "${BLUE}Installing ${FUCHSIA}Naiveproxy${BLUE}..."
+    yay --noconfirm --needed -S archlinuxcn/naiveproxy
+
+    # Hysteria
+    colorEcho "${BLUE}Installing ${FUCHSIA}Hysteria${BLUE}..."
+    yay --noconfirm --needed -S archlinuxcn/hysteria
+
+    # Clash
+    colorEcho "${BLUE}Installing ${FUCHSIA}Clash Premium${BLUE}..."
+    # yay --noconfirm --needed -S aur/clash-premium-bin
+    yay --noconfirm --needed -S archlinuxcn/clash-premium-bin
+
+    colorEcho "${BLUE}Installing ${FUCHSIA}Clash Meta${BLUE}..."
+    yay --noconfirm --needed -S archlinuxcn/clash-meta
+
+    # Clash for Windows
+    colorEcho "${BLUE}Installing ${FUCHSIA}Clash for Windows${BLUE}..."
+    # yay --noconfirm --needed -S nftables iproute2 aur/clash-for-windows-bin
+    yay --noconfirm --needed -S nftables iproute2 aur/clash-for-windows-electron-bin
+
+    ## If you want to use clash-meta, install it and run  
+    # sudo ln -sf /usr/bin/clash-meta /opt/clash-for-windows/static/files/linux/x64/clash-linux 
+
+    ## To use the TUN mode, you need to run 
+    # sudo systemctl start clash-core-service@$USER
+    # sudo systemctl enable clash-core-service@$USER
+
+    ## Clash for Windows→General→Service Mode→Manage→install→TUN Mode
+
+    # Clash Verge
+    colorEcho "${BLUE}Installing ${FUCHSIA}Clash Verge${BLUE}..."
+    yay --noconfirm --needed -S archlinuxcn/clash-verge
+
+    # Fix `start tun interface error: operation not permitted`
+    # [setcap 详解](https://www.cnblogs.com/nf01/articles/10418141.html)
+    [[ -x "$(command -v clash)" ]] && sudo setcap cap_net_admin=+eip "$(which clash)"
+    [[ -x "$(command -v clash-meta)" ]] && sudo setcap cap_net_admin=+eip "$(which clash-meta)"
+    [[ -x "$(command -v cfw)" ]] && sudo setcap cap_net_admin=+eip "$(which cfw)"
+    [[ -x "$(command -v clash-verge)" ]] && sudo setcap cap_net_admin=+eip "$(which clash-verge)"
+
+    # xray
+    colorEcho "${BLUE}Installing ${FUCHSIA}XRay${BLUE}..."
+    yay --noconfirm --needed -S archlinuxcn/xray archlinuxcn/xray-geoip archlinuxcn/xray-domain-list-community
+
+    # Install `BypassGFWFirewall` service
+    colorEcho "${BLUE}Installing ${FUCHSIA}BypassGFWFirewall${BLUE} service..."
+    if ! systemctl is-enabled "BypassGFWFirewall" >/dev/null 2>&1; then
+        sudo mkdir -p "/opt/BypassGFWFirewall"
+        sudo cp -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cross/BypassGFWFirewall.sh" "/opt/BypassGFWFirewall/BypassGFWFirewall.sh"
+        sudo chmod +x "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/BypassGFWFirewall.sh"
+
+        sudo cp -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cross/BypassGFWFirewall.service" "/opt/BypassGFWFirewall/BypassGFWFirewall.service"
+        sudo sed -i -e "s/username/$(id -nu)/g" "/opt/BypassGFWFirewall/BypassGFWFirewall.service"
+
+        sudo cp -f "/opt/BypassGFWFirewall/BypassGFWFirewall.service" "/etc/systemd/system/BypassGFWFirewall.service"
+        sudo systemctl enable --now BypassGFWFirewall
+    fi
+
     if [[ "${OS_INFO_DESKTOP}" == "GNOME" ]]; then
+        colorEcho "${BLUE}Setting ${FUCHSIA}GNOME${BLUE} desktop proxies..."
         # https://www.xmodulo.com/change-system-proxy-settings-command-line-ubuntu-desktop.html
         gsettings set org.gnome.system.proxy mode 'manual'
 
@@ -56,6 +116,7 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     fi
 
     if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
+        colorEcho "${BLUE}Setting ${FUCHSIA}KDE${BLUE} desktop proxies..."
         # https://github.com/himanshub16/ProxyMan/blob/master/kde5.sh
         kwriteconfig5 --file kioslaverc --group "Proxy Settings" --key ProxyType 1
 
@@ -92,6 +153,7 @@ echo 'Defaults env_keep += "http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PRO
 # Increase the number of connections per proxy to 99
 # 99 is the maximum value for MaxConnectionsPerProxy
 # [MaxConnectionsPerProxy](https://cloud.google.com/docs/chrome-enterprise/policies/?policy=MaxConnectionsPerProxy)
+colorEcho "${BLUE}Setting Chrome ${FUCHSIA}MaxConnectionsPerProxy${BLUE}..."
 case "${OS_INFO_TYPE}" in
     linux | freebsd | openbsd)
         sudo mkdir -p "/etc/chromium/policies/managed"
