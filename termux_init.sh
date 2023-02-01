@@ -81,8 +81,8 @@ termux-change-repo
 
 # install packages
 colorEcho "${BLUE}Installing ${FUCHSIA}packages${BLUE}..."
-pkg up -y && \
-    pkg i -y binutils curl wget git nano openssh unzip unrar htop nmap rsync \
+pkg upgrade -y && \
+    pkg install -y binutils curl wget git nano openssh unzip unrar htop nmap rsync \
         bat fd fzf lsd lsof nnn screenfetch starship tree zoxide
 
 # Termux Sudo Without Root
