@@ -17,8 +17,22 @@ else
     fi
 fi
 
-# Run proxy client from local env variables
-[[ -s "$HOME/.proxy.env.local" ]] && source "$HOME/.proxy.env.local"
+## Run proxy client from local env variables
+# PROXY_WORKDIR="$HOME/Proxy"
+# PROXY_IP="127.0.0.1" && PROXY_ADDRESS="${PROXY_IP}:7890"
+# [[ -z "${GITHUB_DOWNLOAD_URL}" ]] && GITHUB_DOWNLOAD_URL="https://github.com"
+# [[ -z "${GITHUB_RAW_URL}" ]] && GITHUB_RAW_URL="https://raw.githubusercontent.com"
+# NAIVEPROXY_PORT=7895
+# NAIVEPROXY_URL=(
+#     "https://user:password@test.com"
+#     "https://user:password@example.com"
+# )
+# DOWNLOAD_APPS=(
+#     "naive#naiveproxy.tar.xz#https://github.com/klzgrad/naiveproxy/releases/download/v109.0.5414.74-1/naiveproxy-v109.0.5414.74-1-linux-x64.tar.xz"
+#     "clash#clash.gz#https://github.com/Dreamacro/clash/releases/download/premium/clash-linux-amd64-2022.11.25.gz"
+#     "Country.mmdb#Country.mmdb#https://github.com/Hackl0us/GeoIP2-CN/raw/release/Country.mmdb"
+#     "config.yaml#config.yaml#https://www.test.com/config.yaml"
+# )
 
 if [[ -s "$HOME/.proxy.env.local" ]]; then
     source "$HOME/.proxy.env.local"
@@ -27,7 +41,9 @@ else
     exit 1
 fi
 
-[[ -z "${PROXY_WORKDIR}" ]] && PROXY_WORKDIR="$HOME/Proxy" && mkdir -p "${PROXY_WORKDIR}"
+[[ -z "${PROXY_WORKDIR}" ]] && PROXY_WORKDIR="$HOME/Proxy"
+[[ ! -d "${PROXY_WORKDIR}" ]] && mkdir -p "${PROXY_WORKDIR}"
+
 [[ -z "${PROXY_ADDRESS}" ]] && PROXY_IP="127.0.0.1" && PROXY_ADDRESS="${PROXY_IP}:7890"
 
 for TargetApp in "${DOWNLOAD_APPS[@]}"; do
@@ -88,6 +104,8 @@ if [[ -s "${PROXY_WORKDIR}/clash" && -s "${PROXY_WORKDIR}/config.yaml" ]]; then
     ps -fC "clash"
     # htop -p "$(pgrep -d, clash)"
 fi
+
+sleep 3
 
 if check_http_proxy_up "${PROXY_ADDRESS}" "www.google.com"; then
     PROXY_ADDRESS="http://${PROXY_ADDRESS}"

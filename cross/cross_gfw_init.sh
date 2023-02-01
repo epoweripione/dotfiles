@@ -244,7 +244,9 @@ fi
 
 if [[ "$(uname -r)" =~ "microsoft" ]]; then
     # WSL2
-    PROXY_IP=$(ipconfig.exe | grep "IPv4" \
+    # Fix "Invalid argument" when executing Windows commands
+    CMD_DIR=$(dirname "$(which ipconfig.exe)")
+    PROXY_IP=$(cd "${CMD_DIR}" && ipconfig.exe | grep "IPv4" \
                 | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
                 | grep -Ev "^0\.|^127\.|^172\." \
                 | head -n1)

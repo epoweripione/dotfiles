@@ -25,12 +25,14 @@ source "$HOME/.proxy.env.local"
 case "$1" in
     'down')
         if pgrep -f "naiveproxy" >/dev/null 2>&1; then
+            sudo pkill -f "naive"
             sudo pkill -f "naiveproxy"
         fi
         ;;
     'up')
         [[ ! -x "$(command -v naiveproxy)" ]] && echo "naiveproxy not installed!" && exit 1
 
+        sudo pkill -f "naive"
         sudo pkill -f "naiveproxy"
 
         for TargetUrl in "${NAIVEPROXY_URL[@]}"; do
