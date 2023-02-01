@@ -52,8 +52,14 @@ yay --noconfirm --needed -S powerline-fonts ttf-fira-code ttf-sarasa-gothic \
     ttf-hannom noto-fonts noto-fonts-extra noto-fonts-cjk \
     ttf-nerd-fonts-symbols ttf-iosevka-term ttf-jetbrains-mono nerd-fonts-jetbrains-mono \
     ttf-lxgw-wenkai \
-    ttf-lato ttf-lora-cyrillic ttf-playfair-display \
-    archlinuxcn/ttf-twemoji
+    ttf-lato ttf-lora-cyrillic ttf-playfair-display
+
+yay --noconfirm --needed -S archlinuxcn/ttf-twemoji
+# If you have other emoji fonts installed but want twemoji to always be used, make a symlink for twemojis font config:
+# sudo ln -sf /usr/share/fontconfig/conf.avail/75-twemoji.conf /etc/fonts/conf.d/75-twemoji.conf
+# You do not need to do this if you are fine with some apps using a different emoji font.
+# If you do use other emoji fonts, copy 75-twemoji.conf to /etc/fonts/conf.d/ and remove corresponding aliases.
+# To prevent conflicts with other emoji fonts, 75-twemoji.conf is not being automatically installed in /etc/fonts/conf.d/
 
 # yay --noconfirm --needed -S noto-fonts-emoji unicode-emoji
 # yay --noconfirm --needed -S ttf-ms-win11-auto
@@ -108,7 +114,7 @@ sudo fc-cache -fv
 # https://github.com/fcitx/fcitx5
 # https://blog.rasphino.cn/archive/a-taste-of-fcitx5-in-arch.html
 colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 input methods${BLUE}..."
-sudo pacman --noconfirm --needed -Rs "$(pacman -Qsq fcitx)"
+sudo pacman --noconfirm -Rs "$(pacman -Qsq fcitx)"
 sudo pacman --noconfirm --needed -S fcitx5-im && \
     sudo pacman --noconfirm --needed -S fcitx5-material-color fcitx5-chinese-addons && \
     sudo pacman --noconfirm --needed -S fcitx5-pinyin-zhwiki fcitx5-pinyin-moegirl
