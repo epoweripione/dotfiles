@@ -245,24 +245,30 @@ sudo systemctl daemon-reload && sudo systemctl start winbind
 # http://distro.ibiblio.org/smeserver/contribs/rvandenaker/testing/smeserver-cups/documentation/howtos/cups-pdf-printer.html
 PDF_OUTPUT_DIR="$(xdg-user-dir DOCUMENTS)"
 if ! lpstat -v 2>/dev/null | grep -q 'Print_to_PDF:'; then
+    ## https://github.com/alexivkin/CUPS-PDF-to-PDF
+    # colorEcho "${BLUE}Installing ${FUCHSIA}CUPS-PDF v3 with text print support${BLUE}..."
+    # yay --noconfirm -R cups-pdf
+    # yay --noconfirm --needed -S aur/cups-pdf-to-pdf-git
+
     colorEcho "${BLUE}Setting ${FUCHSIA}Print to PDF${BLUE} printer..."
     if [[ -d "${PDF_OUTPUT_DIR}" ]]; then
         sudo sed -i "s|^[#]*Out .*|Out ${PDF_OUTPUT_DIR}|" "/etc/cups/cups-pdf.conf"
         sudo systemctl restart cups
     fi
 
-    lpadmin -p "Print_to_PDF" -E -v "cups-pdf:/" -m "CUPS-PDF_opt.ppd"
+    lpadmin -p "Print_to_PDF" -E -v "cups-pdf:/" -m "CUPS-PDF_opt.ppd" 2>/dev/null
+
+    # Printer Sharing
+    # http://www.cups.org/doc/sharing.html
+    # enable printer sharing
+    cupsctl --share-printers
+
+    # tag each printer that you want to share
+    lpadmin -p "Print_to_PDF" -o printer-is-shared=true 2>/dev/null
 fi
 
 [[ ! -d "${PDF_OUTPUT_DIR}/PrintedPDF" && -d "/var/spool/cups-pdf/ANONYMOUS" ]] && \
     ln -s "/var/spool/cups-pdf/ANONYMOUS" "${PDF_OUTPUT_DIR}/PrintedPDF"
-
-# Printer Sharing
-# http://www.cups.org/doc/sharing.html
-# enable printer sharing
-cupsctl --share-printers
-# tag each printer that you want to share
-lpadmin -p "Print_to_PDF" -o printer-is-shared=true
 
 ## Add printer from Windows with URL:
 # http://<PrinterServer>:631/printers/Print_to_PDF
