@@ -18,9 +18,8 @@ else
 fi
 
 colorEcho "${BLUE}Installing ${FUCHSIA}Conky${BLUE}..."
-sudo pacman --noconfirm --needed -S conky-lua-nv conky-manager jq
-sudo pacman --noconfirm --needed -S lua-clock-manjaro
-# sudo pacman --noconfirm --needed -S lua-clock-i3
+sudo pacman --noconfirm --needed -S conky-manager jq
+sudo pacman --noconfirm --needed -S aur/conky-lua-nv
 
 ## System info
 # lspci
@@ -35,7 +34,7 @@ sudo pacman --noconfirm --needed -S lua-clock-manjaro
 # https://github.com/helmuthdu/conky_colors
 # http://forum.ubuntu.org.cn/viewtopic.php?f=94&t=313031
 # http://www.manongzj.com/blog/4-lhjnjqtantllpnj.html
-yay --noconfirm --needed -S conky-colors
+yay --noconfirm --needed -S aur/conky-colors-git
 
 curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$HOME/conky-convert.lua" \
     "https://raw.githubusercontent.com/brndnmtthws/conky/master/extras/convert.lua"
