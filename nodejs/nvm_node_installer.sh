@@ -24,7 +24,7 @@ if [[ ! -d "$HOME/.nvm" ]]; then
     CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
     REMOTE_VERSION=$(wget -qO- $CHECK_URL | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
     if [[ -n "$REMOTE_VERSION" ]]; then
-        curl -fsSL -o- "https://raw.githubusercontent.com/c${GITHUB_REPO_NAME}/v$REMOTE_VERSION/install.sh" | bash
+        curl -fsSL -o- "https://raw.githubusercontent.com/${GITHUB_REPO_NAME}/v$REMOTE_VERSION/install.sh" | bash
     fi
 fi
 
