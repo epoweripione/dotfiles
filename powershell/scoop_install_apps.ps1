@@ -297,7 +297,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "tightvnc"
         "vncviewer"
         ## k8s
-        "lens"
+        "openlens"
         ## images & videos
         "darktable"
         ## epower
