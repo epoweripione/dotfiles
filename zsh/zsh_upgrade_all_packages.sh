@@ -67,6 +67,7 @@ else
     fi
 fi
 
+[[ ! -d "/usr/local/bin" ]] && sudo mkdir -p "/usr/local/bin"
 
 if [[ -x "$(command -v docker)" ]]; then
     [[ -s "${MY_SHELL_SCRIPTS}/installer/docker_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/docker_installer.sh"
@@ -143,7 +144,7 @@ AppList=(
     "asdf"
     "bat"
     "broot"
-    "busybox"
+    # "busybox"
     "croc"
     "dasel"
     "duf"
