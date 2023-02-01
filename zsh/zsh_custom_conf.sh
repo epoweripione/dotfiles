@@ -294,7 +294,7 @@ fi
 
 # snap
 if [[ -x "$(command -v snap)" ]]; then
-    [[ ":$PATH:" != *":/snap/bin:"* ]] && export PATH=$PATH:/snap/bin
+    [[ ":$PATH:" != *":/snap/bin:"* ]] && export PATH=$PATH:/var/lib/snapd/snap/bin:/snap/bin
 fi
 
 # Krew
