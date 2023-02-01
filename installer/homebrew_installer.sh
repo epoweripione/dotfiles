@@ -30,7 +30,7 @@ fi
 
 # Brew installation fails due to Ruby versioning?
 # https://unix.stackexchange.com/questions/694020/brew-installation-fails-due-to-ruby-versioning
-BREW_RUBY_VERSION="2.6.8"
+BREW_RUBY_VERSION="2.6.10"
 BREW_RUBY_MAIN_VERSION=$(echo "${BREW_RUBY_VERSION}" | cut -d'.' -f1-2)
 RUBY_DOWNLOAD_URL="https://cache.ruby-china.com/pub/ruby/${BREW_RUBY_MAIN_VERSION}/ruby-${BREW_RUBY_VERSION}.tar.bz2"
 
@@ -49,8 +49,8 @@ if [[ "${BREW_RUBY_VERSION}" != "${SYSTEM_RUBY_VERSION}" ]]; then
         fi
 
         if [[ -x "$(command -v rbenv)" ]]; then
-            mkdir "$(rbenv root)/plugins"
-            mkdir "$(rbenv root)/cache"
+            mkdir -p "$(rbenv root)/plugins"
+            mkdir -p "$(rbenv root)/cache"
 
             if ! grep -q 'rbenv init -' "$HOME/.zshrc" >/dev/null 2>&1; then
                 echo -e '\n# rbenv' >> "$HOME/.zshrc"
@@ -83,7 +83,7 @@ fi
 
 case "${OS_INFO_TYPE}" in
     darwin | linux)
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         ;;
     *)
         colorEcho "${RED}Operating system does not support!"

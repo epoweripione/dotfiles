@@ -202,13 +202,17 @@ fi
 
 
 # Launch the Android Studio to install the Android SDK components
-[[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
-# [[ -d "$HOME/Android/Sdk/platform-tools" ]] && export PATH=$PATH:$HOME/Android/Sdk/platform-tools
 if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" && -x "$(command -v android-studio)" ]]; then
     android-studio
 fi
 
-[[ "${IS_INSTALL}" == "yes" ]] && flutter doctor
+[[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
+# [[ -d "$HOME/Android/Sdk/platform-tools" ]] && export PATH=$PATH:$HOME/Android/Sdk/platform-tools
+
+if [[ "${IS_INSTALL}" == "yes" ]]; then
+    flutter doctor --android-licenses
+    flutter doctor
+fi
 
 ## sdkmanager
 ## https://developer.android.com/studio/command-line/sdkmanager

@@ -46,11 +46,15 @@ fi
 if [[ -x "$(command -v snap)" ]]; then
     colorEcho "${BLUE}Setting ${FUCHSIA}snap${BLUE}..."
     systemctl is-enabled snapd.socket >/dev/null 2>&1 || sudo systemctl enable --now snapd.socket
+    systemctl is-enabled snapd.apparmor >/dev/null 2>&1 || systemctl enable --now snapd.apparmor
 
     # enable classic snap support
     [[ ! -d "/snap" && -d "/var/lib/snapd/snap" ]] && sudo ln -s /var/lib/snapd/snap /snap
 
-    sudo snap install core
+    # Fix: error: too early for operation, device not yet seeded or device model not acknowledged
+    sleep 3
+
+    # sudo snap install core
 
     [[ ":$PATH:" != *":/snap/bin:"* ]] && export PATH=$PATH:/snap/bin
 
