@@ -1604,10 +1604,13 @@ function check_set_global_proxy() {
     local IP_WSL
     local PROXY_SOCKS_UP="NO"
     local PROXY_HTTP_UP="NO"
+    local CMD_DIR
 
     if [[ "$(uname -r)" =~ "microsoft" ]]; then
-        # wsl2
-        IP_LIST=$(ipconfig.exe | grep "IPv4" \
+        # WSL2
+        # Fix "Invalid argument" when executing Windows commands
+        CMD_DIR=$(dirname "$(which ipconfig.exe)")
+        IP_LIST=$(cd "${CMD_DIR}" && ipconfig.exe | grep "IPv4" \
                     | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
                     | grep -Ev "^0\.|^127\.|^172\.")
         IP_WSL=$(grep -m1 nameserver /etc/resolv.conf | awk '{print $2}')
