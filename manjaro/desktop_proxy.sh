@@ -75,8 +75,8 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
     yay --noconfirm --needed -S archlinuxcn/xray archlinuxcn/xray-geoip archlinuxcn/xray-domain-list-community
 
     # Install `BypassGFWFirewall` service
-    colorEcho "${BLUE}Installing ${FUCHSIA}BypassGFWFirewall${BLUE} service..."
     if ! systemctl is-enabled "BypassGFWFirewall" >/dev/null 2>&1; then
+        colorEcho "${BLUE}Installing ${FUCHSIA}BypassGFWFirewall${BLUE} service..."
         sudo mkdir -p "/opt/BypassGFWFirewall"
         sudo cp -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cross/BypassGFWFirewall.sh" "/opt/BypassGFWFirewall/BypassGFWFirewall.sh"
         sudo chmod +x "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/BypassGFWFirewall.sh"

@@ -258,8 +258,8 @@ sudo pacman --noconfirm --needed -S bleachbit
 
 # IM
 colorEcho "${BLUE}Installing ${FUCHSIA}IM tools${BLUE}..."
-yay --noconfirm --needed -S telegram-desktop linuxqq deepin-wine-qq deepin-wine-wechat wemeet-bin
-# yay --noconfirm --needed -S deepin-wine-tim
+yay --noconfirm --needed -S telegram-desktop linuxqq deepin-wine-wechat wemeet-bin
+# yay --noconfirm --needed -S deepin-wine-qq deepin-wine-tim
 
 # Markdown
 colorEcho "${BLUE}Installing ${FUCHSIA}markdown tools${BLUE}..."
