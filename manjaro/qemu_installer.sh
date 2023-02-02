@@ -19,27 +19,52 @@ fi
 
 # KVM & QEMU
 # https://wiki.archlinux.org/title/QEMU
+# https://wiki.manjaro.org/index.php/Virt-manager
+# https://computingforgeeks.com/install-kvm-qemu-virt-manager-arch-manjar/
 # https://getlabsdone.com/how-to-install-windows-11-on-kvm/
 # emulate the TPM
 colorEcho "${BLUE}Installing ${FUCHSIA}QEMU tools${BLUE}..."
 # TPM Emulator
-sudo pacman --noconfirm --needed -S swtpm
+sudo pacman --noconfirm --needed -S --asdeps swtpm
 
 # Enable secure-boot/UEFI on KVM
 sudo pacman --noconfirm --needed -S edk2-ovmf
 
-# Install the qemu package
-sudo pacman --noconfirm --needed -S qemu-desktop
-sudo pacman --noconfirm --needed -S libvirt virt-install virt-manager virt-viewer
+sudo pacman --noconfirm --needed -S vde2 bridge-utils openbsd-netcat
 
-# Add user to the kvm and libvirt groups
+# sudo pacman --noconfirm --needed -S iptables-nft
+sudo pacman --noconfirm --needed -S dnsmasq ebtables iptables
+
+# Install the qemu package
+sudo pacman --noconfirm --needed -S libvirt qemu-desktop virt-manager virt-install virt-viewer
+sudo pacman --noconfirm --needed -S libguestfs
+
+## Run and enable boot up start libvirtd daemon
+# sudo systemctl enable libvirtd.service
+# sudo systemctl start libvirtd.service
+sudo systemctl enable --now libvirtd.service
+
+# Enable normal user account to use KVM
+sudo sed -i 's/^unix_sock_group.*/unix_sock_group = "libvirt"/g' "/etc/libvirt/libvirtd.conf"
+sudo sed -i 's/^unix_sock_rw_perms.*/unix_sock_rw_perms = "0770"/g' "/etc/libvirt/libvirtd.conf"
+
+## Add user to the kvm and libvirt groups
+# sudo usermod -a -G libvirt "$(whoami)"
+# newgrp libvirt
 sudo gpasswd -a "$(whoami)" kvm
 sudo gpasswd -a "$(whoami)" libvirt
 
-## Run and enable boot up start libvirtd daemon
-# sudo systemctl enable libvirtd
-# sudo systemctl start libvirtd
-sudo systemctl enable --now libvirtd
+sudo systemctl restart libvirtd.service
+
+# Enable Nested Virtualization (Optional)
+CPU_VENDOR=$(lscpu | grep Vendor | awk '{print $NF}')
+if grep -q 'Intel' <<<"${CPU_VENDOR}"; then
+    # Intel Processor
+    echo "options kvm_intel nested=1" | sudo tee "/etc/modprobe.d/kvm_intel.conf" >/dev/null
+elif grep -q 'AMD' <<<"${CPU_VENDOR}"; then
+    # AMD Processor
+    echo "options kvm_amd nested=1" | sudo tee "/etc/modprobe.d/kvm_amd.conf" >/dev/null
+fi
 
 ## ISO image at: /var/lib/libvirt/images
 ## change default location of libvirt VM images
