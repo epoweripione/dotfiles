@@ -98,6 +98,7 @@ echo 'nameserver 127.0.0.1' | sudo tee "/etc/resolv.conf" >/dev/null
 # dnsmasq:53->ChinaDNS:65353->China->SmartDNS:65355
 #                           ->World->SmartDNS:65356
 # DNS list
+[[ -d "$HOME/chinadns-ng" ]] && cd "$HOME/chinadns-ng" && git reset --hard
 Git_Clone_Update_Branch "zfl9/chinadns-ng" "$HOME/chinadns-ng"
 if [[ -d "$HOME/chinadns-ng" ]]; then
     cd "$HOME/chinadns-ng" && \
@@ -113,12 +114,15 @@ if [[ -d "$HOME/chinadns-ng" ]]; then
 fi
 
 ## ipset
+colorEcho "${BLUE}Installing ${FUCHSIA}ipset${BLUE}..."
+sudo pacman --noconfirm --needed -S ipset
 # sudo ipset list -n
 # sudo ipset list | grep ': '
 # sudo ipset list
+
 if [[ -s "/opt/chinadns-ng/chnroute.ipset" ]]; then
-    sudo ipset -F chnroute
-    sudo ipset -F chnroute6
+    sudo ipset -F chnroute 2>/dev/null
+    sudo ipset -F chnroute6 2>/dev/null
 
     (sudo ipset -R -exist) <"/opt/chinadns-ng/chnroute.ipset"
     (sudo ipset -R -exist) <"/opt/chinadns-ng/chnroute6.ipset"
@@ -131,7 +135,9 @@ if [[ -x "$(command -v chinadns-ng)" ]]; then
         CHINADNS_ARGS="${CHINADNS_ARGS} --chnlist-file /opt/chinadns-ng/chnlist.txt" && \
         CHINADNS_ARGS="${CHINADNS_ARGS} --verbose"
 
-    Install_systemd_Service "chinadnsng" "$(which chinadns-ng) ${CHINADNS_ARGS}" "root" "/opt/chinadns-ng"
+    if ! systemctl is-enabled "chinadnsng" >/dev/null 2>&1; then
+        Install_systemd_Service "chinadnsng" "$(which chinadns-ng) ${CHINADNS_ARGS}" "root" "/opt/chinadns-ng"
+    fi
 fi
 
 # Enable SmartDNS
