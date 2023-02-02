@@ -71,7 +71,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
         linux)
             case "${OS_INFO_ARCH}" in
                 amd64)
-                    REMOTE_FILENAME="${EXEC_INSTALL_NAME}-${REMOTE_VERSION}-x86_64-unknown-linux-gnu.${ARCHIVE_EXT}"
+                    REMOTE_FILENAME="${EXEC_INSTALL_NAME}-${REMOTE_VERSION}-x86_64-unknown-linux-musl.${ARCHIVE_EXT}"
                     ;;
                 arm64)
                     REMOTE_FILENAME="${EXEC_INSTALL_NAME}-${REMOTE_VERSION}-aarch64-unknown-linux-gnu.${ARCHIVE_EXT}"
