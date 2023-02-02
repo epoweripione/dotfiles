@@ -206,8 +206,10 @@ if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" && -x "$(command -v ${E
     # navi --tldr <query>
     # tealdeer: A very fast implementation of tldr in Rust
     # https://github.com/dbrgn/tealdeer
-    AppInstaller="${MY_SHELL_SCRIPTS}/installer/tealdeer_installer.sh"
-    [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
+    if [[ ! -x "$(command -v tldr)" ]]; then
+        AppInstaller="${MY_SHELL_SCRIPTS}/installer/tealdeer_installer.sh"
+        [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
+    fi
 
     # use cheatsheets from cheat.sh: https://github.com/chubin/cheat.sh
     # navi --cheatsh <query>
