@@ -2817,6 +2817,7 @@ function App_Installer_Reset() {
     INSTALL_FROM_SOURCE="no"
     EXEC_FULL_NAME=""
 
+    CHECK_URL=""
     REMOTE_DOWNLOAD_URL=""
 }
 
@@ -2832,15 +2833,15 @@ function App_Installer_Install() {
     # MAN1_FILE ZSH_COMPLETION_FILE
     #
     # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/juicefs_installer.sh` or `installer/lazygit_installer.sh` as example
-    local CHECK_URL=$1
+    local remote_url=$1
 
     [[ "${IS_INSTALL}" != "yes" ]] && return 0
 
-    [[ -z "${CHECK_URL}" ]] && CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
+    [[ -z "${remote_url}" ]] && remote_url="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
 
     # get app remote version & download link that match running platform
     # colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-    [[ -z "${REMOTE_DOWNLOAD_URL}" ]] && App_Installer_Get_Remote "${CHECK_URL}"
+    [[ -z "${REMOTE_DOWNLOAD_URL}" ]] && App_Installer_Get_Remote "${remote_url}"
 
     [[ -z "${REMOTE_VERSION}" || -z "${REMOTE_DOWNLOAD_URL}" ]] && IS_INSTALL="no"
 
