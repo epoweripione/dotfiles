@@ -45,8 +45,8 @@ sudo pacman --noconfirm --needed -S libguestfs
 sudo systemctl enable --now libvirtd.service
 
 # Enable normal user account to use KVM
-sudo sed -i 's/^unix_sock_group.*/unix_sock_group = "libvirt"/g' "/etc/libvirt/libvirtd.conf"
-sudo sed -i 's/^unix_sock_rw_perms.*/unix_sock_rw_perms = "0770"/g' "/etc/libvirt/libvirtd.conf"
+sudo sed -i 's/^[# ]*unix_sock_group.*/unix_sock_group = "libvirt"/g' "/etc/libvirt/libvirtd.conf"
+sudo sed -i 's/^[# ]*unix_sock_rw_perms.*/unix_sock_rw_perms = "0770"/g' "/etc/libvirt/libvirtd.conf"
 
 ## Add user to the kvm and libvirt groups
 # sudo usermod -a -G libvirt "$(whoami)"
@@ -136,6 +136,22 @@ sudo pacman --noconfirm --needed -S virtio-win
 # sudo virsh domxml-to-native qemu-argv --domain ${VM_NAME}
 
 ## network
+## [Libvirtd and dnsmasq](https://wiki.libvirt.org/page/Libvirtd_and_dnsmasq)
+## On linux host servers, libvirtd uses dnsmasq to service the virtual networks, such as the default network.
+## A new instance of dnsmasq is started for each virtual network, only accessible to guests in that specific network.
+## If you are running your own "global" dnsmasq, then this can cause your own dnsmasq to fail to start 
+## (or for libvirtd to fail to start its dnsmasq and the given virtual network).
+## This happens because both instances of dnsmasq might try to bind to the same port number on the same network interfaces.
+## You have to change the global `/etc/dnsmasq.conf` as follows:
+## Either:
+## interface=eth0
+## or
+## listen-address=192.168.0.1
+## (Replace interface or listen-address with the interfaces or addresses you want your global dnsmasq to answer queries on).
+## And uncomment this line to tell dnsmasq to only bind specific interfaces, not try to bind all interfaces:
+## bind-interfaces
+# cat /etc/dnsmasq.conf | grep -i -E 'interface|listen-address'
+
 # brctl show
 # sudo virsh net-list --all
 # sudo virsh net-info default
