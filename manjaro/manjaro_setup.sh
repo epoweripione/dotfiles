@@ -99,6 +99,7 @@ for TargetFolder in "${FOLDER_CN[@]}"; do
     if [[ -s "$HOME/.local/share/user-places.xbel" ]]; then
         FOLDER_ENCODE=$(tr -d '\n' <<<"${TargetFolder}" | od -An -tx1 | tr ' ' %)
         sed -i -e "s/${FOLDER_ENCODE}/${FOLDER_EN[$FOLDER_INDEX]}/g" "$HOME/.local/share/user-places.xbel"
+        sed -i -e "s/${FOLDER_ENCODE^^}/${FOLDER_EN[$FOLDER_INDEX]}/g" "$HOME/.local/share/user-places.xbel"
     fi
 done
 
