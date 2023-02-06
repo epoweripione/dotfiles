@@ -42,9 +42,9 @@ fi
 
 # [Manage Docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/)
 if [[ $UID -ne 0 ]]; then
-    if id -nG "$USER" | grep -qw "$GROUP"; then
-        sudo groupadd docker
-        sudo usermod -aG docker "$USER"
+    if id -nG "$USER" | grep -qw "docker"; then
+        sudo groupadd docker 2>/dev/null
+        sudo usermod -aG docker "$USER" 2>/dev/null
 
         [[ -d "$HOME/.docker" ]] && sudo chown -R "$USER":"$USER" "$HOME/.docker" && sudo chmod -R g+rwx "$HOME/.docker"
     fi
