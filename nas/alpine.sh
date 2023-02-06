@@ -23,12 +23,11 @@ udhcpc eth0
 
 setup-apkrepos
 
-# . /etc/alpine-release
-# OS_VERSION_ID=$(echo {VERSION_ID} | cut -d'.' -f1-2)
-## echo "https://dl-cdn.alpinelinux.org/alpine/v{OS_VERSION_ID}/main" | tee -a "/etc/apk/repositories"
-## echo "https://dl-cdn.alpinelinux.org/alpine/v{OS_VERSION_ID}/community" | tee -a "/etc/apk/repositories"
-# echo "https://mirror.sjtu.edu.cn/alpine/v{OS_VERSION_ID}/main" | tee -a "/etc/apk/repositories"
-# echo "https://mirror.sjtu.edu.cn/alpine/v{OS_VERSION_ID}/community" | tee -a "/etc/apk/repositories"
+# OS_VERSION_ID=$(head -n1 /etc/alpine-release | cut -d'.' -f1-2)
+## echo "https://dl-cdn.alpinelinux.org/alpine/v${OS_VERSION_ID}/main" | tee -a "/etc/apk/repositories"
+## echo "https://dl-cdn.alpinelinux.org/alpine/v${OS_VERSION_ID}/community" | tee -a "/etc/apk/repositories"
+# echo "https://mirror.sjtu.edu.cn/alpine/v${OS_VERSION_ID}/main" | tee -a "/etc/apk/repositories"
+# echo "https://mirror.sjtu.edu.cn/alpine/v${OS_VERSION_ID}/community" | tee -a "/etc/apk/repositories"
 
 apk add e2fsprogs‑extra parted
 
