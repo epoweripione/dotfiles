@@ -152,50 +152,181 @@ if [[ -x "$(command -v xfce4-terminal)" ]]; then
     fi
 fi
 
+# Install apps
+# Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
+if [[ -z "${AppManjaroInstallList[*]}" ]]; then
+    AppManjaroInstallList=(
+        ## RDP Server
+        # "xrdp"
+        ## RDP Client
+        "freerdp"
+        "remmina"
+        "rustdesk-bin"
+        ## Desktop
+        # "dmenu"
+        ## picom: a standalone compositor for Xorg, a fork of compton
+        ## rofi: a window switcher, run dialog, ssh-launcher and dmenu replacement
+        ## feh: Fast and light imlib2-based image viewer
+        ## inkscape: Professional vector graphics editor
+        ## mate-power-manager: Power management tool for the MATE desktop
+        ## mpd: Flexible, powerful, server-side application for playing music
+        ## ncmpcpp: Fully featured MPD client using ncurses
+        ## polybar: A fast and easy-to-use status bar
+        ## scrot: command-line screenshot utility for X
+        ## xcompmgr: Composite Window-effects manager for X.org
+        "picom"
+        "rofi"
+        "feh"
+        "inkscape"
+        "mate-power-manager"
+        "mpd"
+        "ncmpcpp"
+        "polybar"
+        "scrot"
+        ## xmonad https://xmonad.org/
+        # "xmonad"
+        # "xmonad-contrib"
+        # "xmonad-utils"
+        # "slock"
+        # "xmobar"
+        ## i3 https://i3wm.org/
+        ## https://www.zhihu.com/question/62251457
+        ## https://github.com/levinit/i3wm-config
+        ## https://zocoxx.com/archlinux-i3wm.html
+        # "i3-gaps"
+        # "i3-scripts"
+        # "i3-scrot"
+        # "i3blocks"
+        # "i3lock"
+        # "i3status"
+        # "i3exit"
+        # "arc-icon-theme"
+        # "adwaita-icon-theme"
+        # "lxappearance"
+        # "manjaro-wallpapers-by-lunix-i3"
+        ## Broswer
+        "chromium"
+        "google-chrome"
+        # "google-chrome-beta"
+        "google-chrome-dev"
+        # "microsoft-edge-stable-bin"
+        ## Clipborad
+        "copyq"
+        ## Develop
+        "jre17-openjdk"
+        "dbeaver"
+        "wireshark-qt"
+        "visual-studio-code-bin"
+        "community/geany"
+        "community/geany-plugins"
+        "aur/geany-themes"
+        # "community/notepadqq"
+        "archlinuxcn/notepad---git"
+        ## Dictionary
+        # "goldendict-git"
+        ## Download & Upload
+        "aria2"
+        "you-get"
+        "filezilla"
+        "archlinuxcn/qbittorrent-enhanced-git"
+        ## Docker
+        "docker"
+        "docker-compose"
+        # "kitematic"
+        ## [Podman](https://wiki.archlinux.org/title/Podman)
+        # "community/podman"
+        # "community/cni-plugins"
+        # "community/buildah"
+        # "community/podman-docker"
+        # "community/podman-compose"
+        # "chaotic-aur/podman-desktop"
+        ## File & dir compare
+        "meld"
+        ## Free disk space and maintain privacy
+        "bleachbit"
+        ## IM
+        "telegram-desktop"
+        "aur/linuxqq"
+        "archlinuxcn/wine-wechat-setup"
+        "aur/wemeet-bin"
+        # "deepin-wine-qq"
+        # "deepin-wine-tim"
+        # "deepin-wine-wechat"
+        ## Markdown
+        "vnote-git"
+        #"typora"
+        ## Note
+        #"leanote"
+        #"wiznote"
+        #"cherrytree"
+        ## Netdisk
+        "baidunetdisk-bin"
+        ## Password manager
+        "enpass"
+        "keepass"
+        "bitwarden"
+        ## PDF Reader
+        "evince"
+        #"foxitreader"
+        ## Player
+        "netease-cloud-music"
+        #"qqmusic-bin"
+        "smplayer"
+        "smplayer-skins"
+        "smplayer-themes"
+        ## Proxy
+        "frps"
+        "frpc"
+        ## Screenshot
+        "deepin-screenshot"
+        "flameshot"
+        #"xfce4-screenshooter"
+        ## Quick search
+        "synapse"
+        "utools"
+        ## Linux Advanced Power Management
+        "tlp"
+        "tlp-rdw"
+        "tlpui"
+        ## System
+        "filelight"
+        "peek"
+        "redshift"
+        "ventoy-bin"
+        #"easystroke"
+        ## WPS
+        "wps-office-cn"
+        "wps-office-mui-zh-cn"
+        "wps-office-mime-cn"
+        "wps-office-fonts"
+        "ttf-wps-fonts"
+        "wps-office-all-dicts-win-languages"
+    )
+
+    for TargetApp in "${AppManjaroInstallList[@]}"; do
+        colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
+        yay --noconfirm --needed -S "${TargetApp}"
+    done
+fi
+
+if [[ -z "${AppSnapInstallList[*]}" ]]; then
+    AppSnapInstallList=(
+        "motrix"
+    )
+
+    for TargetApp in "${AppSnapInstallList[@]}"; do
+        colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
+        sudo snap install "${TargetApp}"
+    done
+fi
 
 ## RDP Server
 ## http://www.xrdp.org/
 ## https://wiki.archlinux.org/index.php/xrdp
 # colorEcho "${BLUE}Installing ${FUCHSIA}xrdp${BLUE}..."
-# yay --noconfirm --needed -S xrdp
 # echo 'allowed_users=anybody' | sudo tee -a /etc/X11/Xwrapper.config
 # sudo systemctl enable xrdp xrdp-sesman && \
 #     sudo systemctl start xrdp xrdp-sesman
-
-# RDP Client
-colorEcho "${BLUE}Installing ${FUCHSIA}RDP client${BLUE}..."
-sudo pacman --noconfirm --needed -S freerdp remmina
-yay --noconfirm --needed -S rustdesk-bin
-
-
-# Desktop
-colorEcho "${BLUE}Installing ${FUCHSIA}desktop components${BLUE}..."
-# sudo pacman --noconfirm --needed -S dmenu
-
-# picom: a standalone compositor for Xorg, a fork of compton
-# rofi: a window switcher, run dialog, ssh-launcher and dmenu replacement
-# feh: Fast and light imlib2-based image viewer
-# inkscape: Professional vector graphics editor
-# mate-power-manager: Power management tool for the MATE desktop
-# mpd: Flexible, powerful, server-side application for playing music
-# ncmpcpp: Fully featured MPD client using ncurses
-# polybar: A fast and easy-to-use status bar
-# scrot: command-line screenshot utility for X
-# xcompmgr: Composite Window-effects manager for X.org
-sudo pacman --noconfirm --needed -S picom rofi feh inkscape mate-power-manager mpd ncmpcpp polybar scrot
-
-## xmonad https://xmonad.org/
-# sudo pacman --noconfirm --needed -S xmonad xmonad-contrib xmonad-utils slock xmobar
-
-## i3 https://i3wm.org/
-## https://www.zhihu.com/question/62251457
-## https://github.com/levinit/i3wm-config
-## https://zocoxx.com/archlinux-i3wm.html
-# sudo pacman --noconfirm --needed -S i3-gaps
-# sudo pacman --noconfirm --needed -S i3-scripts i3-scrot i3blocks i3lock i3status i3exit
-# sudo pacman --noconfirm --needed -S arc-icon-theme adwaita-icon-theme lxappearance manjaro-wallpapers-by-lunix-i3
-## conky-i3 dmenu-manjaro i3-default-artwork i3-help
-## i3status-manjaro manjaro-i3-settings manjaro-i3-settings-bldbk
 
 ## DWM
 ## https://wiki.archlinux.org/index.php/Dwm_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
@@ -205,42 +336,22 @@ sudo pacman --noconfirm --needed -S picom rofi feh inkscape mate-power-manager m
 #     cp -r .{config,vim*,z*,x*,X*,alias*,p10k.zsh,local} $HOME && \
 #     cp -r dwm $HOME
 
+# NotePad--
+if [[ -x "$(command -v NotePad--)" ]]; then
+    if [[ -s "/usr/share/applications/io.gitee.cxasm.notepad--.desktop" ]]; then
+        sudo sed -i -e 's/notepad--/NotePad--/g' \
+            -e 's/Notepad--/NotePad--/g' \
+            -e 's/Icon=NotePad--/Icon=notepad--/' \
+            "/usr/share/applications/io.gitee.cxasm.notepad--.desktop"
+    fi
 
-# Apps
-# Broswer
-colorEcho "${BLUE}Installing ${FUCHSIA}broswer${BLUE}..."
-yay --noconfirm --needed -S chromium google-chrome google-chrome-dev
-# yay --noconfirm --needed -S google-chrome-beta
-# yay --noconfirm --needed -S microsoft-edge-stable-bin
-
-# Clipborad
-colorEcho "${BLUE}Installing ${FUCHSIA}copyq${BLUE}..."
-sudo pacman --noconfirm --needed -S copyq
-
-# Develop
-colorEcho "${BLUE}Installing ${FUCHSIA}develop tools${BLUE}..."
-sudo pacman --noconfirm --needed -S jre17-openjdk
-sudo pacman --noconfirm --needed -S dbeaver wireshark-qt
-yay --noconfirm --needed -S visual-studio-code-bin
-yay --noconfirm --needed -S community/geany community/geany-plugins aur/geany-themes
-# yay --noconfirm --needed -S aur/notepadnext
-
-# Dictionary
-# sudo pacman --noconfirm --needed -S goldendict-git
-
-# Download & Upload
-colorEcho "${BLUE}Installing ${FUCHSIA}download & upload tools${BLUE}..."
-sudo pacman --noconfirm --needed -S aria2 you-get filezilla archlinuxcn/qbittorrent-enhanced-git
-sudo snap install motrix
-
-# Docker
-colorEcho "${BLUE}Installing ${FUCHSIA}docker${BLUE}..."
-sudo pacman --noconfirm --needed -S docker docker-compose
-# yay -S kitematic
-
-## [Podman](https://wiki.archlinux.org/title/Podman)
-# yay --noconfirm --needed -S community/podman community/cni-plugins community/buildah
-# yay --noconfirm --needed -S community/podman-docker community/podman-compose chaotic-aur/podman-desktop
+    if [[ -s "$HOME/.local/share/applications/io.gitee.cxasm.notepad--.desktop" ]]; then
+        sed -i -e 's/notepad--/NotePad--/g' \
+            -e 's/Notepad--/NotePad--/g' \
+            -e 's/Icon=NotePad--/Icon=notepad--/' \
+            "$HOME/.local/share/applications/io.gitee.cxasm.notepad--.desktop"
+    fi
+fi
 
 ## Rootless Podman
 ## sysctl kernel.unprivileged_userns_clone
@@ -249,88 +360,15 @@ sudo pacman --noconfirm --needed -S docker docker-compose
 # yay --noconfirm --needed -S community/fuse-overlayfs community/podman-dnsname community/slirp4netns
 # podman system migrate
 
-# File & dir compare
-colorEcho "${BLUE}Installing ${FUCHSIA}meld${BLUE}..."
-sudo pacman --noconfirm --needed -S meld
-
-# Free disk space and maintain privacy
-colorEcho "${BLUE}Installing ${FUCHSIA}bleachbit${BLUE}..."
-sudo pacman --noconfirm --needed -S bleachbit
-
-# IM
-colorEcho "${BLUE}Installing ${FUCHSIA}IM tools${BLUE}..."
-yay --noconfirm --needed -S telegram-desktop linuxqq deepin-wine-wechat wemeet-bin
-# yay --noconfirm --needed -S deepin-wine-qq deepin-wine-tim
-
-# Markdown
-colorEcho "${BLUE}Installing ${FUCHSIA}markdown tools${BLUE}..."
-sudo pacman --noconfirm --needed -S vnote-git
-# sudo pacman --noconfirm --needed -S typora
-
-# Note
-# yay --noconfirm --needed -S leanote
-# sudo pacman --noconfirm --needed -S wiznote
-# sudo pacman --noconfirm --needed -S cherrytree
-
-# Netdisk
-colorEcho "${BLUE}Installing ${FUCHSIA}netdisk${BLUE}..."
-yay --noconfirm --needed -S baidunetdisk-bin
-
-# Password manager
-colorEcho "${BLUE}Installing ${FUCHSIA}password manager${BLUE}..."
-sudo pacman --noconfirm --needed -S enpass keepass bitwarden
-
-# PDF Reader
-colorEcho "${BLUE}Installing ${FUCHSIA}PDF reader${BLUE}..."
-sudo pacman --noconfirm --needed -S evince
-# yay --noconfirm --needed -S foxitreader
-
-# Player
-colorEcho "${BLUE}Installing ${FUCHSIA}video & audio players${BLUE}..."
-sudo pacman --noconfirm --needed -S netease-cloud-music
-sudo pacman --noconfirm --needed -S smplayer smplayer-skins smplayer-themes
-# yay --noconfirm --needed -S qqmusic-bin
-
-# Proxy
-colorEcho "${BLUE}Installing ${FUCHSIA}proxy tools${BLUE}..."
-# sudo pacman --noconfirm --needed -S proxychains-ng v2ray
-sudo pacman --noconfirm --needed -S frps frpc
-
-# Screenshot
-colorEcho "${BLUE}Installing ${FUCHSIA}screenshot tools${BLUE}..."
-sudo pacman --noconfirm --needed -S deepin-screenshot flameshot
-# sudo pacman --noconfirm --needed -S xfce4-screenshooter
-
-# Search
-colorEcho "${BLUE}Installing ${FUCHSIA}search tools${BLUE}..."
-sudo pacman --noconfirm --needed -S synapse utools
-yay --noconfirm --needed -S albert-bin
-
-# Linux Advanced Power Management
-colorEcho "${BLUE}Installing ${FUCHSIA}power management tools${BLUE}..."
-sudo pacman --noconfirm --needed -S tlp tlp-rdw tlpui
-sudo tlp start
+## Linux Advanced Power Management
+[[ -x "$(command -v tlp)" ]] && sudo tlp start
 # sudo tlp-stat -s # System Info
 # sudo tlp-stat -b # Battery Care
-
-# System
-colorEcho "${BLUE}Installing ${FUCHSIA}system tools${BLUE}..."
-sudo pacman --noconfirm --needed -S font-manager filelight peek redshift ventoy-bin
-# yay --noconfirm --needed -S easystroke
-
-# Terminal
-# sudo pacman --noconfirm --needed -S konsole
 
 ## [Virtualbox](https://wiki.archlinux.org/title/VirtualBox)
 # yay --noconfirm --needed -S community/virtualbox community/virtualbox-guest-iso
 # yay --noconfirm --needed -S aur/virtualbox-bin aur/virtualbox-bin-guest-iso aur/virtualbox-ext-oracle
 # sudo usermod -aG vboxusers "$USER"
-
-# WPS
-colorEcho "${BLUE}Installing ${FUCHSIA}WPS Office${BLUE}..."
-yay --noconfirm --needed -S wps-office-cn wps-office-mui-zh-cn wps-office-mime-cn
-yay --noconfirm --needed -S wps-office-fonts ttf-wps-fonts wps-office-all-dicts-win-languages
-
 
 ## pyenv
 ## https://segmentfault.com/a/1190000006174123
@@ -344,12 +382,10 @@ yay --noconfirm --needed -S wps-office-fonts ttf-wps-fonts wps-office-all-dicts-
 # pyenv uninstall <version>
 # pyenv global <version>
 
-
 ## penetration testing
 # sudo pacman --noconfirm --needed -S metasploit msfdb nmap hydra sqlmap
 # sudo msfdb-blackarch init
 # sudo msfdb-blackarch start
-
 
 # KVM & QEMU
 [[ -s "${MY_SHELL_SCRIPTS}/manjaro/qemu_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/qemu_installer.sh"
@@ -373,7 +409,7 @@ yay --noconfirm --needed -S wps-office-fonts ttf-wps-fonts wps-office-all-dicts-
 [[ -s "${MY_SHELL_SCRIPTS}/installer/homebrew_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/homebrew_installer.sh"
 
 # Notepadqq
-[[ -s "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh"
+# [[ -s "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh"
 
 # Themes
 # [[ -s "${MY_SHELL_SCRIPTS}/installer/desktop_themes.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/desktop_themes.sh"
