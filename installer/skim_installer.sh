@@ -29,7 +29,7 @@ EXEC_INSTALL_NAME="sk"
 ARCHIVE_EXT="tar.gz"
 ARCHIVE_EXEC_NAME="sk"
 
-INSTALL_FROM_SOURCE="no"
+INSTALL_FROM_SOURCE=""
 EXEC_FULL_NAME=""
 
 CURRENT_VERSION="0.0.0"
@@ -57,7 +57,9 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${IS_INSTALL}" == "yes" ]]; then
-    if ! checkPackageInstalled "${APP_INSTALL_NAME}"; then
+    if checkPackageExists "${APP_INSTALL_NAME}"; then
+        INSTALL_FROM_SOURCE="no"
+    else
         [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALL_FROM_SOURCE="yes"
     fi
 fi
