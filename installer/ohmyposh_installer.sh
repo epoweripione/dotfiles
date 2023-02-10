@@ -104,6 +104,10 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     # themes
     colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}themes${BLUE}..."
     mkdir -p "$HOME/.poshthemes"
+
+    [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/powershell/themes/powerlevel10k_my.omp.json" ]] && \
+        cp -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/powershell/themes/powerlevel10k_my.omp.json" "$HOME/.poshthemes"
+
     DOWNLOAD_FILENAME="${WORKDIR}/themes.zip"
     DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/v${REMOTE_VERSION}/themes.zip"
     colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
@@ -127,7 +131,8 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     if ! grep -q "oh-my-posh --init" "$HOME/.bashrc" 2>/dev/null; then
         {
             echo ''
-            echo 'eval "$(oh-my-posh --init --shell bash --config ~/.poshthemes/powerlevel10k_rainbow.omp.json)"'
+            echo '# eval "$(oh-my-posh --init --shell bash --config ~/.poshthemes/powerlevel10k_rainbow.omp.json)"'
+            echo 'eval "$(oh-my-posh --init --shell bash --config ~/.poshthemes/powerlevel10k_my.omp.json)"'
         } >> "$HOME/.bashrc"
     fi
 
@@ -135,7 +140,8 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     if ! grep -q "oh-my-posh --init" "$HOME/.zshrc" 2>/dev/null; then
         {
             echo ''
-            echo 'eval "$(oh-my-posh --init --shell zsh --config ~/.poshthemes/powerlevel10k_rainbow.omp.json)"'
+            echo '# eval "$(oh-my-posh --init --shell zsh --config ~/.poshthemes/powerlevel10k_rainbow.omp.json)"'
+            echo 'eval "$(oh-my-posh --init --shell bash --config ~/.poshthemes/powerlevel10k_my.omp.json)"'
         } >> "$HOME/.zshrc"
     fi
 fi
