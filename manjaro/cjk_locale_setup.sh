@@ -46,7 +46,7 @@ export LANGUAGE="en_US.UTF-8"
 EOF
 fi
 
-# Fonts
+# [Fonts](https://wiki.archlinux.org/title/fonts)
 colorEcho "${BLUE}Installing ${FUCHSIA}fonts${BLUE}..."
 yay --noconfirm --needed -S powerline-fonts ttf-fira-code ttf-sarasa-gothic \
     ttf-hannom noto-fonts noto-fonts-extra noto-fonts-cjk \
@@ -54,6 +54,10 @@ yay --noconfirm --needed -S powerline-fonts ttf-fira-code ttf-sarasa-gothic \
     ttf-lxgw-wenkai \
     ttf-lato ttf-lora-cyrillic ttf-playfair-display
 
+# math
+yay --noconfirm --needed -S otf-latin-modern otf-cm-unicode otf-stix
+
+# emoji
 yay --noconfirm --needed -S archlinuxcn/ttf-twemoji
 # If you have other emoji fonts installed but want twemoji to always be used, make a symlink for twemojis font config:
 # sudo ln -sf /usr/share/fontconfig/conf.avail/75-twemoji.conf /etc/fonts/conf.d/75-twemoji.conf
