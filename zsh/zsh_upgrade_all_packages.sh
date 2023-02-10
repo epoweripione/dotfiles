@@ -139,31 +139,34 @@ fi
 
 
 # Always install & update apps
-AppList=(
-    "as-tree"
-    "asdf"
-    "bat"
-    "broot"
-    # "busybox"
-    "croc"
-    "dasel"
-    "duf"
-    "dust"
-    "exa"
-    "fd"
-    "git-delta"
-    "lazygit"
-    "lnav"
-    "magic-wormhole"
-    # "nano"
-    "navi"
-    "nnn"
-    "skim"
-    "tealdeer"
-    "yq"
-    "zoxide"
-)
-for Target in "${AppList[@]}"; do
+# Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
+if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
+    AppAlwaysInstallList=(
+        "as-tree"
+        "asdf"
+        "bat"
+        "broot"
+        # "busybox"
+        "croc"
+        "dasel"
+        "duf"
+        "dust"
+        "exa"
+        "fd"
+        "git-delta"
+        "lazygit"
+        "lnav"
+        "magic-wormhole"
+        # "nano"
+        "navi"
+        "nnn"
+        "skim"
+        "tealdeer"
+        "yq"
+        "zoxide"
+    )
+fi
+for Target in "${AppAlwaysInstallList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
     [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
 done
@@ -181,77 +184,76 @@ fi
 
 # Always install & update apps in WSL & Desktop environment, otherwise update only for manual install apps
 [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" || -n "${OS_INFO_DESKTOP}" ]] && IS_UPDATE_ONLY="no" || IS_UPDATE_ONLY="yes"
-AppList=(
-    "bottom"
-    "btop"
-    "choose"
-    "curlie"
-    "distrobox"
-    "dog"
-    "fq"
-    "fx"
-    "git-lfs"
-    "gotty"
-    "httpie"
-    "httpie-go"
-    "httpstat"
-    "hyperfine"
-    "lsd"
-    "nali"
-    "ncdu"
-    "nu"
-    "onefetch"
-    "ohmyposh"
-    # "pistol"
-    "poetry"
-    "procs"
-    "pup"
-    "rclone"
-    "re-txt"
-    "restic"
-    "sd"
-    "starship"
-    "tig"
-    "usql"
-    "viu"
-    "wrk"
-    "xh"
-)
-for Target in "${AppList[@]}"; do
+if [[ -z "${AppWSLDesktopList[*]}" ]]; then
+    AppWSLDesktopList=(
+        "bottom"
+        "btop"
+        "choose"
+        "curlie"
+        "distrobox"
+        "dog"
+        "fq"
+        "fx"
+        "git-lfs"
+        "gotty"
+        "httpie"
+        "httpie-go"
+        "httpstat"
+        "hyperfine"
+        "lsd"
+        "nali"
+        "ncdu"
+        "nu"
+        "onefetch"
+        "ohmyposh"
+        # "pistol"
+        "poetry"
+        "procs"
+        "pup"
+        "rclone"
+        "re-txt"
+        "restic"
+        "sd"
+        # "starship"
+        "tig"
+        "usql"
+        "viu"
+        "wrk"
+        "xh"
+    )
+fi
+for Target in "${AppWSLDesktopList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
     [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
 done
 
 # Update only for manual install apps
 IS_UPDATE_ONLY="yes"
-AppList=(
-    # "cgit"
-    "frp"
-    "goproxy"
-    # "gvm_go"
-    # "inlets"
-    # "proxychains"
-    "safe-rm"
-    "clash"
-    "subconverter"
-    "sing-box"
-    "trojan"
-    "v2ray"
-    "xray"
-    "flutter"
-)
-for Target in "${AppList[@]}"; do
+if [[ -z "${AppUpdateOnlyList[*]}" ]]; then
+    AppUpdateOnlyList=(
+        # "cgit"
+        "frp"
+        "goproxy"
+        # "gvm_go"
+        # "inlets"
+        # "proxychains"
+        "safe-rm"
+        "clash"
+        "subconverter"
+        "sing-box"
+        "trojan"
+        "v2ray"
+        "xray"
+        "flutter"
+    )
+fi
+for Target in "${AppUpdateOnlyList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
     [[ ! -s "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
     [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
 done
 
-unset AppList
-unset Target
-unset AppInstaller
-unset OS_INFO_WSL
 unset IS_UPDATE_ONLY
-
 
 if [[ -x "$(command -v conda)" ]]; then
     # colorEcho "${BLUE}Updating ${FUCHSIA}conda${BLUE}..."
