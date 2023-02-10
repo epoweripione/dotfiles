@@ -142,7 +142,7 @@ wget -O - https://pkg.wslutiliti.es/public.key | sudo tee -a "/etc/apt/trusted.g
 if ! grep -q "^deb https://pkg.wslutiliti.es/debian" "/etc/apt/sources.list" 2>/dev/null; then
     RELEASE_CODENAME=$(lsb_release -c | awk '{print $2}')
     # RELEASE_CODENAME=$(dpkg --status tzdata | grep Provides | cut -f2 -d'-')
-    echo "deb https://pkg.wslutiliti.es/debian ${DEBIAN_CODENAME} main" | sudo tee -a "/etc/apt/sources.list" >/dev/null
+    echo "deb https://pkg.wslutiliti.es/debian ${RELEASE_CODENAME} main" | sudo tee -a "/etc/apt/sources.list" >/dev/null
 fi
 
 ## git lfs
@@ -227,6 +227,8 @@ sudo chmod u+s /bin/ping
 [[ -s "${MY_SHELL_SCRIPTS}/installer/cargo_rust_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/cargo_rust_installer.sh"
 
 [[ -s "${MY_SHELL_SCRIPTS}/installer/goup_go_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/goup_go_installer.sh"
+
+[[ -s "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_installer.sh"
 
 [[ -s "${MY_SHELL_SCRIPTS}/installer/python_pip_config.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/python_pip_config.sh"
 
