@@ -109,7 +109,7 @@ extensions=(
 	"hediet.debug-visualizer"
     # Extra tools
 	"ms-toolsai.jupyter"
-	"shan.code-settings-sync"
+	# "shan.code-settings-sync"
 	"anseki.vscode-color"
 	"mkxml.vscode-filesize"
 	"doggy8088.quicktype-refresh"
@@ -121,7 +121,7 @@ extensions=(
 	"redhat.vscode-extension-bpmn-editor"
 	"mqycn.huile8"
 	"wscats.search"
-	"idleberg.innosetup"
+	"chouzz.vscode-innosetup"
 	"unbug.codelf"
 	"jeff-hykin.polacode-2019"
 )

@@ -193,7 +193,7 @@ iceworks-team.iceworks
 bito.bito
 # Extra tools
 ms-toolsai.jupyter
-shan.code-settings-sync
+# shan.code-settings-sync
 anseki.vscode-color
 grapecity.gc-excelviewer
 gruntfuggly.todo-tree
@@ -216,7 +216,7 @@ parthr2031.colorful-comments
 mechatroner.rainbow-csv
 mqycn.huile8
 wscats.search
-idleberg.innosetup
+chouzz.vscode-innosetup
 unbug.codelf
 grapecity.gc-excelviewer
 tyriar.vscode-terminal-here

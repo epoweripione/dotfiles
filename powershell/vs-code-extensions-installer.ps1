@@ -85,6 +85,7 @@ $extensions = @(
 	## linux/shell/vim
 	"timonwong.shellcheck"
     ## XML/JSON/GraphQL/YAML
+	"dotjoshjohnson.xml"
     "eriklynd.json-tools"
 	"mohsen1.prettify-json"
     "kumar-harsh.graphql-for-vscode"
@@ -100,7 +101,7 @@ $extensions = @(
 	"hediet.debug-visualizer"
 	# Extra tools
 	"ms-toolsai.jupyter"
-	"shan.code-settings-sync"
+	# "shan.code-settings-sync"
 	"anseki.vscode-color"
 	"mkxml.vscode-filesize"
 	"doggy8088.quicktype-refresh"
@@ -112,7 +113,7 @@ $extensions = @(
 	"redhat.vscode-extension-bpmn-editor"
 	"mqycn.huile8"
 	"wscats.search"
-	"idleberg.innosetup"
+	"chouzz.vscode-innosetup"
 	"unbug.codelf"
 	"jeff-hykin.polacode-2019"
 )
