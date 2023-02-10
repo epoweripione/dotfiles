@@ -1,5 +1,3 @@
-#Requires -RunAsAdministrator
-
 Param (
 	[switch]$UseAria2,
 	[string]$AppsInstallDir = ""
@@ -93,18 +91,19 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         & "$PSScriptRoot\git_global_config.ps1" -Proxy "$SCOOP_PROXY_ADDR"
     }
 
-    if (-Not (scoop info aria2 6>$null)) {
+    if (-Not (Get-Command "aria2c" -ErrorAction SilentlyContinue)) {
         Write-Host "Installing aria2..." -ForegroundColor Blue
         scoop install aria2
     }
 
+    scoop config aria2-warning-enabled false
     if ($UseAria2) {
         scoop config aria2-enabled true
     } else {
         scoop config aria2-enabled false
     }
 
-    if (-Not (scoop info sudo 6>$null)) {
+    if (-Not (Get-Command "sudo" -ErrorAction SilentlyContinue)) {
         Write-Host "Installing sudo..." -ForegroundColor Blue
         scoop install sudo
     }
@@ -125,7 +124,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "dodorz"
         "epower"
         "nonportable"
-        "jetbrains"
+        # "jetbrains"
         # "php"
         # "games"
     )
@@ -293,7 +292,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "marktext"
         "notable"
         "typora"
-        ## VNC
+        ## VNC/RDP
+        "rustdesk"
         # "tightvnc"
         "vncviewer"
         ## k8s
@@ -322,6 +322,9 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
     $sudoApps = @(
         "dotnet-desktop-runtime"
         # "nmap"
+    )
+
+    $sudoFonts = @(
         "Cascadia-Code"
         ## epower
         "NotoSans-CJK"
@@ -375,6 +378,13 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         if (-Not ($InstalledApps -match "$TargetApp")) {
             Write-Host "Installing $TargetApp..." -ForegroundColor Blue
             sudo scoop install $TargetApp
+        }
+    }
+
+    foreach ($TargetApp in $sudoFonts) {
+        if (-Not ($InstalledApps -match "$TargetApp")) {
+            Write-Host "Installing $TargetApp..." -ForegroundColor Blue
+            sudo scoop install -g $TargetApp
         }
     }
 

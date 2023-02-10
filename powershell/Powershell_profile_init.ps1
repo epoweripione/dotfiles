@@ -142,7 +142,7 @@ $THEME_DIR = "~\Documents\PowerShell\PoshThemes"
 $THEME_FILE = "$THEME_DIR\Powerlevel10k-my.omp.json"
 if (-Not (Test-Path $THEME_DIR)) {New-Item -path $THEME_DIR -type Directory | Out-Null}
 if (-Not (Test-Path $THEME_FILE)) {
-    $DOWNLOAD_URL = "https://raw.githubusercontent.com/epoweripione/dotfiles/main/powershell/Powerlevel10k-my.omp.json"
+    $DOWNLOAD_URL = "https://raw.githubusercontent.com/epoweripione/dotfiles/main/powershell/themes/powerlevel10k_my.omp.json"
     $p = New-Object System.Net.WebClient
     $p.DownloadFile($DOWNLOAD_URL, $THEME_FILE)
 }

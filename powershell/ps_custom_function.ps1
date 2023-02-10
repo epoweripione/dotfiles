@@ -419,8 +419,17 @@ function RestartWSL {
         return
     }
 
-    Stop-Service -Name "LxssManager"
-    Start-Service -Name "LxssManager"
+    # Windows 10
+    if (Get-Service -Name "LxssManager") {
+        Stop-Service -Name "LxssManager"
+        Start-Service -Name "LxssManager"
+    }
+
+    # Windows 11
+    if (Get-Service -Name "WslService") {
+        Stop-Service -Name "WslService"
+        Start-Service -Name "WslService"
+    }
 }
 
 # https://www.powershellgallery.com/packages/RoughDraft/0.1/Content/Get-Font.ps1
