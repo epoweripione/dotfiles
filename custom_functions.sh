@@ -2322,6 +2322,27 @@ function goup_Upgrade() {
 }
 
 
+# Check pacakge exists
+function checkPackageExists() {
+    local PackageName=${1:-""}
+    local PackageInfo
+
+    [[ -n "${PackageName}" ]] || return 1
+
+    if [[ -x "$(command -v apt-cache)" ]]; then
+        PackageInfo=$(apt-cache search --names-only "^${PackageName}$")
+        [[ -n "${PackageInfo}" ]] && return 0 || return 1
+    fi
+
+    if [[ -x "$(command -v dnf)" ]]; then
+        dnf info "${PackageName}" >/dev/null 2>&1 && return 0 || return 1
+    fi
+
+    if [[ -x "$(command -v pacman)" ]]; then
+        pacman -Si "${PackageName}" >/dev/null 2>&1 && return 0 || return 1
+    fi
+}
+
 # Check pacakge is installed
 function checkPackageInstalled() {
     local PackageName=${1:-""}
