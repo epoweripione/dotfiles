@@ -259,9 +259,11 @@ sudo mkdir -p /.snapshots && sudo mount /.snapshots
 sudo btrfs subvolume delete /home/.snapshots
 sudo mkdir -p /home/.snapshots && sudo mount /home/.snapshots
 
-# sudo chmod a+rx /.snapshots && sudo chown :"$(id -ng)" /.snapshots
-sudo chmod a+rx /.snapshots && sudo chown :wheel /.snapshots
-sudo chmod a+rx /home/.snapshots && sudo chown :wheel /home/.snapshots
+## sudo chmod a+rx /.snapshots && sudo chown :"$(id -ng)" /.snapshots
+# sudo chmod a+rx /.snapshots && sudo chown :wheel /.snapshots
+# sudo chmod a+rx /home/.snapshots && sudo chown :wheel /home/.snapshots
+sudo chmod 750 /.snapshots
+sudo chmod 750 /home/.snapshots
 
 # install btrfs stuff
 # https://github.com/Antynea/grub-btrfs
