@@ -1,9 +1,4 @@
 {
-	"sync.gist": "",
-	"sync.autoDownload": false,
-	"sync.autoUpload": true,
-	"sync.quietSync": true,
-
 	"window.titleBarStyle": "custom",
 	"window.restoreFullscreen": true,
 	"explorer.confirmDelete": false,
@@ -88,7 +83,12 @@
 			"editor.defaultFormatter": "vscode.json-language-features"
 	},
 
-	"dart.flutterSdkPath": "C:\\Users\\Leung\\scoop\\apps\\flutter\\current",
+	"dart.flutterSdkPath": "C:\\Users\\username\\scoop\\apps\\flutter\\current",
+
+	"vs-kubernetes": {
+		"vscode-kubernetes.minikube-path.windows": "C:\\Users\\username\\.vs-kubernetes\\tools\\minikube\\windows-amd64\\minikube.exe",
+		"vscode-kubernetes.kubectl-path.windows": "C:\\Users\\username\\.vs-kubernetes\\tools\\kubectl\\kubectl.exe"
+	},
 
 	//go install -v golang.org/x/tools/cmd/goimports@latest
 	"go.useLanguageServer": true,
