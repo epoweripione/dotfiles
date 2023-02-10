@@ -19,6 +19,8 @@ fi
 
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
+mkdir -p "$HOME/.local/bin"
+
 ## python3
 # sudo pacman -S python3
 
@@ -110,7 +112,11 @@ if [[ "${INSTALL_PIP_LATEST}" == "YES" ]]; then
     else
         PIP_DOWNLOAD_URL="https://bootstrap.pypa.io/get-pip.py"
     fi
-    curl "${PIP_DOWNLOAD_URL}" -o get-pip.py && sudo ${PYTHON_CMD} get-pip.py --user && rm -f get-pip.py
+
+    curl "${PIP_DOWNLOAD_URL}" -o get-pip.py && \
+        sudo ${PYTHON_CMD} get-pip.py --user && \
+        ${PYTHON_CMD} get-pip.py --user && \
+        rm -f get-pip.py
 fi
 
 if [[ ! -x "$(command -v pip)" || ! -x "$(command -v pip3)" ]]; then
