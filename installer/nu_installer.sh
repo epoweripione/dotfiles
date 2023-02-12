@@ -27,7 +27,7 @@ APP_INSTALL_NAME="nushell"
 GITHUB_REPO_NAME="nushell/nushell"
 
 ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_DIR=""
+ARCHIVE_EXEC_DIR="nu-*"
 ARCHIVE_EXEC_NAME="nu"
 
 EXEC_INSTALL_PATH="/usr/local/bin/nushell"
