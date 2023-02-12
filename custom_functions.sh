@@ -2325,7 +2325,7 @@ function goup_Upgrade() {
 # Check pacakge exists
 function checkPackageExists() {
     local PackageName=${1:-""}
-    local PackageInfo
+    local PackageInfo=""
 
     [[ -n "${PackageName}" ]] || return 1
 
@@ -2339,8 +2339,13 @@ function checkPackageExists() {
     fi
 
     if [[ -x "$(command -v pacman)" ]]; then
-        pacman -Si "${PackageName}" >/dev/null 2>&1 && return 0 || return 1
+        # pacman -Si "${PackageName}" >/dev/null 2>&1 && return 0 || return 1
+        if PackageInfo=$(pacman -Si "${PackageName}" 2>&1); then
+            [[ "${PackageInfo}" =~ "Error:" || "${PackageInfo}" =~ "error:" ]] && return 1 || return 0
+        fi
     fi
+
+    return 1
 }
 
 # Check pacakge is installed
@@ -2368,15 +2373,12 @@ function checkPackageInstalled() {
 # Check pacakge exist and is not installed
 function checkPackageNeedInstall() {
     local PackageName=${1:-""}
-    local PackageInfo=""
     local PackageExist="yes"
 
     [[ -n "${PackageName}" ]] || return 1
     [[ -x "$(command -v pacman)" ]] || return 1
 
-    if PackageInfo=$(pacman -Si "${PackageName}" 2>&1); then
-        [[ "${PackageInfo}" =~ "Error:" ]] && PackageExist="no"
-    else
+    if ! checkPackageExists "${PackageName}"; then
         PackageExist="no"
     fi
 
