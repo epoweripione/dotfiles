@@ -48,32 +48,68 @@ fi
 
 # [Fonts](https://wiki.archlinux.org/title/fonts)
 colorEcho "${BLUE}Installing ${FUCHSIA}fonts${BLUE}..."
-yay --noconfirm --needed -S powerline-fonts ttf-fira-code ttf-sarasa-gothic \
-    ttf-hannom noto-fonts noto-fonts-extra noto-fonts-cjk \
-    ttf-nerd-fonts-symbols ttf-iosevka-term ttf-jetbrains-mono nerd-fonts-jetbrains-mono \
-    ttf-lxgw-wenkai \
-    ttf-lato ttf-lora-cyrillic ttf-playfair-display
-
-# math
-yay --noconfirm --needed -S otf-latin-modern otf-cm-unicode otf-stix
+if [[ -z "${FontManjaroInstallList[*]}" ]]; then
+    FontManjaroInstallList=(
+        "powerline-fonts"
+        "ttf-fira-code"
+        # "ttf-font-awesome"
+        "ttf-sarasa-gothic"
+        "ttf-hannom"
+        "noto-fonts"
+        "noto-fonts-extra"
+        "noto-fonts-cjk"
+        "ttf-nerd-fonts-symbols"
+        "ttf-iosevka-term"
+        "ttf-jetbrains-mono"
+        "nerd-fonts-jetbrains-mono"
+        "ttf-lxgw-wenkai"
+        "ttf-lato"
+        "ttf-lora-cyrillic"
+        "ttf-playfair-display"
+        ## math
+        "otf-latin-modern"
+        "otf-cm-unicode"
+        "otf-stix"
+        ## emoji
+        "archlinuxcn/ttf-twemoji"
+        # "noto-fonts-emoji"
+        # "unicode-emoji"
+        ## Adobe fonts
+        # "adobe-source-code-pro-fonts"
+        # "adobe-source-sans-fonts"
+        # "adobe-source-serif-fonts"
+        # "adobe-source-han-sans-cn-fonts"
+        # "adobe-source-han-sans-hk-fonts"
+        # "adobe-source-han-sans-tw-fonts"
+        # "adobe-source-han-serif-cn-fonts"
+        ## WQY
+        # "wqy-zenhei"
+        # "wqy-microhei"
+        ## Windows fonts
+        # "ttf-ms-win11-auto"
+        ## Other fonts
+        # "ttf-dejavu"
+        # "ttf-droid"
+        # "ttf-hack"
+        # "ttf-lato"
+        # "ttf-liberation"
+        # "ttf-linux-libertine"
+        # "ttf-opensans"
+        # "ttf-roboto"
+        # "ttf-ubuntu-font-family"
+    )
+fi
+for TargetFont in "${FontManjaroInstallList[@]}"; do
+    colorEcho "${BLUE}Installing ${FUCHSIA}${TargetFont}${BLUE}..."
+    yay --noconfirm --needed -S "${TargetFont}"
+done
 
 # emoji
-yay --noconfirm --needed -S archlinuxcn/ttf-twemoji
 # If you have other emoji fonts installed but want twemoji to always be used, make a symlink for twemojis font config:
 # sudo ln -sf /usr/share/fontconfig/conf.avail/75-twemoji.conf /etc/fonts/conf.d/75-twemoji.conf
 # You do not need to do this if you are fine with some apps using a different emoji font.
 # If you do use other emoji fonts, copy 75-twemoji.conf to /etc/fonts/conf.d/ and remove corresponding aliases.
 # To prevent conflicts with other emoji fonts, 75-twemoji.conf is not being automatically installed in /etc/fonts/conf.d/
-
-# yay --noconfirm --needed -S noto-fonts-emoji unicode-emoji
-# yay --noconfirm --needed -S ttf-ms-win11-auto
-
-# yay --noconfirm --needed -S ttf-dejavu ttf-droid ttf-hack ttf-font-awesome otf-font-awesome \
-#     ttf-lato ttf-liberation ttf-linux-libertine ttf-opensans ttf-roboto ttf-ubuntu-font-family
-
-# yay --noconfirm --needed -S adobe-source-code-pro-fonts adobe-source-sans-fonts adobe-source-serif-fonts \
-#     adobe-source-han-sans-cn-fonts adobe-source-han-sans-hk-fonts adobe-source-han-sans-tw-fonts \
-#     adobe-source-han-serif-cn-fonts wqy-zenhei wqy-microhei
 
 # [Font Manager](https://github.com/FontManager/font-manager)
 colorEcho "${BLUE}Installing ${FUCHSIA}Font Manager${BLUE}..."
