@@ -138,7 +138,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
         if [[ -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]]; then
             sudo cp -f "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
                 sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-                sudo cp -f "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}.1" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}.1"
+                sudo cp -f "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}.1" "/usr/share/man/man1/${EXEC_INSTALL_NAME}.1"
                 sudo cp -f "${ARCHIVE_EXEC_DIR}/autocomplete/_fd" "/usr/local/share/zsh/site-functions" && \
                 sudo chmod 644 "/usr/local/share/zsh/site-functions/_fd" && \
                 sudo chown "$(id -u)":"$(id -g)" "/usr/local/share/zsh/site-functions/_fd" && \
