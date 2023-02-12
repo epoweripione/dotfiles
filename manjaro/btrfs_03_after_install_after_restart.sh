@@ -265,6 +265,18 @@ sudo mkdir -p /home/.snapshots && sudo mount /home/.snapshots
 sudo chmod 750 /.snapshots
 sudo chmod 750 /home/.snapshots
 
+# snapshots mount order
+# [How to set filesystems mount order on modern Linux distributions](https://linuxconfig.org/how-to-set-filesystems-mount-order-on-modern-linux-distributions)
+if ! grep '@rootsnaps' /etc/fstab | grep -q 'requires-mounts-for'; then
+    sudo sed -i -e 's|@rootsnaps|@rootsnaps,x-systemd.requires-mounts-for=/|' /etc/fstab
+fi
+
+if ! grep '@homesnaps' /etc/fstab | grep -q 'requires-mounts-for'; then
+    sudo sed -i -e 's|@homesnaps|@homesnaps,x-systemd.requires-mounts-for=/home|' /etc/fstab
+fi
+
+sudo systemctl daemon-reload
+
 # install btrfs stuff
 # https://github.com/Antynea/grub-btrfs
 colorEcho "${BLUE}Installing ${FUCHSIA}snap-pac, grub-btrfs, snapper-gui${BLUE}..."
