@@ -56,3 +56,10 @@ sudo sed -i -e 's/^#Experimental.*/Experimental = true/' -e 's/^#KernelExperimen
 - Start menu→Search and open "Registry Editor"→HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\TimeZoneInformation→Add new "DWORD" value "RealTimeIsUniversal" and set "Value Data" to "1"
 `reg add HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\TimeZoneInformation /v RealTimeIsUniversal /t reg_dword /d 00000001 /f`
 - Reboot the computer
+
+
+## [Baloo still crashing](https://forum.manjaro.org/t/baloo-still-crashing/130024)
+```bash
+balooctl disable && balooctl purge && balooctl enable
+balooctl status
+```
