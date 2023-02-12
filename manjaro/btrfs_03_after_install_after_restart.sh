@@ -374,10 +374,13 @@ colorEcho "${BLUE}Installing ${FUCHSIA}snap-pac-grub${BLUE} from AUR..."
 # mkdir -p "$HOME/aur" && export GNUPGHOME="$HOME/aur"
 yay -aS --sudoloop --noredownload --norebuild --noconfirm --noeditmenu snap-pac-grub
 
-colorEcho "${BLUE}Regenerate ${FUCHSIA}GRUB2 configuration${BLUE}..."
-sudo mkinitcpio -P
-# sudo update-grub
-sudo grub-mkconfig -o /boot/grub/grub.cfg
+# GRUB tweaks & Regenrate GRUB2 configuration
+[[ -s "${MY_SHELL_SCRIPTS}/manjaro/grub-tweaks.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/grub-tweaks.sh"
+
+# colorEcho "${BLUE}Regenerate ${FUCHSIA}GRUB2 configuration${BLUE}..."
+# sudo mkinitcpio -P
+# # sudo update-grub
+# sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 echo ""
 colorEcho "${BLUE}Btrfs with snapper and grub ready. You should restart."
