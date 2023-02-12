@@ -217,6 +217,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "dbeaver"
         "wireshark-qt"
         "visual-studio-code-bin"
+        # "aur/powershell-bin"
         "community/geany"
         "community/geany-plugins"
         "aur/geany-themes"
@@ -302,23 +303,22 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "ttf-wps-fonts"
         "wps-office-all-dicts-win-languages"
     )
-
-    for TargetApp in "${AppManjaroInstallList[@]}"; do
-        colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
-        yay --noconfirm --needed -S "${TargetApp}"
-    done
 fi
+for TargetApp in "${AppManjaroInstallList[@]}"; do
+    colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
+    yay --noconfirm --needed -S "${TargetApp}"
+done
 
+# Snap apps
 if [[ -z "${AppSnapInstallList[*]}" ]]; then
     AppSnapInstallList=(
         "motrix"
     )
-
-    for TargetApp in "${AppSnapInstallList[@]}"; do
-        colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
-        sudo snap install "${TargetApp}"
-    done
 fi
+for TargetApp in "${AppSnapInstallList[@]}"; do
+    colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
+    sudo snap install "${TargetApp}"
+done
 
 ## RDP Server
 ## http://www.xrdp.org/
