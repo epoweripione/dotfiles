@@ -46,8 +46,8 @@ sudo sed -i -e 's|.*/var/cache|# &|g' \
     "/usr/share/calamares/modules/mount.conf"
 
 sudo tee -a "/usr/share/calamares/modules/mount.conf" >/dev/null <<-'EOF'
-    - mountPoint: /usr/local
-      subvolume: /@local
+#     - mountPoint: /usr/local
+#       subvolume: /@local
     - mountPoint: /opt
       subvolume: /@opt
     - mountPoint: /srv

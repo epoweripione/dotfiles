@@ -259,23 +259,48 @@ sudo mkdir -p /.snapshots && sudo mount /.snapshots
 sudo btrfs subvolume delete /home/.snapshots
 sudo mkdir -p /home/.snapshots && sudo mount /home/.snapshots
 
-## sudo chmod a+rx /.snapshots && sudo chown :"$(id -ng)" /.snapshots
-# sudo chmod a+rx /.snapshots && sudo chown :wheel /.snapshots
-# sudo chmod a+rx /home/.snapshots && sudo chown :wheel /home/.snapshots
-sudo chmod 750 /.snapshots
-sudo chmod 750 /home/.snapshots
+# sudo chmod a+rx /.snapshots && sudo chown :"$(id -ng)" /.snapshots
+sudo chmod 750 /.snapshots && sudo chown :wheel /.snapshots
+sudo chmod 750 /home/.snapshots && sudo chown :wheel /home/.snapshots
 
-# snapshots mount order
+# [Some BTRFS subvolumes not mounted at boot](https://bbs.archlinux.org/viewtopic.php?id=273161)
+# [Adjust Mount Options](https://www.jwillikers.com/adjust-mount-options)
+SUBVOL_NEST_LSIT=(
+    "@home"
+    # "@local"
+    "@opt"
+    "@srv"
+    "@var"
+    "@tmp"
+    "@rootsnaps"
+    "@homesnaps-/home"
+)
+
 # [How to set filesystems mount order on modern Linux distributions](https://linuxconfig.org/how-to-set-filesystems-mount-order-on-modern-linux-distributions)
-if ! grep '@rootsnaps' /etc/fstab | grep -q 'requires-mounts-for'; then
-    sudo sed -i -e 's|@rootsnaps|@rootsnaps,x-systemd.requires-mounts-for=/|' /etc/fstab
-fi
+for TargetVol in "${SUBVOL_NEST_LSIT[@]}"; do
+    [[ -z "${TargetVol}" ]] && continue
 
-if ! grep '@homesnaps' /etc/fstab | grep -q 'requires-mounts-for'; then
-    sudo sed -i -e 's|@homesnaps|@homesnaps,x-systemd.requires-mounts-for=/home|' /etc/fstab
-fi
+    SUBVOL_NAME=$(awk -F'-' '{print $1}' <<<"${TargetVol}")
+    SUBVOL_REQUIRES=$(awk -F'-' '{print $2}' <<<"${TargetVol}")
+    [[ -z "${SUBVOL_REQUIRES}" ]] && SUBVOL_REQUIRES="/"
+    if ! grep "subvol=/${SUBVOL_NAME}," /etc/fstab | grep -q 'requires-mounts-for'; then
+        sudo sed -i -e "s|subvol=/${SUBVOL_NAME},|subvol=/${SUBVOL_NAME},x-systemd.requires-mounts-for=${SUBVOL_REQUIRES},|" /etc/fstab
+    fi
+done
+
+## [Fstab - Use SystemD automount](https://wiki.manjaro.org/index.php/Fstab_-_Use_SystemD_automount)
+# for TargetVol in "${SUBVOL_NEST_LSIT[@]}"; do
+#     [[ -z "${TargetVol}" ]] && continue
+
+#     SUBVOL_NAME=$(awk -F'-' '{print $1}' <<<"${TargetVol}")
+#     if ! grep "subvol=/${SUBVOL_NAME}," /etc/fstab | grep -q 'noauto,x-systemd.automount'; then
+#         sudo sed -i -e "s|subvol=/${SUBVOL_NAME},|subvol=/${SUBVOL_NAME},noauto,x-systemd.automount,|" /etc/fstab
+#     fi
+# done
 
 sudo systemctl daemon-reload
+# sudo systemctl restart local-fs.target
+# systemctl list-unit-files -t mount
 
 # install btrfs stuff
 # https://github.com/Antynea/grub-btrfs
@@ -335,7 +360,7 @@ cd /usr/local/bin && \
 colorEcho "${BLUE}Starting the ${FUCHSIA}snapper${BLUE} services..."
 sudo systemctl enable --now snapper-timeline.timer
 sudo systemctl enable --now snapper-cleanup.timer
-# sudo systemctl enable --now grub-btrfs.path
+# sudo systemctl enable --now snapper-boot.timer
 sudo systemctl enable --now grub-btrfsd.service
 
 colorEcho "${BLUE}List ${FUCHSIA}snapper configs${BLUE}..."
