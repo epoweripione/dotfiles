@@ -32,6 +32,8 @@ fi
 [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 [[ -z "${OS_INFO_RELEASE}" ]] && get_os_release
 
+OS_INFO_WSL=$(uname -r)
+
 # jq
 if [[ ! -x "$(command -v jq)" ]]; then
     if checkPackageNeedInstall "jq"; then
@@ -279,6 +281,8 @@ if [[ "${IS_INSTALL}" == "yes" && "${THE_WORLD_BLOCKED}" == "true" && ! -s "/etc
     # read -r -t 5 SET_REGISTRY_MIRROR
     # echo ""
     SET_REGISTRY_MIRROR="Y"
+
+    [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]] && SET_REGISTRY_MIRROR="N"
 fi
 
 if [[ "${SET_REGISTRY_MIRROR}" == "y" || "${SET_REGISTRY_MIRROR}" == "Y" ]]; then
@@ -306,7 +310,7 @@ if [[ "${SET_REGISTRY_MIRROR}" == "y" || "${SET_REGISTRY_MIRROR}" == "Y" ]]; the
 
     REGISTRY_MIRRORS='"https://docker.mirrors.sjtug.sjtu.edu.cn","https://hub-mirror.c.163.com"'
 
-    [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
+    [[ ! -s "/etc/docker/daemon.json" ]] && sudo mkdir -p "/etc/docker" && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
     # jq -r '."registry-mirrors"=."registry-mirrors" + ["https://hub-mirror.c.163.com"]' "/etc/docker/daemon.json" \
     #     | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
@@ -349,10 +353,14 @@ fi
 
 # docker proxy
 SET_DOCKER_PROXY="N"
-if [[ "${IS_INSTALL}" == "yes" && -n "${HTTP_PROXY}" && ! -s "/etc/docker/daemon.json" ]]; then
-    colorEchoN "${ORANGE}Setting docker proxy?[y/${CYAN}N${ORANGE}]: "
-    read -r -t 5 SET_DOCKER_PROXY
-    echo ""
+if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; then
+    :
+else
+    if [[ "${IS_INSTALL}" == "yes" && -n "${HTTP_PROXY}" && ! -s "/etc/docker/daemon.json" ]]; then
+        colorEchoN "${ORANGE}Setting docker proxy?[y/${CYAN}N${ORANGE}]: "
+        read -r -t 5 SET_DOCKER_PROXY
+        echo ""
+    fi
 fi
 
 if [[ "${SET_DOCKER_PROXY}" == "y" || "${SET_DOCKER_PROXY}" == "Y" ]]; then
