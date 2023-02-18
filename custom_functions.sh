@@ -2259,6 +2259,7 @@ function asdf_App_Update() {
                 matchVersion=""
             else
                 # fetch major version from current version string: {major}.{minor}.{revision}
+                # zulu-17.40.19 → zulu-17
                 majorVersion=$(echo "${currentVerNum}" | cut -d'.' -f1)
                 matchVersion="${currentVersion/${currentVerNum}/}${majorVersion}"
             fi
@@ -2300,6 +2301,78 @@ function asdf_App_Update() {
 
             # Uninstall old version
             [[ "${latestVersion}" == "${currentVersion}" ]] || asdf uninstall "${InstalledApp}" "${currentVersion}"
+        fi
+    done <<<"${InstalledPlugins}"
+}
+
+
+# [Runtime Executor (asdf rust clone)](https://github.com/jdxcode/rtx)
+function rtx_App_Update() {
+    # Usage:
+    # rtx_App_Update all
+    # rtx_App_Update neovim
+    # rtx_App_Update nodejs lts
+    local appName=${1:-"all"}
+    local appVersion=$2
+    local InstalledPlugins InstalledApp allVersion currentVersion currentVerNum majorVersion matchVersion latestVersion
+    local appInstallStatus=0
+
+    [[ ! -x "$(command -v rtx)" ]] && colorEcho "${FUCHSIA}rtx${RED} is not installed!" && return 1
+
+    if [[ "${appName}" == "all" ]]; then
+        colorEcho "${BLUE}Checking update for all installed ${FUCHSIA}rtx plugins${BLUE}..."
+        rtx plugins update --all
+        InstalledPlugins=$(rtx plugins ls 2>/dev/null)
+    else
+        colorEcho "${BLUE}Checking update for ${FUCHSIA}rtx plugin ${ORANGE}${appName}${BLUE}..."
+        rtx plugins update "${appName}"
+        InstalledPlugins="${appName}"
+    fi
+
+    while read -r InstalledApp; do
+        [[ -z "${InstalledApp}" ]] && continue
+        colorEcho "${BLUE}  Checking latest version for ${FUCHSIA}${InstalledApp}${BLUE}..."
+
+        appInstallStatus=0
+        allVersion=""
+        latestVersion=""
+        currentVersion=$(rtx current "${InstalledApp}" 2>/dev/null)
+        [[ -z "${currentVersion}" ]] && continue # no installed version
+
+        if [[ -n "${appVersion}" ]]; then
+            matchVersion="${appVersion}"
+        else
+            currentVerNum=$(echo "${currentVersion}" | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}')
+            if [[ -z "${currentVerNum}" ]]; then
+                matchVersion="${currentVersion}"
+            elif [[ "${currentVerNum}" == "${currentVersion}" ]]; then
+                matchVersion=""
+            else
+                # fetch major version from current version string: {major}.{minor}.{revision}
+                # zulu-17.40.19 → zulu-17
+                majorVersion=$(echo "${currentVerNum}" | cut -d'.' -f1)
+                matchVersion="${currentVersion/${currentVerNum}/}${majorVersion}"
+            fi
+        fi
+
+        [[ -n "${matchVersion}" ]] && allVersion=$(rtx ls-remote "${InstalledApp}" 2>/dev/null | grep "${matchVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+        [[ -z "${allVersion}" ]] && allVersion=$(rtx ls-remote "${InstalledApp}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+        [[ -n "${allVersion}" ]] && latestVersion=$(echo "${allVersion}" | sort -rV | head -n1)
+
+        [[ -z "${latestVersion}" ]] && continue
+
+        # Alwarys reinstall if specify appVersion (stable, lts...)
+        [[ -z "${appVersion}" && "${latestVersion}" == "${currentVersion}" ]] && continue
+
+        # Uninstall first if specify appVersion (stable, lts...)
+        [[ "${latestVersion}" == "${currentVersion}" ]] && rtx uninstall "${InstalledApp}@${currentVersion}"
+
+        rtx global "${InstalledApp}@${latestVersion}"
+        appInstallStatus=$?
+
+        if [[ ${appInstallStatus} -eq 0 ]]; then
+            # Uninstall old version
+            [[ "${latestVersion}" == "${currentVersion}" ]] || rtx uninstall "${InstalledApp}@${currentVersion}"
         fi
     done <<<"${InstalledPlugins}"
 }
@@ -2887,12 +2960,11 @@ function App_Installer_Install() {
 
         if echo "${ARCHIVE_EXEC_NAME}" | grep -q '\*'; then
             if [[ -n "${ARCHIVE_EXT}" ]]; then
-                ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" -not -name "*.${ARCHIVE_EXT}") && \
-                    ARCHIVE_EXEC_NAME=$(basename "${ARCHIVE_EXEC_NAME}")
+                ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" -not -name "*.${ARCHIVE_EXT}")
             else
-                ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}") && \
-                    ARCHIVE_EXEC_NAME=$(basename "${ARCHIVE_EXEC_NAME}")
+                ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}")
             fi
+            ARCHIVE_EXEC_DIR=$(dirname "${ARCHIVE_EXEC_NAME}") && ARCHIVE_EXEC_NAME=$(basename "${ARCHIVE_EXEC_NAME}")
         fi
         [[ -z "${ARCHIVE_EXEC_NAME}" || ! -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]] && ARCHIVE_EXEC_NAME="${EXEC_INSTALL_NAME}"
 
