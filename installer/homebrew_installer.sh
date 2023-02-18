@@ -26,6 +26,7 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
     export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
     export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
+    export HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
 fi
 
 # Brew installation fails due to Ruby versioning?
@@ -37,7 +38,8 @@ RUBY_DOWNLOAD_URL="https://cache.ruby-china.com/pub/ruby/${BREW_RUBY_MAIN_VERSIO
 SYSTEM_RUBY_VERSION="0.0.0"
 [[ -x "$(command -v ruby)" ]] && SYSTEM_RUBY_VERSION=$(ruby -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 
-if [[ "${BREW_RUBY_VERSION}" != "${SYSTEM_RUBY_VERSION}" ]]; then
+# if [[ "${BREW_RUBY_VERSION}" != "${SYSTEM_RUBY_VERSION}" ]]; then
+if [[ -z "${BREW_RUBY_VERSION}" ]]; then
     OS_RELEASE_ID="$(grep -E '^ID=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
     OS_RELEASE_ID_LIKE="$(grep -E '^ID_LIKE=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
     if [[ "${OS_RELEASE_ID}" == "arch" || "${OS_RELEASE_ID}" == "arch" || "${OS_RELEASE_ID_LIKE}" == "arch" ]]; then
@@ -98,8 +100,7 @@ if [[ "${OS_INFO_TYPE}" == "linux" && -s "/home/linuxbrew/.linuxbrew/bin/brew" ]
     # fi
 
     if ! grep -q 'brew shellenv' "$HOME/.zshrc" >/dev/null 2>&1; then
-        echo -e '\n# homebrew' >> "$HOME/.zshrc"
-        echo 'eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)' >> "$HOME/.zshrc"
+        (echo -e '\n# homebrew'; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> "$HOME/.zshrc"
     fi
 
     # eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
@@ -122,27 +123,22 @@ fi
 
 ## mirrors
 if [[ "${THE_WORLD_BLOCKED}" == "true" && -x "$(command -v brew)" ]]; then
-    # cd "$(brew --repo)" && \
-    #     git remote set-url origin "https://mirrors.ustc.edu.cn/brew.git"
+    HOMEBREW_VERSION=$(brew --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    if version_lt "${HOMEBREW_VERSION}" "4.0.0"; then
+        # cd "$(brew --repo)" && \
+        #     git remote set-url origin "https://mirrors.ustc.edu.cn/brew.git"
 
-    # cd "$(brew --repo)/Library/Taps/homebrew/homebrew-core" && \
-    #     git remote set-url origin "https://mirrors.ustc.edu.cn/homebrew-core.git"
+        # cd "$(brew --repo)/Library/Taps/homebrew/homebrew-core" && \
+        #     git remote set-url origin "https://mirrors.ustc.edu.cn/homebrew-core.git"
 
-    # cd "$(brew --repo)/Library/Taps/homebrew/homebrew-cask" && \
-    #     git remote set-url origin "https://mirrors.ustc.edu.cn/homebrew-cask.git"
+        # cd "$(brew --repo)/Library/Taps/homebrew/homebrew-cask" && \
+        #     git remote set-url origin "https://mirrors.ustc.edu.cn/homebrew-cask.git"
 
-    brew tap --custom-remote --force-auto-update homebrew/core "https://mirrors.ustc.edu.cn/homebrew-core.git"
-    brew tap --custom-remote --force-auto-update homebrew/cask "https://mirrors.ustc.edu.cn/homebrew-cask.git"
-    brew tap --custom-remote --force-auto-update homebrew/cask-versions "https://mirrors.ustc.edu.cn/homebrew-cask-versions.git"
+        brew tap --custom-remote --force-auto-update homebrew/core "https://mirrors.ustc.edu.cn/homebrew-core.git"
+        brew tap --custom-remote --force-auto-update homebrew/cask "https://mirrors.ustc.edu.cn/homebrew-cask.git"
+        brew tap --custom-remote --force-auto-update homebrew/cask-versions "https://mirrors.ustc.edu.cn/homebrew-cask-versions.git"
+    fi
 fi
-
-## Bottles (Binary Packages)
-## https://docs.brew.sh/Bottles
-# if ! grep -q "HOMEBREW_BOTTLE_DOMAIN" "$HOME/.zshrc" 2>/dev/null; then
-#     echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"' >> ~/.zshrc
-#     # source ~/.zshrc
-# fi
-
 
 ## How to force homebrew to install a local file?
 ## https://stackoverflow.com/questions/59017569/how-to-force-homebrew-to-install-a-local-file
