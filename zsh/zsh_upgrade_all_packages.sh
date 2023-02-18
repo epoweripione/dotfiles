@@ -67,6 +67,17 @@ else
     fi
 fi
 
+# Snapper pre snapshots
+if [[ -x "$(command -v snapper)" ]]; then
+    if snapper list-configs 2>/dev/null | grep -q "root"; then
+        SNAPPER_NUM_ROOT=$(snapper -c root create -t pre -p --description "pre ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh")
+    fi
+
+    if snapper list-configs 2>/dev/null | grep -q "home"; then
+        SNAPPER_NUM_HOME=$(snapper -c home create -t pre -p --description "pre ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh")
+    fi
+fi
+
 [[ ! -d "/usr/local/bin" ]] && sudo mkdir -p "/usr/local/bin"
 
 if [[ -x "$(command -v docker)" ]]; then
@@ -142,8 +153,9 @@ fi
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
     AppAlwaysInstallList=(
-        "as-tree"
         "asdf"
+        "rtx"
+        "as-tree"
         "bat"
         "broot"
         # "busybox"
@@ -271,9 +283,13 @@ if [[ -d "$HOME/.nvs" && -s "${MY_SHELL_SCRIPTS}/nodejs/nvs_node_updater.sh" ]];
     source "${MY_SHELL_SCRIPTS}/nodejs/nvs_node_updater.sh"
 fi
 
-if [[ -d "$HOME/.asdf" ]]; then
+if [[ -d "$HOME/.asdf" && ! -x "$(command -v rtx)" ]]; then
     [[ ! "$(command -v asdf)" ]] && source "$HOME/.asdf/asdf.sh"
     [[ "$(command -v asdf)" ]] && asdf_App_Update
+fi
+
+if [[ -x "$(command -v rtx)" ]]; then
+    rtx_App_Update
 fi
 
 if [[ -x "$(command -v navi)" ]]; then
@@ -343,6 +359,16 @@ if [[ -n "$ZSH" ]]; then
     fi
 fi
 
+# Snapper post snapshots
+if [[ -x "$(command -v snapper)" ]]; then
+    if [[ -n "${SNAPPER_NUM_ROOT}" ]]; then
+        snapper -c root create -t post --pre-number "${SNAPPER_NUM_ROOT}" --description "post ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh"
+    fi
+
+    if [[ -n "${SNAPPER_NUM_HOME}" ]]; then
+        snapper -c home create -t post --pre-number "${SNAPPER_NUM_HOME}" --description "post ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh"
+    fi
+fi
 
 cd "${CURRENT_DIR}" || exit
 colorEcho "${GREEN}Upgarde all packages done!"
