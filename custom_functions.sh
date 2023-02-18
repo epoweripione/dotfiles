@@ -2355,7 +2355,12 @@ function rtx_App_Update() {
             fi
         fi
 
-        [[ -n "${matchVersion}" ]] && allVersion=$(rtx ls-remote "${InstalledApp}" 2>/dev/null | grep "${matchVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+        if [[ -n "${matchVersion}" ]]; then
+            allVersion=$(rtx ls-remote "${InstalledApp}" 2>/dev/null | grep "${matchVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+        else
+            allVersion=$(rtx ls-remote "${InstalledApp}" 2>/dev/null | grep -E '([0-9]{1,}\.)+[0-9]{1,}' 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+        fi
+
         [[ -z "${allVersion}" ]] && allVersion=$(rtx ls-remote "${InstalledApp}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
         [[ -n "${allVersion}" ]] && latestVersion=$(echo "${allVersion}" | sort -rV | head -n1)
 
