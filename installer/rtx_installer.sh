@@ -44,6 +44,15 @@ if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
     if ! grep -q 'rtx activate zsh' "$HOME/.zshrc" >/dev/null 2>&1; then
         (echo -e '\n# rtx'; echo 'eval "$(rtx activate zsh)"') >> "$HOME/.zshrc"
     fi
+
+    ## completions
+    # if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}" ]]; then
+    #     mkdir -p "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/rtx" && \
+    #         rtx complete --shell zsh > "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/rtx/_rtx"
+    # fi
+    if [[ ! -s "/usr/local/share/zsh/site-functions/_rtx" ]]; then
+        rtx complete --shell zsh | sudo tee "/usr/local/share/zsh/site-functions/_rtx" >/dev/null
+    fi
 fi
 
 # rtx plugins ls-remote
