@@ -46,7 +46,7 @@
 # $env:temp
 # $systemenv = [System.Environment]::GetEnvironmentVariable("Path")
 # $systemenv = $systemenv.TrimEnd(';')
-# [System.Environment]::SetEnvironmentVariable("PATH", $systemenv + ";C:\Users\Administrator\Ubuntu")
+# [System.Environment]::SetEnvironmentVariable("PATH", $systemenv + ";C:\Users\Administrator\Ubuntu", "Machine")
 
 # $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
 ## if ($userenv.Contains(";")) { $userenv = $userenv -replace '[;]' }
@@ -274,9 +274,9 @@ if (-Not (Get-Command -Name "check_webservice_up" 2>$null)) {
 # & "$PSScriptRoot\Remove_built-in_apps.ps1"
 
 # Chromium
-[System.Environment]::SetEnvironmentVariable("GOOGLE_API_KEY", "no")
-[System.Environment]::SetEnvironmentVariable("GOOGLE_DEFAULT_CLIENT_ID", "no")
-[System.Environment]::SetEnvironmentVariable("GOOGLE_DEFAULT_CLIENT_SECRET", "no")
+[System.Environment]::SetEnvironmentVariable("GOOGLE_API_KEY", "no", "User")
+[System.Environment]::SetEnvironmentVariable("GOOGLE_DEFAULT_CLIENT_ID", "no", "User")
+[System.Environment]::SetEnvironmentVariable("GOOGLE_DEFAULT_CLIENT_SECRET", "no", "User")
 
 
 # https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy

@@ -190,6 +190,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "beekeeper-studio"
         "dbeaver"
         "dbgate"
+        "krita"
+        "obs-studio"
         # "geany"
         # "geany-plugins"
         # "notepad3"
@@ -321,6 +323,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
 
     $sudoApps = @(
         "dotnet-desktop-runtime"
+        "file-converter-np"
         # "nmap"
     )
 
@@ -419,19 +422,19 @@ if (Get-Command "php" -ErrorAction SilentlyContinue) {
 if (Get-Command "flutter" -ErrorAction SilentlyContinue) {
     # fix: Cannot find Chrome executable at google-chrome
     if (Test-Path "$env:USERPROFILE\AppData\Local\Google\Chrome SxS\Application\chrome.exe") {
-        [System.Environment]::SetEnvironmentVariable("CHROME_EXECUTABLE","$env:USERPROFILE\AppData\Local\Google\Chrome SxS\Application\chrome.exe")
+        [System.Environment]::SetEnvironmentVariable("CHROME_EXECUTABLE","$env:USERPROFILE\AppData\Local\Google\Chrome SxS\Application\chrome.exe",'User')
     } elseif (Test-Path "$env:USERPROFILE\AppData\Local\Google\Chrome Dev\Application\chrome.exe") {
-        [System.Environment]::SetEnvironmentVariable("CHROME_EXECUTABLE","$env:USERPROFILE\AppData\Local\Google\Chrome Dev\Application\chrome.exe")
+        [System.Environment]::SetEnvironmentVariable("CHROME_EXECUTABLE","$env:USERPROFILE\AppData\Local\Google\Chrome Dev\Application\chrome.exe",'User')
     } elseif (Test-Path "$env:USERPROFILE\AppData\Local\Google\Chrome Beta\Application\chrome.exe") {
-        [System.Environment]::SetEnvironmentVariable("CHROME_EXECUTABLE","$env:USERPROFILE\AppData\Local\Google\Chrome Beta\Application\chrome.exe")
+        [System.Environment]::SetEnvironmentVariable("CHROME_EXECUTABLE","$env:USERPROFILE\AppData\Local\Google\Chrome Beta\Application\chrome.exe",'User')
     } elseif (Test-Path "$env:USERPROFILE\AppData\Local\Google\Chrome\Application\chrome.exe") {
-        [System.Environment]::SetEnvironmentVariable("CHROME_EXECUTABLE","$env:USERPROFILE\AppData\Local\Google\Chrome\Application\chrome.exe")
+        [System.Environment]::SetEnvironmentVariable("CHROME_EXECUTABLE","$env:USERPROFILE\AppData\Local\Google\Chrome\Application\chrome.exe",'User')
     } elseif (Test-Path "$env:USERPROFILE\AppData\Local\Google\Chromium\Application\chrome.exe") {
-        [System.Environment]::SetEnvironmentVariable("CHROME_EXECUTABLE","$env:USERPROFILE\AppData\Local\Google\Chromium\Application\chrome.exe")
+        [System.Environment]::SetEnvironmentVariable("CHROME_EXECUTABLE","$env:USERPROFILE\AppData\Local\Google\Chromium\Application\chrome.exe",'User')
     }
     # mirror
-    [System.Environment]::SetEnvironmentVariable("FLUTTER_STORAGE_BASE_URL","https://storage.flutter-io.cn")
-    [System.Environment]::SetEnvironmentVariable("PUB_HOSTED_URL","https://pub.flutter-io.cn")
+    [System.Environment]::SetEnvironmentVariable("FLUTTER_STORAGE_BASE_URL","https://storage.flutter-io.cn",'User')
+    [System.Environment]::SetEnvironmentVariable("PUB_HOSTED_URL","https://pub.flutter-io.cn",'User')
 }
 
 # go
