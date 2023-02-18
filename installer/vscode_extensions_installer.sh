@@ -28,9 +28,9 @@ extensions=(
 	"ms-ceintl.vscode-language-pack-zh-hans"
 	"vscode-icons-team.vscode-icons"
 	"miguelsolorio.fluent-icons"
-	"zhuangtongfa.material-theme"
-	"freecodecamp.freecodecamp-dark-vscode-theme"
-	"tds.taptap-vscode-theme"
+	# "zhuangtongfa.material-theme"
+	# "freecodecamp.freecodecamp-dark-vscode-theme"
+	# "tds.taptap-vscode-theme"
 	"daltonmenezes.aura-theme"
     # Editing
     "aaron-bond.better-comments"
