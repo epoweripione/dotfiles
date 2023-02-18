@@ -20,4 +20,5 @@ fi
 # httpie-go: httpie-like HTTP client written in Go
 # https://github.com/nojima/httpie-go
 # https://httpie.io/docs
-[[ ! -x "$(command -v ht)" ]] && asdf_App_Install httpie-go
+[[ ! -x "$(command -v ht)" && -x "$(command -v rtx)" ]] && rtx global httpie-go@latest
+[[ ! -x "$(command -v ht)" && "$(command -v asdf)" ]] && asdf_App_Install httpie-go

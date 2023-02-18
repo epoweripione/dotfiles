@@ -38,7 +38,8 @@ curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/${REMOTE_FILENAME}" "${DOWNLOAD_U
     sudo install "${WORKDIR}/${REMOTE_FILENAME}" "/usr/local/bin/minikube"
 [[ ! -x "$(command -v minikube)" ]] && colorEcho "${FUCHSIA}minikube${BLUE} is not installed!" && exit 1
 
-[[ ! -x "$(command -v kubectl)" ]] && asdf_App_Install kubectl
+[[ ! -x "$(command -v kubectl)" && -x "$(command -v rtx)" ]] && rtx global kubectl@latest
+[[ ! -x "$(command -v kubectl)" && "$(command -v asdf)" ]] && asdf_App_Install kubectl
 [[ ! -x "$(command -v kubectl)" ]] && colorEcho "${FUCHSIA}kubectl${BLUE} is not installed!" && exit 1
 
 ## Start your cluster

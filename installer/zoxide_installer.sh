@@ -19,8 +19,6 @@ fi
 
 # zoxide: A smarter cd command
 # https://github.com/ajeetdsouza/zoxide
-# [[ ! -x "$(command -v zoxide)" ]] && asdf_App_Install zoxide
-
 if [[ -x "$(command -v zoxide)" && "$(command -v asdf)" ]]; then
     if asdf current "zoxide" >/dev/null 2>&1; then
         asdf uninstall "zoxide" && asdf plugin remove "zoxide"

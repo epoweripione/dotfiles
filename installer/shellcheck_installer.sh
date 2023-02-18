@@ -19,7 +19,8 @@ fi
 
 # ShellCheck: a static analysis tool for shell scripts
 # https://github.com/koalaman/shellcheck
-[[ ! -x "$(command -v shellcheck)" ]] && asdf_App_Install shellcheck
+[[ ! -x "$(command -v shellcheck)" && -x "$(command -v rtx)" ]] && rtx global shellcheck@latest
+[[ ! -x "$(command -v shellcheck)" && "$(command -v asdf)" ]] && asdf_App_Install shellcheck
 
 ## Usage:
 # find . -type f \( -name '*.sh' -o -name '*.bash' \) \

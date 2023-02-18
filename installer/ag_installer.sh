@@ -55,4 +55,5 @@ fi
 #     fi
 # done
 
-# [[ ! -x "$(command -v ag)" ]] && asdf_App_Install ag
+# [[ ! -x "$(command -v ag)" && -x "$(command -v rtx)" ]] && rtx global ag@latest
+# [[ ! -x "$(command -v ag)" && "$(command -v asdf)" ]] && asdf_App_Install ag

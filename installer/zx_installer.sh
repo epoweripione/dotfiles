@@ -42,9 +42,8 @@ fi
 
 # Install nodejs
 if [[ "${IS_INSTALL}" == "yes" ]]; then
-    if [[ ! -x "$(command -v node)" && "$(command -v asdf)" ]]; then
-        asdf_App_Install nodejs lts
-    fi
+    [[ ! -x "$(command -v node)" && -x "$(command -v rtx)" ]] && rtx global nodejs@lts
+    [[ ! -x "$(command -v node)" && "$(command -v asdf)" ]] && asdf_App_Install nodejs lts
 
     if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
         NPM_PREFIX=$(npm config get prefix 2>/dev/null)

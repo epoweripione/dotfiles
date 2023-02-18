@@ -20,16 +20,10 @@ fi
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
-[[ ! "$(command -v asdf)" ]] && colorEcho "${FUCHSIA}asdf${RED} is not installed!" && exit 0
-
 # Neovim: Vim-fork focused on extensibility and usability
 # https://neovim.io/
-asdf plugin add neovim
-asdf install neovim stable
-asdf global neovim stable
-
-# alias update-nvim-stable='asdf uninstall neovim stable && asdf install neovim stable'
-
+[[ ! -x "$(command -v nvim)" && -x "$(command -v rtx)" ]] && rtx global neovim@latest
+[[ ! -x "$(command -v nvim)" && "$(command -v asdf)" ]] && asdf_App_Install neovim
 
 if [[ -x "$(command -v nvim)" ]]; then
     ## vim-plug: Minimalist Vim Plugin Manager

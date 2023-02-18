@@ -19,4 +19,5 @@ fi
 
 # ripgrep: recursively searches directories for a regex pattern while respecting your gitignore
 # https://github.com/BurntSushi/ripgrep
-[[ ! -x "$(command -v rg)" ]] && asdf_App_Install ripgrep
+[[ ! -x "$(command -v rg)" && -x "$(command -v rtx)" ]] && rtx global ripgrep@latest
+[[ ! -x "$(command -v rg)" && "$(command -v asdf)" ]] && asdf_App_Install ripgrep

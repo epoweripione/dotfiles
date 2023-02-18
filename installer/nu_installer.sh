@@ -67,7 +67,7 @@ fi
 
 ## Install via winget in Windows
 # winget install --id=Nushell.Nushell --exact --rainbow
-# [System.Environment]::SetEnvironmentVariable("PATH", $systemenv + ";$env:ProgramFiles\nu\bin")
+# [System.Environment]::SetEnvironmentVariable("PATH", $systemenv + ";$env:ProgramFiles\nu\bin", 'Machine')
 
 # Install Latest Version
 if [[ "${IS_INSTALL}" == "yes" ]]; then

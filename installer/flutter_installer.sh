@@ -124,11 +124,8 @@ if [[ "${IS_INSTALL}" == "yes" && -n "${REMOTE_FILEPATH}" ]]; then
     # Android Studio
     # https://developer.android.com/studio/install
     # Install desired Java version
-    if [[ ! -x "$(command -v java)" ]]; then
-        [[ ! "$(command -v asdf)" && -d "$HOME/.asdf" ]] && source "$HOME/.asdf/asdf.sh"
-        # [[ "$(command -v asdf)" ]] && asdf_App_Install java openjdk-17
-        [[ "$(command -v asdf)" ]] && asdf_App_Install java zulu-17
-    fi
+    [[ ! -x "$(command -v java)" && -x "$(command -v rtx)" ]] && rtx global java@zulu-17
+    [[ ! -x "$(command -v java)" && "$(command -v asdf)" ]] && asdf_App_Install java zulu-17
 
     if [[ -x "$(command -v pacman)" ]]; then
         # Pre-requisite packages

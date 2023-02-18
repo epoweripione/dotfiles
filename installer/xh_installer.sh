@@ -21,8 +21,7 @@ App_Installer_Reset
 
 # xh: Friendly and fast tool for sending HTTP requests
 # https://github.com/ducaale/xh
-# [[ ! -x "$(command -v xh)" ]] && asdf_App_Install xh
-if [[ -x "$(command -v xh)" && "$(command -v xh)" ]]; then
+if [[ -x "$(command -v xh)" && "$(command -v asdf)" ]]; then
     if asdf current "xh" >/dev/null 2>&1; then
         asdf uninstall "xh" && asdf plugin remove "xh"
     fi

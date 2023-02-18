@@ -40,12 +40,14 @@ fi
 
 # https://kubernetes.io/docs/reference/kubectl/
 # https://kubernetes.io/docs/reference/kubectl/cheatsheet/
-[[ ! -x "$(command -v kubectl)" ]] && asdf_App_Install kubectl
+[[ ! -x "$(command -v kubectl)" && -x "$(command -v rtx)" ]] && rtx global kubectl@latest
+[[ ! -x "$(command -v kubectl)" && "$(command -v asdf)" ]] && asdf_App_Install kubectl
 [[ ! -x "$(command -v kubectl)" ]] && colorEcho "${FUCHSIA}kubectl${BLUE} is not installed!" && exit 1
 
 # https://helm.sh/
 # https://artifacthub.io/
-[[ ! -x "$(command -v helm)" ]] && asdf_App_Install helm
+[[ ! -x "$(command -v helm)" && -x "$(command -v rtx)" ]] && rtx global helm@latest
+[[ ! -x "$(command -v helm)" && "$(command -v asdf)" ]] && asdf_App_Install helm
 [[ ! -x "$(command -v helm)" ]] && colorEcho "${FUCHSIA}helm${BLUE} is not installed!" && exit 1
 
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
