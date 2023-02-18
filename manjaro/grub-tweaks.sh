@@ -21,6 +21,8 @@ fi
 
 # grep 'GRUB_THEME' /etc/default/grub # GRUB_THEME="/usr/share/grub/themes/manjaro/theme.txt"
 # ls /usr/share/grub/themes/manjaro/icons
+[[ ! -s "/usr/share/grub/themes/manjaro/icons/memtest86.png" ]] && \
+    sudo cp "/usr/share/grub/themes/manjaro/icons/memtest.png" "/usr/share/grub/themes/manjaro/icons/memtest86.png"
 
 # Adding icons for Submenus
 colorEcho "${BLUE}Adding icons for GRUB Submenus..."
