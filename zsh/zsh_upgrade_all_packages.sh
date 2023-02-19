@@ -79,6 +79,7 @@ if [[ -x "$(command -v snapper)" ]]; then
 fi
 
 [[ ! -d "/usr/local/bin" ]] && sudo mkdir -p "/usr/local/bin"
+[[ ! -d "/usr/local/share/zsh/site-functions" ]] && sudo mkdir -p "/usr/local/share/zsh/site-functions"
 
 if [[ -x "$(command -v docker)" ]]; then
     [[ -s "${MY_SHELL_SCRIPTS}/installer/docker_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/docker_installer.sh"
