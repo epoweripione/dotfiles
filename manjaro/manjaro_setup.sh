@@ -248,11 +248,12 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         ## IM
         "telegram-desktop"
         "aur/linuxqq"
-        "archlinuxcn/wine-wechat-setup"
+        # "aur/deepin-wine-qq"
+        "aur/wechat-uos"
+        # "aur/deepin-wine-wechat"
+        # "archlinuxcn/wine-wechat-setup"
+        # "archlinuxcn/wine-for-wechat"
         "aur/wemeet-bin"
-        # "deepin-wine-qq"
-        # "deepin-wine-tim"
-        # "deepin-wine-wechat"
         ## Markdown
         "vnote-git"
         #"typora"
