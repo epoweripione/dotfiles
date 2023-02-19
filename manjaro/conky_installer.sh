@@ -346,9 +346,6 @@ killall conky conky
 # time (in s) for the DE to start; use ~20 for Gnome or KDE, less for Xfce/LXDE etc
 sleep 10
 
-# pre exec script for weather from wttr.in
-source "$HOME/.dotfiles/snippets/weather_wttr.sh"
-
 ## the main conky
 ## /usr/share/conkycolors/bin/conkyStart
 
@@ -359,6 +356,9 @@ conky -c "$HOME/.config/conky/hybrid/hybrid.conf" --daemonize --quiet
 # needed so that the smaller ones draw above not below 
 # probably can be lower, but we still have to wait 5s for the rings to avoid segfaults
 sleep 5
+
+# pre exec script for weather from wttr.in
+source "$HOME/.dotfiles/snippets/weather_wttr.sh"
 
 # if [[ -s "$HOME/.config/conky/hybrid/weather.png" ]]; then
 #     conky -c "$HOME/.config/conky/hybrid/weather.conf" --daemonize --quiet
