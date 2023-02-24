@@ -44,7 +44,7 @@ fi
 
 # [Manage Docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/)
 if [[ $UID -ne 0 ]]; then
-    if id -nG "$USER" | grep -qw "docker"; then
+    if ! id -nG "$USER" | grep -qw "docker"; then
         sudo groupadd docker 2>/dev/null
         sudo usermod -aG docker "$USER" 2>/dev/null
 
@@ -99,6 +99,8 @@ if [[ ! -x "$(command -v docker)" ]]; then
 fi
 
 ## [CLI Plugins](https://github.com/docker/cli/issues/1534)
+CLI_BUILDX_BUILTIN="yes"
+CLI_COMPOSE_BUILTIN="yes"
 CLI_PLUGINS_DIR=""
 DirList=(
     "/usr/local/lib/docker/cli-plugins"
@@ -111,16 +113,24 @@ for TargetDir in "${DirList[@]}"; do
 done
 
 if [[ -z "${CLI_PLUGINS_DIR}" ]]; then
+    CLI_BUILDX_BUILTIN="no"
+    CLI_COMPOSE_BUILTIN="no"
     CLI_PLUGINS_DIR="$HOME/.docker/cli-plugins"
     mkdir -p "${CLI_PLUGINS_DIR}"
+else
+    [[ ! -f "${CLI_PLUGINS_DIR}/docker-buildx" ]] && CLI_BUILDX_BUILTIN="no"
+    [[ ! -f "${CLI_PLUGINS_DIR}/docker-compose" ]] && CLI_COMPOSE_BUILTIN="no"
 fi
 
-## buildx
-IS_INSTALL="yes"
-CURRENT_VERSION="0.0.0"
+# [buildx](https://docs.docker.com/build/install-buildx/)
+IS_INSTALL="no"
+CURRENT_VERSION=""
 
-if [[ -f "${CLI_PLUGINS_DIR}/docker-buildx" ]]; then
-    CURRENT_VERSION=$(docker buildx version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+# Install & update buildx if not built-in
+if [[ "${CLI_BUILDX_BUILTIN}" == "no" ]]; then
+    if [[ -f "${CLI_PLUGINS_DIR}/docker-buildx" ]]; then
+        CURRENT_VERSION=$(docker buildx version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    fi
 fi
 
 if [[ -n "${CURRENT_VERSION}" ]]; then
@@ -166,14 +176,17 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 fi
 
 
-## Docker Compose
-IS_INSTALL="yes"
-CURRENT_VERSION="0.0.0"
+# [compose](https://docs.docker.com/compose/install/)
+IS_INSTALL="no"
+CURRENT_VERSION=""
 
-if [[ -f "${CLI_PLUGINS_DIR}/docker-compose" ]]; then
-    CURRENT_VERSION=$(docker compose version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-elif [[ -x "$(command -v docker-compose)" ]]; then
-    CURRENT_VERSION=$(docker-compose -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+# Install & update compose if not built-in
+if [[ "${CLI_COMPOSE_BUILTIN}" == "no" ]]; then
+    if [[ -f "${CLI_PLUGINS_DIR}/docker-compose" ]]; then
+        CURRENT_VERSION=$(docker compose version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    elif [[ -x "$(command -v docker-compose)" ]]; then
+        CURRENT_VERSION=$(docker-compose -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    fi
 fi
 
 if [[ -n "${CURRENT_VERSION}" ]]; then
@@ -227,7 +240,7 @@ fi
 # sudo usermod -aG docker $USER
 
 
-## ctop
+# [ctop](https://github.com/bcicen/ctop)
 IS_INSTALL="yes"
 CURRENT_VERSION="0.0.0"
 
