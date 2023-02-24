@@ -50,7 +50,7 @@ if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
     #     mkdir -p "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/rtx" && \
     #         rtx complete --shell zsh > "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/rtx/_rtx"
     # fi
-    if [[ ! -s "/usr/local/share/zsh/site-functions/_rtx" ]]; then
+    if [[ "${IS_INSTALL}" == "yes" ]]; then
         rtx complete --shell zsh | sudo tee "/usr/local/share/zsh/site-functions/_rtx" >/dev/null
     fi
 fi
