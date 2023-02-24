@@ -26,19 +26,33 @@ case "$1" in
     'down')
         pgrep -f "naive" >/dev/null 2>&1 && pkill -f "naive"
         pgrep -f "naiveproxy" >/dev/null 2>&1 && pkill -f "naiveproxy"
+        pgrep -f "mieru" >/dev/null 2>&1 && pkill -f "mieru"
         ;;
     'up')
-        [[ ! -x "$(command -v naiveproxy)" ]] && echo "naiveproxy not installed!" && exit 1
+        # [[ ! -x "$(command -v naiveproxy)" ]] && echo "naiveproxy not installed!" && exit 1
 
-        pgrep -f "naive" >/dev/null 2>&1 && pkill -f "naive"
-        pgrep -f "naiveproxy" >/dev/null 2>&1 && pkill -f "naiveproxy"
+        if [[ -x "$(command -v naiveproxy)" ]]; then
+            pgrep -f "naive" >/dev/null 2>&1 && pkill -f "naive"
+            pgrep -f "naiveproxy" >/dev/null 2>&1 && pkill -f "naiveproxy"
 
-        for TargetUrl in "${NAIVEPROXY_URL[@]}"; do
-            [[ -z "${TargetUrl}" ]] && continue
+            for TargetUrl in "${NAIVEPROXY_URL[@]}"; do
+                [[ -z "${TargetUrl}" ]] && continue
 
-            nohup naiveproxy --listen="socks://127.0.0.1:${NAIVEPROXY_PORT}" --proxy="${TargetUrl}" >/dev/null 2>&1 &
+                nohup naiveproxy --listen="socks://127.0.0.1:${NAIVEPROXY_PORT}" --proxy="${TargetUrl}" >/dev/null 2>&1 &
 
-            NAIVEPROXY_PORT=$((NAIVEPROXY_PORT + 1))
-        done
+                NAIVEPROXY_PORT=$((NAIVEPROXY_PORT + 1))
+            done
+        fi
+
+        if [[ -x "$(command -v mieru)" && -s "${MIERU_CONFIG}" ]]; then
+            pgrep -f "mieru" >/dev/null 2>&1 && pkill -f "mieru"
+
+            if mieru describe config | grep -q '{}'; then
+                mieru apply config "${MIERU_CONFIG}"
+            fi
+
+            mieru stop
+            nohup mieru start >/dev/null 2>&1 &
+        fi
         ;;
 esac

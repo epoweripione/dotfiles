@@ -252,6 +252,8 @@ if [[ -z "${AppUpdateOnlyList[*]}" ]]; then
         # "proxychains"
         "safe-rm"
         "clash"
+        "mieru"
+        "mita"
         "subconverter"
         "sing-box"
         "trojan"

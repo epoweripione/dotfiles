@@ -105,6 +105,19 @@ if [[ -s "${PROXY_WORKDIR}/clash" && -s "${PROXY_WORKDIR}/config.yaml" ]]; then
     # htop -p "$(pgrep -d, clash)"
 fi
 
+# mieru
+if [[ -s "${PROXY_WORKDIR}/mieru" && -s "${MIERU_CONFIG}" ]]; then
+    colorEcho "${BLUE}Running ${FUCHSIA}mieru${BLUE}..."
+
+    sudo pkill -f "mieru"
+    chmod +x "${PROXY_WORKDIR}/mieru"
+    "${PROXY_WORKDIR}/mieru" apply config "${MIERU_CONFIG}"
+    nohup "${PROXY_WORKDIR}/mieru" start >/dev/null 2>&1 &
+
+    ps -fC "mieru"
+    # htop -p "$(pgrep -d, mieru)"
+fi
+
 sleep 3
 
 if check_http_proxy_up "${PROXY_ADDRESS}" "www.google.com"; then
