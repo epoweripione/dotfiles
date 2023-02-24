@@ -101,19 +101,20 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     fi
 fi
 
-# Grant permissions
-if [[ $UID -ne 0 ]]; then
-    if ! id -nG "$USER" | grep -qw "mita"; then
-        sudo usermod -a -G mita "$USER"
-
-        echo -n "Reboot now?[Y/n]:"
-        read -r IS_REBOOT
-        [[ -z "${IS_REBOOT}" ]] && IS_REBOOT="Y"
-        [[ "${IS_REBOOT}" == "y" || "${IS_REBOOT}" == "Y" ]] && sudo reboot
-    fi
-fi
-
 if [[ "${IS_INSTALL}" == "yes" ]]; then
+    # Grant permissions
+    if [[ $UID -ne 0 ]]; then
+        if ! id -nG "$USER" | grep -qw "mita"; then
+            sudo usermod -a -G mita "$USER"
+
+            # echo -n "Reboot now?[y/N]:"
+            # read -r IS_REBOOT
+            # [[ -z "${IS_REBOOT}" ]] && IS_REBOOT="N"
+            # [[ "${IS_REBOOT}" == "y" || "${IS_REBOOT}" == "Y" ]] && sudo reboot
+        fi
+    fi
+
+    # restart
     if mita status | grep -q 'RUNNING'; then
         sudo systemctl restart mita.service
         # mita stop && mita start
