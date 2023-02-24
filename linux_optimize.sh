@@ -97,4 +97,4 @@ sysctl -p
 echo -n "Reboot now?[Y/n]:"
 read -r IS_REBOOT
 [[ -z "${IS_REBOOT}" ]] && IS_REBOOT="Y"
-[[ "${IS_REBOOT}" == "y" || "${IS_REBOOT}" == "Y" ]] && reboot
+[[ "${IS_REBOOT}" == "y" || "${IS_REBOOT}" == "Y" ]] && sudo reboot
