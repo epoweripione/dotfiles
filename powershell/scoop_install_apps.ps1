@@ -236,6 +236,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "freedownloadmanager"
         "hashcheck"
         "motrix"
+        "nomeiryoui"
         # "powertoys"
         "q-dir"
         "sumatrapdf"
@@ -435,6 +436,18 @@ if (Get-Command "flutter" -ErrorAction SilentlyContinue) {
     # mirror
     [System.Environment]::SetEnvironmentVariable("FLUTTER_STORAGE_BASE_URL","https://storage.flutter-io.cn",'User')
     [System.Environment]::SetEnvironmentVariable("PUB_HOSTED_URL","https://pub.flutter-io.cn",'User')
+
+    ## fix: Error: Unable to find git in your PATH
+    # git config --global --add safe.directory "*"
+}
+
+# Android Studio
+if (Get-Command "sdkmanager" -ErrorAction SilentlyContinue) {
+    # fix: java.lang.NoClassDefFoundError: javax/xml/bind/annotation/XmlSchema
+    # https://stackoverflow.com/questions/46402772/failed-to-install-android-sdk-java-lang-noclassdeffounderror-javax-xml-bind-a
+    $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+    $userenv = $userenv.TrimEnd(';')
+    [System.Environment]::SetEnvironmentVariable("PATH", "%ANDROID_HOME%\cmdline-tools\latest\bin;" + $userenv, 'User')
 }
 
 # go
