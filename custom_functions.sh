@@ -2981,6 +2981,7 @@ function App_Installer_Install() {
 
             # man pages
             if [[ -n "${MAN1_FILE}" ]]; then
+                [[ ! -d "/usr/share/man/man1" ]] && sudo mkdir -p "/usr/share/man/man1"
                 CP_FILE_LIST=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${MAN1_FILE}")
                 while read -r CP_FILE; do
                     [[ ! -s "${CP_FILE}" ]] && continue
@@ -2990,6 +2991,7 @@ function App_Installer_Install() {
 
             # zsh completions
             if [[ -n "${ZSH_COMPLETION_FILE}" ]]; then
+                [[ ! -d "/usr/local/share/zsh/site-functions" ]] && sudo mkdir -p "/usr/local/share/zsh/site-functions"
                 CP_FILE_LIST=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ZSH_COMPLETION_FILE}")
                 while read -r CP_FILE; do
                     [[ ! -s "${CP_FILE}" ]] && continue
