@@ -303,6 +303,12 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "wps-office-fonts"
         "ttf-wps-fonts"
         "wps-office-all-dicts-win-languages"
+        ## [LibreOffice](https://wiki.archlinux.org/title/LibreOffice)
+        # "extra/libreoffice-fresh"
+        # "extra/libreoffice-fresh-zh-cn"
+        # "community/libreoffice-extension-writer2latex"
+        # "community/libreoffice-extension-texmaths"
+        # "archlinuxcn/libreoffice-extension-languagetool"
     )
 fi
 for TargetApp in "${AppManjaroInstallList[@]}"; do
