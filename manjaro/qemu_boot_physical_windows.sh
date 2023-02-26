@@ -116,8 +116,6 @@ sudo parted /dev/md0
 # Download a Windows 11 DVD ISO & Boot the DVD
 sudo qemu-system-x86_64 \
     -enable-kvm \
-    --boot uefi \
-    --tpm backend.type=emulator,backend.version=2.0,model=tpm-tis \
     -bios /usr/share/ovmf/x64/OVMF_CODE.fd \
     -drive file=/dev/md0,media=disk,format=raw \
     -cpu host \
@@ -138,8 +136,6 @@ sudo qemu-system-x86_64 \
 # Boot the system the first time
 sudo qemu-system-x86_64 \
     -enable-kvm \
-    --boot uefi \
-    --tpm backend.type=emulator,backend.version=2.0,model=tpm-tis \
     -bios /usr/share/ovmf/x64/OVMF_CODE.fd \
     -drive file=/dev/md0,media=disk,format=raw,if=virtio \
     -cpu host \
@@ -153,8 +149,6 @@ sudo qemu-system-x86_64 \
 # Windows should look for the driver in the cdrom and figure out it should load it at boot time
 sudo qemu-system-x86_64 \
     -enable-kvm \
-    --boot uefi \
-    --tpm backend.type=emulator,backend.version=2.0,model=tpm-tis \
     -bios /usr/share/ovmf/x64/OVMF_CODE.fd \
     -drive file=/dev/md0,media=disk,format=raw,if=virtio \
     -cpu host \
@@ -166,8 +160,6 @@ sudo qemu-system-x86_64 \
 # Optimize the performance
 sudo qemu-system-x86_64 \
     -enable-kvm \
-    --boot uefi \
-    --tpm backend.type=emulator,backend.version=2.0,model=tpm-tis \
     -bios /usr/share/ovmf/x64/OVMF_CODE.fd \
     -drive file=/dev/md0,media=disk,format=raw,if=virtio,aio=native,cache=none \
     -cpu host,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time \
