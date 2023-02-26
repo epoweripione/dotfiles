@@ -371,6 +371,15 @@ if [[ -x "$(command -v snapper)" ]]; then
     if [[ -n "${SNAPPER_NUM_HOME}" ]]; then
         snapper -c home create -t post --pre-number "${SNAPPER_NUM_HOME}" --description "post ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh"
     fi
+
+    if [[ -n "${SNAPPER_NUM_ROOT}" || -n "${SNAPPER_NUM_HOME}" ]]; then
+        OS_RELEASE_ID="$(grep -E '^ID=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
+        OS_RELEASE_ID_LIKE="$(grep -E '^ID_LIKE=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
+        if [[ "${OS_RELEASE_ID}" == "arch" || "${OS_RELEASE_ID}" == "manjaro" || "${OS_RELEASE_ID_LIKE}" == "arch" ]]; then
+            colorEcho "${BLUE}Regenerate ${FUCHSIA}GRUB2 configuration${BLUE}..."
+            sudo grub-mkconfig -o /boot/grub/grub.cfg
+        fi
+    fi
 fi
 
 cd "${CURRENT_DIR}" || exit
