@@ -2902,6 +2902,7 @@ function App_Installer_Reset() {
     EXEC_INSTALL_NAME=""
 
     ARCHIVE_EXT=""
+    ARCHIVE_FILE_DIR=""
     ARCHIVE_EXEC_DIR=""
     ARCHIVE_EXEC_NAME=""
 
@@ -2963,15 +2964,35 @@ function App_Installer_Install() {
         [[ -n "${ARCHIVE_EXEC_DIR}" ]] && ARCHIVE_EXEC_DIR=$(find "${WORKDIR}" -type d -name "${ARCHIVE_EXEC_DIR}")
         [[ -z "${ARCHIVE_EXEC_DIR}" || ! -d "${ARCHIVE_EXEC_DIR}" ]] && ARCHIVE_EXEC_DIR="${WORKDIR}"
 
+        [[ -z "${ARCHIVE_FILE_DIR}" || ! -d "${ARCHIVE_FILE_DIR}" ]] && ARCHIVE_FILE_DIR="${ARCHIVE_EXEC_DIR}"
+
         if echo "${ARCHIVE_EXEC_NAME}" | grep -q '\*'; then
             if [[ -n "${ARCHIVE_EXT}" ]]; then
-                ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" -not -name "*.${ARCHIVE_EXT}")
+                if [[ -n "${ZSH_COMPLETION_FILE}" ]]; then
+                    ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" \
+                        -not -name "*.${ARCHIVE_EXT}" -not -name "${MAN1_FILE}" -not -name "${ZSH_COMPLETION_FILE}")
+                else
+                    ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" \
+                        -not -name "*.${ARCHIVE_EXT}" -not -name "${MAN1_FILE}")
+                fi
             else
-                ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}")
+                if [[ -n "${ZSH_COMPLETION_FILE}" ]]; then
+                    ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" \
+                        -not -name "${MAN1_FILE}" -not -name "${ZSH_COMPLETION_FILE}")
+                else
+                    ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" \
+                        -not -name "${MAN1_FILE}")
+                fi
             fi
             ARCHIVE_EXEC_DIR=$(dirname "${ARCHIVE_EXEC_NAME}") && ARCHIVE_EXEC_NAME=$(basename "${ARCHIVE_EXEC_NAME}")
         fi
+
         [[ -z "${ARCHIVE_EXEC_NAME}" || ! -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]] && ARCHIVE_EXEC_NAME="${EXEC_INSTALL_NAME}"
+
+        if [[ ! -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]]; then
+            ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}")
+            ARCHIVE_EXEC_DIR=$(dirname "${ARCHIVE_EXEC_NAME}") && ARCHIVE_EXEC_NAME=$(basename "${ARCHIVE_EXEC_NAME}")
+        fi
 
         # install app
         if [[ -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]]; then
@@ -2982,7 +3003,7 @@ function App_Installer_Install() {
             # man pages
             if [[ -n "${MAN1_FILE}" ]]; then
                 [[ ! -d "/usr/share/man/man1" ]] && sudo mkdir -p "/usr/share/man/man1"
-                CP_FILE_LIST=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${MAN1_FILE}")
+                CP_FILE_LIST=$(find "${ARCHIVE_FILE_DIR}" -type f -name "${MAN1_FILE}")
                 while read -r CP_FILE; do
                     [[ ! -s "${CP_FILE}" ]] && continue
                     sudo cp -f "${CP_FILE}" "/usr/share/man/man1"
@@ -2992,7 +3013,7 @@ function App_Installer_Install() {
             # zsh completions
             if [[ -n "${ZSH_COMPLETION_FILE}" ]]; then
                 [[ ! -d "/usr/local/share/zsh/site-functions" ]] && sudo mkdir -p "/usr/local/share/zsh/site-functions"
-                CP_FILE_LIST=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ZSH_COMPLETION_FILE}")
+                CP_FILE_LIST=$(find "${ARCHIVE_FILE_DIR}" -type f -name "${ZSH_COMPLETION_FILE}")
                 while read -r CP_FILE; do
                     [[ ! -s "${CP_FILE}" ]] && continue
                     CP_FILENAME=$(basename "${CP_FILE}")
