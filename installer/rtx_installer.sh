@@ -27,7 +27,7 @@ EXEC_INSTALL_NAME="rtx"
 
 ARCHIVE_EXT="tar.gz"
 ARCHIVE_EXEC_DIR="rtx*"
-ARCHIVE_EXEC_NAME="rtx*"
+ARCHIVE_EXEC_NAME="rtx"
 
 if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
     IS_UPDATE="yes"
