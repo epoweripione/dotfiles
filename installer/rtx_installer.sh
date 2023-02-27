@@ -52,6 +52,8 @@ if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
     # fi
     if [[ "${IS_INSTALL}" == "yes" ]]; then
         rtx complete --shell zsh | sudo tee "/usr/local/share/zsh/site-functions/_rtx" >/dev/null
+
+        [[ -s "$HOME/.tool-versions" ]] && cd "$HOME" && rtx install
     fi
 fi
 
