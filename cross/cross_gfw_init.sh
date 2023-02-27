@@ -147,7 +147,6 @@ dns:
   listen: 127.0.0.1:8053
   ipv6: true
 
-  enhanced-mode: redir-host
   fake-ip-range: 198.18.0.1/16
 
   nameserver:

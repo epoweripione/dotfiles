@@ -65,7 +65,6 @@ dns:
   listen: 127.0.0.1:8053
   ipv6: true
 
-  enhanced-mode: redir-host
   fake-ip-range: 198.18.0.1/16
 
   nameserver:
@@ -149,10 +148,12 @@ for TargetURL in "${SUB_LIST[@]}"; do
                 -e "s/^redir-port:.*/# &/" \
                 -e "s/^mixed-port:.*/# &/" \
                 -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
+
             sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
 
             [[ -x "$(command -v yq)" ]] && DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
             [[ -z "${DNS_ENABLE}" && -s "${DNS_CONIFG_FILE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
+            sed -i "s/enhanced-mode: redir-host/# enhanced-mode: fake-ip/" "${SUB_DOWNLOAD_FILE}"
 
             sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
 
