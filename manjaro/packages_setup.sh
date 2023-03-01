@@ -17,6 +17,8 @@ else
     fi
 fi
 
+[[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
+
 # Local WAN GEO location
 colorEcho "${BLUE}Checking ${FUCHSIA}GEO location${BLUE} by WAN IP..."
 [[ -z "${NETWORK_WAN_NET_IP_GEO}" ]] && get_network_wan_geo
@@ -108,17 +110,35 @@ if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
     [[ -x "$(command -v gimp)" ]] && sudo pacman --noconfirm --needed -S gimp-help-zh_cn
 fi
 
+# pre-requisite packages
+colorEcho "${BLUE}Installing ${FUCHSIA}pre-requisite packages${BLUE}..."
+sudo pacman --noconfirm --needed -S bind git axel curl wget unzip seahorse yay fx croc magic-wormhole
+
 # Build deps
 colorEcho "${BLUE}Installing ${FUCHSIA}Build deps${BLUE}..."
 sudo pacman --noconfirm --needed -S base-devel cmake patch pkg-config automake
 
-# Appimages
+# [Flatpak](https://flatpak.org/)
+colorEcho "${BLUE}Installing ${FUCHSIA}Flatpak${BLUE}..."
+sudo pacman --noconfirm --needed -S flatpak libpamac-flatpak-plugin
+if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
+    # sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    # sudo flatpak remote-add --if-not-exists flathub https://mirror.sjtu.edu.cn/flathub/flathub.flatpakrepo
+    sudo flatpak remote-modify flathub --url=https://mirror.sjtu.edu.cn/flathub
+
+    # flatpak remote-add --user --if-not-exists flathub https://mirror.sjtu.edu.cn/flathub/flathub.flatpakrepo
+    # flatpak remote-modify --user flathub --url=https://mirror.sjtu.edu.cn/flathub
+
+    flatpak remotes -d
+fi
+
+# [Appimages](https://appimage.org/)
 colorEcho "${BLUE}Installing ${FUCHSIA}Appimages${BLUE}..."
 sudo pacman --noconfirm --needed -S appimagelauncher
 
-# pre-requisite packages
-colorEcho "${BLUE}Installing ${FUCHSIA}pre-requisite packages${BLUE}..."
-sudo pacman --noconfirm --needed -S bind git axel curl wget unzip seahorse yay fx croc magic-wormhole
+# [Discover](https://userbase.kde.org/Discover)
+colorEcho "${BLUE}Installing ${FUCHSIA}Appimages${BLUE}..."
+sudo pacman --noconfirm --needed -S discover packagekit-qt5
 
 # yay
 # https://github.com/Jguer/yay
@@ -132,8 +152,6 @@ sudo pacman --noconfirm --needed -S bind git axel curl wget unzip seahorse yay f
 
 
 # Accelerate the speed of AUR PKGBUILD with github.com
-[[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
-
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     sudo tee "/etc/makepkg_axel.sh" >/dev/null <<-'EOF'
 #!/usr/bin/env bash

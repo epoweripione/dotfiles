@@ -328,6 +328,11 @@ if [[ -x "$(command -v tldr)" ]]; then
     fi
 fi
 
+if [[ -x "$(command -v flatpak)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}all Flatpak packages${BLUE}..."
+    flatpak upgrade
+fi
+
 if [[ -x "$(command -v snap)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}all Snap packages${BLUE}..."
     sudo snap refresh
