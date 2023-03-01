@@ -450,6 +450,12 @@ if (Get-Command "sdkmanager" -ErrorAction SilentlyContinue) {
     [System.Environment]::SetEnvironmentVariable("PATH", "%ANDROID_HOME%\cmdline-tools\latest\bin;" + $userenv, 'User')
 }
 
+# [Unable to find bundled Java version on Flutter](https://stackoverflow.com/questions/51281702/unable-to-find-bundled-java-version-on-flutter)
+if (-Not (Test-Path "$HOME\scoop\apps\android-studio\current\jre\java.exe")) {
+    Remove-Item -Path "$HOME\scoop\apps\android-studio\current\jre" -Recurse -Force -Confirm:$false
+    New-Item -ItemType SymbolicLink -Path "$HOME\scoop\apps\android-studio\current\jre" -Target "$HOME\scoop\apps\android-studio\current\jbr"
+}
+
 # go
 if (Get-Command "go" -ErrorAction SilentlyContinue) {
     go env -w GO111MODULE=auto

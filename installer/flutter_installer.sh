@@ -211,6 +211,15 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     flutter doctor
 fi
 
+## [Unable to find bundled Java version on Flutter](https://stackoverflow.com/questions/51281702/unable-to-find-bundled-java-version-on-flutter)
+## On Linux/MacOS
+# [[ -x "$(command -v android-studio)" ]] && cd "$(dirname $(readlink -f $(which android-studio)))" && ln -s jbr jre
+## On Windows (check installation folder)
+# cd "%USERPROFILE%\scoop\apps\android-studio\current\" && rmdir /s /q .\jre && mklink /D "jre" "jbr"
+## or
+# Remove-Item -Path "$HOME\scoop\apps\android-studio\current\jre" -Recurse -Force -Confirm:$false
+# New-Item -ItemType SymbolicLink -Path "$HOME\scoop\apps\android-studio\current\jre" -Target "$HOME\scoop\apps\android-studio\current\jbr"
+
 ## sdkmanager
 ## https://developer.android.com/studio/command-line/sdkmanager
 
