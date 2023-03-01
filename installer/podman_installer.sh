@@ -34,11 +34,13 @@ if [[ ! -x "$(command -v podman)" ]]; then
         fi
     elif [[ -x "$(command -v pacman)" ]]; then
         OS_RELEASE_ID="$(grep -E '^ID=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
-        if [[ "${OS_RELEASE_ID}" == "manjaro" ]]; then
+        OS_RELEASE_ID_LIKE="$(grep -E '^ID_LIKE=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
+        if [[ "${OS_RELEASE_ID}" == "arch" || "${OS_RELEASE_ID}" == "manjaro" || "${OS_RELEASE_ID_LIKE}" == "arch" ]]; then
             PackagesList=(
                 "podman"
                 "cni-plugins"
                 "buildah"
+                "skopeo"
                 "podman-docker"
                 "podman-compose"
                 # "podman-desktop"
@@ -46,6 +48,8 @@ if [[ ! -x "$(command -v podman)" ]]; then
         else
             PackagesList=(
                 "podman"
+                "buildah"
+                "skopeo"
             )
         fi
 
