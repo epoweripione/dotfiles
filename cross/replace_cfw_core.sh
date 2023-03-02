@@ -20,8 +20,7 @@ fi
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
-# WSL1 & WSL2
-OS_INFO_WSL=$(uname -r)
+# WSL
 WSL_USERPROFILE=""
 if check_os_wsl; then
     WSL_USERPROFILE=$(wslpath "$(wslvar USERPROFILE)")
