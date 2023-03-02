@@ -204,11 +204,8 @@ fi
 
 sudo mkdir -p "/usr/local/share/zsh/site-functions"
 
-# Launch ZSH in BASH
-OS_INFO_WSL=$(uname -r)
-
-# WSL1 & WSL2
-if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; then
+# WSL
+if check_os_wsl; then
     if ! grep -q "exec zsh" "$HOME/.bashrc" 2>/dev/null; then
         tee -a ~/.bashrc >/dev/null <<-'EOF'
 

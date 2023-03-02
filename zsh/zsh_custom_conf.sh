@@ -4,7 +4,6 @@
 export MY_SHELL_SCRIPTS="${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}"
 
 OS_TYPE=$(uname)
-OS_INFO_WSL=$(uname -r)
 
 # custom PS2
 # export PS2="> "
@@ -766,7 +765,7 @@ export GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.githubusercontent.com"}
 export GITHUB_API_TOKEN=${GITHUB_API_TOKEN:-""}
 
 # WSL1
-if [[ "${OS_INFO_WSL}" =~ "Microsoft" ]]; then
+if check_os_wsl1; then
     # Docker
     if [[ -d "/c/Program Files/Docker Toolbox" ]]; then
         # export PATH="$PATH:/c/Program\ Files/Docker\ Toolbox"
@@ -789,8 +788,8 @@ if [[ "${OS_INFO_WSL}" =~ "Microsoft" ]]; then
     fi
 fi
 
-# WSL1 & WSL2
-if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; then
+# WSL
+if check_os_wsl; then
     # https://gist.github.com/wmeng223/60b51b30eb758bd7a2a648436da1e562
     export COLORTERM="truecolor"
 

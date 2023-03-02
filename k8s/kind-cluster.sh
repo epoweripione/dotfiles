@@ -45,7 +45,7 @@ fi
 
 
 # Creating a Cluster
-if [[ "$(uname -r)" =~ "microsoft" ]]; then
+if check_os_wsl2; then
     # https://kind.sigs.k8s.io/docs/user/using-wsl2/
     tee "$PWD/kind-cluster-config.yml" >/dev/null <<-'EOF'
 kind: Cluster

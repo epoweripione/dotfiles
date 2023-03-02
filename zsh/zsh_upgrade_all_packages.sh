@@ -27,8 +27,6 @@ fi
 [[ -z "${OS_INFO_VDIS}" ]] && get_sysArch
 [[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
 
-OS_INFO_WSL=$(uname -r)
-
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
@@ -36,7 +34,7 @@ OS_INFO_WSL=$(uname -r)
 [[ -s "${MY_SHELL_SCRIPTS}/cross/cross_gfw_config.sh" ]] && source "${MY_SHELL_SCRIPTS}/cross/cross_gfw_config.sh"
 
 # WSL2: map host ip to localhost
-if [[ "${OS_INFO_WSL}" =~ "microsoft" ]]; then
+if check_os_wsl2; then
     [[ -s "$HOME/.dotfiles/wsl/wsl2-map-win-localhost.sh" ]] && \
         source "$HOME/.dotfiles/wsl/wsl2-map-win-localhost.sh"
 fi
@@ -196,7 +194,12 @@ if [[ ! -x "$(command -v zellij)" ]]; then
 fi
 
 # Always install & update apps in WSL & Desktop environment, otherwise update only for manual install apps
-[[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" || -n "${OS_INFO_DESKTOP}" ]] && IS_UPDATE_ONLY="no" || IS_UPDATE_ONLY="yes"
+if check_os_wsl; then
+    IS_UPDATE_ONLY="no"
+else
+    [[ -n "${OS_INFO_DESKTOP}" ]] && IS_UPDATE_ONLY="no" || IS_UPDATE_ONLY="yes"
+fi
+
 if [[ -z "${AppWSLDesktopList[*]}" ]]; then
     AppWSLDesktopList=(
         "bottom"

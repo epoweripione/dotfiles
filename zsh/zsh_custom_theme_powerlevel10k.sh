@@ -10,9 +10,6 @@ function set_zle_rprompt_indent() {
   if [[ $OS_TYPE =~ "MSYS_NT" || $OS_TYPE =~ "MINGW" || $OS_TYPE =~ "CYGWIN_NT" ]]; then
     ZLE_RPROMPT_INDENT=6
   fi
-
-  # WSL
-  # [[ "${OS_INFO_WSL}" =~ "Microsoft" ]] && ZLE_RPROMPT_INDENT=6
 }
 
 set_zle_rprompt_indent

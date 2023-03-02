@@ -23,7 +23,7 @@ fi
 # WSL1 & WSL2
 OS_INFO_WSL=$(uname -r)
 WSL_USERPROFILE=""
-if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; then
+if check_os_wsl; then
     WSL_USERPROFILE=$(wslpath "$(wslvar USERPROFILE)")
 fi
 

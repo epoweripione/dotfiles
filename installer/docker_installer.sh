@@ -295,7 +295,7 @@ if [[ "${IS_INSTALL}" == "yes" && "${THE_WORLD_BLOCKED}" == "true" && ! -s "/etc
     # echo ""
     SET_REGISTRY_MIRROR="Y"
 
-    [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]] && SET_REGISTRY_MIRROR="N"
+    check_os_wsl && SET_REGISTRY_MIRROR="N"
 fi
 
 if [[ "${SET_REGISTRY_MIRROR}" == "y" || "${SET_REGISTRY_MIRROR}" == "Y" ]]; then
@@ -366,7 +366,7 @@ fi
 
 # docker proxy
 SET_DOCKER_PROXY="N"
-if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; then
+if check_os_wsl; then
     :
 else
     if [[ "${IS_INSTALL}" == "yes" && -n "${HTTP_PROXY}" && ! -s "/etc/docker/daemon.json" ]]; then

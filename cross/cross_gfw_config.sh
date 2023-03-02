@@ -56,7 +56,7 @@ function use_clash() {
     local SUB_CLASH_URL OS_INFO_WSL
 
     OS_INFO_WSL=$(uname -r)
-    if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; then
+    if check_os_wsl; then
         :
     else
         colorEcho "${BLUE}  Checking & loading ${FUCHSIA}clash${BLUE} proxy..."

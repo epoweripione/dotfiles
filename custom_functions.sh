@@ -65,6 +65,28 @@ export GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY}"
 
 ## Get OS type, architecture etc.
 ## https://en.wikipedia.org/wiki/Uname
+# Windows Subsystem for Linux
+function check_os_wsl() {
+    local os_wsl
+
+    os_wsl=$(uname -r)
+    [[ "${os_wsl}" =~ "WSL" || "${os_wsl}" =~ "microsoft" || "${os_wsl}" =~ "Microsoft" ]] && return 0 || return 1
+}
+
+function check_os_wsl1() {
+    local os_wsl
+
+    os_wsl=$(uname -r)
+    [[ "${os_wsl}" =~ "Microsoft" ]] && return 0 || return 1
+}
+
+function check_os_wsl2() {
+    local os_wsl
+
+    os_wsl=$(uname -r)
+    [[ "${os_wsl}" =~ "WSL2" || "${os_wsl}" =~ "microsoft" ]] && return 0 || return 1
+}
+
 # get os type: darwin, windows, linux, freebsd, openbsd, solaris
 function get_os_type() {
     local osname ostype
@@ -130,7 +152,7 @@ function get_os_release() {
 
 # get os release type: Linux, macOS, Windows, BSD, Solaris, Android
 function get_os_release_type() {
-    local osname os_wsl
+    local osname
 
     osname=$(uname)
     case "$osname" in
@@ -157,8 +179,7 @@ function get_os_release_type() {
             ;;
     esac
 
-    os_wsl=$(uname -r)
-    if [[ "$os_wsl" =~ "Microsoft" || "$os_wsl" =~ "microsoft" ]]; then
+    if check_os_wsl; then
         osname='Windows'
     fi
 
@@ -355,7 +376,7 @@ function get_cpu_arch_level() {
 }
 
 function get_os_icon() {
-    local OS_ICON OS_RELEASE_ID os_wsl
+    local OS_ICON OS_RELEASE_ID
 
     case $(uname) in
         Darwin)
@@ -444,8 +465,7 @@ function get_os_icon() {
             ;;
     esac
 
-    os_wsl=$(uname -r)
-    if [[ "$os_wsl" =~ "Microsoft" ]]; then
+    if check_os_wsl; then
         OS_ICON=$'\uF17A'
     fi
 
@@ -1606,11 +1626,11 @@ function check_set_global_proxy() {
     local PROXY_HTTP_UP="NO"
     local CMD_DIR
 
-    if [[ "$(uname -r)" =~ "microsoft" ]]; then
+    if check_os_wsl2; then
         # WSL2
         # Fix "Invalid argument" when executing Windows commands
         CMD_DIR=$(dirname "$(which ipconfig.exe)")
-        IP_LIST=$(cd "${CMD_DIR}" && ipconfig.exe | grep "IPv4" \
+        IP_LIST=$(cd "${CMD_DIR}" && ipconfig.exe | grep -a "IPv4" \
                     | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
                     | grep -Ev "^0\.|^127\.|^172\.")
         IP_WSL=$(grep -m1 nameserver /etc/resolv.conf | awk '{print $2}')
@@ -1681,7 +1701,7 @@ function check_set_global_proxy() {
             export GLOBAL_PROXY_SOCKS_PORT="${SOCKS_PORT}"
             export GLOBAL_PROXY_MIXED_PORT="${MIXED_PORT}"
 
-            [[ "$(uname -r)" =~ "microsoft" ]] && export GLOBAL_WSL2_HOST_IP="${PROXY_IP}"
+            check_os_wsl2 && export GLOBAL_WSL2_HOST_IP="${PROXY_IP}"
 
             return 0
         fi
@@ -3590,11 +3610,10 @@ function load_ssh_keys() {
 # Usage: if check_wsl_windows_exe "/c/Users/user01/scoop/shims/flutter"; then echo 'The app is Windows executable file!'; fi
 function check_wsl_windows_exe() {
     local appPath=$1
-    local os_wsl
     local wslPath
 
     os_wsl=$(uname -r)
-    if [[ "${os_wsl}" =~ "Microsoft" || "${os_wsl}" =~ "microsoft" ]]; then
+    if check_os_wsl; then
         wslPath=$(wslpath -w "${appPath}")
         # C:\Users\user01\scoop\shims\flutter
         if [[ "${wslPath}" =~ ':\\' ]]; then

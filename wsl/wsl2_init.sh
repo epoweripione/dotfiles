@@ -73,6 +73,11 @@ else
     fi
 fi
 
+if ! check_os_wsl; then
+    colorEcho "${RED}Please run this script in ${FUCHSIA}WSL(Windows Subsystem for Linux)${RED}!"
+    exit 0
+fi
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
@@ -81,14 +86,6 @@ fi
 
 # Check & set global proxy
 [[ "${THE_WORLD_BLOCKED}" == "true" ]] && check_set_global_proxy 7891 7890
-
-
-[[ $(uname -r) =~ "Microsoft" ]] && WSL_VERSION=1
-[[ $(uname -r) =~ "microsoft" ]] && WSL_VERSION=2
-if [[ -z "${WSL_VERSION}" ]]; then
-    colorEcho "${RED}Please run this script in ${FUCHSIA}WSL(Windows Subsystem for Linux)${RED}!"
-    exit 0
-fi
 
 
 # Custom WSL settings

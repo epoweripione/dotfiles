@@ -46,7 +46,7 @@ if [[ ! -s "$HOME/lede/.config" ]]; then
     make menuconfig
     make -j8 download V=s
 
-    if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; then
+    if check_os_wsl; then
         PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin make -j1 V=s
     else
         make -j1 V=s
@@ -56,7 +56,7 @@ else
     make defconfig
     make -j8 download
 
-    if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; then
+    if check_os_wsl; then
         PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin make -j$(($(nproc) + 1)) V=s
     else
         make -j$(($(nproc) + 1)) V=s

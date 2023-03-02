@@ -22,11 +22,9 @@ fi
 
 RSYNC_REMOTE="$1" # root@10.0.0.2:/srv/web/www/public
 
-OS_INFO_WSL=$(uname -r)
-
-# WSL1 & WSL2
+# WSL
 WSL_USERPROFILE=""
-if [[ "${OS_INFO_WSL}" =~ "Microsoft" || "${OS_INFO_WSL}" =~ "microsoft" ]]; then
+if check_os_wsl; then
     WSL_USERPROFILE=$(wslpath "$(wslvar USERPROFILE)")
 fi
 

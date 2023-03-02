@@ -241,11 +241,11 @@ if [[ -s "${SUB_LIST_FILE}" ]]; then
 fi
 
 
-if [[ "$(uname -r)" =~ "microsoft" ]]; then
+if [[ "$(uname -r)" =~ "WSL2" || "$(uname -r)" =~ "microsoft" ]]; then
     # WSL2
     # Fix "Invalid argument" when executing Windows commands
     CMD_DIR=$(dirname "$(which ipconfig.exe)")
-    PROXY_IP=$(cd "${CMD_DIR}" && ipconfig.exe | grep "IPv4" \
+    PROXY_IP=$(cd "${CMD_DIR}" && ipconfig.exe | grep -a "IPv4" \
                 | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
                 | grep -Ev "^0\.|^127\.|^172\." \
                 | head -n1)
