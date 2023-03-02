@@ -38,14 +38,14 @@ fi
 
 # export FZF_DEFAULT_OPTS="--ansi --multi $(fzf_sizer_preview_window_settings)"
 FZF_DEFAULT_OPTS='--ansi --multi'\
-' --bind="ctrl-j:preview-page-down,ctrl-k:preview-page-up,alt-j:preview-bottom,alt-k:preview-top"'\
+' --bind="alt-j:preview-bottom,alt-k:preview-top"'\
 ' --bind="tab:toggle+down,btab:toggle+up,shift-tab:toggle+up,ctrl-a:toggle-all,ctrl-s:toggle-sort"'\
 ' --bind="?:toggle-preview,ctrl-space:toggle-preview,alt-w:toggle-preview-wrap,enter:accept"'\
 ' --layout="reverse" --preview-window="right,70%" --height="70%"'
 # FZF_DEFAULT_OPTS=$(cat <<- EOF
 # --ansi
 # --multi
-# --bind="ctrl-j:preview-page-down,ctrl-k:preview-page-up,alt-j:preview-bottom,alt-k:preview-top"
+# --bind="alt-j:preview-bottom,alt-k:preview-top"
 # --bind="tab:toggle+down,btab:toggle+up,shift-tab:toggle+up,ctrl-a:toggle-all,ctrl-s:toggle-sort"
 # --bind="?:toggle-preview,ctrl-space:toggle-preview,alt-w:toggle-preview-wrap,enter:accept"
 # --layout="reverse"
