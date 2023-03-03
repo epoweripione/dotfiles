@@ -3160,7 +3160,7 @@ function newZellijSession() {
 
     if [[ "$(command -v zellij)" ]]; then
         if [[ -z "${ZELLIJ}" && -z "${ZELLIJ_SESSION_NAME}" ]]; then
-            ZJ_SESSIONS=$(zellij list-sessions)
+            ZJ_SESSIONS=$(zellij list-sessions 2>/dev/null)
             NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
 
             if [ "${NO_SESSIONS}" -ge 2 ]; then
