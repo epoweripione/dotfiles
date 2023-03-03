@@ -50,7 +50,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
 
-        noproxy_cmd go install "github.com/davecheney/httpstat@latest"
+        go install "github.com/davecheney/httpstat@latest"
 
         if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
             VERSION_FILENAME="$(which ${EXEC_INSTALL_NAME}).version"

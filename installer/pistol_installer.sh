@@ -65,7 +65,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
             done
         fi
 
-        noproxy_cmd go install "github.com/doronbehar/pistol/cmd/pistol@latest"
+        go install "github.com/doronbehar/pistol/cmd/pistol@latest"
 
         if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
             VERSION_FILENAME="$(which ${EXEC_INSTALL_NAME}).version"
