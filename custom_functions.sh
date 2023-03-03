@@ -3039,7 +3039,7 @@ function App_Installer_Install() {
                 while read -r finded_file; do
                     [[ ! -s "${finded_file}" ]] && continue
                     [[ -n "${ZSH_COMPLETION_INSTALL_NAME}" ]] && install_filename="${ZSH_COMPLETION_INSTALL_NAME}" || install_filename=$(basename "${finded_file}")
-                    sudo cp -f "${finded_file}" "/usr/local/share/zsh/site-functions" && \
+                    sudo cp -f "${finded_file}" "/usr/local/share/zsh/site-functions/${install_filename}" && \
                         sudo chmod 644 "/usr/local/share/zsh/site-functions/${install_filename}" && \
                         sudo chown "$(id -u)":"$(id -g)" "/usr/local/share/zsh/site-functions/${install_filename}"
                 done <<<"${install_files}"
