@@ -2928,6 +2928,7 @@ function App_Installer_Reset() {
 
     MAN1_FILE="*.1"
     ZSH_COMPLETION_FILE=""
+    ZSH_COMPLETION_INSTALL_NAME=""
 
     IS_INSTALL="yes"
     IS_UPDATE="no"
@@ -2956,6 +2957,7 @@ function App_Installer_Install() {
     #
     # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/juicefs_installer.sh` or `installer/lazygit_installer.sh` as example
     local remote_url=$1
+    local finded_file install_files install_filename
 
     [[ "${IS_INSTALL}" != "yes" ]] && return 0
 
@@ -3023,24 +3025,24 @@ function App_Installer_Install() {
             # man pages
             if [[ -n "${MAN1_FILE}" ]]; then
                 [[ ! -d "/usr/share/man/man1" ]] && sudo mkdir -p "/usr/share/man/man1"
-                CP_FILE_LIST=$(find "${ARCHIVE_FILE_DIR}" -type f -name "${MAN1_FILE}")
-                while read -r CP_FILE; do
-                    [[ ! -s "${CP_FILE}" ]] && continue
-                    sudo cp -f "${CP_FILE}" "/usr/share/man/man1"
-                done <<<"${CP_FILE_LIST}"
+                install_files=$(find "${ARCHIVE_FILE_DIR}" -type f -name "${MAN1_FILE}")
+                while read -r finded_file; do
+                    [[ ! -s "${finded_file}" ]] && continue
+                    sudo cp -f "${finded_file}" "/usr/share/man/man1"
+                done <<<"${install_files}"
             fi
 
             # zsh completions
             if [[ -n "${ZSH_COMPLETION_FILE}" ]]; then
                 [[ ! -d "/usr/local/share/zsh/site-functions" ]] && sudo mkdir -p "/usr/local/share/zsh/site-functions"
-                CP_FILE_LIST=$(find "${ARCHIVE_FILE_DIR}" -type f -name "${ZSH_COMPLETION_FILE}")
-                while read -r CP_FILE; do
-                    [[ ! -s "${CP_FILE}" ]] && continue
-                    CP_FILENAME=$(basename "${CP_FILE}")
-                    sudo cp -f "${CP_FILE}" "/usr/local/share/zsh/site-functions" && \
-                        sudo chmod 644 "/usr/local/share/zsh/site-functions/${CP_FILENAME}" && \
-                        sudo chown "$(id -u)":"$(id -g)" "/usr/local/share/zsh/site-functions/${CP_FILENAME}"
-                done <<<"${CP_FILE_LIST}"
+                install_files=$(find "${ARCHIVE_FILE_DIR}" -type f -name "${ZSH_COMPLETION_FILE}")
+                while read -r finded_file; do
+                    [[ ! -s "${finded_file}" ]] && continue
+                    [[ -n "${ZSH_COMPLETION_INSTALL_NAME}" ]] && install_filename="${ZSH_COMPLETION_INSTALL_NAME}" || install_filename=$(basename "${finded_file}")
+                    sudo cp -f "${finded_file}" "/usr/local/share/zsh/site-functions" && \
+                        sudo chmod 644 "/usr/local/share/zsh/site-functions/${install_filename}" && \
+                        sudo chown "$(id -u)":"$(id -g)" "/usr/local/share/zsh/site-functions/${install_filename}"
+                done <<<"${install_files}"
             fi
         else
             colorEcho "${RED}  Can't find ${FUCHSIA}${ARCHIVE_EXEC_NAME}${RED} in downloaded file ${YELLOW}${DOWNLOAD_FILENAME}!"
