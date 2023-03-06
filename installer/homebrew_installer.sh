@@ -40,9 +40,7 @@ SYSTEM_RUBY_VERSION="0.0.0"
 
 # if [[ "${BREW_RUBY_VERSION}" != "${SYSTEM_RUBY_VERSION}" ]]; then
 if [[ -z "${BREW_RUBY_VERSION}" ]]; then
-    OS_RELEASE_ID="$(grep -E '^ID=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
-    OS_RELEASE_ID_LIKE="$(grep -E '^ID_LIKE=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
-    if [[ "${OS_RELEASE_ID}" == "arch" || "${OS_RELEASE_ID}" == "arch" || "${OS_RELEASE_ID_LIKE}" == "arch" ]]; then
+    if check_os_arch; then
         # https://github.com/rbenv/rbenv
         if [[ -x "$(command -v yay)" ]]; then
             yay --noconfirm --needed -S rbenv
