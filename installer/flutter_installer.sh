@@ -149,16 +149,28 @@ if [[ "${IS_INSTALL}" == "yes" && -n "${REMOTE_FILEPATH}" ]]; then
         done
     fi
 
-    # Init snap
-    if [[ ! -x "$(command -v snap)" || ! -d "/snap" ]]; then
-        [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && \
-            source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
+    # Install Android Studio
+    if check_os_arch; then
+        if pacman -Si "archlinuxcn/android-studio" >/dev/null 2>&1; then
+            colorEcho "${BLUE}  Installing ${FUCHSIA}Android Studio${BLUE}..."
+            sudo pacman --noconfirm --needed -S "archlinuxcn/android-studio"
+        elif yay -Si "aur/android-studio" >/dev/null 2>&1; then
+            colorEcho "${BLUE}  Installing ${FUCHSIA}Android Studio${BLUE}..."
+            yay --noconfirm --needed -S "aur/android-studio"
+        fi
     fi
 
-    # Install Android Studio
-    if [[ -x "$(command -v snap)" && ! -x "$(command -v android-studio)" ]]; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}Android Studio${BLUE}..."
-        sudo snap install android-studio --classic
+    if [[ ! -x "$(command -v android-studio)" ]]; then
+        # Init snap
+        if [[ ! -x "$(command -v snap)" || ! -d "/snap" ]]; then
+            [[ -s "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh" ]] && \
+                source "${MY_SHELL_SCRIPTS}/installer/snap_installer.sh"
+        fi
+
+        if [[ -x "$(command -v snap)" && ! -x "$(command -v android-studio)" ]]; then
+            colorEcho "${BLUE}  Installing ${FUCHSIA}Android Studio${BLUE}..."
+            sudo snap install android-studio --classic
+        fi
     fi
 
     colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
@@ -204,7 +216,7 @@ if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" && -x "$(command -v and
 fi
 
 [[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
-# [[ -d "$HOME/Android/Sdk/platform-tools" ]] && export PATH=$PATH:$HOME/Android/Sdk/platform-tools
+[[ -d "$HOME/Android/Sdk/platform-tools" ]] && export PATH=$PATH:$HOME/Android/Sdk/platform-tools
 
 if [[ "${IS_INSTALL}" == "yes" ]]; then
     flutter doctor --android-licenses

@@ -480,14 +480,14 @@ if [[ -d "$HOME/flutter/bin" ]]; then
         # export PUB_HOSTED_URL=https://mirror.sjtu.edu.cn/dart-pub
         # export FLUTTER_STORAGE_BASE_URL=https://mirror.sjtu.edu.cn
     fi
-
-    # Android Studio Tools
-    [[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && \
-        export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
-
-    # [[ -d "$HOME/Android/Sdk/platform-tools" ]] && \
-    #     export PATH=$PATH:$HOME/Android/Sdk/platform-tools
 fi
+
+# Android Studio Tools
+[[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && \
+    export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
+
+[[ -d "$HOME/Android/Sdk/platform-tools" ]] && \
+    export PATH=$PATH:$HOME/Android/Sdk/platform-tools
 
 # rustup & cargo
 if [[ "${THE_WORLD_BLOCKED}" == "true" && -x "$(command -v rustup)" ]]; then
