@@ -343,7 +343,7 @@ done
 #     cp -r .{config,vim*,z*,x*,X*,alias*,p10k.zsh,local} $HOME && \
 #     cp -r dwm $HOME
 
-# NotePad--
+# [NotePad--](https://gitee.com/cxasm/notepad--)
 if [[ -x "$(command -v NotePad--)" ]]; then
     if [[ -s "/usr/share/applications/io.gitee.cxasm.notepad--.desktop" ]]; then
         sudo sed -i -e 's/notepad--/NotePad--/g' \
@@ -359,13 +359,6 @@ if [[ -x "$(command -v NotePad--)" ]]; then
             "$HOME/.local/share/applications/io.gitee.cxasm.notepad--.desktop"
     fi
 fi
-
-## Rootless Podman
-## sysctl kernel.unprivileged_userns_clone
-## If it is currently set to 0, enable it by setting 1 via sysctl or kernel parameter
-# sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 "$USER"
-# yay --noconfirm --needed -S community/fuse-overlayfs community/podman-dnsname community/slirp4netns
-# podman system migrate
 
 ## Linux Advanced Power Management
 [[ -x "$(command -v tlp)" ]] && sudo tlp start
@@ -414,6 +407,9 @@ fi
 
 # Homebrew
 [[ -s "${MY_SHELL_SCRIPTS}/installer/homebrew_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/homebrew_installer.sh"
+
+# [He3](https://he3.app/)
+[[ -s "${MY_SHELL_SCRIPTS}/installer/he3_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/he3_installer.sh"
 
 # Notepadqq
 # [[ -s "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh"
