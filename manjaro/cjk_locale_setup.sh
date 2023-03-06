@@ -20,6 +20,8 @@ fi
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
+[[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
+
 # Fonts & Input Methods for CJK locale
 # https://wiki.archlinux.org/title/Localization/Chinese
 # default locale settings: /etc/locale.conf
@@ -408,33 +410,54 @@ fi
 # For example try 266A to get ♪. Or 1F44F for 👏
 # Press [Space] key
 
-## GNOME: Insert Special Characters via `GNOME Characters` App
 ## KDE: [krunner-symbols](https://github.com/domschrei/krunner-symbols)
 ##      [KCharSelect](https://utils.kde.org/projects/kcharselect/)
-## GNOME Characters
-# if [[ -x "$(command -v snap)" && ! -x "$(command -v gnome-characters)" ]]; then
-#     colorEcho "${BLUE}Installing ${FUCHSIA}GNOME Characters${BLUE}..."
-#     sudo snap install gnome-characters
-# fi
+if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}KCharSelect${BLUE}..."
+    sudo pacman --noconfirm --needed -S kcharselect
+
+    colorEcho "${BLUE}Installing ${FUCHSIA}krunner-symbols${BLUE}..."
+    sudo pacman --noconfirm --needed -S ki18n krunner qt5-base cmake extra-cmake-modules
+
+    mkdir -p "$HOME/Applications"
+    Git_Clone_Update_Branch "domschrei/krunner-symbols" "$HOME/Applications/krunner-symbols"
+    [[ -d "$HOME/Applications/krunner-symbols" ]] && cd "$HOME/Applications/krunner-symbols" && bash build_and_install.sh
+fi
+
+## GNOME: Insert Special Characters via `GNOME Characters` App
+# GNOME Characters
+if [[ "${OS_INFO_DESKTOP}" == "GNOME" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}GNOME Characters${BLUE}..."
+    sudo pacman --noconfirm --needed -S gnome-characters
+
+    if [[ -x "$(command -v snap)" && ! -x "$(command -v gnome-characters)" ]]; then
+        sudo snap install gnome-characters
+    fi
+fi
 
 ## Emoji keyboard
 ## https://github.com/OzymandiasTheGreat/emoji-keyboard
 # GITHUB_REPO_NAME="OzymandiasTheGreat/emoji-keyboard"
-# DOWNLOAD_FILENAME="$(xdg-user-dir DESKTOP)/emoji-keyboard.AppImage"
+# DOWNLOAD_FILENAME="$HOME/Applications/emoji-keyboard.AppImage"
 # CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
 # App_Installer_Get_Remote_Version "${CHECK_URL}"
 # DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/${REMOTE_VERSION}/emoji-keyboard-${REMOTE_VERSION}.AppImage"
 # colorEcho "${BLUE}Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
 # colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
 # curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+colorEcho "${BLUE}Installing ${FUCHSIA}Emoji keyboard${BLUE}..."
+yay --noconfirm --needed -S aur/emoji-keyboard
 
 # [Emote](https://github.com/tom-james-watson/Emote): Modern popup emoji picker
 # Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E` 
 # and select one or more emojis to paste them into the currently focussed app.
+colorEcho "${BLUE}Installing ${FUCHSIA}emote${BLUE}..."
+yay --noconfirm --needed -S aur/emote
+
 if [[ -x "$(command -v snap)" && ! -x "$(command -v emote)" ]]; then
-    colorEcho "${BLUE}Installing ${FUCHSIA}emote${BLUE}..."
     sudo snap install emote
 fi
+
 # add to autostart
 if [[ -x "$(command -v emote)" ]]; then
     tee "$HOME/.config/autostart/emote.desktop" >/dev/null <<-'EOF'
