@@ -87,6 +87,16 @@ function check_os_wsl2() {
     [[ "${os_wsl}" =~ "WSL2" || "${os_wsl}" =~ "microsoft" ]] && return 0 || return 1
 }
 
+# Arch-based Linux
+function check_os_arch() {
+    local os_id os_id_like
+
+    os_id="$(grep -E '^ID=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
+    os_id_like="$(grep -E '^ID_LIKE=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
+
+    [[ "${os_id}" == "arch" || "${os_id}" == "manjaro" || "${os_id_like}" == "arch" ]] && return 0 || return 1
+}
+
 # get os type: darwin, windows, linux, freebsd, openbsd, solaris
 function get_os_type() {
     local osname ostype
@@ -2744,6 +2754,34 @@ function App_Installer_Get_Remote() {
     [[ -n "${match_urls}" ]] && REMOTE_DOWNLOAD_URL=$(head -n1 <<<"${match_urls}")
 
     [[ -n "${REMOTE_DOWNLOAD_URL}" ]] && return 0 || return 1
+}
+
+# Download
+function App_Installer_Download() {
+    local download_url=$1
+    local download_filename=$2
+    local github_url="https://github.com"
+    local remote_filename
+
+    [[ -z "${download_url}" ]] && colorEcho "${FUCHSIA}Download URL${RED} can't empty!" && return 1
+
+    remote_filename=$(echo "${download_url}" | awk -F"/" '{print $NF}')
+    [[ -z "${download_filename}" ]] && download_filename="${remote_filename}"
+
+    # Download
+    [[ -n "${GITHUB_DOWNLOAD_URL}" ]] && download_url="${download_url//${github_url}/${GITHUB_DOWNLOAD_URL}}"
+    colorEcho "${BLUE}  From ${ORANGE}${download_url}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}"
+    curl_rtn_code=$?
+
+    if [[ ${curl_rtn_code} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
+        download_url="${download_url//${GITHUB_DOWNLOAD_URL}/${github_url}}"
+        colorEcho "${BLUE}  From ${ORANGE}${download_url}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}"
+        curl_rtn_code=$?
+    fi
+
+    [[ ${curl_rtn_code} -eq 0 ]] && return 0 || return 1
 }
 
 # Download & Extract
