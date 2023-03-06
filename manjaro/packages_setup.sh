@@ -133,11 +133,22 @@ if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
 fi
 
 # [Appimages](https://appimage.org/)
-colorEcho "${BLUE}Installing ${FUCHSIA}Appimages${BLUE}..."
+# [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher)
+colorEcho "${BLUE}Installing ${FUCHSIA}AppImageLauncher${BLUE}..."
 sudo pacman --noconfirm --needed -S appimagelauncher
 
+if [[ ! -s "$HOME/.config/appimagelauncher.cfg" ]]; then
+    mkdir -p "$HOME/.config"
+    mkdir -p "$HOME/Applications"
+    tee "$HOME/.config/appimagelauncher.cfg" >/dev/null <<-'EOF'
+[AppImageLauncher]
+destination = ~/Applications
+enable_daemon = true
+EOF
+fi
+
 # [Discover](https://userbase.kde.org/Discover)
-colorEcho "${BLUE}Installing ${FUCHSIA}Appimages${BLUE}..."
+colorEcho "${BLUE}Installing ${FUCHSIA}Discover${BLUE}..."
 sudo pacman --noconfirm --needed -S discover packagekit-qt5
 
 # yay
