@@ -37,6 +37,8 @@ extensions=(
 	"esbenp.prettier-vscode"
 	"oderwat.indent-rainbow"
 	"tabnine.tabnine-vscode"
+	"streetsidesoftware.code-spell-checker"
+	"kamikillerto.vscode-colorize"
     ## Core
 	"doggy8088.netcore-extension-pack"
 	"doggy8088.netcore-snippets"
@@ -99,7 +101,9 @@ extensions=(
     "kumar-harsh.graphql-for-vscode"
 	"redhat.vscode-yaml"
     # Vesion Control
+	"donjayamanne.githistory"
 	"eamodio.gitlens"
+	"mhutchie.git-graph"
 	# Remote
 	"ms-vscode-remote.vscode-remote-extensionpack"
 	"ms-vscode-remote.remote-wsl"
@@ -124,6 +128,7 @@ extensions=(
 	"chouzz.vscode-innosetup"
 	"unbug.codelf"
 	"jeff-hykin.polacode-2019"
+	"mrmlnc.vscode-duplicate"
 )
 
 # How to export installed extensions list

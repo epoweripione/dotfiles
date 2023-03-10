@@ -22,6 +22,7 @@ lacroixdavid1.vscode-format-context-menu
 wix.vscode-import-cost
 sysoev.language-stylus
 mrmlnc.vscode-attrs-sorter
+kamikillerto.vscode-colorize
 # Language support
 ## C/C++
 ms-vscode.cpptools
@@ -174,6 +175,7 @@ johnstoncode.svn-scm
 codezombiech.gitignore
 donjayamanne.githistory
 eamodio.gitlens
+mhutchie.git-graph
 pflannery.vscode-versionlens
 # Remote
 ms-vscode-remote.vscode-remote-extensionpack
@@ -183,6 +185,7 @@ ms-vsliveshare.vsliveshare
 formulahendry.code-runner
 humao.rest-client
 hediet.debug-visualizer
+usernamehw.errorlens
 # Extra functionality
 bukas.gbktoutf8
 steoates.autoimport
@@ -222,4 +225,5 @@ grapecity.gc-excelviewer
 tyriar.vscode-terminal-here
 jeff-hykin.polacode-2019
 ryu1kn.partial-diff
-mhutchie.git-graph
+mrmlnc.vscode-duplicate
+adpyke.codesnap
