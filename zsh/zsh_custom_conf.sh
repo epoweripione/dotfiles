@@ -738,12 +738,12 @@ export INSTALLER_DOWNLOAD_AXEL_OPTION=${INSTALLER_DOWNLOAD_AXEL_OPTION:-"--num-c
 # https://raw.hellogithub.com/hosts
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     # GITHUB_HUB_URL="https://gitclone.com/github.com"
-    # GITHUB_HUB_URL="https://hub.fgit.ml/"
     export GITHUB_MIRROR_USE_FASTGIT=${GITHUB_MIRROR_USE_FASTGIT:-"false"}
     if [[ "${GITHUB_MIRROR_USE_FASTGIT}" == "true" ]]; then
-        # GITHUB_HUB_URL="https://hub.fastgit.xyz"
-        GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"https://download.fastgit.org"}
-        GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.fastgit.org"}
+        # GITHUB_HUB_URL="https://hub.fgit.gq"
+        # GITHUB_HUB_URL="https://hub.fgit.ml"
+        GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"https://download.fgit.ml"}
+        GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.fgit.ml"}
     fi
 
     # https://github.com/hunshcn/gh-proxy
