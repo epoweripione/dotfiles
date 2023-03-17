@@ -262,8 +262,16 @@ if [[ -x "$(command -v nano)" ]]; then
 fi
 
 
-## Change Sudo Password Timeout (default 15 minutes)
-# echo "Defaults timestamp_timeout=30" | sudo tee "/etc/sudoers.d/sudo_timeout" >/dev/null
+# make sudo more user friendly
+# remove sudo timeout, make cache global, extend timeout
+colorEcho "${BLUE}Making sudo more user friendly..."
+sudo tee "/etc/sudoers.d/20-password-timeout-0-ppid-60min" >/dev/null <<-'EOF'
+Defaults passwd_timeout=0
+Defaults timestamp_type="global"
+
+# sudo only once for 60 minute
+Defaults timestamp_timeout=60
+EOF
 
 # Allow members of the group sudo to execute any command without password prompt
 # sudo visudo OR sudo EDITOR=nano visudo
