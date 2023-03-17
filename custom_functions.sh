@@ -58,7 +58,7 @@ function colorEchoAllColor() {
 GLOBAL_NO_PROXY="localhost,127.0.0.1,.local,.localdomain,.internal,.corp,::1"
 [[ -n "${HOSTNAME}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${HOSTNAME}"
 [[ -n "${HOSTIP_ALL}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${HOSTIP_ALL}"
-GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},fgit.ml,fgit.gq,ghproxy.com,gitclone.com,npmmirror.com"
+GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},fgit.ml,fgit.gq,ghproxy.com,gitclone.com,npmmirror.com,dl.min.io"
 GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},ip.sb,ip-api.com,ident.me,ifconfig.co,icanhazip.com,ipinfo.io"
 
 export GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY}"
