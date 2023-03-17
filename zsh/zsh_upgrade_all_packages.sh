@@ -162,6 +162,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "dasel"
         "duf"
         "dust"
+        "erdtree"
         "exa"
         "fd"
         "git-delta"
