@@ -223,6 +223,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "aur/geany-themes"
         # "community/notepadqq"
         "archlinuxcn/notepad---git"
+        "aur/cudatext-qt5-bin"
         ## Dictionary
         # "goldendict-git"
         ## Download & Upload
@@ -249,6 +250,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "telegram-desktop"
         "aur/linuxqq"
         # "aur/deepin-wine-qq"
+        "aur/deepin-wine-tim"
         "aur/wechat-uos"
         # "aur/deepin-wine-wechat"
         # "archlinuxcn/wine-wechat-setup"
