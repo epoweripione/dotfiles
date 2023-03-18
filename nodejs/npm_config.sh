@@ -56,15 +56,15 @@ if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
     colorEcho "${BLUE}Reset npm registry (npmjs.org)..."
     npm config set registry https://registry.npmjs.org/
 
-    # npm config delete disturl
-    # npm config delete sass_binary_site
-    # npm config delete electron_mirror
-    # npm config delete puppeteer_download_host
-    # npm config delete chromedriver_cdnurl
-    # npm config delete operadriver_cdnurl
-    # npm config delete phantomjs_cdnurl
-    # npm config delete selenium_cdnurl
-    # npm config delete node_inspector_cdnurl
+    npm config delete disturl
+    npm config delete sass_binary_site
+    npm config delete electron_mirror
+    npm config delete puppeteer_download_host
+    npm config delete chromedriver_cdnurl
+    npm config delete operadriver_cdnurl
+    npm config delete phantomjs_cdnurl
+    npm config delete selenium_cdnurl
+    npm config delete node_inspector_cdnurl
 fi
 
 
