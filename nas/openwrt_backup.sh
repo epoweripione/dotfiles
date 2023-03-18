@@ -87,8 +87,8 @@ umask go= && \
 # [[ -f "1080000.squashfs" ]] && unsquashfs -dest 1080000.extracted 1080000.squashfs
 
 # . /etc/openwrt_release
-# CURRENT_KERNEL="$(opkg list-installed kernel)" && CURRENT_VERSION="${CURRENT_KERNEL##* }"
-# REMOTE_VERSION=$(wget -qO- https://downloads.openwrt.org/snapshots/targets/${DISTRIB_TARGET}/packages/ \
+# CURRENT_KERNEL="$(opkg list-installed kernel)" && INSTALLER_VER_CURRENT="${CURRENT_KERNEL##* }"
+# INSTALLER_VER_REMOTE=$(wget -qO- https://downloads.openwrt.org/snapshots/targets/${DISTRIB_TARGET}/packages/ \
 #     | grep -Eo -m1 '>kernel_.*\.ipk' \
 #     | sed -e 's/>kernel_//' -e 's/\.ipk//' -e "s|_${DISTRIB_TARGET/\//_}||" \
 #     | head -n1)

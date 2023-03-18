@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
@@ -38,16 +40,16 @@ esac
 
 OS_ARCH=$(uname -m)
 if [[ -n "$OS_TYPE" && ("$OS_ARCH" == "amd64" || "$OS_ARCH" == "x86_64") ]]; then
-    CHECK_URL="https://api.github.com/repos/rami3l/pacaptr/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/rami3l/pacaptr/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
     if [[ -x "$(command -v pacaptr)" ]]; then
         ECHO_TYPE="Updating"
-        CURRENT_VERSION=$(pacaptr -V | cut -d" " -f2)
+        INSTALLER_VER_CURRENT=$(pacaptr -V | cut -d" " -f2)
         [[ -s "/root/.config/pacaptr/pacaptr.toml" ]] && \
             sudo sed -i "s/needed.*/needed = true/" "/root/.config/pacaptr/pacaptr.toml"
     else
-        CURRENT_VERSION="0.0.0"
+        INSTALLER_VER_CURRENT="0.0.0"
         ECHO_TYPE="Installing"
         # pacaptr config   
         sudo mkdir -p "/root/.config/pacaptr/"
@@ -58,24 +60,24 @@ if [[ -n "$OS_TYPE" && ("$OS_ARCH" == "amd64" || "$OS_ARCH" == "x86_64") ]]; the
     [[ "$(readlink -f /usr/bin/pacman)" == "/usr/bin/pacapt" ]] && \
         sudo rm -f "/usr/bin/pacman" && sudo rm -f "/usr/bin/pacapt"
 
-    if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        colorEcho "${BLUE}  ${ECHO_TYPE} ${FUCHSIA}pacaptr ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        colorEcho "${BLUE}  ${ECHO_TYPE} ${FUCHSIA}pacaptr ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
-        DOWNLOAD_FILENAME="${WORKDIR}/pacaptr.tar.gz"
-        DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/rami3l/pacaptr/releases/download/v${REMOTE_VERSION}/pacaptr-${OS_TYPE}-amd64.tar.gz"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/pacaptr.tar.gz"
+        INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/rami3l/pacaptr/releases/download/v${INSTALLER_VER_REMOTE}/pacaptr-${OS_TYPE}-amd64.tar.gz"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
         curl_download_status=$?
         if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-            DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-            colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-            axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+            INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+            colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+            axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
             curl_download_status=$?
         fi
 
         if [[ ${curl_download_status} -eq 0 ]]; then
-            sudo tar -xzf "${DOWNLOAD_FILENAME}" -C "/usr/local/bin" && \
+            sudo tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "/usr/local/bin" && \
                 sudo ln -sv "/usr/local/bin/pacaptr" "/usr/bin/pacman" || true
         fi
     fi

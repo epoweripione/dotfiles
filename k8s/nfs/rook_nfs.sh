@@ -29,8 +29,8 @@ cp "${MY_SHELL_SCRIPTS}/k8s/nfs"/*.yaml "${K8S_WORKDIR}"
 # Rook: Open-Source, Cloud-Native Storage for Kubernetes
 # Production ready management for File, Block and Object Storage
 # https://rook.io/
-CHECK_URL="https://api.github.com/repos/rook/nfs/tags"
-ROOK_TAG=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'name' | grep -Ev 'main|master|alpha|beta|rc' | cut -d\" -f4 | sort -rV | head -n1)
+INSTALLER_CHECK_URL="https://api.github.com/repos/rook/nfs/tags"
+ROOK_TAG=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | grep 'name' | grep -Ev 'main|master|alpha|beta|rc' | cut -d\" -f4 | sort -rV | head -n1)
 
 [[ -d "${K8S_WORKDIR}/rook-nfs" ]] && rm -rf "${K8S_WORKDIR}/rook-nfs"
 

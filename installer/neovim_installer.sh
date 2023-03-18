@@ -17,8 +17,7 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # Neovim: Vim-fork focused on extensibility and usability
 # https://neovim.io/

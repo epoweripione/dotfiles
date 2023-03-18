@@ -17,34 +17,36 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # Funky takes shell functions to the next level by making them easier to define, more flexible, and more interactive.
 # https://github.com/bbugyi200/funky
-APP_INSTALL_NAME="funky"
-EXEC_INSTALL_NAME="funky"
+INSTALLER_APP_NAME="funky"
+INSTALLER_INSTALL_NAME="funky"
 PIP_PACKAGE_NAME="pyfunky"
 
-[[ ! -x "$(command -v ${EXEC_INSTALL_NAME})" ]] && IS_INSTALL="yes" || IS_INSTALL="no"
-[[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+[[ ! -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]] && INSTALLER_IS_INSTALL="yes" || INSTALLER_IS_INSTALL="no"
+[[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 
-[[ "${IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"
+[[ "${INSTALLER_IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"
 
 
 # Integrate funky into shell environment
 if [[ ! -s "$HOME/.local/share/funky/funky.sh" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}funky shell Integrate script${BLUE}..."
 
-    DOWNLOAD_FILENAME="${WORKDIR}/funky.sh"
-    DOWNLOAD_URL="https://raw.githubusercontent.com/bbugyi200/funky/master/scripts/shell/funky.sh"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/funky.sh"
+    INSTALLER_DOWNLOAD_URL="https://raw.githubusercontent.com/bbugyi200/funky/master/scripts/shell/funky.sh"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -eq 0 ]]; then
         mkdir -p "$HOME/.local/share/funky" && \
-            cp -f "${DOWNLOAD_FILENAME}" "$HOME/.local/share/funky/funky.sh"
+            cp -f "${INSTALLER_DOWNLOAD_FILE}" "$HOME/.local/share/funky/funky.sh"
     fi
 fi
 

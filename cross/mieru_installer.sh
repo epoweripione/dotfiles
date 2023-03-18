@@ -20,22 +20,22 @@ fi
 App_Installer_Reset
 
 # [mieru](https://github.com/enfein/mieru)
-APP_INSTALL_NAME="mieru"
-GITHUB_REPO_NAME="enfein/mieru"
+INSTALLER_APP_NAME="mieru"
+INSTALLER_GITHUB_REPO="enfein/mieru"
 
-EXEC_INSTALL_NAME="mieru"
+INSTALLER_INSTALL_NAME="mieru"
 
-ARCHIVE_EXT="tar.gz"
+INSTALLER_ARCHIVE_EXT="tar.gz"
 
 if [[ -x "$(command -v mieru)" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(mieru version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(mieru version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
 if ! App_Installer_Install; then
-    colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
 : '

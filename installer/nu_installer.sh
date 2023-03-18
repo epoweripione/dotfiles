@@ -25,34 +25,31 @@ App_Installer_Reset
 # Nushell: A new type of shell
 # https://www.nushell.sh/
 # https://github.com/nushell/nushell
-APP_INSTALL_NAME="nushell"
-GITHUB_REPO_NAME="nushell/nushell"
+INSTALLER_APP_NAME="nushell"
+INSTALLER_GITHUB_REPO="nushell/nushell"
 
-ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_DIR="nu-*"
-ARCHIVE_EXEC_NAME="nu"
+INSTALLER_ARCHIVE_EXT="tar.gz"
+INSTALLER_ARCHIVE_EXEC_DIR="nu-*"
+INSTALLER_ARCHIVE_EXEC_NAME="nu"
 
-EXEC_INSTALL_PATH="/usr/local/bin/nushell"
-EXEC_INSTALL_NAME="nu"
+INSTALLER_INSTALL_PATH="/usr/local/bin/nushell"
+INSTALLER_INSTALL_NAME="nu"
 
-REMOTE_SUFFIX=""
-REMOTE_FILENAME=""
-
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_EXEC_FULLNAME=$(readlink -f "$(which ${INSTALLER_INSTALL_NAME})")
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 fi
 
@@ -63,13 +60,13 @@ fi
 # winget install --id=Nushell.Nushell --exact --rainbow
 # [System.Environment]::SetEnvironmentVariable("PATH", $systemenv + ";$env:ProgramFiles\nu\bin", 'Machine')
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     INSTALLER_INSTALL_METHOD="custom"
 
-    if checkPackageExists "${APP_INSTALL_NAME}"; then
+    if checkPackageExists "${INSTALLER_APP_NAME}"; then
         INSTALLER_INSTALL_METHOD="pacman"
     else
-        if [[ -n "${EXEC_FULL_NAME}" ]] && [[ "${EXEC_FULL_NAME}" != *"${EXEC_INSTALL_PATH}"* ]]; then
+        if [[ -n "${INSTALLER_EXEC_FULLNAME}" ]] && [[ "${INSTALLER_EXEC_FULLNAME}" != *"${INSTALLER_INSTALL_PATH}"* ]]; then
             [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALLER_INSTALL_METHOD="build"
         fi
     fi
@@ -77,9 +74,9 @@ fi
 
 # pacman
 if [[ "${INSTALLER_INSTALL_METHOD}" == "pacman" ]]; then
-    if checkPackageNeedInstall "${APP_INSTALL_NAME}"; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-        [[ -x "$(command -v pacman)" ]] && sudo pacman --noconfirm -S "${APP_INSTALL_NAME}"
+    if checkPackageNeedInstall "${INSTALLER_APP_NAME}"; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+        [[ -x "$(command -v pacman)" ]] && sudo pacman --noconfirm -S "${INSTALLER_APP_NAME}"
     fi
 fi
 
@@ -92,33 +89,33 @@ if [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
         darwin)
             case "${OS_INFO_VDIS}" in
                 64)
-                    REMOTE_FILENAME="nu-${REMOTE_VERSION}-x86_64-apple-${OS_INFO_TYPE}.${ARCHIVE_EXT}"
+                    INSTALLER_FILE_NAME="nu-${INSTALLER_VER_REMOTE}-x86_64-apple-${OS_INFO_TYPE}.${INSTALLER_ARCHIVE_EXT}"
                     ;;
                 arm64)
-                    REMOTE_FILENAME="nu-${REMOTE_VERSION}-aarch64-apple-${OS_INFO_TYPE}.${ARCHIVE_EXT}"
+                    INSTALLER_FILE_NAME="nu-${INSTALLER_VER_REMOTE}-aarch64-apple-${OS_INFO_TYPE}.${INSTALLER_ARCHIVE_EXT}"
                     ;;
             esac
             ;;
         linux)
             case "${OS_INFO_VDIS}" in
                 64)
-                    REMOTE_FILENAME="nu-${REMOTE_VERSION}-x86_64-unknown-${OS_INFO_TYPE}-musl.${ARCHIVE_EXT}"
+                    INSTALLER_FILE_NAME="nu-${INSTALLER_VER_REMOTE}-x86_64-unknown-${OS_INFO_TYPE}-musl.${INSTALLER_ARCHIVE_EXT}"
                     ;;
                 arm)
-                    REMOTE_FILENAME="nu-${REMOTE_VERSION}-armv7-unknown-${OS_INFO_TYPE}-gnueabihf.${ARCHIVE_EXT}"
+                    INSTALLER_FILE_NAME="nu-${INSTALLER_VER_REMOTE}-armv7-unknown-${OS_INFO_TYPE}-gnueabihf.${INSTALLER_ARCHIVE_EXT}"
                     ;;
                 arm64)
-                    REMOTE_FILENAME="nu-${REMOTE_VERSION}-aarch64-unknown-${OS_INFO_TYPE}-gnu.${ARCHIVE_EXT}"
+                    INSTALLER_FILE_NAME="nu-${INSTALLER_VER_REMOTE}-aarch64-unknown-${OS_INFO_TYPE}-gnu.${INSTALLER_ARCHIVE_EXT}"
                     ;;
             esac
             ;;
         windows)
-            ARCHIVE_EXT="zip"
-            REMOTE_FILENAME="nu-${REMOTE_VERSION}-x86_64-pc-${OS_INFO_TYPE}-msvc.${ARCHIVE_EXT}"
+            INSTALLER_ARCHIVE_EXT="zip"
+            INSTALLER_FILE_NAME="nu-${INSTALLER_VER_REMOTE}-x86_64-pc-${OS_INFO_TYPE}-msvc.${INSTALLER_ARCHIVE_EXT}"
             ;;
     esac
 
-    [[ -z "${REMOTE_FILENAME}" ]] && INSTALLER_INSTALL_METHOD="build"
+    [[ -z "${INSTALLER_FILE_NAME}" ]] && INSTALLER_INSTALL_METHOD="build"
 fi
 
 if [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
@@ -142,65 +139,65 @@ if [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
     fi
 
     # Download file
-    DOWNLOAD_FILENAME="${WORKDIR}/${APP_INSTALL_NAME}.tar.gz"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_APP_NAME}.tar.gz"
 
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/${REMOTE_VERSION}/${REMOTE_FILENAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 
     if [[ ${curl_download_status} -eq 0 ]]; then
         # Extract file
-        case "${ARCHIVE_EXT}" in
+        case "${INSTALLER_ARCHIVE_EXT}" in
             "zip")
-                unzip -qo "${DOWNLOAD_FILENAME}" -d "${WORKDIR}"
+                unzip -qo "${INSTALLER_DOWNLOAD_FILE}" -d "${WORKDIR}"
                 ;;
             "tar.bz2")
-                tar -xjf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}"
+                tar -xjf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}"
                 ;;
             "tar.gz")
-                tar -xzf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}"
+                tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}"
                 ;;
             "tar.xz")
-                tar -xJf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}"
+                tar -xJf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}"
                 ;;
             "gz")
-                cd "${WORKDIR}" && gzip -df "${DOWNLOAD_FILENAME}"
+                cd "${WORKDIR}" && gzip -df "${INSTALLER_DOWNLOAD_FILE}"
                 ;;
             "bz")
-                cd "${WORKDIR}" && bzip2 -df "${DOWNLOAD_FILENAME}"
+                cd "${WORKDIR}" && bzip2 -df "${INSTALLER_DOWNLOAD_FILE}"
                 ;;
             "7z")
-                7z e "${DOWNLOAD_FILENAME}" -o"${WORKDIR}"
+                7z e "${INSTALLER_DOWNLOAD_FILE}" -o"${WORKDIR}"
                 ;;
         esac
 
         # Install
-        [[ -n "${ARCHIVE_EXEC_DIR}" ]] && ARCHIVE_EXEC_DIR=$(find "${WORKDIR}" -type d -name "${ARCHIVE_EXEC_DIR}")
-        [[ -z "${ARCHIVE_EXEC_DIR}" || ! -d "${ARCHIVE_EXEC_DIR}" ]] && ARCHIVE_EXEC_DIR=${WORKDIR}
+        [[ -n "${INSTALLER_ARCHIVE_EXEC_DIR}" ]] && INSTALLER_ARCHIVE_EXEC_DIR=$(find "${WORKDIR}" -type d -name "${INSTALLER_ARCHIVE_EXEC_DIR}")
+        [[ -z "${INSTALLER_ARCHIVE_EXEC_DIR}" || ! -d "${INSTALLER_ARCHIVE_EXEC_DIR}" ]] && INSTALLER_ARCHIVE_EXEC_DIR=${WORKDIR}
 
-        if [[ -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]]; then
-            rm "${DOWNLOAD_FILENAME}"
-            sudo mkdir -p "${EXEC_INSTALL_PATH}" && \
-                sudo cp -f "${ARCHIVE_EXEC_DIR}"/nu* "${EXEC_INSTALL_PATH}" && \
-                sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-                sudo ln -sv "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" "/usr/local/bin/nu" || true
+        if [[ -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
+            rm "${INSTALLER_DOWNLOAD_FILE}"
+            sudo mkdir -p "${INSTALLER_INSTALL_PATH}" && \
+                sudo cp -f "${INSTALLER_ARCHIVE_EXEC_DIR}"/nu* "${INSTALLER_INSTALL_PATH}" && \
+                sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
+                sudo ln -sv "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" "/usr/local/bin/nu" || true
         fi
     fi
 fi
 
 # homebrew or build from source
 if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
     # Install via Homebrew
-    [[ -x "$(command -v brew)" ]] && brew install "${APP_INSTALL_NAME}"
+    [[ -x "$(command -v brew)" ]] && brew install "${INSTALLER_APP_NAME}"
 
     # From source on crates.io
     [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install nu --features=extra

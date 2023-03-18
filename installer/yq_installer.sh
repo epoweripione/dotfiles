@@ -17,56 +17,50 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # yq
 # https://github.com/mikefarah/yq
-APP_INSTALL_NAME="yq"
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
+INSTALLER_APP_NAME="yq"
 
 if [[ -x "$(command -v yq)" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(yq -V | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(yq -V | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-    CHECK_URL="https://api.github.com/repos/mikefarah/yq/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/mikefarah/yq/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
     OS_TYPE=$(uname | sed 's/.*/\L&/')
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 
-    DOWNLOAD_FILENAME="${WORKDIR}/yq.tar.gz" 
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/mikefarah/yq/releases/download/v${REMOTE_VERSION}/yq_${OS_TYPE}_${OS_INFO_ARCH}.tar.gz"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/yq.tar.gz" 
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/mikefarah/yq/releases/download/v${INSTALLER_VER_REMOTE}/yq_${OS_TYPE}_${OS_INFO_ARCH}.tar.gz"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 
     if [[ ${curl_download_status} -eq 0 ]]; then
-        tar -xzf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}" && \
+        tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}" && \
             sudo cp -f "${WORKDIR}"/yq_* "/usr/local/bin/yq"
             sudo chmod +x "/usr/local/bin/yq"
     fi

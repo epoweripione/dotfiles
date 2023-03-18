@@ -22,6 +22,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
@@ -123,46 +125,46 @@ else
 fi
 
 # [buildx](https://docs.docker.com/build/install-buildx/)
-IS_INSTALL="no"
-CURRENT_VERSION=""
+INSTALLER_IS_INSTALL="no"
+INSTALLER_VER_CURRENT=""
 
 # Install & update buildx if not built-in
 if [[ "${CLI_BUILDX_BUILTIN}" == "no" ]]; then
     if [[ -f "${CLI_PLUGINS_DIR}/docker-buildx" ]]; then
-        CURRENT_VERSION=$(docker buildx version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        INSTALLER_VER_CURRENT=$(docker buildx version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     fi
 fi
 
-if [[ -n "${CURRENT_VERSION}" ]]; then
+if [[ -n "${INSTALLER_VER_CURRENT}" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}buildx${BLUE}..."
-    CHECK_URL="https://api.github.com/repos/docker/buildx/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/docker/buildx/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 else
-    IS_INSTALL="no"
+    INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}buildx ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}buildx ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
     if [[ "${OS_INFO_ARCH}" == "arm" ]]; then
-        REMOTE_FILENAME="buildx-v${REMOTE_VERSION}.${OS_INFO_TYPE}-${OS_INFO_ARCH}-v7"
+        INSTALLER_FILE_NAME="buildx-v${INSTALLER_VER_REMOTE}.${OS_INFO_TYPE}-${OS_INFO_ARCH}-v7"
     else
-        REMOTE_FILENAME="buildx-v${REMOTE_VERSION}.${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+        INSTALLER_FILE_NAME="buildx-v${INSTALLER_VER_REMOTE}.${OS_INFO_TYPE}-${OS_INFO_ARCH}"
     fi
 
-    DOWNLOAD_FILENAME="${WORKDIR}/docker-buildx"
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/docker/buildx/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/docker-buildx"
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/docker/buildx/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 
@@ -170,55 +172,55 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
         [[ "${CLI_PLUGINS_DIR}" != "$HOME/.docker/cli-plugins" && -f "$HOME/.docker/cli-plugins/docker-buildx" ]] && \
             rm -f "$HOME/.docker/cli-plugins/docker-buildx"
 
-        sudo cp -f "${DOWNLOAD_FILENAME}" "${CLI_PLUGINS_DIR}/docker-buildx" && \
+        sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${CLI_PLUGINS_DIR}/docker-buildx" && \
             sudo chmod a+x "${CLI_PLUGINS_DIR}/docker-buildx"
     fi
 fi
 
 
 # [compose](https://docs.docker.com/compose/install/)
-IS_INSTALL="no"
-CURRENT_VERSION=""
+INSTALLER_IS_INSTALL="no"
+INSTALLER_VER_CURRENT=""
 
 # Install & update compose if not built-in
 if [[ "${CLI_COMPOSE_BUILTIN}" == "no" ]]; then
     if [[ -f "${CLI_PLUGINS_DIR}/docker-compose" ]]; then
-        CURRENT_VERSION=$(docker compose version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        INSTALLER_VER_CURRENT=$(docker compose version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     elif [[ -x "$(command -v docker-compose)" ]]; then
-        CURRENT_VERSION=$(docker-compose -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        INSTALLER_VER_CURRENT=$(docker-compose -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     fi
 fi
 
-if [[ -n "${CURRENT_VERSION}" ]]; then
+if [[ -n "${INSTALLER_VER_CURRENT}" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}docker-compose${BLUE}..."
-    CHECK_URL="https://api.github.com/repos/docker/compose/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/docker/compose/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 else
-    IS_INSTALL="no"
+    INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}docker-compose ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}docker-compose ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
     # if [[ "${OS_INFO_ARCH}" == "arm" ]]; then
-    #     REMOTE_FILENAME="docker-compose-${OS_INFO_TYPE}-armv7"
+    #     INSTALLER_FILE_NAME="docker-compose-${OS_INFO_TYPE}-armv7"
     # else
-    #     REMOTE_FILENAME="docker-compose-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+    #     INSTALLER_FILE_NAME="docker-compose-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
     # fi
-    REMOTE_FILENAME="docker-compose-${OS_INFO_TYPE}-$(uname -m)"
+    INSTALLER_FILE_NAME="docker-compose-${OS_INFO_TYPE}-$(uname -m)"
 
-    DOWNLOAD_FILENAME="${WORKDIR}/docker-compose"
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/docker/compose/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/docker-compose"
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/docker/compose/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 
@@ -226,7 +228,7 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
         [[ "${CLI_PLUGINS_DIR}" != "$HOME/.docker/cli-plugins" && -f "$HOME/.docker/cli-plugins/docker-compose" ]] && \
             rm -f "$HOME/.docker/cli-plugins/docker-compose"
 
-        sudo cp -f "${DOWNLOAD_FILENAME}" "${CLI_PLUGINS_DIR}/docker-compose" && \
+        sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${CLI_PLUGINS_DIR}/docker-compose" && \
             sudo chmod a+x "${CLI_PLUGINS_DIR}/docker-compose"
     fi
 
@@ -241,39 +243,39 @@ fi
 
 
 # [ctop](https://github.com/bcicen/ctop)
-IS_INSTALL="yes"
-CURRENT_VERSION="0.0.0"
+INSTALLER_IS_INSTALL="yes"
+INSTALLER_VER_CURRENT="0.0.0"
 
 if [[ -x "$(command -v ctop)" ]]; then
-    CURRENT_VERSION=$(ctop -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_VER_CURRENT=$(ctop -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 fi
 
 colorEcho "${BLUE}Checking latest version for ${FUCHSIA}ctop${BLUE}..."
-CHECK_URL="https://api.github.com/repos/bcicen/ctop/releases/latest"
-App_Installer_Get_Remote_Version "${CHECK_URL}"
-if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-    IS_INSTALL="no"
+INSTALLER_CHECK_URL="https://api.github.com/repos/bcicen/ctop/releases/latest"
+App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+    INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}ctop ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-    REMOTE_FILENAME="ctop-${REMOTE_VERSION}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}ctop ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+    INSTALLER_FILE_NAME="ctop-${INSTALLER_VER_REMOTE}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
 
-    DOWNLOAD_FILENAME="${WORKDIR}/ctop"
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/bcicen/ctop/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/ctop"
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/bcicen/ctop/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 
     if [[ ${curl_download_status} -eq 0 ]]; then
-        sudo mv -f "${DOWNLOAD_FILENAME}" "/usr/local/bin/ctop" && \
+        sudo mv -f "${INSTALLER_DOWNLOAD_FILE}" "/usr/local/bin/ctop" && \
             sudo chmod +x "/usr/local/bin/ctop"
     fi
 fi
@@ -289,7 +291,7 @@ fi
 
 # docker mirrors
 SET_REGISTRY_MIRROR="N"
-if [[ "${IS_INSTALL}" == "yes" && "${THE_WORLD_BLOCKED}" == "true" && ! -s "/etc/docker/daemon.json" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${THE_WORLD_BLOCKED}" == "true" && ! -s "/etc/docker/daemon.json" ]]; then
     # colorEchoN "${ORANGE}Setting docker registry-mirrors?[y/${CYAN}N${ORANGE}]: "
     # read -r -t 5 SET_REGISTRY_MIRROR
     # echo ""
@@ -369,7 +371,7 @@ SET_DOCKER_PROXY="N"
 if check_os_wsl; then
     :
 else
-    if [[ "${IS_INSTALL}" == "yes" && -n "${HTTP_PROXY}" && ! -s "/etc/docker/daemon.json" ]]; then
+    if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${HTTP_PROXY}" && ! -s "/etc/docker/daemon.json" ]]; then
         colorEchoN "${ORANGE}Setting docker proxy?[y/${CYAN}N${ORANGE}]: "
         read -r -t 5 SET_DOCKER_PROXY
         echo ""

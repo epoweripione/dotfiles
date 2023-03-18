@@ -17,8 +17,7 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # Use proxy or mirror when some sites were blocked or low speed
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
@@ -26,71 +25,62 @@ fi
 ## goup (pronounced Go Up) is an elegant Go version manager
 ## https://github.com/owenthereal/goup
 # curl -sSf https://raw.githubusercontent.com/owenthereal/goup/master/install.sh | sh -s -- '--skip-prompt'
-APP_INSTALL_NAME="goup"
-GITHUB_REPO_NAME="owenthereal/goup"
+INSTALLER_APP_NAME="goup"
+INSTALLER_GITHUB_REPO="owenthereal/goup"
 
-EXEC_INSTALL_PATH="/usr/local/bin"
-EXEC_INSTALL_NAME="goup"
+INSTALLER_INSTALL_PATH="/usr/local/bin"
+INSTALLER_INSTALL_NAME="goup"
 
-DOWNLOAD_FILENAME="${WORKDIR}/${EXEC_INSTALL_NAME}"
+INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
 
-REMOTE_SUFFIX=""
-REMOTE_FILENAME=""
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-VERSION_FILENAME=""
-
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 
-    REMOTE_FILENAME="${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+    INSTALLER_FILE_NAME="${OS_INFO_TYPE}-${OS_INFO_ARCH}"
 
-    [[ -z "${REMOTE_FILENAME}" ]] && IS_INSTALL="no"
+    [[ -z "${INSTALLER_FILE_NAME}" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
     # Download file
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 
     if [[ ${curl_download_status} -eq 0 ]]; then
         # Install
-        if [[ -s "${DOWNLOAD_FILENAME}" ]]; then
-            sudo cp -f "${DOWNLOAD_FILENAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-                sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-                [[ -n "${VERSION_FILENAME}" ]] && echo "${REMOTE_VERSION}" | sudo tee "${VERSION_FILENAME}" >/dev/null || true
+        if [[ -s "${INSTALLER_DOWNLOAD_FILE}" ]]; then
+            sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
+                sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
+                [[ -n "${INSTALLER_VER_FILE}" ]] && echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null || true
         fi
     fi
 fi

@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
@@ -26,36 +28,31 @@ fi
 # /usr/local/etc/xray/config.json
 # /var/log/xray/
 # UUID: xray uuid
-APP_INSTALL_NAME="xray"
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
+INSTALLER_APP_NAME="xray"
 
 if [[ -s "/usr/local/bin/xray" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(xray -version | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(xray -version | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-    CHECK_URL="https://api.github.com/repos/XTLS/Xray-core/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/XTLS/Xray-core/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
     sudo bash -c "$(curl -fsSL https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
 
-    if [[ "${IS_UPDATE}" == "yes" ]]; then
+    if [[ "${INSTALLER_IS_UPDATE}" == "yes" ]]; then
         sudo bash -c "$(curl -fsSL https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install-geodata
     fi
 fi

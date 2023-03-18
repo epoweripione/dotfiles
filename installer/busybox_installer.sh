@@ -17,53 +17,46 @@ else
     fi
 fi
 
-
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # https://www.busybox.net/
-APP_INSTALL_NAME="busybox"
-EXEC_INSTALL_NAME="busybox"
+INSTALLER_APP_NAME="busybox"
+INSTALLER_INSTALL_NAME="busybox"
 
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" -N https://www.busybox.net/downloads/ \
+colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" -N https://www.busybox.net/downloads/ \
     | grep -Eo 'busybox-([0-9]{1,}\.)+[0-9]{1,}' | sort -rV | head -n1 | cut -d'-' -f2)
 
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-
 # http://mybookworld.wikidot.com/compile-nano-from-source
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE} from source..."
-    REMOTE_FILENAME="${APP_INSTALL_NAME}-${REMOTE_VERSION}.tar.bz2"
-    DOWNLOAD_FILENAME="${WORKDIR}/${APP_INSTALL_NAME}.tar.bz2"
+if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE} from source..."
+    INSTALLER_FILE_NAME="${INSTALLER_APP_NAME}-${INSTALLER_VER_REMOTE}.tar.bz2"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_APP_NAME}.tar.bz2"
 
-    DOWNLOAD_URL="https://www.busybox.net/downloads/${REMOTE_FILENAME}"
+    INSTALLER_DOWNLOAD_URL="https://www.busybox.net/downloads/${INSTALLER_FILE_NAME}"
 
-    wget -O "${DOWNLOAD_FILENAME}" "$DOWNLOAD_URL" && \
-        tar -xjf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}" && \
-        mv "${WORKDIR}"/${APP_INSTALL_NAME}-* "${WORKDIR}/${APP_INSTALL_NAME}"
+    wget -O "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" && \
+        tar -xjf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}" && \
+        mv "${WORKDIR}"/${INSTALLER_APP_NAME}-* "${WORKDIR}/${INSTALLER_APP_NAME}"
 
-    if [[ -d "${WORKDIR}/${APP_INSTALL_NAME}" ]]; then
-        colorEcho "${BLUE}  Compiling ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-        cd "${WORKDIR}/${APP_INSTALL_NAME}" && \
+    if [[ -d "${WORKDIR}/${INSTALLER_APP_NAME}" ]]; then
+        colorEcho "${BLUE}  Compiling ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+        cd "${WORKDIR}/${INSTALLER_APP_NAME}" && \
             make defconfig >/dev/null && \
             make >/dev/null && \
-            sudo cp -f "${WORKDIR}/${APP_INSTALL_NAME}/${EXEC_INSTALL_NAME}" "/usr/local/bin" && \
-            sudo chmod +x "/usr/local/bin/${EXEC_INSTALL_NAME}"
+            sudo cp -f "${WORKDIR}/${INSTALLER_APP_NAME}/${INSTALLER_INSTALL_NAME}" "/usr/local/bin" && \
+            sudo chmod +x "/usr/local/bin/${INSTALLER_INSTALL_NAME}"
     fi
 fi
 
-# if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
+# if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
 #     mkdir -p "$HOME/busybox"
 #     for i in $(busybox --list); do
 #         ln -s busybox "$HOME/busybox/$i"

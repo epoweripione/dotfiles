@@ -21,38 +21,38 @@ App_Installer_Reset
 
 # skim - Fuzzy Finder in rust
 # https://github.com/lotabout/skim
-APP_INSTALL_NAME="skim"
-GITHUB_REPO_NAME="lotabout/skim"
+INSTALLER_APP_NAME="skim"
+INSTALLER_GITHUB_REPO="lotabout/skim"
 
-EXEC_INSTALL_NAME="sk"
+INSTALLER_INSTALL_NAME="sk"
 
-ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_NAME="sk"
+INSTALLER_ARCHIVE_EXT="tar.gz"
+INSTALLER_ARCHIVE_EXEC_NAME="sk"
 
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_EXEC_FULLNAME=$(readlink -f "$(which ${INSTALLER_INSTALL_NAME})")
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
 # if ! App_Installer_Install; then
-#     colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+#     colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 # fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    if checkPackageExists "${APP_INSTALL_NAME}"; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    if checkPackageExists "${INSTALLER_APP_NAME}"; then
         INSTALLER_INSTALL_METHOD="pacman"
     else
         [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALLER_INSTALL_METHOD="build"
@@ -60,16 +60,16 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
     # Install via Homebrew
     [[ -x "$(command -v brew)" ]] && brew install "sk"
 
     # From source on crates.io
-    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${APP_INSTALL_NAME}"
+    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${INSTALLER_APP_NAME}"
 elif [[ "${INSTALLER_INSTALL_METHOD}" == "pacman" ]]; then
-    if checkPackageNeedInstall "${APP_INSTALL_NAME}"; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-        [[ -x "$(command -v pacman)" ]] && sudo pacman --noconfirm -S "${APP_INSTALL_NAME}"
+    if checkPackageNeedInstall "${INSTALLER_APP_NAME}"; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+        [[ -x "$(command -v pacman)" ]] && sudo pacman --noconfirm -S "${INSTALLER_APP_NAME}"
     fi
 fi
 

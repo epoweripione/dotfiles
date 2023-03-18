@@ -437,14 +437,14 @@ fi
 
 ## Emoji keyboard
 ## https://github.com/OzymandiasTheGreat/emoji-keyboard
-# GITHUB_REPO_NAME="OzymandiasTheGreat/emoji-keyboard"
-# DOWNLOAD_FILENAME="$HOME/Applications/emoji-keyboard.AppImage"
-# CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-# App_Installer_Get_Remote_Version "${CHECK_URL}"
-# DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/${REMOTE_VERSION}/emoji-keyboard-${REMOTE_VERSION}.AppImage"
-# colorEcho "${BLUE}Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-# colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-# curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+# INSTALLER_GITHUB_REPO="OzymandiasTheGreat/emoji-keyboard"
+# INSTALLER_DOWNLOAD_FILE="$HOME/Applications/emoji-keyboard.AppImage"
+# INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+# App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+# INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/emoji-keyboard-${INSTALLER_VER_REMOTE}.AppImage"
+# colorEcho "${BLUE}Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+# colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+# curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 colorEcho "${BLUE}Installing ${FUCHSIA}Emoji keyboard${BLUE}..."
 yay --noconfirm --needed -S aur/emoji-keyboard
 

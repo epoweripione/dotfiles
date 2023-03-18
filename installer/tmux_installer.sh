@@ -22,40 +22,34 @@ if [[ -n "$TMUX" ]]; then
     exit 1
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # https://github.com/tmux/tmux
-APP_INSTALL_NAME="tmux"
-GITHUB_REPO_NAME="tmux/tmux"
+INSTALLER_APP_NAME="tmux"
+INSTALLER_GITHUB_REPO="tmux/tmux"
 
-EXEC_INSTALL_NAME="tmux"
+INSTALLER_INSTALL_NAME="tmux"
 
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0"
+colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
 
 # http://mybookworld.wikidot.com/compile-tmux-from-source
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V | grep -Eo '([0-9]{1,}\.)+[0-9a-zA-Z]{1,}' | head -n1)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V | grep -Eo '([0-9]{1,}\.)+[0-9a-zA-Z]{1,}' | head -n1)
 fi
 
-if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE} from source..."
+if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE} from source..."
     if [[ -x "$(command -v pacman)" ]]; then
         # Remove installed old version
-        if checkPackageInstalled "${APP_INSTALL_NAME}"; then
-            CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V | grep -Eo '([0-9]{1,}\.)+[0-9a-zA-Z]{1,}' | head -n1)
-            if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-                colorEcho "${BLUE}  Removing ${FUCHSIA}${APP_INSTALL_NAME}${YELLOW} ${CURRENT_VERSION}${BLUE}..."
-                sudo pacman --noconfirm -R "${APP_INSTALL_NAME}"
-                sudo pacman --noconfirm -Rn "${APP_INSTALL_NAME}" || true
+        if checkPackageInstalled "${INSTALLER_APP_NAME}"; then
+            INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V | grep -Eo '([0-9]{1,}\.)+[0-9a-zA-Z]{1,}' | head -n1)
+            if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+                colorEcho "${BLUE}  Removing ${FUCHSIA}${INSTALLER_APP_NAME}${YELLOW} ${INSTALLER_VER_CURRENT}${BLUE}..."
+                sudo pacman --noconfirm -R "${INSTALLER_APP_NAME}"
+                sudo pacman --noconfirm -Rn "${INSTALLER_APP_NAME}" || true
             fi
         fi
 
@@ -91,29 +85,29 @@ if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
     #     [[ -n "${FILE_LIBC}" ]] && sudo ln -s "${FILE_LIBC}" "$(dirname ${FILE_LIBC})/libevent_core-2.1.so.6"
     # fi
 
-    REMOTE_FILENAME="${APP_INSTALL_NAME}-${REMOTE_VERSION}.tar.gz"
-    DOWNLOAD_FILENAME="${WORKDIR}/${APP_INSTALL_NAME}.tar.gz"
+    INSTALLER_FILE_NAME="${INSTALLER_APP_NAME}-${INSTALLER_VER_REMOTE}.tar.gz"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_APP_NAME}.tar.gz"
 
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/${REMOTE_VERSION}/${REMOTE_FILENAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 
     if [[ ${curl_download_status} -eq 0 ]]; then
-        tar -xzf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}" && \
-            mv "${WORKDIR}"/${APP_INSTALL_NAME}-* "${WORKDIR}/${APP_INSTALL_NAME}"
+        tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}" && \
+            mv "${WORKDIR}"/${INSTALLER_APP_NAME}-* "${WORKDIR}/${INSTALLER_APP_NAME}"
     fi
 
-    if [[ -d "${WORKDIR}/${APP_INSTALL_NAME}" ]]; then
-        colorEcho "${BLUE}  Compiling ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-        cd "${WORKDIR}/${APP_INSTALL_NAME}" && \
+    if [[ -d "${WORKDIR}/${INSTALLER_APP_NAME}" ]]; then
+        colorEcho "${BLUE}  Compiling ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+        cd "${WORKDIR}/${INSTALLER_APP_NAME}" && \
             ./configure --prefix=/usr >/dev/null && \
             make >/dev/null && \
             sudo make install >/dev/null

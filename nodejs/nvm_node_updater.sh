@@ -16,8 +16,8 @@ fi
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
 # Node Version Manager: https://github.com/nvm-sh/nvm
-APP_INSTALL_NAME="nvm"
-GITHUB_REPO_NAME="nvm-sh/nvm"
+INSTALLER_APP_NAME="nvm"
+INSTALLER_GITHUB_REPO="nvm-sh/nvm"
 
 if [[ -z "${NVM_NOT_UPDATE}" && -d "$HOME/.nvm" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}nvm${BLUE}..."
@@ -29,12 +29,12 @@ if [[ -z "${NVM_NOT_UPDATE}" && -d "$HOME/.nvm" ]]; then
         [[ -s "$NVM_DIR/bash_completion" ]] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
     fi
 
-    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
 
-    CURRENT_VERSION=$(nvm --version)
-    REMOTE_VERSION=$(wget -qO- "$CHECK_URL" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
-    if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        curl -fsSL -o- "https://raw.githubusercontent.com/${GITHUB_REPO_NAME}/v$REMOTE_VERSION/install.sh" | bash
+    INSTALLER_VER_CURRENT=$(nvm --version)
+    INSTALLER_VER_REMOTE=$(wget -qO- "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        curl -fsSL -o- "https://raw.githubusercontent.com/${INSTALLER_GITHUB_REPO}/v${INSTALLER_VER_REMOTE}/install.sh" | bash
     fi
 
     NVM_DEFAULT_VERSION=$(nvm version default)
@@ -83,19 +83,19 @@ if [[ -z "${NVM_NOT_UPDATE}" && -d "$HOME/.nvm" ]]; then
     # sudo ln -s "$(which node)" /usr/bin/node && sudo ln -s "$(which npm)" /usr/bin/npm
 
     # colorEcho "${BLUE}Getting node LTS version..."
-    # CURRENT_VERSION=$(nvm version lts/*)
-    # REMOTE_VERSION=$(nvm version-remote lts/*)
+    # INSTALLER_VER_CURRENT=$(nvm version lts/*)
+    # INSTALLER_VER_REMOTE=$(nvm version-remote lts/*)
 
-    # if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
+    # if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
     #     colorEcho "${BLUE}Updating ${FUCHSIA}node LTS${BLUE}..."
     #     nvm install --lts --latest-npm
     # fi
 
     # colorEcho "${BLUE}Getting node version..."
-    # CURRENT_VERSION=$(nvm version)
-    # REMOTE_VERSION=$(nvm version-remote)
+    # INSTALLER_VER_CURRENT=$(nvm version)
+    # INSTALLER_VER_REMOTE=$(nvm version-remote)
 
-    # if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
+    # if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
     #     colorEcho "${BLUE}Updating ${FUCHSIA}node latest${BLUE}..."
     #     nvm install node --reinstall-packages-from=node --latest-npm
     #     # nvm use node

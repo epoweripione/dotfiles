@@ -17,8 +17,7 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 colorEcho "${BLUE}Checking latest version for ${FUCHSIA}Lua & LuaRocks${BLUE}..."
 
@@ -34,18 +33,18 @@ fi
 # compile & install lua
 # http://www.lua.org/
 if [[ -x "$(command -v lua)" ]]; then
-    CURRENT_VERSION=$(lua -v | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_VER_CURRENT=$(lua -v | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    CURRENT_VERSION=0.0
+    INSTALLER_VER_CURRENT=0.0
 fi
 
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" -N http://www.lua.org/download.html \
+INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" -N http://www.lua.org/download.html \
     | grep -Eo -m1 'lua-([0-9]{1,}\.)+[0-9]{1,}' | head -n1 | cut -d'-' -f2)
 
-if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}lua ${YELLOW}${REMOTE_VERSION} ${BLUE}from source..."
-    DOWNLOAD_URL="http://www.lua.org/ftp/lua-${REMOTE_VERSION}.tar.gz"
-    wget -O "${WORKDIR}/lua.tar.gz" "$DOWNLOAD_URL" && \
+if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}lua ${YELLOW}${INSTALLER_VER_REMOTE} ${BLUE}from source..."
+    INSTALLER_DOWNLOAD_URL="http://www.lua.org/ftp/lua-${INSTALLER_VER_REMOTE}.tar.gz"
+    wget -O "${WORKDIR}/lua.tar.gz" "${INSTALLER_DOWNLOAD_URL}" && \
         tar -xzf "${WORKDIR}/lua.tar.gz" -C "${WORKDIR}" && \
         mv "${WORKDIR}"/lua-* "${WORKDIR}/lua" && \
         cd "${WORKDIR}/lua" && \
@@ -57,18 +56,18 @@ fi
 # compile & install LuaRocks
 # https://luarocks.org/
 if [[ -x "$(command -v luarocks)" ]]; then
-    CURRENT_VERSION=$(luarocks --version | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_VER_CURRENT=$(luarocks --version | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    CURRENT_VERSION=0.0
+    INSTALLER_VER_CURRENT=0.0
 fi
 
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" -N https://luarocks.org/ \
+INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" -N https://luarocks.org/ \
     | grep -Eo -m1 'luarocks-([0-9]{1,}\.)+[0-9]{1,}' | head -n1 | cut -d'-' -f2)
 
-if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}luarocks ${YELLOW}${REMOTE_VERSION} ${BLUE}from source..."
-    DOWNLOAD_URL="https://luarocks.org/releases/luarocks-${REMOTE_VERSION}.tar.gz"
-    wget -O "${WORKDIR}/luarocks.tar.gz" "$DOWNLOAD_URL" && \
+if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}luarocks ${YELLOW}${INSTALLER_VER_REMOTE} ${BLUE}from source..."
+    INSTALLER_DOWNLOAD_URL="https://luarocks.org/releases/luarocks-${INSTALLER_VER_REMOTE}.tar.gz"
+    wget -O "${WORKDIR}/luarocks.tar.gz" "${INSTALLER_DOWNLOAD_URL}" && \
         tar -xzf "${WORKDIR}/luarocks.tar.gz" -C "${WORKDIR}" && \
         mv "${WORKDIR}"/luarocks-* "${WORKDIR}/luarocks" && \
         cd "${WORKDIR}/luarocks" && \

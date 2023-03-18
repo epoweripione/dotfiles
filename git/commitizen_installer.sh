@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # Conventional Commits
 # https://www.conventionalcommits.org/en/about/
 # Commitizen - The commitizen command line utility
@@ -25,25 +27,22 @@ fi
 # https://github.com/typicode/husky
 # commitlint - Lint commit messages
 # https://github.com/conventional-changelog/commitlint
-APP_INSTALL_NAME="commitizen"
-GITHUB_REPO_NAME="commitizen/cz-cli"
+INSTALLER_APP_NAME="commitizen"
+INSTALLER_GITHUB_REPO="commitizen/cz-cli"
 
-EXEC_INSTALL_NAME="cz"
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
+INSTALLER_INSTALL_NAME="cz"
 
 if [[ ! -d "${CURRENT_DIR}/.git" ]]; then
-    IS_INSTALL="no"
+    INSTALLER_IS_INSTALL="no"
     colorEcho "${FUCHSIA}${CURRENT_DIR}${RED} not a valid git repository!"
 else
     colorEchoN "${ORANGE}Install and run ${FUCHSIA}Commitizen ${ORANGE}in ${FUCHSIA}${CURRENT_DIR}${ORANGE}?[y/${CYAN}N${ORANGE}]: "
     read -r CHOICE
-    [[ "$CHOICE" == 'y' || "$CHOICE" == 'Y' ]] && IS_INSTALL="yes" || IS_INSTALL="no"
+    [[ "$CHOICE" == 'y' || "$CHOICE" == 'Y' ]] && INSTALLER_IS_INSTALL="yes" || INSTALLER_IS_INSTALL="no"
 fi
 
 # Install nodejs
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     [[ ! -x "$(command -v node)" && -x "$(command -v rtx)" ]] && rtx global nodejs@lts
     [[ ! -x "$(command -v node)" && "$(command -v asdf)" ]] && asdf_App_Install nodejs lts
 
@@ -62,13 +61,13 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 fi
 
 # Install packages If there is a package.json file in the directory
-if [[ "${IS_INSTALL}" == "yes" && -x "$(command -v npm)" && -s "${CURRENT_DIR}/package.json" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v npm)" && -s "${CURRENT_DIR}/package.json" ]]; then
     npm install
-    IS_INSTALL="no"
+    INSTALLER_IS_INSTALL="no"
 fi
 
 # Install and run Commitizen locally
-if [[ "${IS_INSTALL}" == "yes" && -x "$(command -v npx)" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v npx)" ]]; then
     # commitizen
     npm install commitizen conventional-changelog-cli conventional-changelog-cz-emoji-config --save-dev && \
         npx commitizen init cz-conventional-changelog --save-dev --save-exact

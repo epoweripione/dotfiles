@@ -16,15 +16,15 @@ fi
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
 # Node Version Manager: https://github.com/nvm-sh/nvm
-APP_INSTALL_NAME="nvm"
-GITHUB_REPO_NAME="nvm-sh/nvm"
+INSTALLER_APP_NAME="nvm"
+INSTALLER_GITHUB_REPO="nvm-sh/nvm"
 
 colorEcho "${BLUE}Installing ${FUCHSIA}nvm & nodejs${BLUE}..."
 if [[ ! -d "$HOME/.nvm" ]]; then
-    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    REMOTE_VERSION=$(wget -qO- $CHECK_URL | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
-    if [[ -n "$REMOTE_VERSION" ]]; then
-        curl -fsSL -o- "https://raw.githubusercontent.com/${GITHUB_REPO_NAME}/v$REMOTE_VERSION/install.sh" | bash
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+    INSTALLER_VER_REMOTE=$(wget -qO- ${INSTALLER_CHECK_URL} | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    if [[ -n "${INSTALLER_VER_REMOTE}" ]]; then
+        curl -fsSL -o- "https://raw.githubusercontent.com/${INSTALLER_GITHUB_REPO}/v${INSTALLER_VER_REMOTE}/install.sh" | bash
     fi
 fi
 

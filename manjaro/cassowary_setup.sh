@@ -17,16 +17,18 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # Cassowary: Run Windows Applications on Linux as if they are native
 # https://github.com/casualsnek/cassowary
-APP_INSTALL_NAME="cassowary"
-GITHUB_REPO_NAME="casualsnek/cassowary"
+INSTALLER_APP_NAME="cassowary"
+INSTALLER_GITHUB_REPO="casualsnek/cassowary"
 
-CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-App_Installer_Get_Remote_Version "${CHECK_URL}"
+INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
 
 ## Setting up a Windows VM with virt-manager
@@ -48,7 +50,7 @@ App_Installer_Get_Remote_Version "${CHECK_URL}"
 # On Windows (guest)
 # Open Settings, click on System, scroll to bottom and click on `Remote desktop` then click on `Enable Remote Desktop` and click confirm
 # Download latest .zip from the release page
-# https://github.com/casualsnek/cassowary/releases/download/${REMOTE_VERSION}/cassowary-${REMOTE_VERSION}-winsetup.zip
+# https://github.com/casualsnek/cassowary/releases/download/${INSTALLER_VER_REMOTE}/cassowary-${INSTALLER_VER_REMOTE}-winsetup.zip
 # Extract the downloaded .zip file
 # Double click on setup.bat located on extracted directory
 # Logout and login again to windows session
@@ -59,18 +61,18 @@ App_Installer_Get_Remote_Version "${CHECK_URL}"
 [[ -s "${MY_SHELL_SCRIPTS}/installer/python_pip_config.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/python_pip_config.sh"
 
 # Cassowary
-colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-DOWNLOAD_FILENAME="${WORKDIR}/cassowary-${REMOTE_VERSION}-py3-none-any.whl"
-DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/${REMOTE_VERSION}/cassowary-${REMOTE_VERSION}-py3-none-any.whl"
+colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+INSTALLER_DOWNLOAD_FILE="${WORKDIR}/cassowary-${INSTALLER_VER_REMOTE}-py3-none-any.whl"
+INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/cassowary-${INSTALLER_VER_REMOTE}-py3-none-any.whl"
 
-colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 curl_download_status=$?
 
 if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-    DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
     curl_download_status=$?
 fi
 
@@ -79,7 +81,7 @@ if [[ ${curl_download_status} -eq 0 ]]; then
 
     python3 -m pip install --user -U PyQt5
 
-    pip install "${DOWNLOAD_FILENAME}"
+    pip install "${INSTALLER_DOWNLOAD_FILE}"
 fi
 
 # $HOME/.config/casualrdh/config.json

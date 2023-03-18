@@ -23,7 +23,7 @@ if (-Not (check_webservice_up)) {
 if (-Not (Get-Command "winget" -ErrorAction SilentlyContinue)) {
     Write-Host "Installing winget..." -ForegroundColor Blue
     $WINGET_PATH = "$TEMP\msixbundle.appxbundle"
-    CHECK_URL = "https://api.github.com/repos/microsoft/winget-cli/releases/latest"
+    $CHECK_URL = "https://api.github.com/repos/microsoft/winget-cli/releases/latest"
     $REMOTE_TAG = (Invoke-WebRequest -Uri $CHECK_URL | ConvertFrom-Json)[0].tag_name
     $DOWNLOAD_URL = "https://github.com/microsoft/winget-cli/releases/download/$REMOTE_TAG/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
 

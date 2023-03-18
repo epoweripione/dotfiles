@@ -21,33 +21,33 @@ App_Installer_Reset
 
 # Helix: A post-modern modal text editor 
 # https://github.com/helix-editor/helix
-APP_INSTALL_NAME="helix"
-GITHUB_REPO_NAME="helix-editor/helix"
+INSTALLER_APP_NAME="helix"
+INSTALLER_GITHUB_REPO="helix-editor/helix"
 
-EXEC_INSTALL_NAME="hx"
+INSTALLER_INSTALL_NAME="hx"
 
-ARCHIVE_EXT="tar.xz"
-ARCHIVE_EXEC_DIR="helix-*"
-ARCHIVE_EXEC_NAME="hx"
+INSTALLER_ARCHIVE_EXT="tar.xz"
+INSTALLER_ARCHIVE_EXEC_DIR="helix-*"
+INSTALLER_ARCHIVE_EXEC_NAME="hx"
 
-ZSH_COMPLETION_FILE="hx.zsh"
+INSTALLER_ZSH_COMP_FILE="hx.zsh"
 
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
 if App_Installer_Install; then
     # runtime
-    HELIX_RUNTIME=$(find "${ARCHIVE_EXEC_DIR}" -type d -name "runtime")
+    HELIX_RUNTIME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type d -name "runtime")
     if [[ -d "${HELIX_RUNTIME}" ]]; then
         mkdir -p "$HOME/.config/helix/runtime"
         cp -Rf "${HELIX_RUNTIME}"/* "$HOME/.config/helix/runtime"
     fi
 else
-    colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
 cd "${CURRENT_DIR}" || exit

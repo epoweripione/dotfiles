@@ -17,72 +17,26 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
-
-[[ -z "${OS_INFO_TYPE}" ]] && get_os_type
-[[ -z "${OS_INFO_VDIS}" ]] && get_sysArch
+App_Installer_Reset
 
 # duf
 # https://github.com/muesli/duf
-APP_INSTALL_NAME="duf"
+INSTALLER_APP_NAME="duf"
+INSTALLER_GITHUB_REPO="muesli/duf"
 
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+INSTALLER_ARCHIVE_EXT="tar.gz"
 
-CHECK_URL="https://api.github.com/repos/muesli/duf/releases/latest"
-App_Installer_Get_Remote_Version "${CHECK_URL}"
+INSTALLER_INSTALL_NAME="duf"
 
-REMOTE_FILENAME=""
-case "${OS_INFO_TYPE}" in
-    linux | freebsd | openbsd)
-        case "${OS_INFO_VDIS}" in
-            32)
-                REMOTE_FILENAME=duf_${REMOTE_VERSION}_${OS_INFO_TYPE}_i386.tar.gz
-                ;;
-            64)
-                REMOTE_FILENAME=duf_${REMOTE_VERSION}_${OS_INFO_TYPE}_x86_64.tar.gz
-                ;;
-            arm)
-                REMOTE_FILENAME=duf_${REMOTE_VERSION}_${OS_INFO_TYPE}_armv7.tar.gz
-                ;;
-            *)
-                REMOTE_FILENAME=duf_${REMOTE_VERSION}_${OS_INFO_TYPE}_${OS_INFO_VDIS}.tar.gz
-                ;;
-        esac
-        ;;
-    darwin)
-        REMOTE_FILENAME=duf_${REMOTE_VERSION}_Darwin_x86_64.tar.gz
-        ;;
-esac
-
-if [[ -x "$(command -v duf)" ]]; then
-    CURRENT_VERSION=$(duf -version | cut -d' ' -f2)
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        REMOTE_FILENAME=""
-    fi
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+else
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ -n "$REMOTE_VERSION" && -n "$REMOTE_FILENAME" ]]; then
-    colorEcho "${BLUE} Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-
-    DOWNLOAD_FILENAME="${WORKDIR}/duf.tar.gz"
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/muesli/duf/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
-
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
-        [[ -s "/usr/local/bin/duf" ]] && sudo rm -f "/usr/local/bin/duf"
-        [[ -d "/usr/local/duf" ]] && sudo rm -rf "/usr/local/duf"
-
-        tar -xzf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}" && \
-            sudo cp -f "${WORKDIR}/duf" "/usr/local/bin/duf"
-    fi
+if ! App_Installer_Install; then
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
+
+cd "${CURRENT_DIR}" || exit

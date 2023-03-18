@@ -17,13 +17,15 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # XONSH is a Python-powered shell
 # https://xon.sh/
-APP_INSTALL_NAME="Xonsh"
-EXEC_INSTALL_NAME="xonsh"
+INSTALLER_APP_NAME="Xonsh"
+INSTALLER_INSTALL_NAME="xonsh"
 PIP_PACKAGE_NAME="xonsh[full]"
 
-[[ ! -x "$(command -v ${EXEC_INSTALL_NAME})" ]] && IS_INSTALL="yes" || IS_INSTALL="no"
-[[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+[[ ! -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]] && INSTALLER_IS_INSTALL="yes" || INSTALLER_IS_INSTALL="no"
+[[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 
-[[ "${IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"
+[[ "${INSTALLER_IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"

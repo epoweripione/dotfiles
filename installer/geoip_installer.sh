@@ -12,6 +12,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # GeoIP binary and database
 # http://kbeezie.com/geoiplookup-command-line/
 if [[ -x "$(command -v pacman)" ]]; then

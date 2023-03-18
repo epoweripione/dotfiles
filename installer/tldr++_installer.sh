@@ -17,115 +17,26 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # tldr++: fast and interactive tldr client written with go
 # https://github.com/isacikgoz/tldr
-APP_INSTALL_NAME="tldr++"
-GITHUB_REPO_NAME="isacikgoz/tldr"
+INSTALLER_APP_NAME="tldr++"
+INSTALLER_GITHUB_REPO="isacikgoz/tldr"
 
-ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_NAME="tldr"
+INSTALLER_ARCHIVE_EXT="tar.gz"
 
-EXEC_INSTALL_PATH="/usr/local/bin"
-EXEC_INSTALL_NAME="tldr"
+INSTALLER_INSTALL_NAME="tldr"
 
-[[ -z "${ARCHIVE_EXEC_NAME}" ]] && ARCHIVE_EXEC_NAME="${EXEC_INSTALL_NAME}"
-
-DOWNLOAD_FILENAME="${WORKDIR}/${EXEC_INSTALL_NAME}"
-[[ -n "${ARCHIVE_EXT}" ]] && DOWNLOAD_FILENAME="${DOWNLOAD_FILENAME}.${ARCHIVE_EXT}"
-
-REMOTE_SUFFIX=""
-REMOTE_FILENAME=""
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-VERSION_FILENAME=""
-
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1 | cut -d. -f1-2)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1 | cut -d. -f1-2)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-
-    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
-    fi
-fi
-
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
-    [[ -z "${OS_INFO_ARCH}" ]] && get_arch
-
-    [[ "${OS_INFO_TYPE}" == "windows" ]] && ARCHIVE_EXT="zip"
-    REMOTE_FILENAME="${EXEC_INSTALL_NAME}_${REMOTE_VERSION}_${OS_INFO_TYPE}_${OS_INFO_ARCH}.${ARCHIVE_EXT}"
-
-    [[ -z "${REMOTE_FILENAME}" ]] && IS_INSTALL="no"
-fi
-
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-
-    # Download file
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
-
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
-        # Extract file
-        case "${ARCHIVE_EXT}" in
-            "zip")
-                unzip -qo "${DOWNLOAD_FILENAME}" -d "${WORKDIR}"
-                ;;
-            "tar.bz2")
-                tar -xjf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}"
-                ;;
-            "tar.gz")
-                tar -xzf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}"
-                ;;
-            "tar.xz")
-                tar -xJf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}"
-                ;;
-            "gz")
-                cd "${WORKDIR}" && gzip -df "${DOWNLOAD_FILENAME}"
-                ;;
-            "bz")
-                cd "${WORKDIR}" && bzip2 -df "${DOWNLOAD_FILENAME}"
-                ;;
-            "7z")
-                7z e "${DOWNLOAD_FILENAME}" -o"${WORKDIR}"
-                ;;
-        esac
-
-        # Install
-        if [[ -s "${WORKDIR}/${ARCHIVE_EXEC_NAME}" ]]; then
-            sudo cp -f "${WORKDIR}/${ARCHIVE_EXEC_NAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-                sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-                [[ -n "${VERSION_FILENAME}" ]] && echo "${REMOTE_VERSION}" | sudo tee "${VERSION_FILENAME}" >/dev/null || true
-        fi
-    fi
-fi
-
-
-# Pulls the github.com/tldr-pages/tldr repository
-if [[ "${IS_INSTALL}" == "yes" || "${IS_UPDATE}" == "yes" ]]; then
+if App_Installer_Install; then
+    # Pulls the github.com/tldr-pages/tldr repository
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     case "${OS_INFO_TYPE}" in
         darwin)
@@ -140,6 +51,8 @@ if [[ "${IS_INSTALL}" == "yes" || "${IS_UPDATE}" == "yes" ]]; then
             ;;
     esac
     [[ -n "${TLDR_PAGES}" ]] && Git_Clone_Update_Branch "tldr-pages/tldr" "${TLDR_PAGES}"
+else
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
 

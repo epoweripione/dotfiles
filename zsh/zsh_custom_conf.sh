@@ -396,14 +396,14 @@ if [[ -d "$HOME/.gvm" ]]; then
     fi
 
     if gvm list 2>/dev/null | grep -q 'go1.4'; then
-        CURRENT_VERSION=$(gvm list | grep '=>' | cut -d' ' -f2)
+        GVM_GO_VERSION=$(gvm list | grep '=>' | cut -d' ' -f2)
 
         # Set GOROOT_BOOTSTRAP to compile Go 1.5+
         gvm use go1.4 >/dev/null 2>&1
         export GOROOT_BOOTSTRAP=$GOROOT
 
         # Set default go version
-        [[ -n "$CURRENT_VERSION" ]] && gvm use "$CURRENT_VERSION" --default >/dev/null 2>&1
+        [[ -n "${GVM_GO_VERSION}" ]] && gvm use "${GVM_GO_VERSION}" --default >/dev/null 2>&1
     fi
 
     # fix (maybe) break PATH

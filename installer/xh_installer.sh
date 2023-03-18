@@ -27,25 +27,25 @@ if [[ -x "$(command -v xh)" && "$(command -v asdf)" ]]; then
     fi
 fi
 
-APP_INSTALL_NAME="xh"
-GITHUB_REPO_NAME="ducaale/xh"
+INSTALLER_APP_NAME="xh"
+INSTALLER_GITHUB_REPO="ducaale/xh"
 
-EXEC_INSTALL_NAME="xh"
+INSTALLER_INSTALL_NAME="xh"
 
-ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_DIR="xh-*"
+INSTALLER_ARCHIVE_EXT="tar.gz"
+INSTALLER_ARCHIVE_EXEC_DIR="xh-*"
 
-ZSH_COMPLETION_FILE="_xh"
+INSTALLER_ZSH_COMP_FILE="_xh"
 
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
 if ! App_Installer_Install; then
-    colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
 cd "${CURRENT_DIR}" || exit

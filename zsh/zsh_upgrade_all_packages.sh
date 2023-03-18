@@ -94,12 +94,12 @@ fi
 if [[ -x "$(command -v micro)" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}Micro editor${BLUE}..."
 
-    CHECK_URL="https://api.github.com/repos/zyedidia/micro/releases/latest"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/zyedidia/micro/releases/latest"
 
-    CURRENT_VERSION=$(micro -version | grep Version | cut -d',' -f2)
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}micro ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    INSTALLER_VER_CURRENT=$(micro -version | grep Version | cut -d',' -f2)
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}micro ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
         curl https://getmic.ro | bash && sudo mv micro "/usr/local/bin"
     fi
 fi
@@ -113,12 +113,12 @@ if [[ -d "$HOME/.jabba" ]]; then
         [[ -s "$HOME/.jabba/jabba.sh" ]] && source "$HOME/.jabba/jabba.sh"
     fi
 
-    CHECK_URL="https://api.github.com/repos/shyiko/jabba/releases/latest"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/shyiko/jabba/releases/latest"
 
-    CURRENT_VERSION=$(jabba --version | cut -d' ' -f2)
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}jabba ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    INSTALLER_VER_CURRENT=$(jabba --version | cut -d' ' -f2)
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}jabba ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
         curl -fsSL https://github.com/shyiko/jabba/raw/master/install.sh | bash && \
             source "$HOME/.jabba/jabba.sh" && \
             sed -i "/jabba.sh/d" ~/.zshrc

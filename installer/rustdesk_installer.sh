@@ -17,21 +17,14 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # RustDesk: Open source virtual/remote desktop infrastructure for everyone!
 # https://github.com/rustdesk/rustdesk
-APP_INSTALL_NAME="rustdesk"
-GITHUB_REPO_NAME="rustdesk/rustdesk"
+INSTALLER_APP_NAME="rustdesk"
+INSTALLER_GITHUB_REPO="rustdesk/rustdesk"
 
-EXEC_INSTALL_NAME="rustdesk"
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-REMOTE_VERSION=""
+INSTALLER_INSTALL_NAME="rustdesk"
 
 ## self-host relay server
 ## https://rustdesk.com/docs/en/self-host/install/
@@ -113,48 +106,48 @@ fi
 # Insall or Build
 OS_RELEASE_ID="$(grep -E '^ID=([a-zA-Z]*)' /etc/os-release 2>/dev/null | cut -d '=' -f2)"
 if [[ "${OS_RELEASE_ID}" == "manjaro" ]]; then
-    if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-        IS_UPDATE="yes"
-        CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+        INSTALLER_IS_UPDATE="yes"
+        INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     else
-        [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+        [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
     fi
 
-    if [[ "${IS_INSTALL}" == "yes" ]]; then
-        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+    if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-        # CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases"
-        # REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r 'map(select(.prerelease)) | first | .tag_name' | cut -d'v' -f2)
+        # INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases"
+        # INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r 'map(select(.prerelease)) | first | .tag_name' | cut -d'v' -f2)
 
-        if [[ -z "${REMOTE_VERSION}" ]]; then
-            CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-            App_Installer_Get_Remote_Version "${CHECK_URL}"
+        if [[ -z "${INSTALLER_VER_REMOTE}" ]]; then
+            INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+            App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
         fi
-        if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-            IS_INSTALL="no"
+        if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+            INSTALLER_IS_INSTALL="no"
         fi
     fi
 
-    if [[ "${IS_INSTALL}" == "yes" ]]; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
-        REMOTE_FILENAME="rustdesk-${REMOTE_VERSION}-manjaro-arch.pkg.tar.zst"
-        DOWNLOAD_FILENAME="${WORKDIR}/${REMOTE_FILENAME}"
+        INSTALLER_FILE_NAME="rustdesk-${INSTALLER_VER_REMOTE}-manjaro-arch.pkg.tar.zst"
+        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
 
-        DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/${REMOTE_VERSION}/${REMOTE_FILENAME}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
         curl_download_status=$?
         if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-            DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-            colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-            axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+            INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+            colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+            axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
             curl_download_status=$?
         fi
 
         if [[ ${curl_download_status} -eq 0 ]]; then
-            sudo pacman --noconfirm -U "${DOWNLOAD_FILENAME}"
+            sudo pacman --noconfirm -U "${INSTALLER_DOWNLOAD_FILE}"
         fi
 
         # ignoring package upgrade with pacman or yay
@@ -174,7 +167,7 @@ if [[ "${OS_RELEASE_ID}" == "manjaro" ]]; then
         fi
     fi
 else
-    Git_Clone_Update_Branch "${GITHUB_REPO_NAME}" "$HOME/rustdesk"
+    Git_Clone_Update_Branch "${INSTALLER_GITHUB_REPO}" "$HOME/rustdesk"
     if [[ -d "$HOME/rustdesk" ]]; then
         cd "$HOME/rustdesk" && \
             mkdir -p target/debug && \

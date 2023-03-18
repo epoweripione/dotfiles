@@ -44,12 +44,12 @@ fi
 # https://docs.ceph.com/en/pacific/cephadm/
 # https://blog.51cto.com/renlixing/3134294
 if [[ ! -x "$(command -v cephadm)" ]]; then
-    DOWNLOAD_URL="https://github.com/ceph/ceph/raw/pacific/src/cephadm/cephadm"
-    DOWNLOAD_FILENAME="${WORKDIR}/cephadm"
+    INSTALLER_DOWNLOAD_URL="https://github.com/ceph/ceph/raw/pacific/src/cephadm/cephadm"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/cephadm"
 
-    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" && \
-        chmod +x "${DOWNLOAD_FILENAME}" && \
-        sudo "${DOWNLOAD_FILENAME}" add-repo --release pacific
+    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" && \
+        chmod +x "${INSTALLER_DOWNLOAD_FILE}" && \
+        sudo "${INSTALLER_DOWNLOAD_FILE}" add-repo --release pacific
 
     # Debian 11 repo
     # https://tracker.ceph.com/issues/50500
@@ -63,8 +63,8 @@ if [[ ! -x "$(command -v cephadm)" ]]; then
         fi
     fi
 
-    sudo "${DOWNLOAD_FILENAME}" install
-    sudo "${DOWNLOAD_FILENAME}" install ceph-common
+    sudo "${INSTALLER_DOWNLOAD_FILE}" install
+    sudo "${INSTALLER_DOWNLOAD_FILE}" install ceph-common
 fi
 
 [[ ! -x "$(command -v cephadm)" ]] && colorEcho "${FUCHSIA}cephadm${BLUE} is not installed!" && exit 1

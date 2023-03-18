@@ -42,13 +42,13 @@ GITHUB_REPOS=(
 for TargetRepo in "${GITHUB_REPOS[@]}"; do
     colorEchoN "${BLUE}${TargetRepo}: "
 
-    CHECK_URL="https://api.github.com/repos/${TargetRepo}/releases/latest"
-    if App_Installer_Get_Remote "${CHECK_URL}"; then
-        colorEcho "${FUCHSIA}${REMOTE_VERSION}"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${TargetRepo}/releases/latest"
+    if App_Installer_Get_Remote "${INSTALLER_CHECK_URL}"; then
+        colorEcho "${FUCHSIA}${INSTALLER_VER_REMOTE}"
 
-        if App_Installer_Download_Extract "${REMOTE_DOWNLOAD_URL}"; then
-            REMOTE_FILENAME=$(echo "${REMOTE_DOWNLOAD_URL}" | awk -F"/" '{print $NF}')
-            colorEcho "  ${ORANGE}${REMOTE_FILENAME}${BLUE} has been downloaded & extracted!"
+        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}"; then
+            INSTALLER_FILE_NAME=$(echo "${INSTALLER_DOWNLOAD_URL}" | awk -F"/" '{print $NF}')
+            colorEcho "  ${ORANGE}${INSTALLER_FILE_NAME}${BLUE} has been downloaded & extracted!"
         fi
     else
         echo ""

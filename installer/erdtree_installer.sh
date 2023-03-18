@@ -20,53 +20,53 @@ fi
 App_Installer_Reset
 
 # [erdtree (et): A multi-threaded file-tree visualizer and disk usage analyzer](https://github.com/solidiquis/erdtree)
-APP_INSTALL_NAME="erdtree"
-GITHUB_REPO_NAME="solidiquis/erdtree"
+INSTALLER_APP_NAME="erdtree"
+INSTALLER_GITHUB_REPO="solidiquis/erdtree"
 
-EXEC_INSTALL_NAME="et"
+INSTALLER_INSTALL_NAME="et"
 
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_EXEC_FULLNAME=$(readlink -f "$(which ${INSTALLER_INSTALL_NAME})")
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    if [[ -n "${EXEC_FULL_NAME}" ]] && [[ "${EXEC_FULL_NAME}" != *"${EXEC_INSTALL_PATH}"* ]]; then
-        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    if [[ -n "${INSTALLER_EXEC_FULLNAME}" ]] && [[ "${INSTALLER_EXEC_FULLNAME}" != *"${INSTALLER_INSTALL_PATH}"* ]]; then
+        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-        CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-        App_Installer_Get_Remote_Version "${CHECK_URL}"
-        if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-            IS_INSTALL="no"
+        INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+        App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+        if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+            INSTALLER_IS_INSTALL="no"
         fi
     fi
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     INSTALLER_INSTALL_METHOD="custom"
 
-    if [[ -n "${EXEC_FULL_NAME}" ]] && [[ "${EXEC_FULL_NAME}" != *"${EXEC_INSTALL_PATH}"* ]]; then
+    if [[ -n "${INSTALLER_EXEC_FULLNAME}" ]] && [[ "${INSTALLER_EXEC_FULLNAME}" != *"${INSTALLER_INSTALL_PATH}"* ]]; then
         [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALLER_INSTALL_METHOD="build"
     fi
 fi
 
 if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
     # Install via Homebrew
-    [[ -x "$(command -v brew)" ]] && brew install "${APP_INSTALL_NAME}"
+    [[ -x "$(command -v brew)" ]] && brew install "${INSTALLER_APP_NAME}"
 
     # From source on crates.io
-    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${APP_INSTALL_NAME}"
+    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${INSTALLER_APP_NAME}"
 elif [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
     if ! App_Installer_Install; then
-        colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+        colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
     fi
 fi
 
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" && ! -s "$HOME/.erdtreerc" ]]; then
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" && ! -s "$HOME/.erdtreerc" ]]; then
     tee "$HOME/.erdtreerc" >/dev/null <<-'EOF'
 --level 2
 --icons

@@ -144,8 +144,8 @@ kubectl --kubeconfig "$HOME/.kube/rke2.yaml" create namespace cattle-system
 ## If you have installed the CRDs manually instead of with the 
 ## `--set installCRDs=true` option added to your Helm install command, 
 ## you should upgrade your CRD resources before upgrading the Helm chart:
-# CHECK_URL="https://api.github.com/repos/jetstack/cert-manager/releases/latest"
-# CERT_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
+# INSTALLER_CHECK_URL="https://api.github.com/repos/jetstack/cert-manager/releases/latest"
+# CERT_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
 # kubectl --kubeconfig "$HOME/.kube/rke2.yaml" \
 #     apply -f "https://github.com/jetstack/cert-manager/releases/download/${CERT_VERSION}/cert-manager.crds.yaml"
 

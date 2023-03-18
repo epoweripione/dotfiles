@@ -17,42 +17,30 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # NCurses Disk Usage
 # https://dev.yorhel.nl/ncdu
-APP_INSTALL_NAME="ncdu"
-GITHUB_REPO_NAME=""
+INSTALLER_APP_NAME="ncdu"
+INSTALLER_GITHUB_REPO=""
 
-EXEC_INSTALL_PATH="/usr/local/bin"
-EXEC_INSTALL_NAME="ncdu"
+INSTALLER_INSTALL_PATH="/usr/local/bin"
+INSTALLER_INSTALL_NAME="ncdu"
 
-ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_DIR=""
-ARCHIVE_EXEC_NAME=""
+INSTALLER_ARCHIVE_EXT="tar.gz"
 
-MAN1_FILE="*.1"
-ZSH_COMPLETION_FILE=""
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-REMOTE_VERSION=""
-VERSION_FILENAME=""
-
-REMOTE_DOWNLOAD_URL=""
-
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_EXEC_FULLNAME=$(readlink -f "$(which ${INSTALLER_INSTALL_NAME})")
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
 if App_Installer_Get_Remote "https://dev.yorhel.nl/ncdu" 'ncdu-[^<>:;,?"*|/]+\.tar\.gz' "ncdu-.*\.tar\.gz"; then
-    REMOTE_DOWNLOAD_URL="https://dev.yorhel.nl/download/${REMOTE_DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_URL="https://dev.yorhel.nl/download/${INSTALLER_DOWNLOAD_URL}"
     if ! App_Installer_Install "https://dev.yorhel.nl/ncdu"; then
-        colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+        colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
     fi
 fi
 

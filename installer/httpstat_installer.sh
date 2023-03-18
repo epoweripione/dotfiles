@@ -17,44 +17,38 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # httpstat: It's like curl -v, with colours
 # https://github.com/davecheney/httpstat
-APP_INSTALL_NAME="httpstat"
-GITHUB_REPO_NAME="davecheney/httpstat"
+INSTALLER_APP_NAME="httpstat"
+INSTALLER_GITHUB_REPO="davecheney/httpstat"
 
-EXEC_INSTALL_NAME="httpstat"
+INSTALLER_INSTALL_NAME="httpstat"
 
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    VERSION_FILENAME="$(which ${EXEC_INSTALL_NAME}).version"
-    [[ -s "${VERSION_FILENAME}" ]] && CURRENT_VERSION=$(head -n1 "${VERSION_FILENAME}")
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_FILE="$(which ${INSTALLER_INSTALL_NAME}).version"
+    [[ -s "${INSTALLER_VER_FILE}" ]] && INSTALLER_VER_CURRENT=$(head -n1 "${INSTALLER_VER_FILE}")
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-[[ ! -x "$(command -v go)" ]] && IS_INSTALL="no"
+[[ ! -x "$(command -v go)" ]] && INSTALLER_IS_INSTALL="no"
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
-    if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
         go install "github.com/davecheney/httpstat@latest"
 
-        if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-            VERSION_FILENAME="$(which ${EXEC_INSTALL_NAME}).version"
-            echo "${REMOTE_VERSION}" | sudo tee "${VERSION_FILENAME}" >/dev/null || true
+        if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+            INSTALLER_VER_FILE="$(which ${INSTALLER_INSTALL_NAME}).version"
+            echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null || true
         fi
     fi
 fi

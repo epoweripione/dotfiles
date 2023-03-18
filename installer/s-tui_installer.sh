@@ -17,10 +17,12 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # s-tui: The Stress Terminal UI: s-tui
 # https://github.com/amanusk/s-tui
-APP_INSTALL_NAME="s-tui"
-EXEC_INSTALL_NAME="s-tui"
+INSTALLER_APP_NAME="s-tui"
+INSTALLER_INSTALL_NAME="s-tui"
 PIP_PACKAGE_NAME="s-tui"
 
 if [[ -x "$(command -v pacman)" ]]; then
@@ -35,7 +37,7 @@ if [[ -x "$(command -v pacman)" ]]; then
     done
 fi
 
-[[ ! -x "$(command -v ${EXEC_INSTALL_NAME})" ]] && IS_INSTALL="yes" || IS_INSTALL="no"
-[[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+[[ ! -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]] && INSTALLER_IS_INSTALL="yes" || INSTALLER_IS_INSTALL="no"
+[[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 
-[[ "${IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"
+[[ "${INSTALLER_IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"

@@ -24,11 +24,11 @@ if [[ -d "$HOME/.nvs" ]]; then
         [ -s "$NVS_HOME/nvs.sh" ] && . "$NVS_HOME/nvs.sh"
     fi
 
-    CHECK_URL="https://api.github.com/repos/jasongin/nvs/releases/latest"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/jasongin/nvs/releases/latest"
 
-    CURRENT_VERSION=$(nvs --version)
-    REMOTE_VERSION=$(wget -qO- "$CHECK_URL" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
-    if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
+    INSTALLER_VER_CURRENT=$(nvs --version)
+    INSTALLER_VER_REMOTE=$(wget -qO- "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null | cut -d'v' -f2)
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
         cd "$NVS_HOME" && git pull
     fi
 

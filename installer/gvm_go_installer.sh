@@ -12,6 +12,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
@@ -38,25 +40,22 @@ fi
 ## Install Mercurial from http://pkgs.repoforge.org/mercurial/
 ## FreeBSD Requirements
 # sudo pkg_add -r bash git mercurial
-APP_INSTALL_NAME="gvm & go"
+INSTALLER_APP_NAME="gvm & go"
 
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="go0.0.0"
+INSTALLER_VER_CURRENT="go0.0.0"
 
 if [[ -d "$HOME/.gvm" ]]; then
-    IS_UPDATE="yes"
+    INSTALLER_IS_UPDATE="yes"
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 fi
 
 # new install
-if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${INSTALLER_IS_UPDATE}" == "no" ]]; then
     if [[ -x "$(command -v pacman)" ]]; then
         PackagesList=(
             bash
@@ -88,7 +87,7 @@ if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" ]]; then
 fi
 
 
-# if [[ "${IS_INSTALL}" == "yes" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
+# if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
 #     if [[ ! -x "$(command -v proxychains4)" ]]; then
 #         [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/proxychains_installer.sh" ]] && \
 #             source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/proxychains_installer.sh"
@@ -96,7 +95,7 @@ fi
 # fi
 
 
-if [[ "${IS_INSTALL}" == "yes" && -d "$HOME/.gvm" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -d "$HOME/.gvm" ]]; then
     if type 'gvm' 2>/dev/null | grep -q 'function'; then
         :
     else
@@ -127,37 +126,37 @@ if [[ "${IS_INSTALL}" == "yes" && -d "$HOME/.gvm" ]]; then
             gvm install go1.4 -B
     fi
 
-    CURRENT_VERSION=$(gvm list 2>/dev/null | grep '=>' | cut -d' ' -f2)
+    INSTALLER_VER_CURRENT=$(gvm list 2>/dev/null | grep '=>' | cut -d' ' -f2)
     if gvm list 2>/dev/null | grep -q 'go1.4'; then
         ## Set GOROOT_BOOTSTRAP to compile Go 1.5+
         # gvm use go1.4
         # GOROOT_BOOTSTRAP=$GOROOT
 
         # Install latest go version
-        REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" https://golang.org/dl/ | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-        # REMOTE_VERSION=${REMOTE_VERSION%.}
+        INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" https://golang.org/dl/ | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        # INSTALLER_VER_REMOTE=${INSTALLER_VER_REMOTE%.}
 
-        if [[ -n "$REMOTE_VERSION" ]] && ! gvm list 2>/dev/null | grep -q "$REMOTE_VERSION"; then
+        if [[ -n "${INSTALLER_VER_REMOTE}" ]] && ! gvm list 2>/dev/null | grep -q "${INSTALLER_VER_REMOTE}"; then
             # if [[ "${THE_WORLD_BLOCKED}" == "true" && -x "$(command -v proxychains4)" ]]; then
-            #     proxychains4 gvm install $REMOTE_VERSION
+            #     proxychains4 gvm install ${INSTALLER_VER_REMOTE}
             # else
-            #     gvm install $REMOTE_VERSION
+            #     gvm install ${INSTALLER_VER_REMOTE}
             # fi
-            GVM_DOWNLOAD_VERSION="${REMOTE_VERSION}"
+            GVM_DOWNLOAD_VERSION="${INSTALLER_VER_REMOTE}"
             GVM_DOWNLOAD_NAME="${GVM_DOWNLOAD_VERSION}.${OS_INFO_TYPE}-${OS_INFO_ARCH}.${GVM_DOWNLOAD_EXT}"
             GVM_DOWNLOAD_SOURCE="https://dl.google.com/go/${GVM_DOWNLOAD_NAME}"
 
             curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$HOME/.gvm/archive/${GVM_DOWNLOAD_NAME}" -C- "${GVM_DOWNLOAD_SOURCE}" && \
-                gvm install "${REMOTE_VERSION}" -B
+                gvm install "${INSTALLER_VER_REMOTE}" -B
         fi
 
         # Set default go version
-        if [[ -n "$REMOTE_VERSION" ]]; then
-            if gvm list 2>/dev/null | grep -q "$REMOTE_VERSION"; then
-                gvm use "$REMOTE_VERSION" --default
+        if [[ -n "${INSTALLER_VER_REMOTE}" ]]; then
+            if gvm list 2>/dev/null | grep -q "${INSTALLER_VER_REMOTE}"; then
+                gvm use "${INSTALLER_VER_REMOTE}" --default
             fi
-        elif [[ -n "$CURRENT_VERSION" ]]; then
-            gvm use "$CURRENT_VERSION" --default
+        elif [[ -n "${INSTALLER_VER_CURRENT}" ]]; then
+            gvm use "${INSTALLER_VER_CURRENT}" --default
         fi
     fi
 fi
@@ -174,14 +173,14 @@ if [[ -d "$HOME/.gvm" ]]; then
     fi
 
     if gvm list 2>/dev/null | grep -q 'go1.4'; then
-        CURRENT_VERSION=$(gvm list 2>/dev/null | grep '=>' | cut -d' ' -f2)
+        INSTALLER_VER_CURRENT=$(gvm list 2>/dev/null | grep '=>' | cut -d' ' -f2)
 
         # Set GOROOT_BOOTSTRAP to compile Go 1.5+
         gvm use go1.4 >/dev/null 2>&1
         export GOROOT_BOOTSTRAP=$GOROOT
 
         # Set default go version
-        [[ -n "$CURRENT_VERSION" ]] && gvm use "$CURRENT_VERSION" --default >/dev/null 2>&1
+        [[ -n "${INSTALLER_VER_CURRENT}" ]] && gvm use "${INSTALLER_VER_CURRENT}" --default >/dev/null 2>&1
     fi
 
     # fix (maybe) break PATH

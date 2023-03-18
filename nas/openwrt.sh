@@ -165,20 +165,20 @@ opkg install luci-ssl luci-i18n-base-zh-cn luci-i18n-uhttpd-zh-cn luci-i18n-fire
 
 ## Upgrade Kernel
 # . /etc/openwrt_release
-# CURRENT_KERNEL="$(opkg list-installed kernel)" && CURRENT_VERSION="${CURRENT_KERNEL##* }"
-# REMOTE_VERSION=$(wget -qO- https://downloads.openwrt.org/snapshots/targets/${DISTRIB_TARGET}/packages/ \
+# CURRENT_KERNEL="$(opkg list-installed kernel)" && INSTALLER_VER_CURRENT="${CURRENT_KERNEL##* }"
+# INSTALLER_VER_REMOTE=$(wget -qO- https://downloads.openwrt.org/snapshots/targets/${DISTRIB_TARGET}/packages/ \
 #     | grep -Eo -m1 '>kernel_.*\.ipk' \
 #     | sed -e 's/>kernel_//' -e 's/\.ipk//' -e "s|_${DISTRIB_TARGET/\//_}||" \
 #     | head -n1)
 
-# if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
+# if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
 #     cd /tmp
-#     wget "https://downloads.openwrt.org/snapshots/targets/${DISTRIB_TARGET}/packages/kernel_${REMOTE_VERSION}_${DISTRIB_TARGET/\//_}.ipk" && \
-#         opkg install "kernel_${REMOTE_VERSION}_${DISTRIB_TARGET/\//_}.ipk"
+#     wget "https://downloads.openwrt.org/snapshots/targets/${DISTRIB_TARGET}/packages/kernel_${INSTALLER_VER_REMOTE}_${DISTRIB_TARGET/\//_}.ipk" && \
+#         opkg install "kernel_${INSTALLER_VER_REMOTE}_${DISTRIB_TARGET/\//_}.ipk"
 
 #     # Edit /etc/opkg/distfeeds.conf
 #     sed -i '/openwrt_kmods/d' "/etc/opkg/distfeeds.conf"
-#     echo "src/gz openwrt_kmods https://downloads.openwrt.org/snapshots/targets/${DISTRIB_TARGET}/kmods/${REMOTE_VERSION}" >> "/etc/opkg/distfeeds.conf"
+#     echo "src/gz openwrt_kmods https://downloads.openwrt.org/snapshots/targets/${DISTRIB_TARGET}/kmods/${INSTALLER_VER_REMOTE}" >> "/etc/opkg/distfeeds.conf"
 # fi
 
 ## Upgrade the base-files package
@@ -204,15 +204,15 @@ opkg install luci luci-base iptables coreutils coreutils-nohup \
     libcap libcap-bin jq perl
 
 # Pre-release
-CHECK_URL="https://api.github.com/repos/vernesong/OpenClash/tags"
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'name' | head -n1 | cut -d\" -f4 | cut -d'v' -f2)
+INSTALLER_CHECK_URL="https://api.github.com/repos/vernesong/OpenClash/tags"
+INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | grep 'name' | head -n1 | cut -d\" -f4 | cut -d'v' -f2)
 
-if [[ -n "${REMOTE_VERSION}" ]]; then
-    REMOTE_FILENAME="luci-app-openclash_${REMOTE_VERSION}_all.ipk"
-    DOWNLOAD_URL="https://github.com/vernesong/OpenClash/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
+if [[ -n "${INSTALLER_VER_REMOTE}" ]]; then
+    INSTALLER_FILE_NAME="luci-app-openclash_${INSTALLER_VER_REMOTE}_all.ipk"
+    INSTALLER_DOWNLOAD_URL="https://github.com/vernesong/OpenClash/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
 
-    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "/tmp/${REMOTE_FILENAME}" "${DOWNLOAD_URL}" && \
-        opkg install "/tmp/${REMOTE_FILENAME}"
+    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "/tmp/${INSTALLER_FILE_NAME}" "${INSTALLER_DOWNLOAD_URL}" && \
+        opkg install "/tmp/${INSTALLER_FILE_NAME}"
 fi
 
 ## remove
@@ -230,9 +230,9 @@ INSTALL_PKGS=(
     "https://github.com/NagaseKouichi/openwrt-chinadns-ng/releases/download/luci-app-chinadns-ng_1.2-1_all/luci-i18n-chinadns-ng-zh-cn_1.2-1_all.ipk"
 )
 for TargetUrl in "${INSTALL_PKGS[@]}"; do
-    DOWNLOAD_FILENAME=$(basename "${TargetUrl}" | cut -d'?' -f1)
-    if App_Installer_Download_Extract "${TargetUrl}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
-        opkg install "${WORKDIR}/${DOWNLOAD_FILENAME}"
+    INSTALLER_DOWNLOAD_FILE=$(basename "${TargetUrl}" | cut -d'?' -f1)
+    if App_Installer_Download_Extract "${TargetUrl}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
+        opkg install "${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"
     fi
 done
 

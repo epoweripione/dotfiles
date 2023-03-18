@@ -133,8 +133,8 @@ if [[ ! -x "$(command -v zsh)" ]]; then
         ## install latest zsh for readhat 7 & centos 7
         ## sudo dnf -y remove zsh
         # if checkPackageInstalled "zsh"; then
-        #     CURRENT_VERSION=$(zsh --version | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-        #     colorEcho "${BLUE}  Removing ${FUCHSIA}zsh ${YELLOW}${CURRENT_VERSION}${BLUE}..."
+        #     INSTALLER_VER_CURRENT=$(zsh --version | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        #     colorEcho "${BLUE}  Removing ${FUCHSIA}zsh ${YELLOW}${INSTALLER_VER_CURRENT}${BLUE}..."
         #     sudo pacman --noconfirm -R zsh
         # fi
 
@@ -153,14 +153,14 @@ if [[ ! -x "$(command -v zsh)" ]]; then
 
         # ZSH_REPO_VERSION=$(dnf info zsh | grep -E "[Vv]ersion" | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}')
 
-        REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" http://zsh.sourceforge.net/News/ \
+        INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" http://zsh.sourceforge.net/News/ \
                             | grep -Eo -m1 'Release ([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-        REMOTE_VERSION=$(echo "$REMOTE_VERSION" | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}')
+        INSTALLER_VER_REMOTE=$(grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_VER_REMOTE}")
 
-        if [[ -n "$REMOTE_VERSION" ]]; then
-            DOWNLOAD_URL="https://nchc.dl.sourceforge.net/project/zsh/zsh/${REMOTE_VERSION}/zsh-${REMOTE_VERSION}.tar.xz"
-            colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-            curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/zsh.tar.xz" "${DOWNLOAD_URL}" && \
+        if [[ -n "${INSTALLER_VER_REMOTE}" ]]; then
+            INSTALLER_DOWNLOAD_URL="https://nchc.dl.sourceforge.net/project/zsh/zsh/${INSTALLER_VER_REMOTE}/zsh-${INSTALLER_VER_REMOTE}.tar.xz"
+            colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+            curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/zsh.tar.xz" "${INSTALLER_DOWNLOAD_URL}" && \
                 tar -xJf "${WORKDIR}/zsh.tar.xz" -C "${WORKDIR}" && \
                 mv "${WORKDIR}"/zsh-* "${WORKDIR}/zsh" && \
                 cd "${WORKDIR}/zsh" && \

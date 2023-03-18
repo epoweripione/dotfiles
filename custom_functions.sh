@@ -2587,12 +2587,12 @@ function App_Installer_Get_Remote_Version() {
     local remote_url=$1
     local version_match_pattern=$2
 
-    [[ -z "${remote_url}" && -n "${CHECK_URL}" ]] && remote_url="${CHECK_URL}"
-    [[ -z "${remote_url}" && -n "${GITHUB_REPO_NAME}" ]] && remote_url="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
+    [[ -z "${remote_url}" && -n "${INSTALLER_CHECK_URL}" ]] && remote_url="${INSTALLER_CHECK_URL}"
+    [[ -z "${remote_url}" && -n "${INSTALLER_GITHUB_REPO}" ]] && remote_url="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
 
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
-    REMOTE_VERSION=""
+    INSTALLER_VER_REMOTE=""
     INSTALLER_REMOTE_CONTENT=""
 
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
@@ -2612,28 +2612,28 @@ function App_Installer_Get_Remote_Version() {
         fi
 
         if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
-            REMOTE_VERSION=$(grep '<title>' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep 'Release' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
+            INSTALLER_VER_REMOTE=$(grep '<title>' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep 'Release' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
         fi
     fi
 
     [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && colorEcho "${RED}  Can't get latest version from ${FUCHSIA}${remote_url}${RED}!" && return 1
 
-    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
+    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
 
-    [[ -z "${REMOTE_VERSION}" && -n "${version_match_pattern}" ]] && \
-        REMOTE_VERSION=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    [[ -z "${INSTALLER_VER_REMOTE}" && -n "${version_match_pattern}" ]] && \
+        INSTALLER_VER_REMOTE=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 
-    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
+    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
 
-    [[ -n "${REMOTE_VERSION}" ]] && return 0 || return 1
+    [[ -n "${INSTALLER_VER_REMOTE}" ]] && return 0 || return 1
 }
 
 # Get remote file download address from given url that match running platform
 function App_Installer_Get_Remote() {
-    # REMOTE_VERSION: release version
-    # REMOTE_DOWNLOAD_URL: download address that match running platform
+    # INSTALLER_VER_REMOTE: release version
+    # INSTALLER_DOWNLOAD_URL: download address that match running platform
     # The download filename should contain at least one of the platform type or architecture, like: `rclone-v1.56.2-linux-amd64.zip`
     # Usage:
     # App_Installer_Get_Remote "https://api.github.com/repos/rclone/rclone/releases/latest"
@@ -2648,10 +2648,10 @@ function App_Installer_Get_Remote() {
 
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
-    [[ -n "${APP_INSTALL_NAME}" ]] && colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+    [[ -n "${INSTALLER_APP_NAME}" ]] && colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-    # REMOTE_VERSION=""
-    REMOTE_DOWNLOAD_URL=""
+    # INSTALLER_VER_REMOTE=""
+    INSTALLER_DOWNLOAD_URL=""
 
     [[ -z "${file_match_pattern}" ]] && file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
     [[ -z "${multi_match_filter}" ]] && multi_match_filter="musl|static"
@@ -2674,9 +2674,9 @@ function App_Installer_Get_Remote() {
         fi
 
         if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
-            REMOTE_VERSION=$(grep '<title>' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep 'Release' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
+            INSTALLER_VER_REMOTE=$(grep '<title>' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep 'Release' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
 
             # Extract download urls from expanded_assets
             remote_url=$(grep '\/expanded_assets\/' <<<"${INSTALLER_REMOTE_CONTENT}" \
@@ -2691,12 +2691,12 @@ function App_Installer_Get_Remote() {
 
     [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && colorEcho "${RED}  Can't get latest version from ${FUCHSIA}${remote_url}${RED}!" && return 1
 
-    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
+    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
 
-    [[ -z "${REMOTE_VERSION}" && -n "${version_match_pattern}" ]] && \
-        REMOTE_VERSION=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    [[ -z "${INSTALLER_VER_REMOTE}" && -n "${version_match_pattern}" ]] && \
+        INSTALLER_VER_REMOTE=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 
-    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
+    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
 
     # Get download urls
     match_urls=$(jq -r '.assets[].browser_download_url' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}")
@@ -2751,9 +2751,9 @@ function App_Installer_Get_Remote() {
         [[ -n "${match_result}" ]] && match_urls="${match_result}"
     fi
 
-    [[ -n "${match_urls}" ]] && REMOTE_DOWNLOAD_URL=$(head -n1 <<<"${match_urls}")
+    [[ -n "${match_urls}" ]] && INSTALLER_DOWNLOAD_URL=$(head -n1 <<<"${match_urls}")
 
-    [[ -n "${REMOTE_DOWNLOAD_URL}" ]] && return 0 || return 1
+    [[ -n "${INSTALLER_DOWNLOAD_URL}" ]] && return 0 || return 1
 }
 
 # Download
@@ -2953,34 +2953,42 @@ function Archive_File_Extract() {
 
 # Reset app installer variables
 function App_Installer_Reset() {
-    APP_INSTALL_NAME=""
-    GITHUB_REPO_NAME=""
+    INSTALLER_APP_NAME=""
+    INSTALLER_GITHUB_REPO=""
 
-    EXEC_INSTALL_PATH="/usr/local/bin"
-    EXEC_INSTALL_NAME=""
+    INSTALLER_IS_INSTALL="yes"
+    INSTALLER_IS_UPDATE="no"
 
-    ARCHIVE_EXT=""
-    ARCHIVE_FILE_DIR=""
-    ARCHIVE_EXEC_DIR=""
-    ARCHIVE_EXEC_NAME=""
-
-    MAN1_FILE="*.1"
-    ZSH_COMPLETION_FILE=""
-    ZSH_COMPLETION_INSTALL_NAME=""
-
-    IS_INSTALL="yes"
-    IS_UPDATE="no"
-
-    CURRENT_VERSION="0.0.0"
-    REMOTE_VERSION=""
-    VERSION_FILENAME=""
-
+    INSTALLER_INSTALL_PATH="/usr/local/bin"
     INSTALLER_INSTALL_METHOD=""
-    EXEC_FULL_NAME=""
+    INSTALLER_INSTALL_NAME=""
+    INSTALLER_EXEC_FULLNAME=""
 
-    CHECK_URL=""
-    REMOTE_DOWNLOAD_URL=""
+    INSTALLER_CHECK_URL=""
     INSTALLER_REMOTE_CONTENT=""
+    INSTALLER_DOWNLOAD_URL=""
+    INSTALLER_DOWNLOAD_FILE=""
+
+    INSTALLER_VER_CURRENT="0.0.0"
+    INSTALLER_VER_REMOTE=""
+    INSTALLER_VER_FILE=""
+
+    INSTALLER_ARCHIVE_EXT=""
+    INSTALLER_ARCHIVE_ROOT=""
+    INSTALLER_ARCHIVE_EXEC_DIR=""
+    INSTALLER_ARCHIVE_EXEC_NAME=""
+
+    INSTALLER_FILE_PATH=""
+    INSTALLER_FILE_NAME=""
+    INSTALLER_FILE_SUFFIX=""
+
+    INSTALLER_ZSH_COMP_FILE=""
+    INSTALLER_ZSH_COMP_INSTALL=""
+
+    INSTALLER_CHOICE="N"
+
+    [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+    [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 }
 
 # Install app from github releases or given url
@@ -2989,108 +2997,106 @@ function App_Installer_Install() {
     # App_Installer "https://api.github.com/repos/rclone/rclone/releases/latest"
     #
     # The following variables need to be set before executing the function:
-    # WORKDIR APP_INSTALL_NAME GITHUB_REPO_NAME
-    # EXEC_INSTALL_PATH EXEC_INSTALL_NAME CURRENT_VERSION
-    # ARCHIVE_EXT ARCHIVE_EXEC_DIR ARCHIVE_EXEC_NAME
-    # MAN1_FILE ZSH_COMPLETION_FILE
+    # WORKDIR INSTALLER_APP_NAME INSTALLER_GITHUB_REPO INSTALLER_INSTALL_NAME
+    # INSTALLER_ARCHIVE_EXT INSTALLER_ARCHIVE_EXEC_DIR INSTALLER_ARCHIVE_EXEC_NAME
     #
     # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/juicefs_installer.sh` or `installer/lazygit_installer.sh` as example
     local remote_url=$1
     local finded_file install_files install_filename
 
-    [[ "${IS_INSTALL}" != "yes" ]] && return 0
+    [[ "${INSTALLER_IS_INSTALL}" != "yes" ]] && return 0
 
-    [[ -z "${remote_url}" ]] && remote_url="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
+    [[ -z "${remote_url}" ]] && remote_url="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
 
     # get app remote version & download link that match running platform
-    # colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-    [[ -z "${REMOTE_DOWNLOAD_URL}" ]] && App_Installer_Get_Remote "${remote_url}"
+    # colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+    [[ -z "${INSTALLER_DOWNLOAD_URL}" ]] && App_Installer_Get_Remote "${remote_url}"
 
-    if [[ -z "${REMOTE_VERSION}" || -z "${REMOTE_DOWNLOAD_URL}" ]]; then
-        IS_INSTALL="nomatch"
+    if [[ -z "${INSTALLER_VER_REMOTE}" || -z "${INSTALLER_DOWNLOAD_URL}" ]]; then
+        INSTALLER_IS_INSTALL="nomatch"
     else
-        version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}" && IS_INSTALL="no"
+        version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}" && INSTALLER_IS_INSTALL="no"
     fi
 
-    [[ "${IS_INSTALL}" != "yes" ]] && return 0
+    [[ "${INSTALLER_IS_INSTALL}" != "yes" ]] && return 0
 
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
     # set the app execute filename in archive
-    [[ -z "${ARCHIVE_EXEC_NAME}" ]] && ARCHIVE_EXEC_NAME="${EXEC_INSTALL_NAME}"
+    [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
 
     [[ -z "${WORKDIR}" ]] && WORKDIR="$(pwd)"
-    DOWNLOAD_FILENAME="${WORKDIR}/${EXEC_INSTALL_NAME}"
-    [[ -n "${ARCHIVE_EXT}" ]] && DOWNLOAD_FILENAME="${DOWNLOAD_FILENAME}.${ARCHIVE_EXT}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
+    [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE}.${INSTALLER_ARCHIVE_EXT}"
 
     # download & extract file
-    if App_Installer_Download_Extract "${REMOTE_DOWNLOAD_URL}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
-        [[ -n "${ARCHIVE_EXEC_DIR}" ]] && ARCHIVE_EXEC_DIR=$(find "${WORKDIR}" -type d -name "${ARCHIVE_EXEC_DIR}")
-        [[ -z "${ARCHIVE_EXEC_DIR}" || ! -d "${ARCHIVE_EXEC_DIR}" ]] && ARCHIVE_EXEC_DIR="${WORKDIR}"
+    if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
+        [[ -n "${INSTALLER_ARCHIVE_EXEC_DIR}" ]] && INSTALLER_ARCHIVE_EXEC_DIR=$(find "${WORKDIR}" -type d -name "${INSTALLER_ARCHIVE_EXEC_DIR}")
+        [[ -z "${INSTALLER_ARCHIVE_EXEC_DIR}" || ! -d "${INSTALLER_ARCHIVE_EXEC_DIR}" ]] && INSTALLER_ARCHIVE_EXEC_DIR="${WORKDIR}"
 
-        [[ -z "${ARCHIVE_FILE_DIR}" || ! -d "${ARCHIVE_FILE_DIR}" ]] && ARCHIVE_FILE_DIR="${ARCHIVE_EXEC_DIR}"
+        [[ -z "${INSTALLER_ARCHIVE_ROOT}" || ! -d "${INSTALLER_ARCHIVE_ROOT}" ]] && INSTALLER_ARCHIVE_ROOT="${INSTALLER_ARCHIVE_EXEC_DIR}"
 
-        if echo "${ARCHIVE_EXEC_NAME}" | grep -q '\*'; then
-            if [[ -n "${ARCHIVE_EXT}" ]]; then
-                if [[ -n "${ZSH_COMPLETION_FILE}" ]]; then
-                    ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" \
-                        -not -name "*.${ARCHIVE_EXT}" -not -name "${MAN1_FILE}" -not -name "${ZSH_COMPLETION_FILE}")
+        if echo "${INSTALLER_ARCHIVE_EXEC_NAME}" | grep -q '\*'; then
+            if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
+                if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
+                    INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
+                        -not -name "*.${INSTALLER_ARCHIVE_EXT}" -not -name "*.[[:digit:]]" -not -name "${INSTALLER_ZSH_COMP_FILE}")
                 else
-                    ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" \
-                        -not -name "*.${ARCHIVE_EXT}" -not -name "${MAN1_FILE}")
+                    INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
+                        -not -name "*.${INSTALLER_ARCHIVE_EXT}" -not -name "*.[[:digit:]]")
                 fi
             else
-                if [[ -n "${ZSH_COMPLETION_FILE}" ]]; then
-                    ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" \
-                        -not -name "${MAN1_FILE}" -not -name "${ZSH_COMPLETION_FILE}")
+                if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
+                    INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
+                        -not -name "*.[[:digit:]]" -not -name "${INSTALLER_ZSH_COMP_FILE}")
                 else
-                    ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}" \
-                        -not -name "${MAN1_FILE}")
+                    INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
+                        -not -name "*.[[:digit:]]")
                 fi
             fi
-            ARCHIVE_EXEC_DIR=$(dirname "${ARCHIVE_EXEC_NAME}") && ARCHIVE_EXEC_NAME=$(basename "${ARCHIVE_EXEC_NAME}")
+            INSTALLER_ARCHIVE_EXEC_DIR=$(dirname "${INSTALLER_ARCHIVE_EXEC_NAME}") && INSTALLER_ARCHIVE_EXEC_NAME=$(basename "${INSTALLER_ARCHIVE_EXEC_NAME}")
         fi
 
-        [[ -z "${ARCHIVE_EXEC_NAME}" || ! -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]] && ARCHIVE_EXEC_NAME="${EXEC_INSTALL_NAME}"
+        [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" || ! -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
 
-        if [[ ! -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]]; then
-            ARCHIVE_EXEC_NAME=$(find "${ARCHIVE_EXEC_DIR}" -type f -name "${ARCHIVE_EXEC_NAME}")
-            ARCHIVE_EXEC_DIR=$(dirname "${ARCHIVE_EXEC_NAME}") && ARCHIVE_EXEC_NAME=$(basename "${ARCHIVE_EXEC_NAME}")
+        if [[ ! -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
+            INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}")
+            INSTALLER_ARCHIVE_EXEC_DIR=$(dirname "${INSTALLER_ARCHIVE_EXEC_NAME}") && INSTALLER_ARCHIVE_EXEC_NAME=$(basename "${INSTALLER_ARCHIVE_EXEC_NAME}")
         fi
 
         # install app
-        if [[ -s "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" ]]; then
-            sudo cp -f "${ARCHIVE_EXEC_DIR}/${ARCHIVE_EXEC_NAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-                sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-                [[ -n "${VERSION_FILENAME}" ]] && echo "${REMOTE_VERSION}" | sudo tee "${VERSION_FILENAME}" >/dev/null || true
+        if [[ -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
+            sudo cp -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
+                sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
+                [[ -n "${INSTALLER_VER_FILE}" ]] && echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null || true
 
-            # man pages
-            if [[ -n "${MAN1_FILE}" ]]; then
-                [[ ! -d "/usr/share/man/man1" ]] && sudo mkdir -p "/usr/share/man/man1"
-                install_files=$(find "${ARCHIVE_FILE_DIR}" -type f -name "${MAN1_FILE}")
+            # man pages (man1..man8)
+            for ((i=1; i <= 8; ++i)); do
+                [[ ! -d "/usr/share/man/man${i}" ]] && sudo mkdir -p "/usr/share/man/man${i}"
+                install_files=$(find "${INSTALLER_ARCHIVE_ROOT}" -type f -name "*.${i}")
                 while read -r finded_file; do
                     [[ ! -s "${finded_file}" ]] && continue
-                    sudo cp -f "${finded_file}" "/usr/share/man/man1"
+                    sudo cp -f "${finded_file}" "/usr/share/man/man${i}"
                 done <<<"${install_files}"
-            fi
+            done
 
             # zsh completions
-            if [[ -n "${ZSH_COMPLETION_FILE}" ]]; then
+            if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
                 [[ ! -d "/usr/local/share/zsh/site-functions" ]] && sudo mkdir -p "/usr/local/share/zsh/site-functions"
-                install_files=$(find "${ARCHIVE_FILE_DIR}" -type f -name "${ZSH_COMPLETION_FILE}")
+                install_files=$(find "${INSTALLER_ARCHIVE_ROOT}" -type f -name "${INSTALLER_ZSH_COMP_FILE}")
                 while read -r finded_file; do
                     [[ ! -s "${finded_file}" ]] && continue
-                    [[ -n "${ZSH_COMPLETION_INSTALL_NAME}" ]] && install_filename="${ZSH_COMPLETION_INSTALL_NAME}" || install_filename=$(basename "${finded_file}")
+                    [[ -n "${INSTALLER_ZSH_COMP_INSTALL}" ]] && install_filename="${INSTALLER_ZSH_COMP_INSTALL}" || install_filename=$(basename "${finded_file}")
                     sudo cp -f "${finded_file}" "/usr/local/share/zsh/site-functions/${install_filename}" && \
                         sudo chmod 644 "/usr/local/share/zsh/site-functions/${install_filename}" && \
                         sudo chown "$(id -u)":"$(id -g)" "/usr/local/share/zsh/site-functions/${install_filename}"
                 done <<<"${install_files}"
             fi
         else
-            colorEcho "${RED}  Can't find ${FUCHSIA}${ARCHIVE_EXEC_NAME}${RED} in downloaded file ${YELLOW}${DOWNLOAD_FILENAME}!"
+            colorEcho "${RED}  Can't find ${FUCHSIA}${INSTALLER_ARCHIVE_EXEC_NAME}${RED} in downloaded file ${YELLOW}${INSTALLER_DOWNLOAD_FILE}!"
             return 1
         fi
     else
-        colorEcho "${RED}  Download failed from ${ORANGE}${REMOTE_DOWNLOAD_URL}${RED}!"
+        colorEcho "${RED}  Download failed from ${ORANGE}${INSTALLER_DOWNLOAD_URL}${RED}!"
         return 1
     fi
 

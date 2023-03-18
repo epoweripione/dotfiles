@@ -14,6 +14,7 @@ else
     fi
 fi
 
+App_Installer_Reset
 
 # jabba & JDK
 ## Install jabba

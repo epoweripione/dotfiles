@@ -17,16 +17,18 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # You-Get is a tiny command-line utility to download media contents (videos, audios, images) from the Web, in case there is no other handy way to do it.
 # https://you-get.org/
-APP_INSTALL_NAME="You-Get"
-EXEC_INSTALL_NAME="you-get"
+INSTALLER_APP_NAME="You-Get"
+INSTALLER_INSTALL_NAME="you-get"
 PIP_PACKAGE_NAME="you-get"
 
-[[ ! -x "$(command -v ${EXEC_INSTALL_NAME})" ]] && IS_INSTALL="yes" || IS_INSTALL="no"
-[[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+[[ ! -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]] && INSTALLER_IS_INSTALL="yes" || INSTALLER_IS_INSTALL="no"
+[[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     pip_Package_Install "${PIP_PACKAGE_NAME}"
 
     # FFmpeg https://www.ffmpeg.org/

@@ -12,6 +12,7 @@ else
     fi
 fi
 
+App_Installer_Reset
 
 ## Install Software Development Kits for the JVM such as Java, Groovy, Scala, Kotlin and Ceylon. Ant, Gradle, Grails, Maven, SBT, Spark, Spring Boot, Vert.x and many others also supported.
 ## https://sdkman.io/

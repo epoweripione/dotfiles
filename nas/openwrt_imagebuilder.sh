@@ -67,14 +67,14 @@ fi
 BUILDER_URL="https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-imagebuilder-x86-64.Linux-x86_64.tar.xz"
 # BUILDER_URL="https://openwrt.cc/releases/targets/x86/64/openwrt-imagebuilder-x86-64.Linux-x86_64.tar.xz"
 
-DOWNLOAD_FILENAME="${WORKDIR}/openwrt-imagebuilder-x86-64.Linux-x86_64.tar.xz"
+INSTALLER_DOWNLOAD_FILE="${WORKDIR}/openwrt-imagebuilder-x86-64.Linux-x86_64.tar.xz"
 
-curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${BUILDER_URL}"
+curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${BUILDER_URL}"
 curl_download_status=$?
 
 [[ ${curl_download_status} -gt 0 ]] && exit 1
 
-tar -xJf "${DOWNLOAD_FILENAME}" -C "${PWD}"
+tar -xJf "${INSTALLER_DOWNLOAD_FILE}" -C "${PWD}"
 
 cd "${PWD}/openwrt-imagebuilder-x86-64.Linux-x86_64" || exit
 make info

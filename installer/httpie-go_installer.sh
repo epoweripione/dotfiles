@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # httpie-go: httpie-like HTTP client written in Go
 # https://github.com/nojima/httpie-go
 # https://httpie.io/docs

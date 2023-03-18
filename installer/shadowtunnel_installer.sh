@@ -19,8 +19,7 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
 [[ -z "${OS_INFO_ARCH}" ]] && get_arch
@@ -34,27 +33,27 @@ fi
 # https://github.com/snail007/shadowtunnel
 colorEcho "${BLUE}Checking latest version for ${FUCHSIA}shadowtunnel${BLUE}..."
 
-CHECK_URL="https://api.github.com/repos/snail007/shadowtunnel/releases/latest"
-App_Installer_Get_Remote_Version "${CHECK_URL}"
+INSTALLER_CHECK_URL="https://api.github.com/repos/snail007/shadowtunnel/releases/latest"
+App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
-if [[ -n "$REMOTE_VERSION" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}shadowtunnel ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+if [[ -n "${INSTALLER_VER_REMOTE}" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}shadowtunnel ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
-    DOWNLOAD_FILENAME="${WORKDIR}/shadowtunnel.tar.gz"
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/snail007/shadowtunnel/releases/download/$REMOTE_VERSION/shadowtunnel-${OS_INFO_TYPE}-${OS_INFO_ARCH}.tar.gz"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/shadowtunnel.tar.gz"
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/snail007/shadowtunnel/releases/download/${INSTALLER_VER_REMOTE}/shadowtunnel-${OS_INFO_TYPE}-${OS_INFO_ARCH}.tar.gz"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 
     if [[ ${curl_download_status} -eq 0 ]]; then
-        tar -xzf "${DOWNLOAD_FILENAME}" -C "/usr/local/bin" && \
+        tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "/usr/local/bin" && \
         chmod +x "/usr/local/bin/shadowtunnel"
     fi
 fi

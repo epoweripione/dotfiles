@@ -20,27 +20,27 @@ fi
 App_Installer_Reset
 
 # [Runtime Executor (asdf rust clone)](https://github.com/jdxcode/rtx)
-APP_INSTALL_NAME="rtx"
-GITHUB_REPO_NAME="jdxcode/rtx"
+INSTALLER_APP_NAME="rtx"
+INSTALLER_GITHUB_REPO="jdxcode/rtx"
 
-EXEC_INSTALL_NAME="rtx"
+INSTALLER_INSTALL_NAME="rtx"
 
-ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_DIR="rtx*"
-ARCHIVE_EXEC_NAME="rtx"
+INSTALLER_ARCHIVE_EXT="tar.gz"
+INSTALLER_ARCHIVE_EXEC_DIR="rtx*"
+INSTALLER_ARCHIVE_EXEC_NAME="rtx"
 
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
 if ! App_Installer_Install; then
-    colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     if ! grep -q 'rtx activate zsh' "$HOME/.zshrc" >/dev/null 2>&1; then
         (echo -e '\n# rtx'; echo 'eval "$(rtx activate zsh)"') >> "$HOME/.zshrc"
     fi
@@ -50,7 +50,7 @@ if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
     #     mkdir -p "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/rtx" && \
     #         rtx complete --shell zsh > "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/rtx/_rtx"
     # fi
-    if [[ "${IS_INSTALL}" == "yes" ]]; then
+    if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         rtx complete --shell zsh | sudo tee "/usr/local/share/zsh/site-functions/_rtx" >/dev/null
 
         [[ -s "$HOME/.tool-versions" ]] && cd "$HOME" && rtx install

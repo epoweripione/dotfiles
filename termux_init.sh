@@ -252,12 +252,12 @@ fi
 # frp
 if [[ ! -d "$HOME/frp" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}frp${BLUE}..."
-    CHECK_URL="https://api.github.com/repos/fatedier/frp/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/fatedier/frp/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
-    if [[ -n "$REMOTE_VERSION" ]]; then
-        DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/fatedier/frp/releases/download/v${REMOTE_VERSION}/frp_${REMOTE_VERSION}_linux_arm64.tar.gz"
-        curl "${CURL_DOWNLOAD_OPTS[@]}" -o frp.tar.gz "$DOWNLOAD_URL" && \
+    if [[ -n "${INSTALLER_VER_REMOTE}" ]]; then
+        INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/fatedier/frp/releases/download/v${INSTALLER_VER_REMOTE}/frp_${INSTALLER_VER_REMOTE}_linux_arm64.tar.gz"
+        curl "${CURL_DOWNLOAD_OPTS[@]}" -o frp.tar.gz "${INSTALLER_DOWNLOAD_URL}" && \
             tar -xzf frp.tar.gz -C "$HOME" && \
             rm frp.tar.gz && \
             mkdir -p "$HOME/frp" && \

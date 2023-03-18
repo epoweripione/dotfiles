@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # Use proxy or mirror when some sites were blocked or low speed
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
@@ -34,11 +36,11 @@ fi
 
 if [[ ! -d "$HOME/miniconda3" ]]; then
     if [[ -n "${CONDA_MIRROR}" ]]; then
-        DOWNLOAD_URL="${CONDA_MIRROR}/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+        INSTALLER_DOWNLOAD_URL="${CONDA_MIRROR}/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh"
     else
-        DOWNLOAD_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+        INSTALLER_DOWNLOAD_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
     fi
-    wget -O "${WORKDIR}/Miniconda3.sh" -c "${DOWNLOAD_URL}" && \
+    wget -O "${WORKDIR}/Miniconda3.sh" -c "${INSTALLER_DOWNLOAD_URL}" && \
         bash "${WORKDIR}/Miniconda3.sh" -b -p "$HOME/miniconda3"
 fi
 

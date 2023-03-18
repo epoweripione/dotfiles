@@ -12,6 +12,7 @@ else
     fi
 fi
 
+App_Installer_Reset
 
 # dnsmasq
 if [[ -x "$(command -v pacman)" ]]; then

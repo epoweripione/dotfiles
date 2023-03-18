@@ -19,6 +19,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
@@ -39,21 +41,10 @@ fi
 
 
 # https://flutter.dev/docs/get-started/install/linux
-APP_INSTALL_NAME="flutter"
+INSTALLER_APP_NAME="flutter"
 
-EXEC_INSTALL_PATH="$HOME/flutter/bin"
-EXEC_INSTALL_NAME="flutter"
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-
-REMOTE_VERSION=""
-REMOTE_FILEPATH=""
-
-CHECK_URL=""
-DOWNLOAD_URL=""
+INSTALLER_INSTALL_PATH="$HOME/flutter/bin"
+INSTALLER_INSTALL_NAME="flutter"
 
 # https://flutter.dev/community/china
 FLUTTER_STORAGE_BASE_URL="https://storage.googleapis.com"
@@ -73,45 +64,45 @@ fi
 if [[ -x "$(command -v flutter)" ]]; then
     # `flutter` is Windows executable file in WSL
     if check_wsl_windows_exe "$(which flutter)"; then
-        IS_INSTALL="no"
+        INSTALLER_IS_INSTALL="no"
     else
-        IS_UPDATE="yes"
-        CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        INSTALLER_IS_UPDATE="yes"
+        INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     fi
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
     case "${OS_INFO_TYPE}" in
         darwin)
-            CHECK_URL="${FLUTTER_STORAGE_BASE_URL}/flutter_infra_release/releases/releases_macos.json"
+            INSTALLER_CHECK_URL="${FLUTTER_STORAGE_BASE_URL}/flutter_infra_release/releases/releases_macos.json"
             ;;
         *)
-            CHECK_URL="${FLUTTER_STORAGE_BASE_URL}/flutter_infra_release/releases/releases_${OS_INFO_TYPE}.json"
+            INSTALLER_CHECK_URL="${FLUTTER_STORAGE_BASE_URL}/flutter_infra_release/releases/releases_${OS_INFO_TYPE}.json"
             ;;
     esac
 
-    DOWNLOAD_FILENAME="${WORKDIR}/flutter.json"
-    [[ -n "${CHECK_URL}" ]] && curl "${CURL_CHECK_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${CHECK_URL}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/flutter.json"
+    [[ -n "${INSTALLER_CHECK_URL}" ]] && curl "${CURL_CHECK_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_CHECK_URL}"
 
-    if [[ -s "${DOWNLOAD_FILENAME}" ]]; then
-        CURRENT_RELEASE_HASH=$(jq -r '.current_release.stable//empty' "${DOWNLOAD_FILENAME}")
+    if [[ -s "${INSTALLER_DOWNLOAD_FILE}" ]]; then
+        CURRENT_RELEASE_HASH=$(jq -r '.current_release.stable//empty' "${INSTALLER_DOWNLOAD_FILE}")
         [[ -n "${CURRENT_RELEASE_HASH}" ]] && \
-            REMOTE_VERSION=$(jq -r ".releases[] | select(.hash==\"${CURRENT_RELEASE_HASH}\")" "${DOWNLOAD_FILENAME}" | jq -r '.version//empty') && \
-            REMOTE_FILEPATH=$(jq -r ".releases[] | select(.hash==\"${CURRENT_RELEASE_HASH}\")" "${DOWNLOAD_FILENAME}" | jq -r '.archive//empty')
+            INSTALLER_VER_REMOTE=$(jq -r ".releases[] | select(.hash==\"${CURRENT_RELEASE_HASH}\")" "${INSTALLER_DOWNLOAD_FILE}" | jq -r '.version//empty') && \
+            INSTALLER_FILE_PATH=$(jq -r ".releases[] | select(.hash==\"${CURRENT_RELEASE_HASH}\")" "${INSTALLER_DOWNLOAD_FILE}" | jq -r '.archive//empty')
     fi
 
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 fi
 
-if [[ "${IS_INSTALL}" == "yes" && -n "${REMOTE_FILEPATH}" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${INSTALLER_FILE_PATH}" ]]; then
     # macOS
     # https://flutter.dev/docs/get-started/install/macos
-    if [[ "${IS_UPDATE}" == "no" && "${OS_INFO_TYPE}" == "darwin" && ! -x "$(command -v xcodebuild)" ]]; then
+    if [[ "${INSTALLER_IS_UPDATE}" == "no" && "${OS_INFO_TYPE}" == "darwin" && ! -x "$(command -v xcodebuild)" ]]; then
         # sudo xcode-select --install
         sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
         # xcode-select --print-path
@@ -173,32 +164,32 @@ if [[ "${IS_INSTALL}" == "yes" && -n "${REMOTE_FILEPATH}" ]]; then
         fi
     fi
 
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
-    DOWNLOAD_URL="${FLUTTER_STORAGE_BASE_URL}/flutter_infra_release/releases/${REMOTE_FILEPATH}"
+    INSTALLER_DOWNLOAD_URL="${FLUTTER_STORAGE_BASE_URL}/flutter_infra_release/releases/${INSTALLER_FILE_PATH}"
 
-    # DOWNLOAD_FILENAME=$(echo ${DOWNLOAD_URL} | awk -F"/" '{print $NF}')
-    # DOWNLOAD_FILENAME="${WORKDIR}/${DOWNLOAD_FILENAME}"
+    # INSTALLER_DOWNLOAD_FILE=$(echo ${INSTALLER_DOWNLOAD_URL} | awk -F"/" '{print $NF}')
+    # INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"
 
-    DOWNLOAD_FILENAME="${WORKDIR}/${DOWNLOAD_URL##*/}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_URL##*/}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -eq 0 ]]; then
         [[ -d "$HOME/flutter" ]] && rm -rf "$HOME/flutter"
 
-        if echo "${DOWNLOAD_FILENAME}" | grep -q '.tar.xz$'; then
-            tar -xJf "${DOWNLOAD_FILENAME}" -C "$HOME"
-        elif echo "${DOWNLOAD_FILENAME}" | grep -q '.zip$'; then
-            unzip -qo "${DOWNLOAD_FILENAME}" -d "$HOME"
+        if echo "${INSTALLER_DOWNLOAD_FILE}" | grep -q '.tar.xz$'; then
+            tar -xJf "${INSTALLER_DOWNLOAD_FILE}" -C "$HOME"
+        elif echo "${INSTALLER_DOWNLOAD_FILE}" | grep -q '.zip$'; then
+            unzip -qo "${INSTALLER_DOWNLOAD_FILE}" -d "$HOME"
         fi
     fi
 fi
 
 # new install
-if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" ]]; then
-    export PATH=$PATH:${EXEC_INSTALL_PATH}
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${INSTALLER_IS_UPDATE}" == "no" ]]; then
+    export PATH=$PATH:${INSTALLER_INSTALL_PATH}
 
     if [[ ! -x "$(command -v google-chrome)" ]]; then
         [[ -x "/opt/google/chrome/google-chrome" ]] && \
@@ -211,14 +202,14 @@ fi
 
 
 # Launch the Android Studio to install the Android SDK components
-if [[ "${IS_INSTALL}" == "yes" && "${IS_UPDATE}" == "no" && -x "$(command -v android-studio)" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${INSTALLER_IS_UPDATE}" == "no" && -x "$(command -v android-studio)" ]]; then
     android-studio
 fi
 
 [[ -d "$HOME/Android/Sdk/cmdline-tools/latest/bin" ]] && export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
 [[ -d "$HOME/Android/Sdk/platform-tools" ]] && export PATH=$PATH:$HOME/Android/Sdk/platform-tools
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     flutter doctor --android-licenses
     flutter doctor
 fi

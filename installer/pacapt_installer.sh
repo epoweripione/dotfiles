@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
@@ -24,14 +26,14 @@ fi
 # https://github.com/icy/pacapt
 colorEcho "${BLUE}Checking latest version for ${FUCHSIA}pacapt${BLUE}..."
 
-CHECK_URL="https://api.github.com/repos/icy/pacapt/releases/latest"
-App_Installer_Get_Remote_Version "${CHECK_URL}"
+INSTALLER_CHECK_URL="https://api.github.com/repos/icy/pacapt/releases/latest"
+App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
 if [[ -x "$(command -v pacapt)" ]]; then
     ECHO_TYPE="Updating"
-    CURRENT_VERSION=$(pacapt -V | grep 'version' | cut -d"'" -f2)
+    INSTALLER_VER_CURRENT=$(pacapt -V | grep 'version' | cut -d"'" -f2)
 else
-    CURRENT_VERSION="0.0.0"
+    INSTALLER_VER_CURRENT="0.0.0"
     ECHO_TYPE="Installing"
 fi
 
@@ -46,24 +48,24 @@ fi
 [[ "$(readlink -f /usr/bin/pacman)" == "/usr/bin/pacapt" ]] && \
     sudo rm -f "/usr/bin/pacman" && sudo rm -f "/usr/bin/pacapt"
 
-if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-    colorEcho "${BLUE}  ${ECHO_TYPE} ${FUCHSIA}pacapt ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+    colorEcho "${BLUE}  ${ECHO_TYPE} ${FUCHSIA}pacapt ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
-    DOWNLOAD_FILENAME="${WORKDIR}/pacapt"
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/icy/pacapt/raw/ng/pacapt"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    sudo curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/pacapt"
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/icy/pacapt/raw/ng/pacapt"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    sudo curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 
     if [[ ${curl_download_status} -eq 0 ]]; then
-        sudo mv -f "${DOWNLOAD_FILENAME}" "${PREFIX}/bin/pacapt" && \
+        sudo mv -f "${INSTALLER_DOWNLOAD_FILE}" "${PREFIX}/bin/pacapt" && \
             sudo chmod 755 "${PREFIX}/bin/pacapt" && \
             sudo ln -sv "${PREFIX}/bin/pacapt" "${INSTALL_PACMAN_TO}/pacman" || true
     fi

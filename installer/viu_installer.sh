@@ -17,8 +17,7 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # if [[ ! -x "$(command -v rustup)" && ! -x "$(command -v cargo)" ]]; then
 #     colorEcho "${FUCHSIA}rustup & cargo${RED} is not installed!"
@@ -32,39 +31,34 @@ fi
 
 # viu: Simple terminal image viewer written in Rust
 # https://github.com/atanunq/viu
-APP_INSTALL_NAME="viu"
-GITHUB_REPO_NAME="atanunq/viu"
+INSTALLER_APP_NAME="viu"
+INSTALLER_GITHUB_REPO="atanunq/viu"
 
-EXEC_INSTALL_PATH="/usr/local/bin"
-EXEC_INSTALL_NAME="viu"
+INSTALLER_INSTALL_PATH="/usr/local/bin"
+INSTALLER_INSTALL_NAME="viu"
 
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-[[ ! -x "$(command -v cargo)" ]] && IS_INSTALL="no"
+[[ ! -x "$(command -v cargo)" ]] && INSTALLER_IS_INSTALL="no"
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    Git_Clone_Update_Branch "${GITHUB_REPO_NAME}" "${WORKDIR}/${APP_INSTALL_NAME}"
-    if [[ -d "${WORKDIR}/${APP_INSTALL_NAME}" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    Git_Clone_Update_Branch "${INSTALLER_GITHUB_REPO}" "${WORKDIR}/${INSTALLER_APP_NAME}"
+    if [[ -d "${WORKDIR}/${INSTALLER_APP_NAME}" ]]; then
         [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
         [[ -z "${OS_INFO_VDIS}" ]] && get_sysArch
 
@@ -134,10 +128,10 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
 
         # Install: $HOME/.cargo/bin
         # View the list of installed packages: cargo install --list
-        colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-        [[ -n "${TARGET_PLATFORM}" ]] && cd "${WORKDIR}/${APP_INSTALL_NAME}" && \
-            rustup target add ${TARGET_PLATFORM} && \
-            cargo install --path . --target ${TARGET_PLATFORM}
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+        [[ -n "${TARGET_PLATFORM}" ]] && cd "${WORKDIR}/${INSTALLER_APP_NAME}" && \
+            rustup target add "${TARGET_PLATFORM}" && \
+            cargo install --path . --target "${TARGET_PLATFORM}"
     fi
 fi
 

@@ -17,65 +17,64 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
 # [MinIO - High Performance, Kubernetes Native Object Storage](https://min.io/)
 # https://github.com/minio/minio
-EXEC_INSTALL_PATH="/usr/local/bin"
+INSTALLER_INSTALL_PATH="/usr/local/bin"
 
 DOWNLOAD_DOMAIN="https://dl.min.io"
 # [[ "${THE_WORLD_BLOCKED}" == "true" ]] && DOWNLOAD_DOMAIN="http://dl.minio.org.cn"
 
 # MINIO SERVER
-APP_INSTALL_NAME="minio"
-EXEC_INSTALL_NAME="minio"
-DOWNLOAD_FILENAME="${WORKDIR}/${EXEC_INSTALL_NAME}"
+INSTALLER_APP_NAME="minio"
+INSTALLER_INSTALL_NAME="minio"
+INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
 
-[[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]] && IS_INSTALL="no" || IS_INSTALL="yes"
+[[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]] && INSTALLER_IS_INSTALL="no" || INSTALLER_IS_INSTALL="yes"
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 
-    DOWNLOAD_URL="${DOWNLOAD_DOMAIN}/server/minio/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}/${EXEC_INSTALL_NAME}"
+    INSTALLER_DOWNLOAD_URL="${DOWNLOAD_DOMAIN}/server/minio/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}/${INSTALLER_INSTALL_NAME}"
 
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
     curl_download_status=$?
 
     if [[ ${curl_download_status} -eq 0 ]]; then
-        sudo cp -f "${DOWNLOAD_FILENAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-            sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}"
+        sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
+            sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
     fi
 fi
 
 # MINIO CLIENT
-APP_INSTALL_NAME="mc"
-EXEC_INSTALL_NAME="mc"
-DOWNLOAD_FILENAME="${WORKDIR}/${EXEC_INSTALL_NAME}"
+INSTALLER_APP_NAME="mc"
+INSTALLER_INSTALL_NAME="mc"
+INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
 
-[[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]] && IS_INSTALL="no" || IS_INSTALL="yes"
+[[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]] && INSTALLER_IS_INSTALL="no" || INSTALLER_IS_INSTALL="yes"
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 
-    DOWNLOAD_URL="${DOWNLOAD_DOMAIN}/client/mc/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}/${EXEC_INSTALL_NAME}"
+    INSTALLER_DOWNLOAD_URL="${DOWNLOAD_DOMAIN}/client/mc/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}/${INSTALLER_INSTALL_NAME}"
 
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
     curl_download_status=$?
 
     if [[ ${curl_download_status} -eq 0 ]]; then
-        sudo cp -f "${DOWNLOAD_FILENAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-            sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}"
+        sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
+            sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
     fi
 fi
 
@@ -117,8 +116,8 @@ EOF
 
 colorEcho "${BLUE}  Installing ${FUCHSIA}minio systemd service${BLUE}..."
 SERVICE_FILENAME="/etc/systemd/system/minio.service"
-DOWNLOAD_URL="https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service"
-sudo curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${SERVICE_FILENAME}" "${DOWNLOAD_URL}"
+INSTALLER_DOWNLOAD_URL="https://raw.githubusercontent.com/minio/minio-service/master/linux-systemd/minio.service"
+sudo curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${SERVICE_FILENAME}" "${INSTALLER_DOWNLOAD_URL}"
 curl_download_status=$?
 if [[ ${curl_download_status} -eq 0 ]]; then
     MINIO_RUN_USER=$(id -un) && MINIO_RUN_GROUP=$(id -gn)

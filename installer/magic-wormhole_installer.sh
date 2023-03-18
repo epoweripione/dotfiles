@@ -19,6 +19,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # Magic Wormhole: get things from one computer to another, safely
 # https://github.com/magic-wormhole/magic-wormhole
 if [[ ! -x "$(command -v wormhole)" && -x "$(command -v pacman)" ]]; then

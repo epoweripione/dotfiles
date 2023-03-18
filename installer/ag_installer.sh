@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # ag: A code-searching tool similar to ack, but faster
 # https://github.com/ggreer/the_silver_searcher
 if [[ ! -x "$(command -v ag)" ]]; then

@@ -39,8 +39,8 @@ cp "${MY_SHELL_SCRIPTS}/k8s/ceph"/*.yaml "${K8S_WORKDIR}"
 ## You can confirm whether your partitions or devices are formatted with filesystems with the following command.
 # lsblk -f
 
-CHECK_URL="https://api.github.com/repos/rook/rook/branches"
-ROOK_BRANCH=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'name' | cut -d\" -f4 | grep '^release' | sort -rV | head -n1)
+INSTALLER_CHECK_URL="https://api.github.com/repos/rook/rook/branches"
+ROOK_BRANCH=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | grep 'name' | cut -d\" -f4 | grep '^release' | sort -rV | head -n1)
 
 [[ -d "${K8S_WORKDIR}/rook-ceph" ]] && rm -rf "${K8S_WORKDIR}/rook-ceph"
 

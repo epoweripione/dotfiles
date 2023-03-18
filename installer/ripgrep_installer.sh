@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # ripgrep: recursively searches directories for a regex pattern while respecting your gitignore
 # https://github.com/BurntSushi/ripgrep
 [[ ! -x "$(command -v rg)" && -x "$(command -v rtx)" ]] && rtx global ripgrep@latest

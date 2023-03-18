@@ -31,11 +31,11 @@ fi
 # minikube implements a local Kubernetes cluster on macOS, Linux, and Windows
 # https://minikube.sigs.k8s.io/
 colorEcho "${BLUE}Installing ${FUCHSIA}minikube${BLUE}..."
-REMOTE_FILENAME="minikube-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
-DOWNLOAD_URL="https://storage.googleapis.com/minikube/releases/latest/${REMOTE_FILENAME}"
+INSTALLER_FILE_NAME="minikube-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+INSTALLER_DOWNLOAD_URL="https://storage.googleapis.com/minikube/releases/latest/${INSTALLER_FILE_NAME}"
 
-curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/${REMOTE_FILENAME}" "${DOWNLOAD_URL}" && \
-    sudo install "${WORKDIR}/${REMOTE_FILENAME}" "/usr/local/bin/minikube"
+curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/${INSTALLER_FILE_NAME}" "${INSTALLER_DOWNLOAD_URL}" && \
+    sudo install "${WORKDIR}/${INSTALLER_FILE_NAME}" "/usr/local/bin/minikube"
 [[ ! -x "$(command -v minikube)" ]] && colorEcho "${FUCHSIA}minikube${BLUE} is not installed!" && exit 1
 
 [[ ! -x "$(command -v kubectl)" && -x "$(command -v rtx)" ]] && rtx global kubectl@latest

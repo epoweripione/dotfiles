@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 if [[ ! -x "$(command -v npm)" && ! -x "$(command -v npx)" ]]; then
     colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm & npx${RED} first!"
     exit 0
@@ -25,18 +27,16 @@ fi
 # cz-relax: One-click to configured commitizen
 # https://github.com/qiqihaobenben/commitizen-relax
 # https://github.com/Zhengqbbb/cz-git
-IS_INSTALL="yes"
-
 if [[ ! -d "${CURRENT_DIR}/.git" ]]; then
-    IS_INSTALL="no"
+    INSTALLER_IS_INSTALL="no"
     colorEcho "${FUCHSIA}${CURRENT_DIR}${RED} not a valid git repository!"
 else
     colorEchoN "${ORANGE}Install and run ${FUCHSIA}Commitizen ${ORANGE}in ${FUCHSIA}${CURRENT_DIR}${ORANGE}?[y/${CYAN}N${ORANGE}]: "
     read -r CHOICE
-    [[ "$CHOICE" == 'y' || "$CHOICE" == 'Y' ]] && IS_INSTALL="yes" || IS_INSTALL="no"
+    [[ "$CHOICE" == 'y' || "$CHOICE" == 'Y' ]] && INSTALLER_IS_INSTALL="yes" || INSTALLER_IS_INSTALL="no"
 fi
 
-[[ "${IS_INSTALL}" == "no" ]] && exit 0
+[[ "${INSTALLER_IS_INSTALL}" == "no" ]] && exit 0
 
 npm install -g commitizen
 

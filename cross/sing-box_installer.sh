@@ -21,24 +21,24 @@ App_Installer_Reset
 
 # sing-box: The universal proxy platform
 # https://sing-box.sagernet.org/
-APP_INSTALL_NAME="sing-box"
-GITHUB_REPO_NAME="SagerNet/sing-box"
+INSTALLER_APP_NAME="sing-box"
+INSTALLER_GITHUB_REPO="SagerNet/sing-box"
 
-EXEC_INSTALL_NAME="sing-box"
+INSTALLER_INSTALL_NAME="sing-box"
 
-ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_DIR="sing-box-*"
-ARCHIVE_EXEC_NAME="sing-box"
+INSTALLER_ARCHIVE_EXT="tar.gz"
+INSTALLER_ARCHIVE_EXEC_DIR="sing-box-*"
+INSTALLER_ARCHIVE_EXEC_NAME="sing-box"
 
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
 if ! App_Installer_Install; then
-    colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
 cd "${CURRENT_DIR}" || exit

@@ -20,65 +20,64 @@ fi
 App_Installer_Reset
 
 # [He3](https://he3.app/)
-APP_INSTALL_NAME="He3"
+INSTALLER_APP_NAME="He3"
 
-EXEC_INSTALL_PATH="$HOME/Applications"
+INSTALLER_INSTALL_PATH="$HOME/Applications"
 
-DOWNLOAD_FILENAME="He3.AppImage"
-VERSION_FILENAME="${DOWNLOAD_FILENAME}.version"
+INSTALLER_DOWNLOAD_FILE="He3.AppImage"
+INSTALLER_VER_FILE="${INSTALLER_DOWNLOAD_FILE}.version"
 
-if [[ -f "${EXEC_INSTALL_PATH}/${DOWNLOAD_FILENAME}" ]]; then
-    IS_UPDATE="yes"
-    [[ -s "${EXEC_INSTALL_PATH}/${VERSION_FILENAME}" ]] && CURRENT_VERSION=$(head -n1 "${EXEC_INSTALL_PATH}/${VERSION_FILENAME}")
+if [[ -f "${INSTALLER_INSTALL_PATH}/${INSTALLER_DOWNLOAD_FILE}" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    [[ -s "${INSTALLER_INSTALL_PATH}/${INSTALLER_VER_FILE}" ]] && INSTALLER_VER_CURRENT=$(head -n1 "${INSTALLER_INSTALL_PATH}/${INSTALLER_VER_FILE}")
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-# REMOTE_VERSION="1.2.9"
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+# INSTALLER_VER_REMOTE="1.2.9"
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-    CHECK_URL="https://raw.githubusercontent.com/he3-app/homebrew-he3/main/Casks/he3.rb"
-    App_Installer_Get_Remote_Version "${CHECK_URL}" "version.*"
-    version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}" && IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://raw.githubusercontent.com/he3-app/homebrew-he3/main/Casks/he3.rb"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}" "version.*"
+    version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}" && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_VDIS}" ]] && get_sysArch
 
-    REMOTE_FILENAME=""
     case "${OS_INFO_TYPE}" in
         linux)
             case "${OS_INFO_VDIS}" in
                 64)
-                    REMOTE_FILENAME="He3_linux_x86_64_${REMOTE_VERSION}.AppImage"
+                    INSTALLER_FILE_NAME="He3_linux_x86_64_${INSTALLER_VER_REMOTE}.AppImage"
                     ;;
                 arm64)
-                    REMOTE_FILENAME="He3_linux_arm64_${REMOTE_VERSION}.AppImage"
+                    INSTALLER_FILE_NAME="He3_linux_arm64_${INSTALLER_VER_REMOTE}.AppImage"
                     ;;
             esac
             ;;
         darwin)
             case "${OS_INFO_VDIS}" in
                 64)
-                    REMOTE_FILENAME="He3_mac_x64_${REMOTE_VERSION}.dmg"
+                    INSTALLER_FILE_NAME="He3_mac_x64_${INSTALLER_VER_REMOTE}.dmg"
                     ;;
                 arm64)
-                    REMOTE_FILENAME="He3_mac_arm64_${REMOTE_VERSION}.dmg"
+                    INSTALLER_FILE_NAME="He3_mac_arm64_${INSTALLER_VER_REMOTE}.dmg"
                     ;;
             esac
             ;;
     esac
 
-    [[ -n "${REMOTE_FILENAME}" ]] && DOWNLOAD_URL="https://he3-1309519128.cos.accelerate.myqcloud.com/${REMOTE_VERSION}/${REMOTE_FILENAME}"
+    [[ -n "${INSTALLER_FILE_NAME}" ]] && INSTALLER_DOWNLOAD_URL="https://he3-1309519128.cos.accelerate.myqcloud.com/${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
 
-    if [[ -n "${DOWNLOAD_URL}" ]]; then
-        colorEcho "${BLUE}Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-        if App_Installer_Download "${DOWNLOAD_URL}" "${WORKDIR}/${DOWNLOAD_FILENAME}"; then
-            mkdir -p "${EXEC_INSTALL_PATH}"
-            cp -f "${WORKDIR}/${DOWNLOAD_FILENAME}" "${EXEC_INSTALL_PATH}/${DOWNLOAD_FILENAME}"
-            echo "${REMOTE_VERSION}" | sudo tee "${EXEC_INSTALL_PATH}/${VERSION_FILENAME}" >/dev/null || true
+    if [[ -n "${INSTALLER_DOWNLOAD_URL}" ]]; then
+        colorEcho "${BLUE}Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+        if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"; then
+            mkdir -p "${INSTALLER_INSTALL_PATH}"
+            cp -f "${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_DOWNLOAD_FILE}"
+            echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_INSTALL_PATH}/${INSTALLER_VER_FILE}" >/dev/null || true
         fi
     fi
 fi

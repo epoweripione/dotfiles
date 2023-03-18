@@ -17,11 +17,12 @@ else
     fi
 fi
 
-# https://github.com/Dr-Noob/cpufetch
-IS_INSTALL="yes"
-[[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+App_Installer_Reset
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+# https://github.com/Dr-Noob/cpufetch
+[[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
+
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     Git_Clone_Update_Branch "Dr-Noob/cpufetch" "${WORKDIR}/cpufetch" && \
         cd "${WORKDIR}/cpufetch" && \
         make && \

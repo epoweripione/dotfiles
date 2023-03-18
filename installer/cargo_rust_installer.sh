@@ -12,6 +12,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # Use proxy or mirror when some sites were blocked or low speed
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 

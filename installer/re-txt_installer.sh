@@ -17,85 +17,29 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # re-txt
 # https://github.com/alash3al/re-txt
-APP_INSTALL_NAME="re-txt"
-GITHUB_REPO_NAME="alash3al/re-txt"
+INSTALLER_APP_NAME="re-txt"
+INSTALLER_GITHUB_REPO="alash3al/re-txt"
 
-ARCHIVE_EXT="zip"
+INSTALLER_ARCHIVE_EXT="zip"
+INSTALLER_ARCHIVE_EXEC_NAME="re-txt_*"
 
-EXEC_INSTALL_PATH="/usr/local/bin"
-EXEC_INSTALL_NAME="re-txt"
+INSTALLER_INSTALL_NAME="re-txt"
 
-DOWNLOAD_FILENAME="${WORKDIR}/${EXEC_INSTALL_NAME}"
-[[ -n "${ARCHIVE_EXT}" ]] && DOWNLOAD_FILENAME="${DOWNLOAD_FILENAME}.${ARCHIVE_EXT}"
+INSTALLER_VER_FILE="${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}.version"
 
-REMOTE_SUFFIX=""
-REMOTE_FILENAME=""
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-
-REMOTE_FILENAME=""
-VERSION_FILENAME="${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}.version"
-
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(head -n1 "${VERSION_FILENAME}")
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(head -n1 "${INSTALLER_VER_FILE}")
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-
-    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
-    fi
-fi
-
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
-    [[ -z "${OS_INFO_VDIS}" ]] && get_sysArch
-
-    case "${OS_INFO_VDIS}" in
-        64)
-            case "${OS_INFO_TYPE}" in
-                linux | darwin | windows)
-                    REMOTE_FILENAME="${EXEC_INSTALL_NAME}_${OS_INFO_TYPE}_amd64.${ARCHIVE_EXT}"
-                    ;;
-            esac
-            ;;
-    esac
-fi
-
-if [[ -n "$REMOTE_FILENAME" && "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${GITHUB_REPO_NAME}/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
-
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
-        unzip -qo "${DOWNLOAD_FILENAME}" -d "${WORKDIR}" && \
-            sudo cp -f "${WORKDIR}"/${EXEC_INSTALL_NAME}_* "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-            echo "${REMOTE_VERSION}" | sudo tee "${VERSION_FILENAME}" >/dev/null || true
-    fi
+if ! App_Installer_Install; then
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
 cd "${CURRENT_DIR}" || exit

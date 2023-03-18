@@ -17,13 +17,15 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # httpie: a user-friendly command-line HTTP client for the API era
 # https://httpie.io/
-APP_INSTALL_NAME="httpie"
-EXEC_INSTALL_NAME="http"
+INSTALLER_APP_NAME="httpie"
+INSTALLER_INSTALL_NAME="http"
 PIP_PACKAGE_NAME="httpie"
 
-[[ ! -x "$(command -v ${EXEC_INSTALL_NAME})" ]] && IS_INSTALL="yes" || IS_INSTALL="no"
-[[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+[[ ! -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]] && INSTALLER_IS_INSTALL="yes" || INSTALLER_IS_INSTALL="no"
+[[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 
-[[ "${IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"
+[[ "${INSTALLER_IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"

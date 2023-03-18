@@ -19,124 +19,75 @@ fi
 
 App_Installer_Reset
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
-
 # Broot: A new way to see and navigate directory trees
 # https://github.com/Canop/broot
-APP_INSTALL_NAME="broot"
-GITHUB_REPO_NAME="Canop/broot"
+INSTALLER_APP_NAME="broot"
+INSTALLER_GITHUB_REPO="Canop/broot"
 
-EXEC_INSTALL_PATH="/usr/local/bin"
-EXEC_INSTALL_NAME="broot"
+INSTALLER_INSTALL_PATH="/usr/local/bin"
+INSTALLER_INSTALL_NAME="broot"
 
-DOWNLOAD_FILENAME="${WORKDIR}/${EXEC_INSTALL_NAME}"
-
-DOWNLOAD_URL=""
-REMOTE_FILENAME=""
-
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_EXEC_FULLNAME=$(readlink -f "$(which ${INSTALLER_INSTALL_NAME})")
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-    CHECK_URL="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 fi
 
 # Install Latest Version
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     INSTALLER_INSTALL_METHOD="custom"
 
-    if [[ -n "${EXEC_FULL_NAME}" ]] && [[ "${EXEC_FULL_NAME}" != *"${EXEC_INSTALL_PATH}"* ]]; then
+    if [[ -n "${INSTALLER_EXEC_FULLNAME}" ]] && [[ "${INSTALLER_EXEC_FULLNAME}" != *"${INSTALLER_INSTALL_PATH}"* ]]; then
         [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALLER_INSTALL_METHOD="build"
     fi
 fi
 
 if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
     # Install via Homebrew
-    [[ -x "$(command -v brew)" ]] && brew install "${APP_INSTALL_NAME}"
+    [[ -x "$(command -v brew)" ]] && brew install "${INSTALLER_APP_NAME}"
 
     # From source on crates.io
-    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${APP_INSTALL_NAME}"
+    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${INSTALLER_APP_NAME}"
 elif [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
-
-    # case "${OS_INFO_TYPE}" in
-    #     linux)
-    #         case "${OS_INFO_ARCH}" in
-    #             arm)
-    #                 DOWNLOAD_URL="https://dystroy.org/broot/download/armv7-unknown-linux-gnueabihf/broot"
-    #                 ;;
-    #             arm64)
-    #                 DOWNLOAD_URL="https://dystroy.org/broot/download/aarch64-linux-android/broot"
-    #                 ;;
-    #             *)
-    #                 DOWNLOAD_URL="https://dystroy.org/broot/download/x86_64-unknown-linux-musl/broot"
-    #                 ;;
-    #         esac
-    #         ;;
-    #     windows)
-    #         DOWNLOAD_URL="https://dystroy.org/broot/download/x86_64-pc-windows-gnu/broot.exe"
-    #         ;;
-    # esac
 
     case "${OS_INFO_TYPE}" in
         linux)
             case "${OS_INFO_ARCH}" in
                 arm)
-                    ARCHIVE_EXEC_DIR="armv7-unknown-linux-gnueabihf"
+                    INSTALLER_ARCHIVE_EXEC_DIR="armv7-unknown-linux-gnueabihf"
                     ;;
                 arm64)
-                    ARCHIVE_EXEC_DIR="aarch64-linux-android"
+                    INSTALLER_ARCHIVE_EXEC_DIR="aarch64-linux-android"
                     ;;
                 *)
-                    ARCHIVE_EXEC_DIR="x86_64-unknown-linux-musl"
+                    INSTALLER_ARCHIVE_EXEC_DIR="x86_64-unknown-linux-musl"
                     ;;
             esac
             ;;
         windows)
-            ARCHIVE_EXEC_DIR="x86_64-pc-windows-gnu"
+            INSTALLER_ARCHIVE_EXEC_DIR="x86_64-pc-windows-gnu"
             ;;
     esac
 
-    REMOTE_DOWNLOAD_URL="https://github.com/Canop/broot/releases/download/v${REMOTE_VERSION}/broot_${REMOTE_VERSION}.zip"
+    INSTALLER_DOWNLOAD_URL="https://github.com/Canop/broot/releases/download/v${INSTALLER_VER_REMOTE}/broot_${INSTALLER_VER_REMOTE}.zip"
 fi
 
-# if [[ "${IS_INSTALL}" == "yes" && -n "${DOWNLOAD_URL}" ]]; then
-#     colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-#     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
-
-#     curl_download_status=$?
-#     if [[ ${curl_download_status} -eq 0 ]]; then
-#         sudo cp -f "${DOWNLOAD_FILENAME}" "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" && \
-#             sudo chmod +x "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}"
-#     fi
-
-#     # vscode font
-#     FONT_URL="https://raw.githubusercontent.com/Canop/broot/master/resources/icons/vscode/vscode.ttf"
-#     FONT_FILE="${WORKDIR}/vscode.ttf"
-#     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${FONT_FILE}" "${FONT_URL}"
-
-#     curl_download_status=$?
-#     if [[ ${curl_download_status} -eq 0 ]]; then
-#         mkdir -p "$HOME/.local/share/fonts" && \
-#             cp -f "${FONT_FILE}" "$HOME/.local/share/fonts"
-#     fi
-# fi
-
-if [[ "${IS_INSTALL}" == "yes" && -n "${ARCHIVE_EXEC_DIR}" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${INSTALLER_ARCHIVE_EXEC_DIR}" ]]; then
     if App_Installer_Install; then
         # vscode font
         FONT_FILE=$(find "${WORKDIR}" -type f -name "vscode.ttf")
@@ -145,12 +96,12 @@ if [[ "${IS_INSTALL}" == "yes" && -n "${ARCHIVE_EXEC_DIR}" ]]; then
                 cp -f "${FONT_FILE}" "$HOME/.local/share/fonts"
         fi
     else
-        colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+        colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
     fi
 fi
 
 # Shell completion
-if [[ "${IS_INSTALL}" == "yes" && -x "$(command -v broot)" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v broot)" ]]; then
     [[ ! -s "$HOME/.config/broot/launcher/bash/br" ]] && broot --install
 
     # if [[ -s "$HOME/.config/broot/conf.hjson" ]]; then

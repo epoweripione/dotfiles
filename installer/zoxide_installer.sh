@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # zoxide: A smarter cd command
 # https://github.com/ajeetdsouza/zoxide
 if [[ -x "$(command -v zoxide)" && "$(command -v asdf)" ]]; then
@@ -25,38 +27,25 @@ if [[ -x "$(command -v zoxide)" && "$(command -v asdf)" ]]; then
     fi
 fi
 
-APP_INSTALL_NAME="zoxide"
-GITHUB_REPO_NAME="ajeetdsouza/zoxide"
+INSTALLER_APP_NAME="zoxide"
+INSTALLER_GITHUB_REPO="ajeetdsouza/zoxide"
 
-EXEC_INSTALL_PATH="/usr/local/bin"
-EXEC_INSTALL_NAME="zoxide"
+INSTALLER_INSTALL_PATH="/usr/local/bin"
+INSTALLER_INSTALL_NAME="zoxide"
 
-ARCHIVE_EXT="tar.gz"
-ARCHIVE_EXEC_DIR="zoxide-*"
-ARCHIVE_EXEC_NAME=""
+INSTALLER_ARCHIVE_EXT="tar.gz"
+INSTALLER_ARCHIVE_EXEC_DIR="zoxide-*"
 
-MAN1_FILE="*.1"
-ZSH_COMPLETION_FILE=""
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-REMOTE_VERSION=""
-VERSION_FILENAME=""
-
-REMOTE_DOWNLOAD_URL=""
-
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_EXEC_FULLNAME=$(readlink -f "$(which ${INSTALLER_INSTALL_NAME})")
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
 if ! App_Installer_Install; then
-    colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
 # if [[ -x "$(command -v zoxide)" ]]; then

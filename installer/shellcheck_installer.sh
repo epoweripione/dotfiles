@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # ShellCheck: a static analysis tool for shell scripts
 # https://github.com/koalaman/shellcheck
 [[ ! -x "$(command -v shellcheck)" && -x "$(command -v rtx)" ]] && rtx global shellcheck@latest

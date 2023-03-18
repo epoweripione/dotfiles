@@ -25,43 +25,43 @@ App_Installer_Reset
 ## Receive the file(s)-or-folder on another computer
 # croc --pass YOURPASSWORD --relay "myreal.example.com:9009" [code-phrase]
 
-APP_INSTALL_NAME="croc"
-GITHUB_REPO_NAME="schollz/croc"
+INSTALLER_APP_NAME="croc"
+INSTALLER_GITHUB_REPO="schollz/croc"
 
-EXEC_INSTALL_NAME="croc"
-ZSH_COMPLETION_FILE="zsh_autocomplete"
-ZSH_COMPLETION_INSTALL_NAME="_croc"
+INSTALLER_INSTALL_NAME="croc"
+INSTALLER_ZSH_COMP_FILE="zsh_autocomplete"
+INSTALLER_ZSH_COMP_INSTALL="_croc"
 
-ARCHIVE_EXT="tar.gz"
+INSTALLER_ARCHIVE_EXT="tar.gz"
 
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
 if App_Installer_Install; then
     [[ -f "/etc/zsh/zsh_autocomplete_croc" ]] && sudo rm -f "/etc/zsh/zsh_autocomplete_croc"
 else
-    colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
-# colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+# colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-# CHECK_URL="https://api.github.com/repos/schollz/croc/releases/latest"
-# App_Installer_Get_Remote_Version "${CHECK_URL}"
+# INSTALLER_CHECK_URL="https://api.github.com/repos/schollz/croc/releases/latest"
+# App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
-# REMOTE_FILENAME="croc"
+# INSTALLER_FILE_NAME="croc"
 
 # if [[ -x "$(command -v croc)" ]]; then
-#     CURRENT_VERSION=$(croc -v | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-#     if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-#         REMOTE_FILENAME=""
+#     INSTALLER_VER_CURRENT=$(croc -v | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+#     if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+#         INSTALLER_FILE_NAME=""
 #     fi
 # fi
 
-# if [[ -n "$REMOTE_VERSION" && -n "$REMOTE_FILENAME" ]]; then
-#     colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+# if [[ -n "${INSTALLER_VER_REMOTE}" && -n "${INSTALLER_FILE_NAME}" ]]; then
+#     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 #     curl https://getcroc.schollz.com | bash
 # fi

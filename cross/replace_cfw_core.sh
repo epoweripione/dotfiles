@@ -33,26 +33,26 @@ App_Installer_Reset
 
 CFW_CLASH_BIN="${WSL_USERPROFILE}/scoop/apps/clash-for-windows/current/resources/static/files/win/x64/clash-win64.exe"
 if [[ -n "${WSL_USERPROFILE}" && -s "${CFW_CLASH_BIN}" ]]; then
-    DOWNLOAD_FILENAME="${WORKDIR}/clash-windows.zip"
-    ARCHIVE_EXEC_NAME="Clash.Meta-windows-amd64.exe"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/clash-windows.zip"
+    INSTALLER_ARCHIVE_EXEC_NAME="Clash.Meta-windows-amd64.exe"
 
-    REMOTE_DOWNLOAD_URL=$(curl "${CURL_CHECK_OPTS[@]}" https://api.github.com/repos/MetaCubeX/Clash.Meta/releases \
+    INSTALLER_DOWNLOAD_URL=$(curl "${CURL_CHECK_OPTS[@]}" https://api.github.com/repos/MetaCubeX/Clash.Meta/releases \
         | jq -r 'map(select(.prerelease)) | first | .assets[].browser_download_url')
 
-    MATCH_URL=$(grep -Ei "windows" <<<"${REMOTE_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}")
+    MATCH_URL=$(grep -Ei "windows" <<<"${INSTALLER_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}")
     if [[ -z "${MATCH_URL}" ]]; then
-        REMOTE_DOWNLOAD_URL=$(grep -Ei "windows" <<<"${REMOTE_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}")
+        INSTALLER_DOWNLOAD_URL=$(grep -Ei "windows" <<<"${INSTALLER_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}")
     else
-        REMOTE_DOWNLOAD_URL="${MATCH_URL}"
+        INSTALLER_DOWNLOAD_URL="${MATCH_URL}"
     fi
 
-    REMOTE_DOWNLOAD_URL=$(head -n1 <<<"${REMOTE_DOWNLOAD_URL}")
-    if [[ -n "${REMOTE_DOWNLOAD_URL}" ]]; then
-        colorEcho "${BLUE}Downloading ${FUCHSIA}${REMOTE_DOWNLOAD_URL}${BLUE} to ${ORANGE}${CFW_CLASH_BIN}${BLUE}..."
-        if App_Installer_Download_Extract "${REMOTE_DOWNLOAD_URL}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
+    INSTALLER_DOWNLOAD_URL=$(head -n1 <<<"${INSTALLER_DOWNLOAD_URL}")
+    if [[ -n "${INSTALLER_DOWNLOAD_URL}" ]]; then
+        colorEcho "${BLUE}Downloading ${FUCHSIA}${INSTALLER_DOWNLOAD_URL}${BLUE} to ${ORANGE}${CFW_CLASH_BIN}${BLUE}..."
+        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
             [[ -L "${CFW_CLASH_BIN}" ]] && sudo rm -f "${CFW_CLASH_BIN}"
             [[ ! -s "${CFW_CLASH_BIN}.orig" ]] && sudo mv -f "${CFW_CLASH_BIN}" "${CFW_CLASH_BIN}.orig"
-            [[ -s "${WORKDIR}/${ARCHIVE_EXEC_NAME}" ]] && sudo cp -f "${WORKDIR}/${ARCHIVE_EXEC_NAME}" "${CFW_CLASH_BIN}"
+            [[ -s "${WORKDIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && sudo cp -f "${WORKDIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" "${CFW_CLASH_BIN}"
         fi
     fi
 fi
@@ -60,26 +60,26 @@ fi
 CFW_CLASH_BIN="/opt/clash-for-windows-bin/resources/static/files/linux/x64/clash-linux"
 [[ ! -s "${CFW_CLASH_BIN}" ]] && CFW_CLASH_BIN="/opt/clash-for-windows/static/files/linux/x64/clash-linux"
 if [[ -s "${CFW_CLASH_BIN}" ]]; then
-    DOWNLOAD_FILENAME="${WORKDIR}/clash-linux.gz"
-    ARCHIVE_EXEC_NAME="clash-linux"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/clash-linux.gz"
+    INSTALLER_ARCHIVE_EXEC_NAME="clash-linux"
 
-    REMOTE_DOWNLOAD_URL=$(curl "${CURL_CHECK_OPTS[@]}" https://api.github.com/repos/MetaCubeX/Clash.Meta/releases \
+    INSTALLER_DOWNLOAD_URL=$(curl "${CURL_CHECK_OPTS[@]}" https://api.github.com/repos/MetaCubeX/Clash.Meta/releases \
         | jq -r 'map(select(.prerelease)) | first | .assets[].browser_download_url')
 
-    MATCH_URL=$(grep -Ei "${OS_INFO_MATCH_TYPE}" <<<"${REMOTE_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}")
+    MATCH_URL=$(grep -Ei "${OS_INFO_MATCH_TYPE}" <<<"${INSTALLER_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}" | grep -Ei "${OS_INFO_MATCH_CPU_LEVEL}")
     if [[ -z "${MATCH_URL}" ]]; then
-        REMOTE_DOWNLOAD_URL=$(grep -Ei "${OS_INFO_MATCH_TYPE}" <<<"${REMOTE_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}")
+        INSTALLER_DOWNLOAD_URL=$(grep -Ei "${OS_INFO_MATCH_TYPE}" <<<"${INSTALLER_DOWNLOAD_URL}" | grep -Ei "${OS_INFO_MATCH_ARCH}")
     else
-        REMOTE_DOWNLOAD_URL="${MATCH_URL}"
+        INSTALLER_DOWNLOAD_URL="${MATCH_URL}"
     fi
 
-    REMOTE_DOWNLOAD_URL=$(head -n1 <<<"${REMOTE_DOWNLOAD_URL}")
-    if [[ -n "${REMOTE_DOWNLOAD_URL}" ]]; then
-        colorEcho "${BLUE}Downloading ${FUCHSIA}${REMOTE_DOWNLOAD_URL}${BLUE} to ${ORANGE}${CFW_CLASH_BIN}${BLUE}..."
-        if App_Installer_Download_Extract "${REMOTE_DOWNLOAD_URL}" "${DOWNLOAD_FILENAME}" "${WORKDIR}"; then
+    INSTALLER_DOWNLOAD_URL=$(head -n1 <<<"${INSTALLER_DOWNLOAD_URL}")
+    if [[ -n "${INSTALLER_DOWNLOAD_URL}" ]]; then
+        colorEcho "${BLUE}Downloading ${FUCHSIA}${INSTALLER_DOWNLOAD_URL}${BLUE} to ${ORANGE}${CFW_CLASH_BIN}${BLUE}..."
+        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
             [[ -L "${CFW_CLASH_BIN}" ]] && sudo rm -f "${CFW_CLASH_BIN}"
             [[ ! -s "${CFW_CLASH_BIN}.orig" ]] && sudo mv -f "${CFW_CLASH_BIN}" "${CFW_CLASH_BIN}.orig"
-            [[ -s "${WORKDIR}/${ARCHIVE_EXEC_NAME}" ]] && sudo cp -f "${WORKDIR}/${ARCHIVE_EXEC_NAME}" "${CFW_CLASH_BIN}"
+            [[ -s "${WORKDIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && sudo cp -f "${WORKDIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" "${CFW_CLASH_BIN}"
             sudo chmod +x "${CFW_CLASH_BIN}"
         fi
     fi

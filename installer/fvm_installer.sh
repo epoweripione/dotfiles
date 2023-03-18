@@ -17,12 +17,14 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # Flutter Version Management: A simple CLI to manage Flutter SDK versions
 # https://github.com/fluttertools/fvm
-APP_INSTALL_NAME="fvm"
+INSTALLER_APP_NAME="fvm"
 
 if [[ ! -x "$(command -v brew)" ]]; then
     [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/homebrew_installer.sh" ]] && \
@@ -30,7 +32,7 @@ if [[ ! -x "$(command -v brew)" ]]; then
 fi
 
 if [[ -x "$(command -v brew)" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
     brew tap leoafarias/fvm
     brew install fvm
 fi

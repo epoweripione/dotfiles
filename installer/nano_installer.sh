@@ -17,44 +17,39 @@ else
     fi
 fi
 
-
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # https://www.nano-editor.org/dist/latest/faq.html
-APP_INSTALL_NAME="nano"
-EXEC_INSTALL_NAME="nano"
+INSTALLER_APP_NAME="nano"
+INSTALLER_INSTALL_NAME="nano"
 
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-REMOTE_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" -N https://www.nano-editor.org/download.php \
+colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" -N https://www.nano-editor.org/download.php \
     | grep -Eo -m1 'nano-([0-9]{1,}\.)+[0-9]{1,}' | head -n1 | cut -d'-' -f2)
-DIST_VERSION=$(echo "$REMOTE_VERSION" | cut -d'.' -f1)
+DIST_VERSION=$(echo "${INSTALLER_VER_REMOTE}" | cut -d'.' -f1)
 
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0"
+INSTALLER_VER_CURRENT="0.0"
 
 # http://mybookworld.wikidot.com/compile-nano-from-source
-if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 fi
 
-if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE} from source..."
+if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE} from source..."
     if [[ -x "$(command -v pacman)" ]]; then
         # Remove installed old version
-        if checkPackageInstalled "${APP_INSTALL_NAME}"; then
-            CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-                colorEcho "${BLUE}  Removing ${FUCHSIA}${APP_INSTALL_NAME}${YELLOW} ${CURRENT_VERSION}${BLUE}..."
+        if checkPackageInstalled "${INSTALLER_APP_NAME}"; then
+            INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+                colorEcho "${BLUE}  Removing ${FUCHSIA}${INSTALLER_APP_NAME}${YELLOW} ${INSTALLER_VER_CURRENT}${BLUE}..."
                 if checkPackageInstalled "nano-syntax-highlighting"; then
                     sudo pacman --noconfirm -R "nano-syntax-highlighting"
                 fi
 
-                sudo pacman --noconfirm -R "${APP_INSTALL_NAME}"
-                sudo pacman --noconfirm -Rn "${APP_INSTALL_NAME}" || true
+                sudo pacman --noconfirm -R "${INSTALLER_APP_NAME}"
+                sudo pacman --noconfirm -Rn "${INSTALLER_APP_NAME}" || true
             fi
         fi
 
@@ -77,18 +72,18 @@ if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
         done
     fi
 
-    REMOTE_FILENAME="${APP_INSTALL_NAME}-${REMOTE_VERSION}.tar.gz"
-    DOWNLOAD_FILENAME="${WORKDIR}/${APP_INSTALL_NAME}.tar.gz"
+    INSTALLER_FILE_NAME="${INSTALLER_APP_NAME}-${INSTALLER_VER_REMOTE}.tar.gz"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_APP_NAME}.tar.gz"
 
-    DOWNLOAD_URL="https://www.nano-editor.org/dist/v${DIST_VERSION}/${REMOTE_FILENAME}"
+    INSTALLER_DOWNLOAD_URL="https://www.nano-editor.org/dist/v${DIST_VERSION}/${INSTALLER_FILE_NAME}"
 
-    wget -O "${DOWNLOAD_FILENAME}" "$DOWNLOAD_URL" && \
-        tar -xzf "${DOWNLOAD_FILENAME}" -C "${WORKDIR}" && \
-        mv "${WORKDIR}"/${APP_INSTALL_NAME}-* "${WORKDIR}/${APP_INSTALL_NAME}"
+    wget -O "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" && \
+        tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}" && \
+        mv "${WORKDIR}"/${INSTALLER_APP_NAME}-* "${WORKDIR}/${INSTALLER_APP_NAME}"
 
-    if [[ -d "${WORKDIR}/${APP_INSTALL_NAME}" ]]; then
-        colorEcho "${BLUE}  Compiling ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-        cd "${WORKDIR}/${APP_INSTALL_NAME}" && \
+    if [[ -d "${WORKDIR}/${INSTALLER_APP_NAME}" ]]; then
+        colorEcho "${BLUE}  Compiling ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+        cd "${WORKDIR}/${INSTALLER_APP_NAME}" && \
             ./configure --prefix=/usr --enable-utf8 >/dev/null && \
             make >/dev/null && \
             sudo make install >/dev/null
@@ -96,7 +91,7 @@ if version_gt "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
 fi
 
 # Change default editor to nano
-if [[ "${IS_UPDATE}" == "no" && -x "$(command -v nano)" ]]; then
+if [[ "${INSTALLER_IS_UPDATE}" == "no" && -x "$(command -v nano)" ]]; then
     if [[ -x "$(command -v update-alternatives)" ]]; then
         sudo update-alternatives --install /usr/bin/editor editor "$(which nano)" 100
         sudo update-alternatives --config editor

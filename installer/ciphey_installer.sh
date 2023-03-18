@@ -17,13 +17,15 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # Ciphey: Automatically decrypt encryptions without knowing the key or cipher, decode encodings, and crack hashes
 # https://github.com/Ciphey/Ciphey
-APP_INSTALL_NAME="ciphey"
-EXEC_INSTALL_NAME="ciphey"
+INSTALLER_APP_NAME="ciphey"
+INSTALLER_INSTALL_NAME="ciphey"
 PIP_PACKAGE_NAME="ciphey"
 
-[[ ! -x "$(command -v ${EXEC_INSTALL_NAME})" ]] && IS_INSTALL="yes" || IS_INSTALL="no"
-[[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+[[ ! -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]] && INSTALLER_IS_INSTALL="yes" || INSTALLER_IS_INSTALL="no"
+[[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 
-[[ "${IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"
+[[ "${INSTALLER_IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"

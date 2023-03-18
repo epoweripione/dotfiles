@@ -17,19 +17,18 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # asdf: Extendable version manager with support for Ruby, Node.js, Elixir, Erlang & more
 # https://asdf-vm.com/
 # https://github.com/asdf-vm/asdf
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
 if [[ -d "$HOME/.asdf" ]]; then
-    IS_UPDATE="yes"
+    INSTALLER_IS_UPDATE="yes"
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking update for ${FUCHSIA}asdf${BLUE}..."
     Git_Clone_Update_Branch "asdf-vm/asdf" "$HOME/.asdf"
 fi
@@ -46,7 +45,7 @@ fi
 # fi
 
 
-# [[ "${IS_UPDATE}" == "yes" ]] && asdf plugin update --all
+# [[ "${INSTALLER_IS_UPDATE}" == "yes" ]] && asdf plugin update --all
 
 
 ## asdf plugins repository

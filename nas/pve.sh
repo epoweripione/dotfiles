@@ -318,8 +318,8 @@ sed -i "s/^myhostname =.*/myhostname = ${HOSTNAME}/" /etc/postfix/main.cf
 APT_MIRROR_URL="mirror.sjtu.edu.cn"
 OMV_MIRROR_URL="mirrors.tuna.tsinghua.edu.cn"
 
-DOWNLOAD_URL="https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install"
-curl -fsSL -o "$HOME/omv_installer.sh" "${DOWNLOAD_URL}"
+INSTALLER_DOWNLOAD_URL="https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install"
+curl -fsSL -o "$HOME/omv_installer.sh" "${INSTALLER_DOWNLOAD_URL}"
 
 [[ ! -s "$HOME/omv_installer.sh" ]] && exit 1
 

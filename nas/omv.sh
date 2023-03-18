@@ -41,14 +41,14 @@ apt install -y apt-transport-https apt-utils ca-certificates \
 # if [[ -z "${GITHUB_RAW_URL}" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
 #     GITHUB_RAW_URL="https://raw.fastgit.org"
 # fi
-# DOWNLOAD_URL="${GITHUB_RAW_URL:-https://raw.githubusercontent.com}/OpenMediaVault-Plugin-Developers/packages/master/install"
-# wget -O - "${DOWNLOAD_URL}" | bash
+# INSTALLER_DOWNLOAD_URL="${GITHUB_RAW_URL:-https://raw.githubusercontent.com}/OpenMediaVault-Plugin-Developers/packages/master/install"
+# wget -O - "${INSTALLER_DOWNLOAD_URL}" | bash
 
-# DOWNLOAD_URL="https://github.com/OpenMediaVault-Plugin-Developers/packages/raw/master/install"
-# curl -fsSL "${DOWNLOAD_URL}" | bash
+# INSTALLER_DOWNLOAD_URL="https://github.com/OpenMediaVault-Plugin-Developers/packages/raw/master/install"
+# curl -fsSL "${INSTALLER_DOWNLOAD_URL}" | bash
 
-DOWNLOAD_URL="https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install"
-curl -fsSL -o "$HOME/omv_installer.sh" "${DOWNLOAD_URL}" && \
+INSTALLER_DOWNLOAD_URL="https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install"
+curl -fsSL -o "$HOME/omv_installer.sh" "${INSTALLER_DOWNLOAD_URL}" && \
     chmod +x "$HOME/omv_installer.sh" && \
     sudo "$HOME/omv_installer.sh" -n
 

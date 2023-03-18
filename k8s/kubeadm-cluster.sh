@@ -358,8 +358,8 @@ calicoctl node status
 # cert-manager
 # https://cert-manager.io/docs/installation/
 # https://artifacthub.io/packages/helm/cert-manager/cert-manager
-CHECK_URL="https://api.github.com/repos/jetstack/cert-manager/releases/latest"
-CERT_MANAGER_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
+INSTALLER_CHECK_URL="https://api.github.com/repos/jetstack/cert-manager/releases/latest"
+CERT_MANAGER_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
 
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
@@ -457,8 +457,8 @@ sudo systemctl daemon-reload && sudo systemctl restart kubelet
 kubectl get crd -A | grep 'coreos.com' | awk '{print $1}' | xargs kubectl delete crd
 
 # Create the namespace and CRDs, and then wait for them to be available before creating the remaining resources
-CHECK_URL="https://api.github.com/repos/prometheus-operator/kube-prometheus/branches"
-KUBE_PROM_BRANCH=$(curl "${CURL_CHECK_OPTS[@]}" "${CHECK_URL}" | grep 'name' | cut -d\" -f4 | grep '^release' | sort -rV | head -n1)
+INSTALLER_CHECK_URL="https://api.github.com/repos/prometheus-operator/kube-prometheus/branches"
+KUBE_PROM_BRANCH=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | grep 'name' | cut -d\" -f4 | grep '^release' | sort -rV | head -n1)
 
 Git_Clone_Update "prometheus-operator/kube-prometheus" "${K8S_WORKDIR}/kube-prometheus"
 if [[ -d "${K8S_WORKDIR}/kube-prometheus" ]]; then

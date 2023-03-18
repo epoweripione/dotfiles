@@ -12,6 +12,7 @@ else
     fi
 fi
 
+App_Installer_Reset
 
 # Cockpit
 # https://cockpit-project.org/

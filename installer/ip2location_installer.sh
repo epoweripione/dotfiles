@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # https://github.com/chrislim2888/IP2Location-C-Library
 install_ip2location_c() {
     Git_Clone_Update_Branch "chrislim2888/IP2Location-C-Library" "$HOME/IP2Location-C-Library"

@@ -17,98 +17,90 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # subconverter
 # https://github.com/tindy2013/subconverter
-APP_INSTALL_NAME="subconverter"
-
-REMOTE_SUFFIX=""
-REMOTE_FILENAME=""
-
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-CURRENT_VERSION="0.0.0"
-CHOICE="N"
+INSTALLER_APP_NAME="subconverter"
 
 if [[ -s "/srv/subconverter/subconverter" ]]; then
-    IS_UPDATE="yes"
-    CURRENT_VERSION=$(head -n1 /srv/subconverter/.version)
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(head -n1 /srv/subconverter/.version)
 else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
-    CHECK_URL="https://api.github.com/repos/tindy2013/subconverter/releases/latest"
-    App_Installer_Get_Remote_Version "${CHECK_URL}"
-    if version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}"; then
-        IS_INSTALL="no"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/tindy2013/subconverter/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_VDIS}" ]] && get_sysArch
 
-    REMOTE_FILENAME=""
     case "${OS_INFO_TYPE}" in
         linux)
             case "${OS_INFO_VDIS}" in
                 arm64)
-                    REMOTE_FILENAME=${APP_INSTALL_NAME}_aarch64.tar.gz
+                    INSTALLER_FILE_NAME=${INSTALLER_APP_NAME}_aarch64.tar.gz
                     ;;
                 arm)
-                    REMOTE_FILENAME=${APP_INSTALL_NAME}_armhf.tar.gz
+                    INSTALLER_FILE_NAME=${INSTALLER_APP_NAME}_armhf.tar.gz
                     ;;
                 *)
-                    REMOTE_FILENAME=${APP_INSTALL_NAME}_${OS_INFO_TYPE}${OS_INFO_VDIS}.tar.gz
+                    INSTALLER_FILE_NAME=${INSTALLER_APP_NAME}_${OS_INFO_TYPE}${OS_INFO_VDIS}.tar.gz
                     ;;
             esac
             ;;
         darwin)
-            REMOTE_FILENAME=${APP_INSTALL_NAME}_darwin64.tar.gz
+            INSTALLER_FILE_NAME=${INSTALLER_APP_NAME}_darwin64.tar.gz
             ;;
         windows)
             case "${OS_INFO_VDIS}" in
                 32)
-                    REMOTE_FILENAME=${APP_INSTALL_NAME}_win32.zip
+                    INSTALLER_FILE_NAME=${INSTALLER_APP_NAME}_win32.zip
                     ;;
                 64)
-                    REMOTE_FILENAME=${APP_INSTALL_NAME}_win64.zip
+                    INSTALLER_FILE_NAME=${INSTALLER_APP_NAME}_win64.zip
                     ;;
             esac
             ;;
     esac
 
-    [[ -z "${REMOTE_FILENAME}" ]] && IS_INSTALL="no"
+    [[ -z "${INSTALLER_FILE_NAME}" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
-    DOWNLOAD_FILENAME="${WORKDIR}/subconverter.tar.gz"
-    DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/tindy2013/subconverter/releases/download/v${REMOTE_VERSION}/${REMOTE_FILENAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/subconverter.tar.gz"
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/tindy2013/subconverter/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
+    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
     curl_download_status=$?
     if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        DOWNLOAD_URL="${DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${DOWNLOAD_FILENAME}" "${DOWNLOAD_URL}"
+        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
+        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
         curl_download_status=$?
     fi
 
     if [[ ${curl_download_status} -eq 0 ]]; then
-        sudo tar -xzf "${DOWNLOAD_FILENAME}" -C "/srv" && \
-            echo "${REMOTE_VERSION}" | sudo tee "/srv/subconverter/.version" >/dev/null
+        sudo tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "/srv" && \
+            echo "${INSTALLER_VER_REMOTE}" | sudo tee "/srv/subconverter/.version" >/dev/null
     fi
 
-    if [[ "${IS_UPDATE}" == "no" ]]; then
+    if [[ "${INSTALLER_IS_UPDATE}" == "no" ]]; then
         [[ ! -s "/srv/subconverter/pref.yml" ]] && cp "/srv/subconverter/pref.example.yml" "/srv/subconverter/pref.yml"
 
         colorEchoN "${ORANGE}Enter api access password: "
@@ -121,14 +113,14 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     fi
 
     systemctl is-enabled subconverter >/dev/null 2>&1 || {
-        # [[ "${IS_UPDATE}" == "no" ]] && \
+        # [[ "${INSTALLER_IS_UPDATE}" == "no" ]] && \
         #         colorEchoN "${ORANGE}Install clash subconverter service?[y/${CYAN}N${ORANGE}]: " && \
-        #         read -r CHOICE
-        # [[ "$CHOICE" == 'y' || "$CHOICE" == 'Y' ]] && Install_systemd_Service "subconverter" "/srv/subconverter/subconverter"
+        #         read -r INSTALLER_CHOICE
+        # [[ "${INSTALLER_CHOICE}" == 'y' || "${INSTALLER_CHOICE}" == 'Y' ]] && Install_systemd_Service "subconverter" "/srv/subconverter/subconverter"
         Install_systemd_Service "subconverter" "/srv/subconverter/subconverter"
     }
 
-    if [[ "${IS_UPDATE}" == "yes" ]]; then
+    if [[ "${INSTALLER_IS_UPDATE}" == "yes" ]]; then
         systemctl is-enabled subconverter >/dev/null 2>&1 && sudo systemctl restart subconverter
     fi
 fi

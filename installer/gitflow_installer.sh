@@ -17,13 +17,14 @@ else
     fi
 fi
 
+App_Installer_Reset
 
 # git-flow (AVH Edition)
 # https://github.com/petervanderdoes/gitflow-avh
 if [[ ! "$(command -v git-flow)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}git-flow (AVH Edition)${BLUE}..."
-    DOWNLOAD_URL="https://raw.githubusercontent.com/petervanderdoes/gitflow-avh/develop/contrib/gitflow-installer.sh"
-    wget -O "${WORKDIR}/gitflow-installer.sh" "${DOWNLOAD_URL}" && \
+    INSTALLER_DOWNLOAD_URL="https://raw.githubusercontent.com/petervanderdoes/gitflow-avh/develop/contrib/gitflow-installer.sh"
+    wget -O "${WORKDIR}/gitflow-installer.sh" "${INSTALLER_DOWNLOAD_URL}" && \
         cd "/usr/local" && \
         sudo bash "${WORKDIR}/gitflow-installer.sh" install develop
 fi

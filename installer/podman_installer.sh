@@ -24,13 +24,13 @@ fi
 
 # [Podman](https://github.com/containers/podman)
 # [Podman Installation Instructions](https://podman.io/getting-started/installation)
-APP_INSTALL_NAME="podman"
+INSTALLER_APP_NAME="podman"
 
 if [[ ! -x "$(command -v podman)" ]]; then
     if [[ "${OS_INFO_TYPE}" == "darwin" ]]; then
         if [[ -x "$(command -v brew)" ]]; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
-            brew install "${APP_INSTALL_NAME}"
+            colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+            brew install "${INSTALLER_APP_NAME}"
         fi
     elif [[ -x "$(command -v pacman)" ]]; then
         if check_os_arch; then
