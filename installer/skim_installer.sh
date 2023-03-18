@@ -29,15 +29,10 @@ EXEC_INSTALL_NAME="sk"
 ARCHIVE_EXT="tar.gz"
 ARCHIVE_EXEC_NAME="sk"
 
-INSTALL_FROM_SOURCE=""
-EXEC_FULL_NAME=""
-
-CURRENT_VERSION="0.0.0"
-
 if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
     IS_UPDATE="yes"
     CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    EXEC_FULL_NAME=$(which ${EXEC_INSTALL_NAME})
+    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
 fi
@@ -58,20 +53,20 @@ fi
 
 if [[ "${IS_INSTALL}" == "yes" ]]; then
     if checkPackageExists "${APP_INSTALL_NAME}"; then
-        INSTALL_FROM_SOURCE="no"
+        INSTALLER_INSTALL_METHOD="pacman"
     else
-        [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALL_FROM_SOURCE="yes"
+        [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALLER_INSTALL_METHOD="build"
     fi
 fi
 
-if [[ "${INSTALL_FROM_SOURCE}" == "yes" ]]; then
+if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-    # From source on crates.io
-    [[ -x "$(command -v cargo)" ]] && cargo install "${APP_INSTALL_NAME}"
-
     # Install via Homebrew
-    [[ ! -x "$(command -v cargo)" && -x "$(command -v brew)" ]] && brew install "sk"
-elif [[ "${INSTALL_FROM_SOURCE}" == "no" ]]; then
+    [[ -x "$(command -v brew)" ]] && brew install "sk"
+
+    # From source on crates.io
+    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${APP_INSTALL_NAME}"
+elif [[ "${INSTALLER_INSTALL_METHOD}" == "pacman" ]]; then
     if checkPackageNeedInstall "${APP_INSTALL_NAME}"; then
         colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
         [[ -x "$(command -v pacman)" ]] && sudo pacman --noconfirm -S "${APP_INSTALL_NAME}"

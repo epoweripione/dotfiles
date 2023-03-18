@@ -2586,7 +2586,6 @@ function App_Installer_Get_OS_Info_Match_Cond() {
 function App_Installer_Get_Remote_Version() {
     local remote_url=$1
     local version_match_pattern=$2
-    local remote_content
 
     [[ -z "${remote_url}" && -n "${CHECK_URL}" ]] && remote_url="${CHECK_URL}"
     [[ -z "${remote_url}" && -n "${GITHUB_REPO_NAME}" ]] && remote_url="https://api.github.com/repos/${GITHUB_REPO_NAME}/releases/latest"
@@ -2594,38 +2593,39 @@ function App_Installer_Get_Remote_Version() {
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
     REMOTE_VERSION=""
+    INSTALLER_REMOTE_CONTENT=""
 
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 
     # Get app version
-    remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
-    if [[ -z "${remote_content}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
+    INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+    if [[ -z "${INSTALLER_REMOTE_CONTENT}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
         if [[ -n "${GITHUB_API_TOKEN}" ]]; then
             # Use Github API token to fix rate limit exceeded
-            remote_content=$(curl "${CURL_CHECK_OPTS[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}" "${remote_url}" 2>/dev/null)
+            INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}" "${remote_url}" 2>/dev/null)
         fi
 
         # Extract from github release page
-        if [[ -z "${remote_content}" ]]; then
+        if [[ -z "${INSTALLER_REMOTE_CONTENT}" ]]; then
             remote_url="${remote_url//api.github.com\/repos/github.com}"
-            remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+            INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
         fi
 
-        if [[ -n "${remote_content}" ]]; then
-            REMOTE_VERSION=$(grep '<title>' <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep 'Release' <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${remote_content}" | head -n1)
+        if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
+            REMOTE_VERSION=$(grep '<title>' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep 'Release' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
         fi
     fi
 
-    [[ -z "${remote_content}" ]] && colorEcho "${RED}  Can't get latest version from ${FUCHSIA}${remote_url}${RED}!" && return 1
+    [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && colorEcho "${RED}  Can't get latest version from ${FUCHSIA}${remote_url}${RED}!" && return 1
 
-    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${remote_content}" | cut -d'v' -f2)
+    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
 
     [[ -z "${REMOTE_VERSION}" && -n "${version_match_pattern}" ]] && \
-        REMOTE_VERSION=$(grep -E "${version_match_pattern}" <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        REMOTE_VERSION=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 
-    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${remote_content}" | head -n1)
+    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
 
     [[ -n "${REMOTE_VERSION}" ]] && return 0 || return 1
 }
@@ -2643,14 +2643,14 @@ function App_Installer_Get_Remote() {
     local file_match_pattern=$2
     local version_match_pattern=$3
     local multi_match_filter=$4
-    local remote_content match_urls match_result match_cnt
+    local match_urls match_result match_cnt
     local match_result_type match_result_arch match_result_float match_result_cpu_level
 
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
     [[ -n "${APP_INSTALL_NAME}" ]] && colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
 
-    REMOTE_VERSION=""
+    # REMOTE_VERSION=""
     REMOTE_DOWNLOAD_URL=""
 
     [[ -z "${file_match_pattern}" ]] && file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
@@ -2660,54 +2660,54 @@ function App_Installer_Get_Remote() {
     [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
     # Get app version
-    remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
-    if [[ -z "${remote_content}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
+    [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+    if [[ -z "${INSTALLER_REMOTE_CONTENT}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
         if [[ -n "${GITHUB_API_TOKEN}" ]]; then
             # Use Github API token to fix rate limit exceeded
-            remote_content=$(curl "${CURL_CHECK_OPTS[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}" "${remote_url}" 2>/dev/null)
+            INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}" "${remote_url}" 2>/dev/null)
         fi
 
         # Extract from github release page
-        if [[ -z "${remote_content}" ]]; then
+        if [[ -z "${INSTALLER_REMOTE_CONTENT}" ]]; then
             remote_url="${remote_url//api.github.com\/repos/github.com}"
-            remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+            INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
         fi
 
-        if [[ -n "${remote_content}" ]]; then
-            REMOTE_VERSION=$(grep '<title>' <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep 'Release' <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${remote_content}" | head -n1)
+        if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
+            REMOTE_VERSION=$(grep '<title>' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep 'Release' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+            [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
 
             # Extract download urls from expanded_assets
-            remote_url=$(grep '\/expanded_assets\/' <<<"${remote_content}" \
+            remote_url=$(grep '\/expanded_assets\/' <<<"${INSTALLER_REMOTE_CONTENT}" \
                 | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" \
                 | head -n1)
-            [[ -n "${remote_url}" ]] && remote_content=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+            [[ -n "${remote_url}" ]] && INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
 
-            [[ -n "${remote_content}" ]] && \
-                remote_content=$(sed 's|<a href="/|<a href="https://github.com/|g' <<<"${remote_content}" | grep '\/releases\/download\/')
+            [[ -n "${INSTALLER_REMOTE_CONTENT}" ]] && \
+                INSTALLER_REMOTE_CONTENT=$(sed 's|<a href="/|<a href="https://github.com/|g' <<<"${INSTALLER_REMOTE_CONTENT}" | grep '\/releases\/download\/')
         fi
     fi
 
-    [[ -z "${remote_content}" ]] && colorEcho "${RED}  Can't get latest version from ${FUCHSIA}${remote_url}${RED}!" && return 1
+    [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && colorEcho "${RED}  Can't get latest version from ${FUCHSIA}${remote_url}${RED}!" && return 1
 
-    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${remote_content}" | cut -d'v' -f2)
+    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
 
     [[ -z "${REMOTE_VERSION}" && -n "${version_match_pattern}" ]] && \
-        REMOTE_VERSION=$(grep -E "${version_match_pattern}" <<<"${remote_content}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        REMOTE_VERSION=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 
-    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${remote_content}" | head -n1)
+    [[ -z "${REMOTE_VERSION}" ]] && REMOTE_VERSION=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
 
     # Get download urls
-    match_urls=$(jq -r '.assets[].browser_download_url' 2>/dev/null <<<"${remote_content}")
+    match_urls=$(jq -r '.assets[].browser_download_url' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}")
     if [[ -z "${match_urls}" ]]; then
-        match_urls=$(grep -E "${file_match_pattern}" <<<"${remote_content}" \
+        match_urls=$(grep -E "${file_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" \
             | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
     else
         match_urls=$(grep -E "${file_match_pattern}" <<<"${match_urls}")
     fi
 
-    [[ -z "${match_urls}" ]] && match_urls=$(grep -Eo "${file_match_pattern}" <<<"${remote_content}")
+    [[ -z "${match_urls}" ]] && match_urls=$(grep -Eo "${file_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}")
 
     [[ -z "${OS_INFO_MATCH_TYPE}" ]] && App_Installer_Get_OS_Info_Match_Cond
 
@@ -2975,11 +2975,12 @@ function App_Installer_Reset() {
     REMOTE_VERSION=""
     VERSION_FILENAME=""
 
-    INSTALL_FROM_SOURCE="no"
+    INSTALLER_INSTALL_METHOD=""
     EXEC_FULL_NAME=""
 
     CHECK_URL=""
     REMOTE_DOWNLOAD_URL=""
+    INSTALLER_REMOTE_CONTENT=""
 }
 
 # Install app from github releases or given url
@@ -3005,9 +3006,11 @@ function App_Installer_Install() {
     # colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
     [[ -z "${REMOTE_DOWNLOAD_URL}" ]] && App_Installer_Get_Remote "${remote_url}"
 
-    [[ -z "${REMOTE_VERSION}" || -z "${REMOTE_DOWNLOAD_URL}" ]] && IS_INSTALL="no"
-
-    version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}" && IS_INSTALL="no"
+    if [[ -z "${REMOTE_VERSION}" || -z "${REMOTE_DOWNLOAD_URL}" ]]; then
+        IS_INSTALL="nomatch"
+    else
+        version_le "${REMOTE_VERSION}" "${CURRENT_VERSION}" && IS_INSTALL="no"
+    fi
 
     [[ "${IS_INSTALL}" != "yes" ]] && return 0
 

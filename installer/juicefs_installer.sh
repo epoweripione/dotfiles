@@ -29,7 +29,7 @@ EXEC_INSTALL_NAME="juicefs"
 if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
     IS_UPDATE="yes"
     CURRENT_VERSION=$(${EXEC_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    EXEC_FULL_NAME=$(which ${EXEC_INSTALL_NAME})
+    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
 fi

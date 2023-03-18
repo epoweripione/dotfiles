@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
@@ -37,19 +39,10 @@ DOWNLOAD_FILENAME="${WORKDIR}/${EXEC_INSTALL_NAME}"
 DOWNLOAD_URL=""
 REMOTE_FILENAME=""
 
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-INSTALL_FROM_SOURCE="no"
-EXEC_FULL_NAME=""
-
-CURRENT_VERSION="0.0.0"
-VERSION_FILENAME=""
-
 if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
     IS_UPDATE="yes"
     CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    EXEC_FULL_NAME=$(which ${EXEC_INSTALL_NAME})
+    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
 fi
@@ -66,21 +59,23 @@ fi
 
 # Install Latest Version
 if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    INSTALLER_INSTALL_METHOD="custom"
+
     if [[ -n "${EXEC_FULL_NAME}" ]] && [[ "${EXEC_FULL_NAME}" != *"${EXEC_INSTALL_PATH}"* ]]; then
-        [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALL_FROM_SOURCE="yes"
+        [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALLER_INSTALL_METHOD="build"
     fi
 fi
 
-if [[ "${INSTALL_FROM_SOURCE}" == "yes" ]]; then
-    # From source on crates.io
-    [[ -x "$(command -v cargo)" ]] && cargo install "${APP_INSTALL_NAME}"
-
+if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
     # Install via Homebrew
-    [[ ! -x "$(command -v cargo)" && -x "$(command -v brew)" ]] && \
+    [[ -x "$(command -v brew)" ]] && \
         brew tap clementtsang/bottom && \
         brew install clementtsang/bottom/bottom
-elif [[ "${INSTALL_FROM_SOURCE}" == "no" ]]; then
+
+    # From source on crates.io
+    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${APP_INSTALL_NAME}"
+elif [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 

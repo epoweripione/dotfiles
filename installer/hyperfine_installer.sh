@@ -17,8 +17,7 @@ else
     fi
 fi
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+App_Installer_Reset
 
 # hyperfine: A command-line benchmarking tool
 # https://github.com/sharkdp/hyperfine
@@ -27,19 +26,18 @@ GITHUB_REPO_NAME="sharkdp/hyperfine"
 
 EXEC_INSTALL_NAME="hyperfine"
 
-IS_INSTALL="yes"
-IS_UPDATE="no"
+ARCHIVE_EXT="tar.gz"
+ARCHIVE_EXEC_DIR="hyperfine-*"
 
-CURRENT_VERSION="0.0.0"
+ZSH_COMPLETION_FILE="_hyperfine"
 
 if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
     IS_UPDATE="yes"
     CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
 fi
-
-[[ ! -x "$(command -v cargo)" && ! -x "$(command -v brew)" ]] && IS_INSTALL="no"
 
 if [[ "${IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_INSTALL_NAME}${BLUE}..."
@@ -51,14 +49,47 @@ if [[ "${IS_INSTALL}" == "yes" ]]; then
     fi
 fi
 
-# Install Latest Version
 if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-    # From source on crates.io
-    [[ -x "$(command -v cargo)" ]] && cargo install "${APP_INSTALL_NAME}"
+    INSTALLER_INSTALL_METHOD="custom"
 
+    if checkPackageExists "${APP_INSTALL_NAME}"; then
+        INSTALLER_INSTALL_METHOD="pacman"
+    else
+        if [[ -n "${EXEC_FULL_NAME}" ]] && [[ "${EXEC_FULL_NAME}" != *"${EXEC_INSTALL_PATH}"* ]]; then
+            [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALLER_INSTALL_METHOD="build"
+        fi
+    fi
+fi
+
+# pacman
+if [[ "${INSTALLER_INSTALL_METHOD}" == "pacman" ]]; then
+    if checkPackageNeedInstall "${APP_INSTALL_NAME}"; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+        [[ -x "$(command -v pacman)" ]] && sudo pacman --noconfirm -S "${APP_INSTALL_NAME}"
+    fi
+fi
+
+# app installer
+if [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
+    if ! App_Installer_Install; then
+        if [[ -z "${EXEC_FULL_NAME}" && "${IS_INSTALL}" == "nomatch" ]] &&
+            [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]]; then
+            # first time install: maybe no match install file to download, use build instead
+            INSTALLER_INSTALL_METHOD="build"
+        else
+            colorEcho "${RED}  Install ${FUCHSIA}${APP_INSTALL_NAME}${RED} failed!"
+        fi
+    fi
+fi
+
+# homebrew or build from source
+if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
     # Install via Homebrew
-    [[ ! -x "$(command -v cargo)" && -x "$(command -v brew)" ]] && brew install "${APP_INSTALL_NAME}"
+    [[ -x "$(command -v brew)" ]] && brew install "${APP_INSTALL_NAME}"
+
+    # From source on crates.io
+    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${APP_INSTALL_NAME}"
 fi
 
 

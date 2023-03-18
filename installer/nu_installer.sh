@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
@@ -36,18 +38,10 @@ EXEC_INSTALL_NAME="nu"
 REMOTE_SUFFIX=""
 REMOTE_FILENAME=""
 
-IS_INSTALL="yes"
-IS_UPDATE="no"
-
-INSTALL_FROM_SOURCE="no"
-EXEC_FULL_NAME=""
-
-CURRENT_VERSION="0.0.0"
-
 if [[ -x "$(command -v ${EXEC_INSTALL_NAME})" ]]; then
     IS_UPDATE="yes"
     CURRENT_VERSION=$(${EXEC_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    EXEC_FULL_NAME=$(which ${EXEC_INSTALL_NAME})
+    EXEC_FULL_NAME=$(readlink -f "$(which ${EXEC_INSTALL_NAME})")
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && IS_INSTALL="no"
 fi
@@ -69,21 +63,28 @@ fi
 # winget install --id=Nushell.Nushell --exact --rainbow
 # [System.Environment]::SetEnvironmentVariable("PATH", $systemenv + ";$env:ProgramFiles\nu\bin", 'Machine')
 
-# Install Latest Version
 if [[ "${IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
-    if [[ -n "${EXEC_FULL_NAME}" ]] && [[ "${EXEC_FULL_NAME}" != *"${EXEC_INSTALL_PATH}"* ]]; then
-        [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALL_FROM_SOURCE="yes"
+    INSTALLER_INSTALL_METHOD="custom"
+
+    if checkPackageExists "${APP_INSTALL_NAME}"; then
+        INSTALLER_INSTALL_METHOD="pacman"
+    else
+        if [[ -n "${EXEC_FULL_NAME}" ]] && [[ "${EXEC_FULL_NAME}" != *"${EXEC_INSTALL_PATH}"* ]]; then
+            [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALLER_INSTALL_METHOD="build"
+        fi
     fi
 fi
 
-if [[ "${INSTALL_FROM_SOURCE}" == "yes" ]]; then
-    # From source on crates.io
-    [[ -x "$(command -v cargo)" ]] && cargo install nu --features=extra
+# pacman
+if [[ "${INSTALLER_INSTALL_METHOD}" == "pacman" ]]; then
+    if checkPackageNeedInstall "${APP_INSTALL_NAME}"; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+        [[ -x "$(command -v pacman)" ]] && sudo pacman --noconfirm -S "${APP_INSTALL_NAME}"
+    fi
+fi
 
-    # Install via Homebrew
-    [[ ! -x "$(command -v cargo)" && -x "$(command -v brew)" ]] && brew install nushell
-elif [[ "${INSTALL_FROM_SOURCE}" == "no" ]]; then
+# app installer
+if [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_VDIS}" ]] && get_sysArch
 
@@ -117,10 +118,10 @@ elif [[ "${INSTALL_FROM_SOURCE}" == "no" ]]; then
             ;;
     esac
 
-    [[ -z "${REMOTE_FILENAME}" ]] && IS_INSTALL="no"
+    [[ -z "${REMOTE_FILENAME}" ]] && INSTALLER_INSTALL_METHOD="build"
 fi
 
-if [[ "${IS_INSTALL}" == "yes" && "${INSTALL_FROM_SOURCE}" == "no" ]]; then
+if [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
     if [[ -x "$(command -v pacman)" ]]; then
         PackagesList=(
             cmake
@@ -193,6 +194,16 @@ if [[ "${IS_INSTALL}" == "yes" && "${INSTALL_FROM_SOURCE}" == "no" ]]; then
                 sudo ln -sv "${EXEC_INSTALL_PATH}/${EXEC_INSTALL_NAME}" "/usr/local/bin/nu" || true
         fi
     fi
+fi
+
+# homebrew or build from source
+if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${APP_INSTALL_NAME} ${YELLOW}${REMOTE_VERSION}${BLUE}..."
+    # Install via Homebrew
+    [[ -x "$(command -v brew)" ]] && brew install "${APP_INSTALL_NAME}"
+
+    # From source on crates.io
+    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install nu --features=extra
 fi
 
 ## Start the shell
