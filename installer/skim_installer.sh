@@ -62,7 +62,13 @@ fi
 if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
     # Install via Homebrew
-    [[ -x "$(command -v brew)" ]] && brew install "sk"
+    if [[ -x "$(command -v brew)" ]]; then
+        if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+            brew upgrade "sk"
+        else
+            brew install "sk"
+        fi
+    fi
 
     # From source on crates.io
     [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${INSTALLER_APP_NAME}"
