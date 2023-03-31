@@ -24,17 +24,13 @@ fi
 
 App_Installer_Reset
 
-[[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
-[[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
-
 # Use proxy or mirror when some sites were blocked or low speed
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
 [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
 [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 [[ -z "${OS_INFO_RELEASE}" ]] && get_os_release
-
-OS_INFO_WSL=$(uname -r)
+[[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
 
 # jq
 if [[ ! -x "$(command -v jq)" ]]; then
@@ -69,7 +65,7 @@ fi
 
 if [[ ! -x "$(command -v docker)" ]]; then
     # Oracle Linux、RHEL
-    if [[ "$OS_INFO_RELEASE" == "ol" || "$OS_INFO_RELEASE" == "rhel" ]]; then
+    if [[ "${OS_INFO_RELEASE}" == "ol" || "${OS_INFO_RELEASE}" == "rhel" ]]; then
         # sudo yum -y install docker-engine
         # sudo yum -y remove docker docker-common docker-selinux docker-engine docker-cli
         sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
@@ -88,7 +84,7 @@ if [[ ! -x "$(command -v docker)" ]]; then
     fi
 
     # SUSE Linux Enterprise Server
-    if [[ "$OS_INFO_RELEASE" == "sles" ]]; then
+    if [[ "${OS_INFO_RELEASE}" == "sles" ]]; then
         sudo zypper in docker && \
             sudo systemctl enable docker && \
             sudo systemctl start docker
