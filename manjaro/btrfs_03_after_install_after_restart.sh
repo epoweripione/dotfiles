@@ -159,30 +159,6 @@ sudo systemctl disable tmp.mount
 sudo systemctl mask tmp.mount
 sudo sed -i -e 's/^tmpfs.*/# &/g' /etc/fstab
 
-# fix the "sparse file not allowed" error message on startup
-colorEcho "${BLUE}Setting ${FUCHSIA}GRUB${BLUE}..."
-sudo sed -i -e 's/^GRUB_SAVEDEFAULT=true/#GRUB_SAVEDEFAULT=true/g' \
-    -e 's/^#GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=menu/g' \
-    -e 's/^GRUB_TIMEOUT_STYLE=hidden/GRUB_TIMEOUT_STYLE=menu/g' \
-    -e 's/^GRUB_HIDDEN_TIMEOUT=0/#GRUB_HIDDEN_TIMEOUT=0/g' \
-    -e 's/^GRUB_TIMEOUT=[[:digit:]]/GRUB_TIMEOUT=3/g' /etc/default/grub
-
-if ! grep -q '^GRUB_REMOVE_LINUX_ROOTFLAGS=true' /etc/default/grub; then
-    echo "GRUB_REMOVE_LINUX_ROOTFLAGS=true" | sudo tee -a /etc/default/grub >/dev/null
-fi
-
-## [GRUB/Tips and tricks](https://wiki.archlinux.org/title/GRUB/Tips_and_tricks)
-## [Grub menu working but hidden, can't make it visible](https://askubuntu.com/questions/1142167/grub-menu-working-but-hidden-cant-make-it-visible)
-# sudo sed -i -e 's/^MODULES=(/MODULES=(i915 /'  -e 's/ )/)/g' -e 's/^MODULES="/MODULES="i915 /'  -e 's/ "/"/g' /etc/mkinitcpio.conf
-# sudo sed -i -e 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE=640x480/g' /etc/default/grub
-# sudo sed -i -e 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE=1024x768x32/g' /etc/default/grub
-# sudo sed -i -e '/^prefix/i\echo "videoinfo"' /etc/grub.d/00_header
-sudo sed -i -e '/^[\s]+load_video/i\  sleep .5' /etc/grub.d/00_header
-
-## If grub graphical mode still not showing, enable console mode
-# sudo sed -i -e 's/^#GRUB_TERMINAL=console/GRUB_TERMINAL=console/g' /etc/default/grub
-# sudo sed -i -e 's/^#GRUB_TERMINAL_OUTPUT=console/GRUB_TERMINAL_OUTPUT=console/g' /etc/default/grub
-
 # disable core dump
 colorEcho "${BLUE}Disabling ${FUCHSIA}core dump${BLUE}..."
 sudo mkdir -p /etc/systemd/coredump.conf.d && \
