@@ -100,8 +100,8 @@ sudo systemctl daemon-reload && sudo systemctl start winbind
 # sudo pdbedit -a -u <username> # add a user
 # sudo pdbedit -x -u <username> # delete a user
 # sudo pdbedit -L # lists all user accounts
-# sudo pdbedit –c "[D]" –u <username> # disable user account
-# sudo pdbedit –c "[]" –u <username> # enable user account
+# sudo pdbedit -c "[D]" -u <username> # disable user account
+# sudo pdbedit -c "[]" -u <username> # enable user account
 
 ## smbclient
 # smbclient -L 127.0.0.1
@@ -126,12 +126,12 @@ sudo systemctl daemon-reload && sudo systemctl start winbind
 # reg add HKLM\Software\Policies\Microsoft\Windows\LanmanWorkstation /v AllowInsecureGuestAuth /t reg_dword /d 00000001 /f
 
 ## Disable the SMB 1 protocol and enable SMBv2 On Windows 7/Windows Server 2008 R2
-# Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 –Force
-# Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB2 -Type DWORD -Value 1 –Force
+# Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB1 -Type DWORD -Value 0 -Force
+# Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" SMB2 -Type DWORD -Value 1 -Force
 
 ## Disable SMBv1, allow SMBv2 and SMBv3 On Windows 8.1/Windows Server 2012 R2
 # Disable-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol"
-# Set-SmbServerConfiguration –EnableSMB2Protocol $true
+# Set-SmbServerConfiguration -EnableSMB2Protocol $true
 
 ## Make sure you are using the correct username and password to access the network folder.
 ## If you’re not prompted for a username and password, 
@@ -150,7 +150,7 @@ sudo systemctl daemon-reload && sudo systemctl start winbind
 ## If the cmdlet returns `TcpTestSucceeded : False`, 
 ## this means that access to the network folder on the remote computer is being blocked by the firewall.
 ## create a firewall rule with `PowerShell`
-# New-NetFirewallRule -DisplayName "Allow_SBM-FileSharing_In" -Direction Inbound -Protocol TCP –LocalPort 445 -Action Allow
+# New-NetFirewallRule -DisplayName "Allow_SBM-FileSharing_In" -Direction Inbound -Protocol TCP -LocalPort 445 -Action Allow
 
 ## Windows Cannot Access Shared Folder: You Don’t Have Permissions
 ## Check the share permissions on the remote host using `PowerShell`

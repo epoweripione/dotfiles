@@ -180,7 +180,7 @@ sudo virsh net-start default
 ## a) First shutdown the virtual machine
 # sudo virsh shutdown ${VM_NAME}
 ## b) Delete the virtual machine along with its associated storage file
-# sudo virsh undefine ${VM_NAME} --nvram –remove-all-storage
+# sudo virsh undefine ${VM_NAME} --nvram -remove-all-storage
 
 ## rename KVM domain
 # sudo virsh shutdown ${VM_NAME}
@@ -297,14 +297,14 @@ sudo virsh net-start default
 # sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 
-# [How to Fix Install Error – 0x800f0922 Windows 11?](https://www.minitool.com/backup-tips/install-error-0x800f0922-windows-11-10.html)
+# [How to Fix Install Error - 0x800f0922 Windows 11?](https://www.minitool.com/backup-tips/install-error-0x800f0922-windows-11-10.html)
 # Run `appwiz.cpl` -> Turn Windows features on or off
 # Tick the checkbox of `.NET Framework 3.5 (includes .NET 2.0 and 3.0)`
 # Besides, expand this item:
 # Tick the checkbox of `Windows Communication Foundation HTTP Activation`
 # Tick the checkbox of `Windows Communication Foundation Non-HTTP Activation`
 # Click OK to save the change
-# Then, check for `Windows updates` to see if install error – 0x800f0922 is removed from Windows 11
+# Then, check for `Windows updates` to see if install error - 0x800f0922 is removed from Windows 11
 
 
 ## Boot physical windows using Virt-Manager and KVM/QEMU
