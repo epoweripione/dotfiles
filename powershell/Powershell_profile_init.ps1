@@ -16,8 +16,19 @@ if (-Not (check_socks5_proxy_up $PROXY_ADDR)) {
 }
 
 # Profile
-if (-Not (Test-Path $PROFILE)) {
-    New-Item $PROFILE –Type File –Force | Out-Null
+if (Test-Path $PROFILE) {
+    $CONTINUE_CONFIRM = "N"
+    if($PROMPT_VALUE = Read-Host "${PROFILE} exists, continue will overwrite this profile, confirm?[y/N]") {
+        $CONTINUE_CONFIRM = $PROMPT_VALUE
+    }
+
+    if (-Not (($CONTINUE_CONFIRM -eq "y") -or ($CONTINUE_CONFIRM -eq "Y"))) {
+        exit 1
+    }
+
+    '' | Tee-Object $PROFILE | Out-Null
+} else {
+    New-Item $PROFILE -Type File -Force | Out-Null
 }
 
 @'
@@ -138,8 +149,8 @@ if (Test-Path "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my
 '@ | Tee-Object $PROFILE -Append | Out-Null
 
 # Add-Content $PROFILE '$env:POSH_GIT_ENABLED = $true'
-$THEME_DIR = "~\Documents\PowerShell\PoshThemes"
-$THEME_FILE = "$THEME_DIR\Powerlevel10k-my.omp.json"
+$THEME_DIR = "$HOME\Documents\PowerShell\PoshThemes"
+$THEME_FILE = "$THEME_DIR\powerlevel10k_my.omp.json"
 if (-Not (Test-Path $THEME_DIR)) {New-Item -path $THEME_DIR -type Directory | Out-Null}
 if (-Not (Test-Path $THEME_FILE)) {
     $DOWNLOAD_URL = "https://raw.githubusercontent.com/epoweripione/dotfiles/main/powershell/themes/powerlevel10k_my.omp.json"
