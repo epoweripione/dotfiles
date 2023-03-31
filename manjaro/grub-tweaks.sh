@@ -77,7 +77,7 @@ fi
 
 # UEFI
 if ! grep -q "menuentry '\$LABEL' --class efi" "/etc/grub.d/30_uefi-firmware"; then
-    sudo sed -i -e "s/^menuentry '\$LABEL'/menuentry '\$LABEL' --class efi/" "/etc/grub.d/30_uefi-firmware"
+    sudo sed -i -e "s/menuentry '\$LABEL'/menuentry '\$LABEL' --class efi/" "/etc/grub.d/30_uefi-firmware"
 fi
 
 # Select snapshot
