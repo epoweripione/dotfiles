@@ -17,6 +17,17 @@ else
     fi
 fi
 
+# grub language
+colorEcho "${BLUE}Setting ${FUCHSIA}GRUB language${BLUE}..."
+GRUB_LANG=$(localectl status | grep 'LANG=' | cut -d= -f2 | cut -d. -f1)
+if [[ -z "${GRUB_LANG}" ]]; then
+    GRUB_LANG=$(grep '^LANG=' /etc/locale.conf  | cut -d= -f2 | cut -d. -f1)
+fi
+
+if [[ -n "${GRUB_LANG}" ]]; then
+    sudo sed -i "s/grub_lang=.*/grub_lang=${GRUB_LANG}/" "/etc/grub.d/00_header"
+fi
+
 # [grub-customizer](https://launchpad.net/grub-customizer)
 colorEcho "${BLUE}Installing ${FUCHSIA}grub-customizer${BLUE}..."
 yay --noconfirm --needed -S aur/grub-customizer-git
