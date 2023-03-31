@@ -107,7 +107,7 @@ Param (
 )
 
 # New PSObject Template
-$DismObjT = New-Object –TypeName PSObject -Property @{
+$DismObjT = New-Object -TypeName PSObject -Property @{
     "Feature" = ""
     "State" = ""
     "ComputerName" = ""

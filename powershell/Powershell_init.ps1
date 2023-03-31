@@ -151,7 +151,7 @@
 ## https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/start-service
 # Start-Service -Name "eventlog"
 # Start-Service -DisplayName "*remote*" -WhatIf
-# Get-Service "Wsearch" | Where-Object {$_.status –eq 'Stopped'} | Start-Service
+# Get-Service "Wsearch" | Where-Object {$_.status -eq 'Stopped'} | Start-Service
 
 ## https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/stop-service
 # Get-Service -Name "iisadmin" | Format-List -Property Name, DependentServices

@@ -3,7 +3,7 @@ if (-Not ('Windows.Media.Fonts' -as [Type])) {
     Add-Type -AssemblyName 'PresentationCore'
 }
 
-$DismObjT = New-Object –TypeName PSObject -Property @{
+$DismObjT = New-Object -TypeName PSObject -Property @{
     "Feature" = ""
     "State" = ""
     "ComputerName" = ""

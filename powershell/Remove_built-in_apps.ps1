@@ -6,7 +6,7 @@
 # Get-AppxPackage | Select-object name | Out-File pre_installed_apps.txt
 
 ## remove pre-installed apps
-# Get-AppXPackage –Name *solitairecollection* | Remove-AppXPackage
+# Get-AppXPackage -Name *solitairecollection* | Remove-AppXPackage
 
 
 # Remove built in windows 10 apps
