@@ -291,12 +291,12 @@ if [[ -d "$HOME/.nvs" && -s "${MY_SHELL_SCRIPTS}/nodejs/nvs_node_updater.sh" ]];
     source "${MY_SHELL_SCRIPTS}/nodejs/nvs_node_updater.sh"
 fi
 
-if [[ -d "$HOME/.asdf" && ! -x "$(command -v rtx)" ]]; then
+if [[ -d "$HOME/.asdf" && ! "$(command -v rtx)" ]]; then
     [[ ! "$(command -v asdf)" ]] && source "$HOME/.asdf/asdf.sh"
     [[ "$(command -v asdf)" ]] && asdf_App_Update
 fi
 
-if [[ -x "$(command -v rtx)" ]]; then
+if [[ "$(command -v rtx)" ]]; then
     rtx_App_Update
 fi
 

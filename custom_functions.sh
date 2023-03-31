@@ -2309,7 +2309,7 @@ function asdf_App_Update() {
         asdf plugin update "${InstalledApp}"
 
         # Uninstall first if specify appVersion (stable, lts...)
-        [[ "${latestVersion}" == "${currentVersion}" ]] && asdf uninstall "${InstalledApp}" "${currentVersion}"
+        [[ -n "${appVersion}" && "${latestVersion}" == "${currentVersion}" ]] && asdf uninstall "${InstalledApp}" "${currentVersion}"
 
         if [[ "${appName}" == "nodejs" ]]; then
             [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
@@ -2327,10 +2327,11 @@ function asdf_App_Update() {
         fi
 
         if [[ ${appInstallStatus} -eq 0 ]]; then
+            # Set the global runtime version to latest installed version
             asdf global "${InstalledApp}" "${latestVersion}"
 
             # Uninstall old version
-            [[ "${latestVersion}" == "${currentVersion}" ]] || asdf uninstall "${InstalledApp}" "${currentVersion}"
+            [[ -z "${appVersion}" ]] || asdf uninstall "${InstalledApp}" "${currentVersion}"
         fi
     done <<<"${InstalledPlugins}"
 }
@@ -2347,7 +2348,7 @@ function rtx_App_Update() {
     local InstalledPlugins InstalledApp allVersion currentVersion currentVerNum majorVersion matchVersion latestVersion
     local appInstallStatus=0
 
-    [[ ! -x "$(command -v rtx)" ]] && colorEcho "${FUCHSIA}rtx${RED} is not installed!" && return 1
+    [[ ! "$(command -v rtx)" ]] && colorEcho "${FUCHSIA}rtx${RED} is not installed!" && return 1
 
     if [[ "${appName}" == "all" ]]; then
         colorEcho "${BLUE}Checking update for all installed ${FUCHSIA}rtx plugins${BLUE}..."
@@ -2372,7 +2373,7 @@ function rtx_App_Update() {
         if [[ -n "${appVersion}" ]]; then
             matchVersion="${appVersion}"
         else
-            currentVerNum=$(echo "${currentVersion}" | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}')
+            currentVerNum=$(grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' <<<"${currentVersion}")
             if [[ -z "${currentVerNum}" ]]; then
                 matchVersion="${currentVersion}"
             elif [[ "${currentVerNum}" == "${currentVersion}" ]]; then
@@ -2380,7 +2381,7 @@ function rtx_App_Update() {
             else
                 # fetch major version from current version string: {major}.{minor}.{revision}
                 # zulu-17.40.19 → zulu-17
-                majorVersion=$(echo "${currentVerNum}" | cut -d'.' -f1)
+                majorVersion=$(cut -d'.' -f1 <<<"${currentVerNum}")
                 matchVersion="${currentVersion/${currentVerNum}/}${majorVersion}"
             fi
         fi
@@ -2392,7 +2393,7 @@ function rtx_App_Update() {
         fi
 
         [[ -z "${allVersion}" ]] && allVersion=$(rtx ls-remote "${InstalledApp}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
-        [[ -n "${allVersion}" ]] && latestVersion=$(echo "${allVersion}" | sort -rV | head -n1)
+        [[ -n "${allVersion}" ]] && latestVersion=$(sort -rV <<<"${allVersion}" | head -n1)
 
         [[ -z "${latestVersion}" ]] && continue
 
@@ -2400,14 +2401,17 @@ function rtx_App_Update() {
         [[ -z "${appVersion}" && "${latestVersion}" == "${currentVersion}" ]] && continue
 
         # Uninstall first if specify appVersion (stable, lts...)
-        [[ "${latestVersion}" == "${currentVersion}" ]] && rtx uninstall "${InstalledApp}@${currentVersion}"
+        [[ -n "${appVersion}" && "${latestVersion}" == "${currentVersion}" ]] && rtx uninstall "${InstalledApp}@${currentVersion}"
 
-        rtx global "${InstalledApp}@${latestVersion}"
+        rtx install "${InstalledApp}@${latestVersion}"
         appInstallStatus=$?
 
         if [[ ${appInstallStatus} -eq 0 ]]; then
+            # Set the global runtime version to latest installed version
+            rtx global "${InstalledApp}@${latestVersion}"
+
             # Uninstall old version
-            [[ "${latestVersion}" == "${currentVersion}" ]] || rtx uninstall "${InstalledApp}@${currentVersion}"
+            [[ -z "${appVersion}" ]] || rtx uninstall "${InstalledApp}@${currentVersion}"
         fi
     done <<<"${InstalledPlugins}"
 }

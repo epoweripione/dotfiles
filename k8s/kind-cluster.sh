@@ -22,24 +22,24 @@ fi
 
 # kind is a tool for running local Kubernetes clusters using Docker container “nodes”
 # https://kind.sigs.k8s.io/
-[[ ! -x "$(command -v kind)" && -x "$(command -v rtx)" ]] && rtx global helm@latest
+[[ ! -x "$(command -v kind)" && "$(command -v rtx)" ]] && rtx global helm@latest
 [[ ! -x "$(command -v kind)" && "$(command -v asdf)" ]] && asdf_App_Install kind
 [[ ! -x "$(command -v kind)" ]] && colorEcho "${FUCHSIA}kind${BLUE} is not installed!" &&　exit 1
 
 # https://kubernetes.io/docs/reference/kubectl/
 # https://kubernetes.io/docs/reference/kubectl/cheatsheet/
-[[ ! -x "$(command -v kubectl)" && -x "$(command -v rtx)" ]] && rtx global kubectl@latest
+[[ ! -x "$(command -v kubectl)" && "$(command -v rtx)" ]] && rtx global kubectl@latest
 [[ ! -x "$(command -v kubectl)" && "$(command -v asdf)" ]] && asdf_App_Install kubectl
 [[ ! -x "$(command -v kubectl)" ]] && colorEcho "${FUCHSIA}kubectl${BLUE} is not installed!" && exit 1
 
 # https://helm.sh/
 # https://artifacthub.io/
-[[ ! -x "$(command -v helm)" && -x "$(command -v rtx)" ]] && rtx global helm@latest
+[[ ! -x "$(command -v helm)" && "$(command -v rtx)" ]] && rtx global helm@latest
 [[ ! -x "$(command -v helm)" && "$(command -v asdf)" ]] && asdf_App_Install helm
 [[ ! -x "$(command -v helm)" ]] && colorEcho "${FUCHSIA}helm${BLUE} is not installed!" && exit 1
 
 ## https://istio.io/latest/
-# [[ ! -x "$(command -v istioctl)" && -x "$(command -v rtx)" ]] && rtx global istioctl@latest
+# [[ ! -x "$(command -v istioctl)" && "$(command -v rtx)" ]] && rtx global istioctl@latest
 # [[ ! -x "$(command -v istioctl)" && "$(command -v asdf)" ]] && asdf_App_Install istioctl
 # [[ ! -x "$(command -v istioctl)" ]] && colorEcho "${FUCHSIA}istioctl${BLUE} is not installed!" &&　exit 1
 

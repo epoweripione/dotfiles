@@ -35,7 +35,7 @@ fi
 
 # Install nodejs
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    [[ ! -x "$(command -v node)" && -x "$(command -v rtx)" ]] && rtx global nodejs@lts
+    [[ ! -x "$(command -v node)" && "$(command -v rtx)" ]] && rtx global nodejs@lts
     [[ ! -x "$(command -v node)" && "$(command -v asdf)" ]] && asdf_App_Install nodejs lts
 
     if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
