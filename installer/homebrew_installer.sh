@@ -44,7 +44,7 @@ SYSTEM_RUBY_VERSION="0.0.0"
 if [[ -z "${BREW_RUBY_VERSION}" ]]; then
     if check_os_arch; then
         # https://github.com/rbenv/rbenv
-        if [[ -x "$(command -v yay)" ]]; then
+        if [[ -x "$(command -v pacman)" && "$(command -v yay)" ]]; then
             yay --noconfirm --needed -S rbenv
             # https://github.com/Homebrew/discussions/discussions/3183
             sudo pacman --noconfirm --needed -S libxcrypt-compat
