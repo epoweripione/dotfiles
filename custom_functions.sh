@@ -120,7 +120,7 @@ function get_os_type() {
     OS_INFO_TYPE=$ostype
 }
 
-# get os release: linux, macos, windows, freebsd, openbsd, dragonfly, solaris, android
+# get os release: macos, windows, debian, ubuntu, centos, fedora, freebsd, openbsd, dragonfly, solaris, android
 function get_os_release() {
     local osname os_release
 
@@ -2446,6 +2446,10 @@ function checkPackageExists() {
         dnf info "${PackageName}" >/dev/null 2>&1 && return 0 || return 1
     fi
 
+    if [[ "$(command -v yay)" ]]; then
+        yay -Si "${PackageName}" >/dev/null 2>&1 && return 0 || return 1
+    fi
+
     if [[ -x "$(command -v pacman)" ]]; then
         # pacman -Si "${PackageName}" >/dev/null 2>&1 && return 0 || return 1
         if PackageInfo=$(pacman -Si "${PackageName}" 2>&1); then
@@ -2648,8 +2652,6 @@ function App_Installer_Get_Remote() {
 
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
-    [[ -n "${INSTALLER_APP_NAME}" ]] && colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
-
     # INSTALLER_VER_REMOTE=""
     INSTALLER_DOWNLOAD_URL=""
 
@@ -2660,7 +2662,11 @@ function App_Installer_Get_Remote() {
     [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
     # Get app version
-    [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+    if [[ -z "${INSTALLER_REMOTE_CONTENT}" ]]; then
+        [[ -n "${INSTALLER_APP_NAME}" ]] && colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+        INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+    fi
+
     if [[ -z "${INSTALLER_REMOTE_CONTENT}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
         if [[ -n "${GITHUB_API_TOKEN}" ]]; then
             # Use Github API token to fix rate limit exceeded
@@ -3000,17 +3006,22 @@ function App_Installer_Install() {
     # WORKDIR INSTALLER_APP_NAME INSTALLER_GITHUB_REPO INSTALLER_INSTALL_NAME
     # INSTALLER_ARCHIVE_EXT INSTALLER_ARCHIVE_EXEC_DIR INSTALLER_ARCHIVE_EXEC_NAME
     #
-    # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/juicefs_installer.sh` or `installer/lazygit_installer.sh` as example
+    # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/earthly_installer.sh` or `installer/lazygit_installer.sh` as example
     local remote_url=$1
-    local finded_file install_files install_filename
+    local exec_list exec_name app_installed finded_file install_files install_filename
 
     [[ "${INSTALLER_IS_INSTALL}" != "yes" ]] && return 0
 
     [[ -z "${remote_url}" ]] && remote_url="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
 
     # get app remote version & download link that match running platform
-    # colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
-    [[ -z "${INSTALLER_DOWNLOAD_URL}" ]] && App_Installer_Get_Remote "${remote_url}"
+    if [[ -z "${INSTALLER_DOWNLOAD_URL}" ]]; then
+        if [[ -z "${INSTALLER_ARCHIVE_EXT}" && -n "${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
+            App_Installer_Get_Remote "${remote_url}" "${INSTALLER_ARCHIVE_EXEC_NAME}"
+        else
+            App_Installer_Get_Remote "${remote_url}"
+        fi
+    fi
 
     if [[ -z "${INSTALLER_VER_REMOTE}" || -z "${INSTALLER_DOWNLOAD_URL}" ]]; then
         INSTALLER_IS_INSTALL="nomatch"
@@ -3035,7 +3046,10 @@ function App_Installer_Install() {
 
         [[ -z "${INSTALLER_ARCHIVE_ROOT}" || ! -d "${INSTALLER_ARCHIVE_ROOT}" ]] && INSTALLER_ARCHIVE_ROOT="${INSTALLER_ARCHIVE_EXEC_DIR}"
 
-        if echo "${INSTALLER_ARCHIVE_EXEC_NAME}" | grep -q '\*'; then
+        [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
+
+        # wildchar match
+        if grep -q '\*' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}"; then
             if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
                 if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
                     INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
@@ -3056,18 +3070,44 @@ function App_Installer_Install() {
             INSTALLER_ARCHIVE_EXEC_DIR=$(dirname "${INSTALLER_ARCHIVE_EXEC_NAME}") && INSTALLER_ARCHIVE_EXEC_NAME=$(basename "${INSTALLER_ARCHIVE_EXEC_NAME}")
         fi
 
-        [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" || ! -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
+        # maybe more than one execute file
+        # INSTALLER_ARCHIVE_EXEC_NAME="trzsz trz tsz"
+        exec_list=()
+        if grep -q ' ' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}"; then
+            [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
 
-        if [[ ! -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
-            INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}")
-            INSTALLER_ARCHIVE_EXEC_DIR=$(dirname "${INSTALLER_ARCHIVE_EXEC_NAME}") && INSTALLER_ARCHIVE_EXEC_NAME=$(basename "${INSTALLER_ARCHIVE_EXEC_NAME}")
+            if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" exec_list <<<"${INSTALLER_ARCHIVE_EXEC_NAME}" 2>/dev/null; then
+                while read -r exec_name; do
+                    exec_list+=("${exec_name}")
+                done < <(tr ' ' '\n' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
+            fi
+        else
+            [[ ! -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
         fi
+        [[ -z "${exec_list[*]}" ]] && exec_list=("${INSTALLER_ARCHIVE_EXEC_NAME}")
 
         # install app
-        if [[ -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
-            sudo cp -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
-                sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
-                [[ -n "${INSTALLER_VER_FILE}" ]] && echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null || true
+        app_installed="no"
+        for exec_name in "${exec_list[@]}"; do
+            [[ -z "${exec_name}" ]] && continue
+
+            if [[ ! -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" ]]; then
+                exec_name=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${exec_name}")
+                INSTALLER_ARCHIVE_EXEC_DIR=$(dirname "${exec_name}") && exec_name=$(basename "${exec_name}")
+            fi
+            [[ -z "${exec_name}" ]] && continue
+
+            if [[ -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" ]]; then
+                sudo cp -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" "${INSTALLER_INSTALL_PATH}/${exec_name}" && \
+                    sudo chmod +x "${INSTALLER_INSTALL_PATH}/${exec_name}" && \
+                    app_installed="yes"
+            fi
+        done
+
+        # man pages, zsh completions
+        if [[ "${app_installed}" == "yes" ]]; then
+            # write version to file
+            [[ -n "${INSTALLER_VER_FILE}" ]] && echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null || true
 
             # man pages (man1..man8)
             for ((i=1; i <= 8; ++i)); do
@@ -3332,7 +3372,7 @@ function Get_Installer_CURL_Options() {
         if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" CURL_CHECK_OPTS <<<"${INSTALLER_CHECK_CURL_OPTION}" 2>/dev/null; then
             while read -r opts; do
                 CURL_CHECK_OPTS+=("${opts}")
-            done < <(echo "${INSTALLER_CHECK_CURL_OPTION}" | tr ' ' '\n')
+            done < <(tr ' ' '\n'<<<"${INSTALLER_CHECK_CURL_OPTION}")
         fi
     fi
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && CURL_CHECK_OPTS=(-fsL)
@@ -3342,7 +3382,7 @@ function Get_Installer_CURL_Options() {
         if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" CURL_DOWNLOAD_OPTS <<<"${INSTALLER_DOWNLOAD_CURL_OPTION}" 2>/dev/null; then
             while read -r opts; do
                 CURL_DOWNLOAD_OPTS+=("${opts}")
-            done < <(echo "${INSTALLER_DOWNLOAD_CURL_OPTION}" | tr ' ' '\n')
+            done < <(tr ' ' '\n'<<<"${INSTALLER_DOWNLOAD_CURL_OPTION}")
         fi
     fi
     [[ -z "${CURL_DOWNLOAD_OPTS[*]}" ]] && CURL_DOWNLOAD_OPTS=(-fSL)
