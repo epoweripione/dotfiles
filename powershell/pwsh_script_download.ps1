@@ -71,6 +71,7 @@ if ($?) {
     # Copy-Item -Path ".\dotfiles\powershell\*" -Destination "$PWSH_DIR" -Recurse -Force -Confirm:$false
     Copy-Item -Path ".\dotfiles\powershell\*.ps1" -Destination "$PWSH_DIR"
     Copy-Item -Path ".\dotfiles\wsl\*.ps1" -Destination "$PWSH_DIR"
+    Copy-Item -Path ".\dotfiles\wsl\windows_terminal_profile.jsonc" -Destination "$PWSH_DIR"
     Copy-Item -Path ".\dotfiles\cross\hosts_accelerate_cn.list" -Destination "$PWSH_DIR"
 
     $CONFIG_DIR = "~\.config"
