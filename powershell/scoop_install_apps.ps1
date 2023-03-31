@@ -323,7 +323,6 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
     )
 
     $sudoApps = @(
-        "dotnet-desktop-runtime"
         "file-converter-np"
         # "nmap"
     )
@@ -401,7 +400,11 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
     #     scoop config rm proxy
     # }
 
-    scoop config aria2-enabled true
+    if ($UseAria2) {
+        scoop config aria2-enabled true
+    } else {
+        scoop config aria2-enabled false
+    }
 } else {
     Write-Host "Install apps using scoop failed!"
 }
@@ -451,10 +454,12 @@ if (Get-Command "sdkmanager" -ErrorAction SilentlyContinue) {
 }
 
 # [Unable to find bundled Java version on Flutter](https://stackoverflow.com/questions/51281702/unable-to-find-bundled-java-version-on-flutter)
-if (-Not (Test-Path "$HOME\scoop\apps\android-studio\current\jre\java.exe")) {
-    Remove-Item -Path "$HOME\scoop\apps\android-studio\current\jre" -Recurse -Force -Confirm:$false
-    New-Item -ItemType SymbolicLink -Path "$HOME\scoop\apps\android-studio\current\jre" -Target "$HOME\scoop\apps\android-studio\current\jbr"
-}
+if (Test-Path "$HOME\scoop\apps\android-studio\current\jbr") {
+    if (-Not (Test-Path "$HOME\scoop\apps\android-studio\current\jre\java.exe")) {
+        Remove-Item -Path "$HOME\scoop\apps\android-studio\current\jre" -Recurse -Force -Confirm:$false
+        New-Item -ItemType SymbolicLink -Path "$HOME\scoop\apps\android-studio\current\jre" -Target "$HOME\scoop\apps\android-studio\current\jbr"
+    }
+fi
 
 # go
 if (Get-Command "go" -ErrorAction SilentlyContinue) {
