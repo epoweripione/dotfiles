@@ -2411,7 +2411,7 @@ function rtx_App_Update() {
             rtx global "${InstalledApp}@${latestVersion}"
 
             # Uninstall old version
-            [[ -z "${appVersion}" ]] || rtx uninstall "${InstalledApp}@${currentVersion}"
+            [[ -z "${appVersion}" ]] && rtx uninstall "${InstalledApp}@${currentVersion}"
         fi
     done <<<"${InstalledPlugins}"
 }
