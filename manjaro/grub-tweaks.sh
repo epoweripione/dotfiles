@@ -36,7 +36,8 @@ fi
 # sudo sed -i -e 's/^GRUB_GFXMODE=.*/GRUB_GFXMODE=1024x768x32/g' /etc/default/grub
 # sudo sed -i -e '/^prefix/i\echo "videoinfo"' /etc/grub.d/00_header
 if ! grep -q 'sleep .5' /etc/grub.d/00_header; then
-    sudo sed -i -e '/^\s+load_video/i\  sleep .5' /etc/grub.d/00_header
+    # sudo sed -i -e '/^[[:space:]]\+load_video/i\  sleep .5' /etc/grub.d/00_header
+    sudo sed -i -e '/^\s\+load_video/i\  sleep .5' /etc/grub.d/00_header
 fi
 
 ## If grub graphical mode still not showing, enable console mode
