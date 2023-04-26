@@ -4,8 +4,8 @@ if (Get-Process -Name "naive" -ErrorAction SilentlyContinue) {
 
 $NaiveCMD = "naive.exe"
 if (-Not (Get-Command "${NaiveCMD}" -ErrorAction SilentlyContinue)) {
-    if (Test-Path "C:\Tools\naiveproxy\naive.exe") {
-        $NaiveCMD = "C:\Tools\naiveproxy\naive.exe"
+    if (Test-Path "$env:SystemDrive\Tools\naiveproxy\naive.exe") {
+        $NaiveCMD = "$env:SystemDrive\Tools\naiveproxy\naive.exe"
     }
 }
 
@@ -17,8 +17,8 @@ if (-Not (Get-Command "${NaiveCMD}" -ErrorAction SilentlyContinue)) {
 # )
 if (Test-Path "$env:USERPROFILE\.proxy.env.ps1") {
     . "$env:USERPROFILE\.proxy.env.ps1"
-} elseif (Test-Path "C:\Tools\.proxy.env.ps1") {
-    . "C:\Tools\.proxy.env.ps1"
+} elseif (Test-Path "$env:SystemDrive\Tools\.proxy.env.ps1") {
+    . "$env:SystemDrive\Tools\.proxy.env.ps1"
 }
 
 foreach ($TargetUrl in ${NAIVEPROXY_URL}) {

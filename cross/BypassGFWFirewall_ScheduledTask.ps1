@@ -2,7 +2,7 @@
 
 # Scheduled Task info
 $TaskName = "BypassGFWFirewall"
-$TaskFile = "C:\Tools\BypassGFWFirewall.ps1"
+$TaskFile = "$env:SystemDrive\Tools\BypassGFWFirewall.ps1"
 $TaskWorkDir = "%USERPROFILE%"
 
 $ProcessName = "naive"
