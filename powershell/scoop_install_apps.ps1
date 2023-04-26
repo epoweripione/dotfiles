@@ -268,6 +268,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "file"
         "gping"
         "host-editor"
+        "keyviz"
         "lsd"
         "mkcert"
         "nu"
