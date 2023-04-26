@@ -47,6 +47,13 @@ bindkey -M emacs '^N' history-substring-search-down
 # not confirm a rm *
 setopt localoptions rmstarsilent
 
+## disable globbing for all commands
+## [Using wildcards in commands with zsh](https://superuser.com/questions/584249/using-wildcards-in-commands-with-zsh)
+## [no matches found / no such file or directory](https://unix.stackexchange.com/questions/434066/why-im-i-getting-the-no-matches-found-error-when-there-is-a-match)
+## sudo sh -c 'ls ./backup*'
+# unsetopt nomatch
+# setopt no_nomatch
+
 ## Colors
 # autoload -U colors && colors
 # export CLICOLOR=1
