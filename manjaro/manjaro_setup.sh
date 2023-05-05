@@ -210,6 +210,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "google-chrome-beta"
         "google-chrome-dev"
         # "microsoft-edge-stable-bin"
+        "profile-sync-daemon"
         ## Clipborad
         "copyq"
         ## Develop
@@ -363,7 +364,10 @@ if [[ -x "$(command -v NotePad--)" ]]; then
 fi
 
 ## Linux Advanced Power Management
-[[ -x "$(command -v tlp)" ]] && sudo tlp start
+if [[ -x "$(command -v tlp)" ]]; then
+    sudo systemctl enable --now tlp.service
+fi
+# sudo tlp start
 # sudo tlp-stat -s # System Info
 # sudo tlp-stat -b # Battery Care
 
@@ -419,6 +423,13 @@ fi
 # Themes
 # [[ -s "${MY_SHELL_SCRIPTS}/installer/desktop_themes.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/desktop_themes.sh"
 
+
+## [Profile-sync-daemon](https://wiki.archlinux.org/title/Profile-sync-daemon)
+## $HOME/.config/psd/psd.conf
+# systemctl --user enable --now psd.service
+# psd parse
+
+
 ## Others
 # mute tone when logout
 echo -e "\n# Disable BIOS sound\nxset -b" | sudo tee -a "/etc/xprofile" > /dev/null
@@ -427,6 +438,15 @@ echo -e "\n# Disable BIOS sound\nxset -b" | sudo tee -a "/etc/xprofile" > /dev/n
 # su -c 'modprobe -r pcspkr && echo "blacklist pcspkr" >> /etc/modprobe.d/50-blacklist.conf'
 echo -e "\n# Disable PC speaker\nblacklist pcspkr" | sudo tee "/etc/modprobe.d/nobeep.conf"
 
+## Disable swap
+## sudo sysctl -a | grep "vm.swappiness"
+# SWAP_DISK=$(swapon --noheadings | awk '{print $1}')
+# if [[ -n "${SWAP_DISK}" ]]; then
+#     sudo swapoff "${SWAP_DISK}"
+#     sudo systemctl mask swap
+#     sudo sed -i -e 's/.*swap.*/# &/g' /etc/fstab
+#     echo 'vm.swappiness=0' | sudo tee /etc/sysctl.d/99-swappiness.conf >/dev/null
+# fi
 
 # Clean jobs
 # sudo pacman -Rns $(pacman -Qtdq)
