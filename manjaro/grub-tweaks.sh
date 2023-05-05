@@ -41,8 +41,18 @@ if ! grep -q 'sleep .5' /etc/grub.d/00_header; then
 fi
 
 ## If grub graphical mode still not showing, enable console mode
-# sudo sed -i -e 's/^#GRUB_TERMINAL=console/GRUB_TERMINAL=console/g' /etc/default/grub
+# sudo sed -i -e 's/^#GRUB_TERMINAL_INPUT=console/GRUB_TERMINAL_INPUT=console/g' /etc/default/grub
 # sudo sed -i -e 's/^#GRUB_TERMINAL_OUTPUT=console/GRUB_TERMINAL_OUTPUT=console/g' /etc/default/grub
+
+# Load LUKS2 Grub module
+ROOT_DEV=$(df -hT | grep '/$' | awk '{print $1}')
+ROOT_TYPE=$(sudo lsblk -no TYPE "${ROOT_DEV}")
+if [[ "${ROOT_TYPE}" == "crypt" ]]; then
+    # sudo sed -i -e 's/GRUB_PRELOAD_MODULES=.*/GRUB_PRELOAD_MODULES="part_gpt part_msdos argon2 gcry_sha512"/g' /etc/default/grub
+    if ! grep -q '^GRUB_ENABLE_CRYPTODISK=y' /etc/default/grub; then
+        echo "GRUB_ENABLE_CRYPTODISK=y" | sudo tee -a /etc/default/grub >/dev/null
+    fi
+fi
 
 # grub language
 colorEcho "${BLUE}Setting ${FUCHSIA}GRUB language${BLUE}..."

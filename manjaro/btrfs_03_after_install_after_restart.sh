@@ -83,9 +83,24 @@ colorEcho "${BLUE}Changing login greeter to ${FUCHSIA}slick-greeter${BLUE}..."
 sudo pacman --noconfirm --needed -S lightdm-settings lightdm-slick-greeter
 sudo sed -i 's/greeter-session=lightdm-gtk-greeter/greeter-session=lightdm-slick-greeter/' /etc/lightdm/lightdm.conf
 
+# [Enable LUKS2 and Argon2 support for Grub in Manjaro/Arch](https://mdleom.com/blog/2022/11/27/grub-luks2-argon2/)
+ROOT_DEV=$(df -hT | grep '/$' | awk '{print $1}')
+ROOT_TYPE=$(sudo lsblk -no TYPE "${ROOT_DEV}")
+if [[ "${ROOT_TYPE}" == "crypt" ]]; then
+    [[ ! -s "/etc/default/grub.luks1" ]] && sudo cp "/etc/default/grub" "/etc/default/grub.luks1"
+
+    colorEcho "${BLUE}Installing ${FUCHSIA}Build deps${BLUE}..."
+    sudo pacman --noconfirm --needed -S base-devel cmake patch pkg-config automake
+
+    colorEcho "${BLUE}Installing ${FUCHSIA}grub-improved-luks2-git${BLUE}..."
+    yay --needed -S grub-improved-luks2-git
+
+    sudo cp "/etc/default/grub.luks1" "/etc/default/grub"
+fi
+
 # on 64bit systems, install the kernel bootsplash
 # https://forum.manjaro.org/t/howto-enable-bootsplash-provided-by-the-kernel/119869
-if [ "$(uname -m)" = "x86_64" ]; then
+if [[ "$(uname -m)" == "x86_64" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}kernel bootsplash${BLUE}..."
     sudo pacman --noconfirm --needed -S bootsplash-theme-manjaro bootsplash-systemd
 
@@ -388,7 +403,7 @@ colorEcho "${BLUE}Installing ${FUCHSIA}snap-pac-grub${BLUE} from AUR..."
 yay -aS --sudoloop --noredownload --norebuild --noconfirm --noeditmenu snap-pac-grub
 
 # GRUB tweaks & Regenrate GRUB2 configuration
-[[ -s "${MY_SHELL_SCRIPTS}/manjaro/grub-tweaks.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/grub-tweaks.sh"
+[[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/grub-tweaks.sh" ]] && source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/grub-tweaks.sh"
 
 # colorEcho "${BLUE}Regenerate ${FUCHSIA}GRUB2 configuration${BLUE}..."
 # sudo mkinitcpio -P
@@ -397,4 +412,4 @@ yay -aS --sudoloop --noredownload --norebuild --noconfirm --noeditmenu snap-pac-
 
 echo ""
 colorEcho "${BLUE}Btrfs with snapper and grub ready. You should restart."
-read -r
+# read -r

@@ -339,5 +339,40 @@ compsize <MOUNT_POINT>
 
 
 ## Encrypt a Btrfs Filesystem
+### [dm-crypt/Encrypting an entire system](https://wiki.archlinux.org/title/dm-crypt/Encrypting_an_entire_system)
+### [Enable LUKS2 and Argon2 support for Grub in Manjaro/Arch](https://mdleom.com/blog/2022/11/27/grub-luks2-argon2/)
+### [Btrfs + LUKS2 + Secure Boot](https://wiki.archlinux.org/title/User:ZachHilman/Installation_-_Btrfs_%2B_LUKS2_%2B_Secure_Boot)
 ### [How to Encrypt a Btrfs Filesystem?](https://linuxhint.com/encrypt-a-btrfs-filesystem/)
-### [让系统更安全 - 系统分区加密 (Btrfs on LUKS) 操作实录](https://pwd.moe/posts/btrfs-on-luks/)
+```bash
+# Boot with Manjaro official ISO
+
+# Change disk to GPT: GParted > Device > Create Partition Table > GPT > Apply
+
+# Change BTRFS layout with `konsole`
+git clone --depth=1 "https://github.com/epoweripione/dotfiles.git" "$HOME/.dotfiles" && \
+    find "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" -type f -iname "*.sh" -exec chmod +x {} \;
+
+"${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_01_before_install.sh"
+
+# Continue the installation process using `Graphical Installer`
+# In the partitioning step, choose `btrfs` and ticked `Encrypt system`, Then enter a passphrase to encrypt the disk
+# Continue to complete the remaining steps
+
+# After the installation is complete, do not reboot
+# start `konsole`
+"${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_02_after_install_before_restart.sh"
+
+# Reboot
+
+# After boot into the desktop, start `konsole`
+git clone --depth=1 "https://github.com/epoweripione/dotfiles.git" "$HOME/.dotfiles" && \
+    find "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" -type f -iname "*.sh" -exec chmod +x {} \;
+
+"${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_03_after_install_after_restart.sh"
+
+# Reboot into Manjaro live USB
+git clone --depth=1 "https://github.com/epoweripione/dotfiles.git" "$HOME/.dotfiles" && \
+    find "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" -type f -iname "*.sh" -exec chmod +x {} \;
+
+"${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_convert_LUKS1_to_LUKS2.sh" "<EFI partition: /dev/sda1, /dev/nvme0n1p1>" "<encrypted LUKS1 root partition: /dev/sda2, /dev/nvme0n1p2>" "<encrypted LUKS1 swap partition: /dev/sda3, /dev/nvme0n1p3>"
+```

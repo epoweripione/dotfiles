@@ -21,6 +21,12 @@ fi
 ## Run `spice-vdagent` to copy-and-paste functionality between host and guest vm
 
 # Editing Calamares
+colorEcho "${BLUE}Setting default filesystem type to BTRFS..."
+sudo sed -i 's/^defaultFileSystemType:.*/defaultFileSystemType:  "btrfs"/' "/usr/share/calamares/modules/partition.conf"
+
+colorEcho "${BLUE}Setting LUKS generation to LUKS2..."
+sudo sed -i 's/^luksGeneration:.*/luksGeneration: luks2/' "/usr/share/calamares/modules/partition.conf"
+
 # Btrfs mount options
 colorEcho "${BLUE}Setting Btrfs mount options..."
 sudo sed -i 's/# btrfs:.*/btrfs: noatime,nodiratime,compress=zstd,space_cache=v2/' "/usr/share/calamares/modules/fstab.conf"
