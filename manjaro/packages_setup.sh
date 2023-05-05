@@ -25,6 +25,9 @@ colorEcho "${BLUE}Checking ${FUCHSIA}GEO location${BLUE} by WAN IP..."
 [[ "${NETWORK_WAN_NET_IP_GEO}" =~ 'China' || "${NETWORK_WAN_NET_IP_GEO}" =~ 'CN' ]] && IP_GEO_IN_CHINA="yes"
 colorEcho "GEO location: ${FUCHSIA}${NETWORK_WAN_NET_IP_GEO}${BLUE}"
 
+# [AUR package fails to verify PGP/GPG key: “unknown public key”, “One or more PGP signatures could not be verified!”](https://forum.manjaro.org/t/aur-package-fails-to-verify-pgp-gpg-key-unknown-public-key-one-or-more-pgp-signatures-could-not-be-verified/6663)
+# gpg --recv-key $KEYID
+
 # pacman
 # Generate custom mirrorlist
 # if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
