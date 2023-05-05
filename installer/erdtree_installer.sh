@@ -19,11 +19,11 @@ fi
 
 App_Installer_Reset
 
-# [erdtree (et): A multi-threaded file-tree visualizer and disk usage analyzer](https://github.com/solidiquis/erdtree)
+# [erdtree (erd): a modern, cross-platform, and multi-threaded filesystem and disk-usage analysis tool](https://github.com/solidiquis/erdtree)
 INSTALLER_APP_NAME="erdtree"
 INSTALLER_GITHUB_REPO="solidiquis/erdtree"
 
-INSTALLER_INSTALL_NAME="et"
+INSTALLER_INSTALL_NAME="erd"
 
 if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
