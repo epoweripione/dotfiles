@@ -3050,8 +3050,6 @@ function App_Installer_Install() {
 
         [[ -z "${INSTALLER_ARCHIVE_ROOT}" || ! -d "${INSTALLER_ARCHIVE_ROOT}" ]] && INSTALLER_ARCHIVE_ROOT="${INSTALLER_ARCHIVE_EXEC_DIR}"
 
-        [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
-
         # wildchar match
         if grep -q '\*' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}"; then
             if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
@@ -3102,8 +3100,10 @@ function App_Installer_Install() {
             [[ -z "${exec_name}" ]] && continue
 
             if [[ -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" ]]; then
-                sudo cp -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" "${INSTALLER_INSTALL_PATH}/${exec_name}" && \
-                    sudo chmod +x "${INSTALLER_INSTALL_PATH}/${exec_name}" && \
+                [[ -n "${INSTALLER_INSTALL_NAME}" ]] && install_filename="${INSTALLER_INSTALL_NAME}" || install_filename="${exec_name}"
+
+                sudo cp -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
+                    sudo chmod +x "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
                     app_installed="yes"
             fi
         done
