@@ -9,20 +9,20 @@
 // @license           MIT
 // @match             http://*/*
 // @match             https://*/*
-// @require           https://cdn.bootcss.com/jquery/3.6.1/jquery.min.js
+// @require           https://cdn.bootcss.com/jquery/3.7.0/jquery.min.js
 // @require           https://cdn.bootcdn.net/ajax/libs/findAndReplaceDOMText/0.4.6/findAndReplaceDOMText.min.js
 // @require           https://cdn.jsdelivr.net/gh/hsynlms/theroomjs/dist/theroom.min.js
 // @require           https://html2canvas.hertzen.com/dist/html2canvas.min.js
 // @require           https://cdn.jsdelivr.net/npm/dom-to-image-more/dist/dom-to-image-more.min.js
-// @require           https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.10.5/viewer.min.js
-// @require           https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.6/beautify-html.min.js
+// @require           https://cdn.bootcdn.net/ajax/libs/viewerjs/1.11.3/viewer.min.js
+// @require           https://cdn.bootcdn.net/ajax/libs/js-beautify/1.14.7/beautify-html.min.js
 // @require           https://unpkg.com/turndown/dist/turndown.js
 // @require           https://unpkg.com/@guyplusplus/turndown-plugin-gfm/dist/turndown-plugin-gfm.js
 // @require           https://cdn.jsdelivr.net/npm/html-to-md/dist/index.js
 // @require           https://cdn.jsdelivr.net/npm/darkreader/darkreader.min.js
 // @require           https://cdn.jsdelivr.net/npm/darkmode-js/lib/darkmode-js.min.js
 // @require           https://cdn.jsdelivr.net/npm/img-previewer/dist/img-previewer.min.js
-// @require           https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js
+// @require           https://cdn.bootcdn.net/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js
 // @require           https://cdn.jsdelivr.net/npm/chinese-characters-codepoints-converter/index.js
 // @require           https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant             GM_getValue
@@ -33,7 +33,7 @@
 // ==/UserScript==
 
 // [Console Importer](https://chrome.google.com/webstore/detail/console-importer/hgajpakhafplebkdljleajgbpdmplhie)
-// $i('https://cdn.bootcss.com/jquery/3.6.1/jquery.min.js');
+// $i('https://cdn.bootcss.com/jquery/3.7.0/jquery.min.js');
 // $i('https://cdn.bootcdn.net/ajax/libs/findAndReplaceDOMText/0.4.6/findAndReplaceDOMText.min.js');
 // $i('https://cdn.jsdelivr.net/npm/chinese-characters-codepoints-converter/index.js');
 
@@ -1448,7 +1448,7 @@ function cutoffNotBase64Images(imgsUrlArray) {
 // [10 Best JavaScript Image Viewer Libraries in 2022](https://openbase.com/categories/js/best-javascript-image-viewer-libraries)
 // [Best Free image viewer In JavaScript & CSS](https://www.cssscript.com/tag/image-viewer/)
 // [Viewer.js](https://github.com/fengyuanchen/viewerjs)
-// addLinkStylesheetToHead('https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.10.5/viewer.min.css');
+// addLinkStylesheetToHead('https://cdn.bootcdn.net/ajax/libs/viewerjs/1.11.3/viewer.min.css');
 const imageViewerTemplate = `
     <div id="image-viewer-container">
         <img id="image-viewer-img" src="" alt="">
@@ -2877,7 +2877,7 @@ function getWikiListFonts() {
     // 图片查看器 CSS 样式
     switch (IMAGE_VIEWER) {
         case 'image-viewer':
-            addLinkStylesheetToHead('https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.10.5/viewer.min.css');
+            addLinkStylesheetToHead('https://cdn.bootcdn.net/ajax/libs/viewerjs/1.11.3/viewer.min.css');
             break;
         case 'img-previewer':
             addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/img-previewer/dist/index.css');
