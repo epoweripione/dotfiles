@@ -60,3 +60,6 @@ echo -n "😊" |              # -n ignore trailing newline                     \
 
 # [Appending 0's to a file in unix/bash if the line is less than a fixed length](https://stackoverflow.com/questions/46443750/appending-0s-to-a-file-in-unix-bash-if-the-line-is-less-than-a-fixed-length)
 `awk 'length<66{ printf "%s%0*d\n",$0,66-length,0;next }' input.txt`
+
+# [How to trim whitespace from a Bash variable?](https://stackoverflow.com/questions/369758/how-to-trim-whitespace-from-a-bash-variable)
+`echo ' test test ' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'`
