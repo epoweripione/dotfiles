@@ -298,6 +298,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "peek"
         "redshift"
         "ventoy-bin"
+        "wsysmon-git"
         #"easystroke"
         ## WPS
         "wps-office-cn"
