@@ -319,7 +319,7 @@ if [[ "${SET_REGISTRY_MIRROR}" == "y" || "${SET_REGISTRY_MIRROR}" == "Y" ]]; the
 # }
 # EOF
 
-    REGISTRY_MIRRORS='"https://docker.mirrors.sjtug.sjtu.edu.cn","https://hub-mirror.c.163.com"'
+    REGISTRY_MIRRORS='"https://docker.mirrors.sjtug.sjtu.edu.cn","https://docker.nju.edu.cn/","https://hub-mirror.c.163.com"'
 
     [[ ! -s "/etc/docker/daemon.json" ]] && sudo mkdir -p "/etc/docker" && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
