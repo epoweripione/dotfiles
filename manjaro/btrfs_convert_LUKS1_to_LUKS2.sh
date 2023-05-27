@@ -114,15 +114,22 @@ if [[ -n "${SWAP_DISK}" ]]; then
 fi
 
 # Enable TRIM and disable workqueue for SSD performance (optional)
-colorEchoN "${BLUE}Enable TRIM and disable workqueue for SSD performance..."
-sudo cryptsetup --allow-discards --perf-no_read_workqueue --perf-no_write_workqueue --persistent open "${ROOT_DISK}" "${ROOT_CRYPT_POINT}"
-sudo cryptsetup close "${ROOT_CRYPT_POINT}"
-sudo cryptsetup luksDump "${ROOT_DISK}" | grep Flags # Verify the flags are set
+DISK_ROTA=$(sudo lsblk -no rota "${ROOT_DISK}" | head -n1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+if [[ "${DISK_ROTA}" == "0" ]]; then
+    colorEchoN "${BLUE}Enable TRIM and disable workqueue for SSD performance on ${FUCHSIA}${ROOT_DISK}${BLUE}..."
+    sudo cryptsetup --allow-discards --perf-no_read_workqueue --perf-no_write_workqueue --persistent open "${ROOT_DISK}" "${ROOT_CRYPT_POINT}"
+    sudo cryptsetup close "${ROOT_CRYPT_POINT}"
+    sudo cryptsetup luksDump "${ROOT_DISK}" | grep Flags # Verify the flags are set
+fi
 
 if [[ -n "${SWAP_DISK}" ]]; then
-    sudo cryptsetup --allow-discards --perf-no_read_workqueue --perf-no_write_workqueue --persistent open "${SWAP_DISK}" "${SWAP_CRYPT_POINT}"
-    sudo cryptsetup close "${SWAP_CRYPT_POINT}"
-    sudo cryptsetup luksDump "${SWAP_DISK}" | grep Flags
+    DISK_ROTA=$(sudo lsblk -no rota "${SWAP_DISK}" | head -n1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    if [[ "${DISK_ROTA}" == "0" ]]; then
+        colorEchoN "${BLUE}Enable TRIM and disable workqueue for SSD performance on ${FUCHSIA}${SWAP_DISK}${BLUE}..."
+        sudo cryptsetup --allow-discards --perf-no_read_workqueue --perf-no_write_workqueue --persistent open "${SWAP_DISK}" "${SWAP_CRYPT_POINT}"
+        sudo cryptsetup close "${SWAP_CRYPT_POINT}"
+        sudo cryptsetup luksDump "${SWAP_DISK}" | grep Flags
+    fi
 fi
 
 # Load LUKS2 Grub module

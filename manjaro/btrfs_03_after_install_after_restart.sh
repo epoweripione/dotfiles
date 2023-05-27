@@ -86,7 +86,15 @@ sudo sed -i 's/greeter-session=lightdm-gtk-greeter/greeter-session=lightdm-slick
 # [Enable LUKS2 and Argon2 support for Grub in Manjaro/Arch](https://mdleom.com/blog/2022/11/27/grub-luks2-argon2/)
 ROOT_DEV=$(df -hT | grep '/$' | awk '{print $1}')
 ROOT_TYPE=$(sudo lsblk -no TYPE "${ROOT_DEV}")
-if [[ "${ROOT_TYPE}" == "crypt" ]]; then
+
+# sudo dmsetup info "${ROOT_DEV}" # /dev/dm-0
+ROOT_LUKS=""
+ROOT_DISK=$(sudo blkid -t TYPE="crypto_LUKS" | grep 'PARTLABEL="root"' | cut -d: -f1)
+if sudo lsblk -no FSTYPE,FSVER --fs "${ROOT_DISK}" 2>/dev/null | grep -q -i 'LUKS\s1'; then
+    ROOT_LUKS="luks1"
+fi
+
+if [[ "${ROOT_TYPE}" == "crypt" && "${ROOT_LUKS}" == "luks1" ]]; then
     [[ ! -s "/etc/default/grub.luks1" ]] && sudo cp "/etc/default/grub" "/etc/default/grub.luks1"
 
     colorEcho "${BLUE}Installing ${FUCHSIA}Build deps${BLUE}..."
