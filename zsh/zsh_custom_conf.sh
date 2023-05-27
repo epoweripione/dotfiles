@@ -740,12 +740,10 @@ export INSTALLER_DOWNLOAD_AXEL_OPTION=${INSTALLER_DOWNLOAD_AXEL_OPTION:-"--num-c
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 # Accelerate the speed of accessing GitHub
-# https://fastgit.org/
-# https://www.gitclone.com/
+# https://github.com/hunshcn/gh-proxy
 # https://raw.hellogithub.com/hosts
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    # GITHUB_HUB_URL="https://gitclone.com/github.com"
-    export GITHUB_MIRROR_USE_FASTGIT=${GITHUB_MIRROR_USE_FASTGIT:-"false"}
+    export GITHUB_MIRROR_USE_FASTGIT=${GITHUB_MIRROR_USE_FASTGIT:-"true"}
     if [[ "${GITHUB_MIRROR_USE_FASTGIT}" == "true" ]]; then
         # GITHUB_HUB_URL="https://hub.fgit.gq"
         # GITHUB_HUB_URL="https://hub.fgit.ml"
@@ -753,14 +751,13 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
         GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.fgit.ml"}
     fi
 
-    # https://github.com/hunshcn/gh-proxy
-    # https://ghps.cc/ https://ghproxy.net/ https://proxy.zyun.vip/
-    export GITHUB_MIRROR_USE_GHPROXY=${GITHUB_MIRROR_USE_GHPROXY:-"true"}
-    if [[ "${GITHUB_MIRROR_USE_GHPROXY}" == "true" ]]; then
-        GITHUB_MIRROR_GHPROXY_URL=${GITHUB_MIRROR_GHPROXY_URL:-"https://ghproxy.com/"}
-        # GITHUB_HUB_URL="${GITHUB_MIRROR_GHPROXY_URL}https://github.com"
-        GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"${GITHUB_MIRROR_GHPROXY_URL}https://github.com"}
-        GITHUB_RAW_URL=${GITHUB_RAW_URL:-"${GITHUB_MIRROR_GHPROXY_URL}https://raw.githubusercontent.com"}
+    export GITHUB_USE_MIRROR=${GITHUB_USE_MIRROR:-"false"}
+    if [[ "${GITHUB_USE_MIRROR}" == "true" ]]; then
+        GITHUB_MIRROR_URL=${GITHUB_MIRROR_URL:-"https://ghproxy.com/"}
+        GITHUB_RAW_MIRROR_URL=${GITHUB_RAW_MIRROR_URL:-"https://ghproxy.com/"}
+        # GITHUB_HUB_URL="${GITHUB_MIRROR_URL}https://github.com"
+        GITHUB_DOWNLOAD_URL=${GITHUB_DOWNLOAD_URL:-"${GITHUB_MIRROR_URL}https://github.com"}
+        GITHUB_RAW_URL=${GITHUB_RAW_URL:-"${GITHUB_RAW_MIRROR_URL}https://raw.githubusercontent.com"}
     fi
 fi
 

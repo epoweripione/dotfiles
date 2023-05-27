@@ -1444,15 +1444,18 @@ function set_apt_proxy() {
     [[ ! -x "$(command -v apt)" ]] && return 0
 
     if [[ -n "$PROXY_ADDRESS" ]]; then
-        echo -e "Acquire::http::proxy \"http://${PROXY_ADDRESS}/\";" \
-            | sudo tee "$APT_PROXY_CONFIG" >/dev/null
-        echo -e "Acquire::https::proxy \"http://${PROXY_ADDRESS}/\";" \
-            | sudo tee -a "$APT_PROXY_CONFIG" >/dev/null
-        echo -e "Acquire::ftp::proxy \"http://${PROXY_ADDRESS}/\";" \
-            | sudo tee -a "$APT_PROXY_CONFIG" >/dev/null
+        {
+            echo -e "Acquire::http::proxy \"http://${PROXY_ADDRESS}/\";"
+            echo -e "Acquire::https::proxy \"http://${PROXY_ADDRESS}/\";"
+            echo -e "Acquire::ftp::proxy \"http://${PROXY_ADDRESS}/\";"
+        } | sudo tee -a "$APT_PROXY_CONFIG" >/dev/null
     else
-        [[ -s "$APT_PROXY_CONFIG" ]] && \
-            sudo rm -f "$APT_PROXY_CONFIG"
+        # [[ -s "$APT_PROXY_CONFIG" ]] && sudo rm -f "$APT_PROXY_CONFIG"
+        {
+            echo 'Acquire::http::Proxy "false";'
+            echo 'Acquire::https::Proxy "false";'
+            echo 'Acquire::ftp::Proxy "false";'
+        } | sudo tee -a "$APT_PROXY_CONFIG" >/dev/null
     fi
 }
 
