@@ -36,20 +36,20 @@ colorEcho "${BLUE}Setting npm config..."
 
 CONFIG_ACTION=${1:-"AUTO"}
 
-# Change npm registry to taobao
+# Change npm registry to npmmirror
 if [[ "${CONFIG_ACTION}" == "AUTO" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
     colorEcho "${BLUE}Change npm registry to npmmirror.com..."
     npm config set registry https://registry.npmmirror.com
 
-    # npm config set disturl https://npmmirror.com/dist # node-gyp
-    # npm config set sass_binary_site https://npmmirror.com/mirrors/node-sass # node-sass
-    # npm config set electron_mirror https://npmmirror.com/mirrors/electron/ # electron
-    # npm config set puppeteer_download_host https://npmmirror.com/mirrors # puppeteer
-    # npm config set chromedriver_cdnurl https://npmmirror.com/mirrors/chromedriver # chromedriver
-    # npm config set operadriver_cdnurl https://npmmirror.com/mirrors/operadriver # operadriver
-    # npm config set phantomjs_cdnurl https://npmmirror.com/mirrors/phantomjs # phantomjs
-    # npm config set selenium_cdnurl https://npmmirror.com/mirrors/selenium # selenium
-    # npm config set node_inspector_cdnurl https://npmmirror.com/mirrors/node-inspector # node-inspector
+    echo 'disturl=https://npmmirror.com/dist' >> "$HOME/.npmrc" # node-gyp
+    echo 'sass_binary_site=https://npmmirror.com/mirrors/node-sass' >> "$HOME/.npmrc" # node-sass
+    echo 'electron_mirror=https://npmmirror.com/mirrors/electron/' >> "$HOME/.npmrc" # electron
+    echo 'puppeteer_download_host=https://npmmirror.com/mirrors' >> "$HOME/.npmrc" # puppeteer
+    echo 'chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver' >> "$HOME/.npmrc" # chromedriver
+    echo 'operadriver_cdnurl=https://npmmirror.com/mirrors/operadriver' >> "$HOME/.npmrc" # operadriver
+    echo 'phantomjs_cdnurl=https://npmmirror.com/mirrors/phantomjs' >> "$HOME/.npmrc" # phantomjs
+    echo 'selenium_cdnurl=https://npmmirror.com/mirrors/selenium' >> "$HOME/.npmrc" # selenium
+    echo 'node_inspector_cdnurl=https://npmmirror.com/mirrors/node-inspector' >> "$HOME/.npmrc" # node-inspector
 fi
 
 if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
@@ -68,7 +68,13 @@ if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
 fi
 
 
-# pnpm
+## [pnpm](https://pnpm.io/cli/config)
+# The local configuration file is located in the root of the project and is named .npmrc.
+# The global configuration file is located at one of the following locations:
+# If the $XDG_CONFIG_HOME env variable is set, then $XDG_CONFIG_HOME/pnpm/rc
+# On Windows: ~/AppData/Local/pnpm/config/rc
+# On macOS: ~/Library/Preferences/pnpm/rc
+# On Linux: ~/.config/pnpm/rc
 if [[ -x "$(command -v pnpm)" ]]; then
     PNPM_STORE=$(pnpm config get store-dir)
     if [[ -z "${PNPM_STORE}" ]]; then
@@ -76,6 +82,36 @@ if [[ -x "$(command -v pnpm)" ]]; then
         mkdir -p "$HOME/.pnpm-store"
         pnpm config set store-dir "$HOME/.pnpm-store"
     fi
+
+    # if [[ "${CONFIG_ACTION}" == "AUTO" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
+    #     colorEcho "${BLUE}Change pnpm registry to npmmirror.com..."
+    #     pnpm config set registry https://registry.npmmirror.com
+
+    #     pnpm config set disturl https://npmmirror.com/dist # node-gyp
+    #     pnpm config set sass_binary_site https://npmmirror.com/mirrors/node-sass # node-sass
+    #     pnpm config set electron_mirror https://npmmirror.com/mirrors/electron/ # electron
+    #     pnpm config set puppeteer_download_host https://npmmirror.com/mirrors # puppeteer
+    #     pnpm config set chromedriver_cdnurl https://npmmirror.com/mirrors/chromedriver # chromedriver
+    #     pnpm config set operadriver_cdnurl https://npmmirror.com/mirrors/operadriver # operadriver
+    #     pnpm config set phantomjs_cdnurl https://npmmirror.com/mirrors/phantomjs # phantomjs
+    #     pnpm config set selenium_cdnurl https://npmmirror.com/mirrors/selenium # selenium
+    #     pnpm config set node_inspector_cdnurl https://npmmirror.com/mirrors/node-inspector # node-inspector
+    # fi
+
+    # if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
+    #     colorEcho "${BLUE}Reset pnpm registry (npmjs.org)..."
+    #     pnpm config set registry https://registry.npmjs.org/
+
+    #     pnpm config delete disturl
+    #     pnpm config delete sass_binary_site
+    #     pnpm config delete electron_mirror
+    #     pnpm config delete puppeteer_download_host
+    #     pnpm config delete chromedriver_cdnurl
+    #     pnpm config delete operadriver_cdnurl
+    #     pnpm config delete phantomjs_cdnurl
+    #     pnpm config delete selenium_cdnurl
+    #     pnpm config delete node_inspector_cdnurl
+    # fi
 fi
 
 
