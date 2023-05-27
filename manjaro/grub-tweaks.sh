@@ -66,11 +66,11 @@ if [[ -n "${GRUB_LANG}" ]]; then
 fi
 
 # [grub-customizer](https://launchpad.net/grub-customizer)
-colorEcho "${BLUE}Installing ${FUCHSIA}grub-customizer${BLUE}..."
-yay --noconfirm --needed -S aur/grub-customizer-git
+# colorEcho "${BLUE}Installing ${FUCHSIA}grub-customizer${BLUE}..."
+# yay --noconfirm --needed -S aur/grub-customizer-git
 
 # [A pack of GRUB2 themes for different Linux distributions and OSs](https://github.com/AdisonCavani/distro-grub-themes)
-Git_Clone_Update_Branch "AdisonCavani/distro-grub-themes" "$HOME/.config/grub-themes"
+# Git_Clone_Update_Branch "AdisonCavani/distro-grub-themes" "$HOME/.config/grub-themes"
 
 # [GRUB tweaks](https://github.com/VandalByte/grub-tweaks)
 

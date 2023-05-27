@@ -384,8 +384,8 @@ if [[ -x "$(command -v snapper)" ]]; then
 
     if [[ -n "${SNAPPER_NUM_ROOT}" || -n "${SNAPPER_NUM_HOME}" ]]; then
         if check_os_arch; then
-            colorEcho "${BLUE}Regenerate ${FUCHSIA}GRUB2 configuration${BLUE}..."
-            sudo grub-mkconfig -o /boot/grub/grub.cfg
+            # GRUB tweaks & Regenrate GRUB2 configuration
+            [[ -s "${MY_SHELL_SCRIPTS}/manjaro/grub-tweaks.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/grub-tweaks.sh"
         fi
     fi
 fi
