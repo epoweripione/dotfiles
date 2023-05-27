@@ -289,11 +289,56 @@ function GitLogPretty {
 }
 
 function UpdateScoop {
+    # Github mirror
+    if ($GITHUB_HUB_URL) {
+        # git config --global --unset url."$GITHUB_HUB_URL".insteadOf
+    
+        git config --global url."$GITHUB_HUB_URL".insteadOf "https://github.com/"
+        # git config --global url."$GITHUB_HUB_URL".insteadOf "ssh://git@github.com/"
+    }
+
+    # update scoop
+    $CurrentDir = Get-Location
+    $ScoopRoot = "$env:USERPROFILE\scoop\apps\scoop\current"
+
+    Set-Location -Path $ScoopRoot
+    git reset --hard | Out-Null
+    Set-Location -Path $CurrentDir
+
     scoop update
+
+    # reset Github mirror
+    if ($GITHUB_HUB_URL) {
+        git config --global --unset url."$GITHUB_HUB_URL".insteadOf
+    }
+
+    # modify `handle_special_urls()` to replace github download url
+    $ScoopCore = "$ScoopRoot\lib\core.ps1"
+    if ($GITHUB_DOWNLOAD_URL) {
+        $GITHUB_MIRROR = Select-String -Path "$ScoopCore" -Pattern "# Github mirror"
+        if (-not ($GITHUB_MIRROR)) {
+            (Get-Content $ScoopCore) | Foreach-Object {
+                if ($_ -match "return \`$url") {
+                    #Add Lines before the selected pattern
+                    "    # Github mirror"
+                    "    if (`$url -match 'https://github.com/') {"
+                    "        `$url = `$url -replace 'https://github.com/', '$GITHUB_DOWNLOAD_URL'"
+                    "    }"
+                    ""
+                }
+                $_ # send the current line to output
+            } | Set-Content $ScoopCore
+        }
+    }
+
+    # update installed scoop apps
     scoop config aria2-enabled false
     scoop update *
+
     scoop config aria2-enabled true
     scoop update *
+
+    # cleanup
     scoop config aria2-enabled false
     scoop cleanup *
 }

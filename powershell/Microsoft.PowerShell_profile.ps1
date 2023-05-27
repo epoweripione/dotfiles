@@ -231,6 +231,11 @@ function UpdateScoop {
 
     scoop update
 
+    # reset Github mirror
+    if ($GITHUB_HUB_URL) {
+        git config --global --unset url."$GITHUB_HUB_URL".insteadOf
+    }
+
     # modify `handle_special_urls()` to replace github download url
     $ScoopCore = "$ScoopRoot\lib\core.ps1"
     if ($GITHUB_DOWNLOAD_URL) {
@@ -260,11 +265,6 @@ function UpdateScoop {
     # cleanup
     scoop config aria2-enabled false
     scoop cleanup *
-
-    # reset Github mirror
-    if ($GITHUB_HUB_URL) {
-        git config --global --unset url."$GITHUB_HUB_URL".insteadOf
-    }
 }
 
 function SearchScoopBucket {
