@@ -3072,7 +3072,14 @@ function App_Installer_Install() {
                         -not -name "*.[[:digit:]]")
                 fi
             fi
-            INSTALLER_ARCHIVE_EXEC_DIR=$(dirname "${INSTALLER_ARCHIVE_EXEC_NAME}") && INSTALLER_ARCHIVE_EXEC_NAME=$(basename "${INSTALLER_ARCHIVE_EXEC_NAME}")
+
+            if [[ -n "${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
+                INSTALLER_ARCHIVE_EXEC_DIR=$(dirname "${INSTALLER_ARCHIVE_EXEC_NAME}")
+                INSTALLER_ARCHIVE_EXEC_NAME=$(basename "${INSTALLER_ARCHIVE_EXEC_NAME}")
+            else
+                INSTALLER_ARCHIVE_EXEC_DIR="${WORKDIR}"
+                INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
+            fi
         fi
 
         # maybe more than one execute file
@@ -3172,6 +3179,10 @@ function pip_Package_Install() {
     else
         colorEcho "${FUCHSIA}    python${RED} is not installed!"
         return 1
+    fi
+
+    if [[ ! -x "$(command -v pip)" || ! -x "$(command -v pip3)" ]]; then
+        [[ -d "$HOME/.local/bin" ]] && export PATH=$PATH:$HOME/.local/bin
     fi
 
     if [[ ! -x "$(command -v pip)" || ! -x "$(command -v pip3)" ]]; then
