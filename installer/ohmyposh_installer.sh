@@ -132,7 +132,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         {
             echo ''
             echo '# eval "$(oh-my-posh --init --shell zsh --config ~/.poshthemes/powerlevel10k_rainbow.omp.json)"'
-            echo 'eval "$(oh-my-posh --init --shell bash --config ~/.poshthemes/powerlevel10k_my.omp.json)"'
+            echo 'eval "$(oh-my-posh --init --shell zsh --config ~/.poshthemes/powerlevel10k_my.omp.json)"'
         } >> "$HOME/.zshrc"
     fi
 fi
