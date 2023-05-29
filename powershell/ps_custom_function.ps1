@@ -420,13 +420,13 @@ function RestartWSL {
     }
 
     # Windows 10
-    if (Get-Service -Name "LxssManager") {
+    if (Get-Service -Name "LxssManager" -ErrorAction SilentlyContinue) {
         Stop-Service -Name "LxssManager"
         Start-Service -Name "LxssManager"
     }
 
     # Windows 11
-    if (Get-Service -Name "WslService") {
+    if (Get-Service -Name "WslService" -ErrorAction SilentlyContinue) {
         Stop-Service -Name "WslService"
         Start-Service -Name "WslService"
     }
