@@ -94,6 +94,7 @@ let waitElementRules = [
 // 删除不可见的混淆字符
 let obfuscateCharactersElements = [
     'span[style="display:none"]',
+    'font[color="#e7f2fA"]',
     '.jammer',
 ];
 
