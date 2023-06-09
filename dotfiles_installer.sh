@@ -107,9 +107,13 @@ fi
 
 colorEcho "${ORANGE}Dotfiles & Scripts ${GREEN}successfully downloaded to ${FUCHSIA}${MY_SHELL_SCRIPTS}${GREEN}!"
 
-if [[ -x "$(command -v npm)" && -d "${MY_SHELL_SCRIPTS}/node_modules" ]]; then
+if [[ -d "${MY_SHELL_SCRIPTS}/node_modules" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}node modules${BLUE}..."
-    cd "${MY_SHELL_SCRIPTS}" && npm install
+    if [[ -x "$(command -v pnpm)" ]]; then
+        cd "${MY_SHELL_SCRIPTS}" && pnpm install
+    elif [[ -x "$(command -v npm)" ]]; then
+        cd "${MY_SHELL_SCRIPTS}" && npm install
+    fi
 fi
 
 cd "${CURRENT_DIR}" || exit
