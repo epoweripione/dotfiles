@@ -23,6 +23,7 @@ fi
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
 CEPH_WORKDIR="$HOME/ceph" && mkdir -p "${CEPH_WORKDIR}"
+CEPH_RELEASE="quincy"
 
 if [[ -x "$(command -v pacman)" ]]; then
     get_os_desktop
@@ -41,30 +42,19 @@ if [[ -x "$(command -v pacman)" ]]; then
 fi
 
 # cephadm: deploys and manages a Ceph cluster
-# https://docs.ceph.com/en/pacific/cephadm/
-# https://blog.51cto.com/renlixing/3134294
+# https://docs.ceph.com/en/quincy/cephadm/install
 if [[ ! -x "$(command -v cephadm)" ]]; then
-    INSTALLER_DOWNLOAD_URL="https://github.com/ceph/ceph/raw/pacific/src/cephadm/cephadm"
+    INSTALLER_DOWNLOAD_URL="https://github.com/ceph/ceph/raw/${CEPH_RELEASE}/src/cephadm/cephadm"
     INSTALLER_DOWNLOAD_FILE="${WORKDIR}/cephadm"
 
     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" && \
-        chmod +x "${INSTALLER_DOWNLOAD_FILE}" && \
-        sudo "${INSTALLER_DOWNLOAD_FILE}" add-repo --release pacific
-
-    # Debian 11 repo
-    # https://tracker.ceph.com/issues/50500
-    [[ -z "${OS_INFO_RELEASE}" ]] && get_os_release
-    OS_CODENAME=$(cat /etc/os-release |grep CODENAME |cut -d"=" -f2)
-    if [[ "${OS_INFO_RELEASE}" == "debian" && "${OS_CODENAME}" == "bullseye" ]]; then
-        if ! curl "${CURL_CHECK_OPTS[@]}" -I "https://download.ceph.com/debian-pacific/dists/${OS_CODENAME}" >/dev/null 2>&1; then
-            PROXMOX_MIRROR_URL="mirrors.ustc.edu.cn/proxmox"
-            sudo wget "https://${PROXMOX_MIRROR_URL}/debian/proxmox-release-${OS_CODENAME}.gpg" -O "/etc/apt/trusted.gpg.d/proxmox-release-${OS_CODENAME}.gpg" && \
-            echo "deb https://${PROXMOX_MIRROR_URL}/debian/ceph-pacific ${OS_CODENAME} main" | sudo tee "/etc/apt/sources.list.d/ceph.list" >/dev/null
-        fi
+        chmod +x "${INSTALLER_DOWNLOAD_FILE}"
+    
+    if [[ -x "${INSTALLER_DOWNLOAD_FILE}" ]]; then
+        sudo "${INSTALLER_DOWNLOAD_FILE}" add-repo --release "${CEPH_RELEASE}"
+        sudo "${INSTALLER_DOWNLOAD_FILE}" install
+        sudo "${INSTALLER_DOWNLOAD_FILE}" install ceph-common
     fi
-
-    sudo "${INSTALLER_DOWNLOAD_FILE}" install
-    sudo "${INSTALLER_DOWNLOAD_FILE}" install ceph-common
 fi
 
 [[ ! -x "$(command -v cephadm)" ]] && colorEcho "${FUCHSIA}cephadm${BLUE} is not installed!" && exit 1
