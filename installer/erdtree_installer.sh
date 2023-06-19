@@ -80,5 +80,9 @@ if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" && ! -s "$HOME/.erdtreerc" ]]
 EOF
 fi
 
+if grep -q "size-rev" "$HOME/.erdtreerc" 2>/dev/null; then
+    sed -i 's/size-rev/rsize/g' "$HOME/.erdtreerc"
+fi
+
 
 cd "${CURRENT_DIR}" || exit
