@@ -44,7 +44,8 @@ if [[ "${CONFIG_ACTION}" == "AUTO" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
     echo 'disturl=https://npmmirror.com/dist' >> "$HOME/.npmrc" # node-gyp
     echo 'sass_binary_site=https://npmmirror.com/mirrors/node-sass' >> "$HOME/.npmrc" # node-sass
     echo 'electron_mirror=https://npmmirror.com/mirrors/electron/' >> "$HOME/.npmrc" # electron
-    echo 'puppeteer_download_host=https://npmmirror.com/mirrors' >> "$HOME/.npmrc" # puppeteer
+    # echo 'puppeteer_download_host=https://npmmirror.com/mirrors' >> "$HOME/.npmrc" # puppeteer
+    echo 'puppeteer_download_base_url=https://cdn.npmmirror.com/binaries/chrome-for-testing' >> "$HOME/.npmrc" # puppeteer
     echo 'chromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver' >> "$HOME/.npmrc" # chromedriver
     echo 'operadriver_cdnurl=https://npmmirror.com/mirrors/operadriver' >> "$HOME/.npmrc" # operadriver
     echo 'phantomjs_cdnurl=https://npmmirror.com/mirrors/phantomjs' >> "$HOME/.npmrc" # phantomjs
@@ -59,7 +60,7 @@ if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
     npm config delete disturl
     npm config delete sass_binary_site
     npm config delete electron_mirror
-    npm config delete puppeteer_download_host
+    npm config delete puppeteer_download_base_url
     npm config delete chromedriver_cdnurl
     npm config delete operadriver_cdnurl
     npm config delete phantomjs_cdnurl
@@ -90,7 +91,7 @@ if [[ -x "$(command -v pnpm)" ]]; then
     #     pnpm config set disturl https://npmmirror.com/dist # node-gyp
     #     pnpm config set sass_binary_site https://npmmirror.com/mirrors/node-sass # node-sass
     #     pnpm config set electron_mirror https://npmmirror.com/mirrors/electron/ # electron
-    #     pnpm config set puppeteer_download_host https://npmmirror.com/mirrors # puppeteer
+    #     pnpm config set puppeteer_download_base_url https://cdn.npmmirror.com/binaries/chrome-for-testing # puppeteer
     #     pnpm config set chromedriver_cdnurl https://npmmirror.com/mirrors/chromedriver # chromedriver
     #     pnpm config set operadriver_cdnurl https://npmmirror.com/mirrors/operadriver # operadriver
     #     pnpm config set phantomjs_cdnurl https://npmmirror.com/mirrors/phantomjs # phantomjs
@@ -105,7 +106,7 @@ if [[ -x "$(command -v pnpm)" ]]; then
     #     pnpm config delete disturl
     #     pnpm config delete sass_binary_site
     #     pnpm config delete electron_mirror
-    #     pnpm config delete puppeteer_download_host
+    #     pnpm config delete puppeteer_download_base_url
     #     pnpm config delete chromedriver_cdnurl
     #     pnpm config delete operadriver_cdnurl
     #     pnpm config delete phantomjs_cdnurl

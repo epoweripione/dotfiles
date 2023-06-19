@@ -22,7 +22,7 @@ if (($ConfigAction -eq "AUTO") -and $UseMirror) {
     Add-Content "$env:USERPROFILE\.npmrc" "`ndisturl=https://npmmirror.com/dist" # node-gyp
     Add-Content "$env:USERPROFILE\.npmrc" "`nsass_binary_site=https://npmmirror.com/mirrors/node-sass" # node-sass
     Add-Content "$env:USERPROFILE\.npmrc" "`nelectron_mirror=https://npmmirror.com/mirrors/electron/" # electron
-    Add-Content "$env:USERPROFILE\.npmrc" "`npuppeteer_download_host=https://npmmirror.com/mirrors" # puppeteer
+    Add-Content "$env:USERPROFILE\.npmrc" "`npuppeteer_download_base_url=https://cdn.npmmirror.com/binaries/chrome-for-testing" # puppeteer
     Add-Content "$env:USERPROFILE\.npmrc" "`nchromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver" # chromedriver
     Add-Content "$env:USERPROFILE\.npmrc" "`noperadriver_cdnurl=https://npmmirror.com/mirrors/operadriver" # operadriver
     Add-Content "$env:USERPROFILE\.npmrc" "`nphantomjs_cdnurl=https://npmmirror.com/mirrors/phantomjs" # phantomjs
@@ -37,7 +37,7 @@ if ($ConfigAction -eq "RESET") {
     npm config delete disturl
     npm config delete sass_binary_site
     npm config delete electron_mirror
-    npm config delete puppeteer_download_host
+    npm config delete puppeteer_download_base_url
     npm config delete chromedriver_cdnurl
     npm config delete operadriver_cdnurl
     npm config delete phantomjs_cdnurl

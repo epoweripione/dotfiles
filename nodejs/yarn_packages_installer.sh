@@ -32,7 +32,7 @@ yarn config set emoji true
 #     npm config set disturl https://npmmirror.com/dist # node-gyp
 #     npm config set sass_binary_site https://npmmirror.com/mirrors/node-sass # node-sass
 #     npm config set electron_mirror https://npmmirror.com/mirrors/electron/ # electron
-#     npm config set puppeteer_download_host https://npmmirror.com/mirrors # puppeteer
+#     npm config set puppeteer_download_base_url https://cdn.npmmirror.com/binaries/chrome-for-testing # puppeteer
 #     npm config set chromedriver_cdnurl https://npmmirror.com/mirrors/chromedriver # chromedriver
 #     npm config set operadriver_cdnurl https://npmmirror.com/mirrors/operadriver # operadriver
 #     npm config set phantomjs_cdnurl https://npmmirror.com/mirrors/phantomjs # phantomjs
@@ -47,7 +47,7 @@ yarn config set emoji true
 # yarn config set disturl https://npmmirror.com/dist # node-gyp
 # yarn config set sass_binary_site https://npmmirror.com/mirrors/node-sass # node-sass
 # yarn config set electron_mirror https://npmmirror.com/mirrors/electron/ # electron
-# yarn config set puppeteer_download_host https://npmmirror.com/mirrors # puppeteer
+# yarn config set puppeteer_download_base_url https://cdn.npmmirror.com/binaries/chrome-for-testing # puppeteer
 # yarn config set chromedriver_cdnurl https://npmmirror.com/mirrors/chromedriver # chromedriver
 # yarn config set operadriver_cdnurl https://npmmirror.com/mirrors/operadriver # operadriver
 # yarn config set phantomjs_cdnurl https://npmmirror.com/mirrors/phantomjs # phantomjs
