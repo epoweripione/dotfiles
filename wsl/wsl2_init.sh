@@ -133,13 +133,15 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
 fi
 
 # [wslu - A collection of utilities for WSL](https://github.com/wslutilities/wslu)
-colorEcho "${BLUE}Installing ${FUCHSIA}wslu${BLUE}..."
-wget -O - https://pkg.wslutiliti.es/public.key | sudo tee -a "/etc/apt/trusted.gpg.d/wslu.asc" >/dev/null
-
-if ! grep -q "^deb https://pkg.wslutiliti.es/debian" "/etc/apt/sources.list" 2>/dev/null; then
-    RELEASE_CODENAME=$(lsb_release -c | awk '{print $2}')
-    # RELEASE_CODENAME=$(dpkg --status tzdata | grep Provides | cut -f2 -d'-')
-    echo "deb https://pkg.wslutiliti.es/debian ${RELEASE_CODENAME} main" | sudo tee -a "/etc/apt/sources.list" >/dev/null
+if [[ ! -x "$(command -v wslfetch)" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}wslu${BLUE}..."
+    # wget -O - https://pkg.wslutiliti.es/public.key | sudo tee -a "/etc/apt/trusted.gpg.d/wslu.asc" >/dev/null
+    # if ! grep -q "^deb https://pkg.wslutiliti.es/debian" "/etc/apt/sources.list" 2>/dev/null; then
+    #     RELEASE_CODENAME=$(lsb_release -c | awk '{print $2}')
+    #     # RELEASE_CODENAME=$(dpkg --status tzdata | grep Provides | cut -f2 -d'-')
+    #     echo "deb https://pkg.wslutiliti.es/debian ${RELEASE_CODENAME} main" | sudo tee -a "/etc/apt/sources.list" >/dev/null
+    # fi
+    curl -sL https://raw.githubusercontent.com/wslutilities/wslu/master/extras/scripts/wslu-install | bash
 fi
 
 ## git lfs
@@ -178,8 +180,7 @@ sudo apt update && sudo apt upgrade -y
 # Install useful packages
 colorEcho "${BLUE}Installing ${FUCHSIA}Pre-requisite packages${BLUE}..."
 sudo apt install -y binutils build-essential di dnsutils g++ gcc keychain \
-    git htop iproute2 make net-tools netcat-openbsd p7zip-full psmisc tree unzip zip \
-    wslu
+    git htop iproute2 make net-tools netcat-openbsd p7zip-full psmisc tree unzip zip
 
 ## Login with SSH Key
 # pssh -i -H "host01 host02" -l root \
