@@ -1,9 +1,25 @@
 #!/usr/bin/env bash
 
-# https://wsgzao.github.io/post/sysctl/
+## Clear Systemd Journal Logs
+# du -sh /var/log/journal/
+# journalctl --disk-usage
 
-# sysctl.conf
+# rotate journal files
+sudo journalctl --rotate
+
+## Clear journal log older than x days
+# sudo journalctl --vacuum-time=2d
+
+## Restrict number of log files
+# sudo journalctl --vacuum-files=5
+
+# Restrict logs to a certain size
+sudo journalctl --vacuum-size=1G
+
+
+## sysctl.conf
 # https://klaver.it/linux/sysctl.conf
+# https://wsgzao.github.io/post/sysctl/
 if ! grep -q "# turn on bbr" /etc/sysctl.conf 2>/dev/null; then
     sudo tee -a /etc/sysctl.conf >/dev/null <<-'EOF'
 
