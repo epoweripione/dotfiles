@@ -55,4 +55,10 @@ if [[ -x "$(command -v yarn)" ]]; then
 fi
 
 
+if [[ -x "$(command -v pnpm)" && -x "$(command -v corepack)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE}..."
+    corepack prepare pnpm@latest --activate
+fi
+
+
 cd "${CURRENT_DIR}" || exit

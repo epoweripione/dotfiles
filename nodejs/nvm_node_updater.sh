@@ -132,3 +132,9 @@ if [[ -x "$(command -v yarn)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}yarn global packages${BLUE}..."
     yarn global upgrade --latest
 fi
+
+
+if [[ -x "$(command -v pnpm)" && -x "$(command -v corepack)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE}..."
+    corepack prepare pnpm@latest --activate
+fi
