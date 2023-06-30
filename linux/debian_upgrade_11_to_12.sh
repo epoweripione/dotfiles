@@ -37,7 +37,8 @@ sudo apt update && sudo apt upgrade -y && sudo apt full-upgrade -y && sudo apt -
 
 # Reconfigure APT’s source-list files
 colorEcho "${BLUE}Reconfigure APT source-list files..."
-sudo cp "/etc/apt/sources.list" "/etc/apt/sources.list-11-bullseye.bak"
+[[ ! -s "/etc/apt/sources.list-11-bullseye.bak" ]] && \
+    sudo cp "/etc/apt/sources.list" "/etc/apt/sources.list-11-bullseye.bak"
 
 sudo sed -i -e 's|debian-security/ bullseye/updates|debian-security bookworm-security|' \
     -e 's|debian-security bullseye/updates|debian-security bookworm-security|' \
@@ -46,7 +47,20 @@ sudo sed -i -e 's|debian-security/ bullseye/updates|debian-security bookworm-sec
 # Non-Free-Firmware Repositories
 APT_MIRROR=$(grep -E '^deb\s+' "/etc/apt/sources.list" | head -n1 | awk '{print $2}' | cut -d'/' -f1-3)
 [[ -z "${APT_MIRROR}" ]] && APT_MIRROR="http://deb.debian.org"
-if ! grep -q "non-free" "/etc/apt/sources.list" 2>/dev/null; then
+
+if ! grep -q "non-free-firmware" "/etc/apt/sources.list" 2>/dev/null; then
+    sudo sed -i -e 's/ non-free/ non-free non-free-firmware/g' "/etc/apt/sources.list"
+fi
+
+if ! grep -q "non-free-firmware" "/etc/apt/sources.list" 2>/dev/null; then
+    sudo sed -i -e 's/ contrib/ contrib non-free non-free-firmware/g' "/etc/apt/sources.list"
+fi
+
+if ! grep -q "non-free-firmware" "/etc/apt/sources.list" 2>/dev/null; then
+    sudo sed -i -e 's/ main/ main contrib non-free non-free-firmware/g' "/etc/apt/sources.list"
+fi
+
+if ! grep -q "non-free-firmware" "/etc/apt/sources.list" 2>/dev/null; then
     sudo tee -a "/etc/apt/sources.list" >/dev/null <<-EOF
 
 # Non-Free-Firmware
@@ -62,6 +76,9 @@ EOF
 fi
 
 if [[ -s "/etc/apt/sources.list.d/docker.list" ]]; then
+    [[ ! -s "/etc/apt/sources.list.d/docker.list-11-bullseye.bak" ]] && \
+        sudo cp "/etc/apt/sources.list.d/docker.list" "/etc/apt/sources.list.d/docker.list-11-bullseye.bak"
+
     sudo sed -i 's|bullseye|bookworm|' "/etc/apt/sources.list.d/docker.list"
 
     DOCKER_MIRROR=$(sed -e 's|https://||' -e 's|http://||' <<<"${APT_MIRROR}")
