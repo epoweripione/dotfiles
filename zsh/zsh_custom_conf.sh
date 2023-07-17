@@ -604,10 +604,10 @@ fi
 
 # pip aliases
 if [[ -x "$(command -v pip)" ]]; then
-    alias pipupdateall='noproxy_cmd pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs -r -n1 pip install --user -U'
+    alias pipupdateall='$HOME/.local/bin/pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs -r -n1 $HOME/.local/bin/pip install -U'
     # alias pipupdateall='noproxy_cmd pip list -o | grep -Ev '"'"'^-|^package|^warning|^error'"'"' | cut -d '"'"' '"'"' -f1 | xargs -n1 pip install -U'
 elif [[ -x "$(command -v pip3)" ]]; then
-    alias pipupdateall='noproxy_cmd pip3 list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs -r -n1 pip3 install --user -U'
+    alias pipupdateall='$HOME/.local/bin/pip3 list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs -r -n1 $HOME/.local/bin/pip3 install -U'
 fi
 
 # nvs

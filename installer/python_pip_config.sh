@@ -47,6 +47,7 @@ mkdir -p "$HOME/.local/bin"
 if [[ -x "$(command -v pacman)" ]]; then
     PackagesList=(
         python3
+        python3-pip
         build-essential
         cairo-dev
         cairo-devel
@@ -88,6 +89,12 @@ if [[ -x "$(command -v python3)" ]]; then
 elif [[ -x "$(command -v python)" ]]; then
     PYTHON_CMD="python"
 fi
+
+# fix: error: externally-managed-environment
+PIP_CMD_USER="$HOME/.local/bin/pip"
+PIP_CMD_ROOT="/root/.local/bin/pip"
+[[ ! -f "{PIP_CMD_USER}" ]] && ${PYTHON_CMD} -m venv "$HOME/.local"
+sudo test -f "/root/.local/bin/pip" || sudo ${PYTHON_CMD} -m venv "/root/.local"
 
 # pip
 INSTALL_PIP_LATEST="NO"
@@ -188,10 +195,12 @@ if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
     # fix: ERROR: Could not install packages due to an OSError: Missing dependencies for SOCKS support.
     colorEcho "${BLUE}Installing ${FUCHSIA}pip package ${ORANGE}pysocks${BLUE}..."
     # noproxy_cmd ${PYTHON_CMD} -m pip install --user -U pysocks
-    sudo ${PYTHON_CMD} -m pip install -U pysocks
+    ${PIP_CMD_USER} install -U pysocks
+    sudo ${PIP_CMD_ROOT} install -U pysocks
 
     colorEcho "${BLUE}Installing ${FUCHSIA}pip package ${ORANGE}virtualenv${BLUE}..."
-    sudo ${PYTHON_CMD} -m pip install -U virtualenv
+    ${PIP_CMD_USER} install -U virtualenv
+    sudo ${PIP_CMD_ROOT} install -U virtualenv
 
     ## pipq: Yet another pip search
     # pipq search numpy
@@ -208,7 +217,7 @@ if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
     )
     for TargetPackage in "${PipPackages[@]}"; do
         colorEcho "${BLUE}Installing ${FUCHSIA}pip package ${ORANGE}${TargetPackage}${BLUE}..."
-        ${PYTHON_CMD} -m pip install --user -U "${TargetPackage}"
+        ${PIP_CMD_USER} install -U "${TargetPackage}"
     done
 
     # pipx - Install and Run Python Applications in Isolated Environments
