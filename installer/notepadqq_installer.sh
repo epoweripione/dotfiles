@@ -23,7 +23,7 @@ App_Installer_Reset
 INSTALLER_APP_NAME="notepadqq"
 INSTALLER_INSTALL_NAME="notepadqq"
 
-# yay --noconfirm --needed -S community/notepadqq
+# yay --noconfirm --needed -S extra/notepadqq
 # yay --noconfirm --needed -S aur/notepadqq-git
 
 # Pre-requisite packages

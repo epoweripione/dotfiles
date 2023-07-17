@@ -219,10 +219,10 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "wireshark-qt"
         "visual-studio-code-bin"
         # "aur/powershell-bin"
-        "community/geany"
-        "community/geany-plugins"
+        "extra/geany"
+        "extra/geany-plugins"
         "aur/geany-themes"
-        # "community/notepadqq"
+        # "extra/notepadqq"
         "archlinuxcn/notepad---git"
         "aur/cudatext-qt5-bin"
         ## Dictionary
@@ -237,11 +237,11 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "docker-compose"
         # "kitematic"
         ## [Podman](https://wiki.archlinux.org/title/Podman)
-        # "community/podman"
-        # "community/cni-plugins"
-        # "community/buildah"
-        # "community/podman-docker"
-        # "community/podman-compose"
+        # "extra/podman"
+        # "extra/cni-plugins"
+        # "extra/buildah"
+        # "extra/podman-docker"
+        # "extra/podman-compose"
         # "chaotic-aur/podman-desktop"
         ## File & dir compare
         "meld"
@@ -310,8 +310,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         ## [LibreOffice](https://wiki.archlinux.org/title/LibreOffice)
         # "extra/libreoffice-fresh"
         # "extra/libreoffice-fresh-zh-cn"
-        # "community/libreoffice-extension-writer2latex"
-        # "community/libreoffice-extension-texmaths"
+        # "extra/libreoffice-extension-writer2latex"
+        # "extra/libreoffice-extension-texmaths"
         # "archlinuxcn/libreoffice-extension-languagetool"
     )
 fi
@@ -373,7 +373,7 @@ fi
 # sudo tlp-stat -b # Battery Care
 
 ## [Virtualbox](https://wiki.archlinux.org/title/VirtualBox)
-# yay --noconfirm --needed -S community/virtualbox community/virtualbox-guest-iso
+# yay --noconfirm --needed -S extra/virtualbox extra/virtualbox-guest-iso
 # yay --noconfirm --needed -S aur/virtualbox-bin aur/virtualbox-bin-guest-iso aur/virtualbox-ext-oracle
 # sudo usermod -aG vboxusers "$USER"
 

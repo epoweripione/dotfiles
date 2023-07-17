@@ -55,7 +55,7 @@ fi
 if [[ "${OS_INFO_DESKTOP}" == "XFCE" ]]; then
     # [Vala Panel Application Menu](https://github.com/rilian-la-te/vala-panel-appmenu)
     colorEcho "${BLUE}Installing ${FUCHSIA}Vala Panel Application Menu${BLUE}..."
-    yay --noconfirm --needed -S community/appmenu-gtk-module \
+    yay --noconfirm --needed -S extra/appmenu-gtk-module \
         chaotic-aur/vala-panel-appmenu-common chaotic-aur/vala-panel-appmenu-registrar chaotic-aur/vala-panel-appmenu-xfce \
         archlinuxcn/thunderbird-appmenu archlinuxcn/firefox-appmenu
 
@@ -66,9 +66,9 @@ fi
 if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
     # [Kvantum](https://github.com/tsujan/Kvantum)
     colorEcho "${BLUE}Installing ${FUCHSIA}Kvantum${BLUE}..."
-    sudo pacman --noconfirm --needed -S community/kvantum community/kvantum-manjaro \
-        community/kvantum-theme-materia community/kvantum-theme-matcha community/nx-kvantum-theme \
-        archlinuxcn/kvantum-theme-nordic-git
+    sudo pacman --noconfirm --needed -S extra/kvantum extra/kvantum-manjaro \
+        extra/kvantum-theme-materia extra/kvantum-theme-matcha \
+        archlinuxcn/kvantum-theme-catppuccin-git
 
     # [Lightly: A modern style for qt applications](https://github.com/Luwx/Lightly)
     colorEcho "${BLUE}Installing ${FUCHSIA}Lightly${BLUE}..."
