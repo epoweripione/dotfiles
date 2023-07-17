@@ -3350,6 +3350,7 @@ function dockerRemoveDangling() {
         docker ps -aq --filter "status=exited" --filter "status=created" | xargs -n1 docker rm
     fi
 
+    docker builder prune --force
     docker container prune --force
     docker image prune --force
 
