@@ -3338,37 +3338,38 @@ function dockerPullImages() {
     # for dockerImage in "$@"; do docker pull $dockerImage; done
 }
 
-# Remove all dangling containers & images
+# [Prune unused Docker objects](https://docs.docker.com/config/pruning/)
 function dockerRemoveDangling() {
     local list imageTag
 
     colorEcho "${BLUE}Removing all dangling containers & images..."
-    # container build cache
-    # list=$(docker ps -a | grep -v 'CONTAINER' | awk '{print $1}')
-    list=$(docker ps -aq --filter "status=exited" --filter "status=created")
-    if [[ -n "${list}" ]]; then
-        docker ps -aq --filter "status=exited" --filter "status=created" | xargs -n1 docker rm
-    fi
+    docker system df
+    docker system prune
 
-    docker builder prune --force
-    docker container prune --force
-    docker image prune --force
+    ## container build cache
+    ## list=$(docker ps -a | grep -v 'CONTAINER' | awk '{print $1}')
+    # list=$(docker ps -aq --filter "status=exited" --filter "status=created")
+    # if [[ -n "${list}" ]]; then
+    #     docker ps -aq --filter "status=exited" --filter "status=created" | xargs -n1 docker rm
+    # fi
 
-    # local images
-    # The RepoDigest field in the image inspect will have a sha256 reference if you pulled the image from a registry
-    # list=$(docker images --format "{{.Repository}}" | grep '_')
-    list=$(docker images --filter "dangling=false" --format "{{.Repository}}:{{.Tag}}" \
-        | grep -v ':<none>' \
-        | xargs -n1 docker image inspect \
-            --format '{{if .RepoTags}}{{index .RepoTags 0}}{{end}} {{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' \
-        | grep -v '@' | sed 's/\s//g')
-    if [[ -n "${list}" ]]; then
-        while read -r imageTag; do
-            docker rmi "${imageTag}"
-        done <<<"${list}"
-    fi
+    # docker builder prune --force
+    # docker container prune --force
+    # docker image prune --force
 
-    docker image prune --force
+    ## local images
+    ## The RepoDigest field in the image inspect will have a sha256 reference if you pulled the image from a registry
+    ## list=$(docker images --format "{{.Repository}}" | grep '_')
+    # list=$(docker images --filter "dangling=false" --format "{{.Repository}}:{{.Tag}}" \
+    #     | grep -v ':<none>' \
+    #     | xargs -n1 docker image inspect \
+    #         --format '{{if .RepoTags}}{{index .RepoTags 0}}{{end}} {{if .RepoDigests}}{{index .RepoDigests 0}}{{end}}' \
+    #     | grep -v '@' | sed 's/\s//g')
+    # if [[ -n "${list}" ]]; then
+    #     while read -r imageTag; do
+    #         docker rmi "${imageTag}"
+    #     done <<<"${list}"
+    # fi
 }
 
 
