@@ -244,7 +244,7 @@ function UpdateScoop {
                     #Add Lines before the selected pattern
                     "    # Github mirror"
                     "    if (`$url -match 'https://github.com/') {"
-                    "        `$url = `$url -replace 'https://github.com/', '$GITHUB_DOWNLOAD_URL'"
+                    "        `$url = `$url -replace 'https://github.com/', '${GITHUB_DOWNLOAD_URL}/'"
                     "    }"
                     ""
                 }
