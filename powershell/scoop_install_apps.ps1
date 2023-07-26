@@ -205,6 +205,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "nexusfont"
         "colortool"
         # "windowsterminal"
+        "wsa-pacman"
         "clash-for-windows"
         "clash-verge"
         # "trojan"
