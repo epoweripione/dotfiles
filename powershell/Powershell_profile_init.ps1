@@ -290,11 +290,9 @@ function GitLogPretty {
 
 function UpdateScoop {
     # Github mirror
-    if ($GITHUB_HUB_URL) {
-        # git config --global --unset url."$GITHUB_HUB_URL".insteadOf
-    
-        git config --global url."$GITHUB_HUB_URL".insteadOf "https://github.com/"
-        # git config --global url."$GITHUB_HUB_URL".insteadOf "ssh://git@github.com/"
+    if (${GITHUB_HUB_URL}) {
+        git config --global url."${GITHUB_HUB_URL}/".insteadOf "https://github.com/"
+        # git config --global url."${GITHUB_HUB_URL}/".insteadOf "ssh://git@github.com/"
     }
 
     # update scoop
@@ -308,8 +306,8 @@ function UpdateScoop {
     scoop update
 
     # reset Github mirror
-    if ($GITHUB_HUB_URL) {
-        git config --global --unset url."$GITHUB_HUB_URL".insteadOf
+    if (${GITHUB_HUB_URL}) {
+        git config --global --unset url."${GITHUB_HUB_URL}/".insteadOf
     }
 
     # modify `handle_special_urls()` to replace github download url

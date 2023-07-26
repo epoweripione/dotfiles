@@ -9,8 +9,19 @@ if (-Not (Get-Command -Name "check_webservice_up" 2>$null)) {
     }
 }
 
-if (($null -eq $Proxy) -or ($Proxy -eq "")) {
-    $Proxy = "127.0.0.1:7890"
+## If $Proxy not set, then use environment variable(http_proxy, https_proxy) by default
+# if (!$Proxy) {
+#     $Proxy = "127.0.0.1:7890"
+# }
+
+if ($Proxy) {
+    if (check_socks5_proxy_up $Proxy) {
+        $Proxy = "socks5://$Proxy"
+    } elseif (check_http_proxy_up $Proxy) {
+        $Proxy = "http://$Proxy"
+    else
+        $Proxy = ""
+    }
 }
 
 if (Get-Command "git" -ErrorAction SilentlyContinue) {
@@ -41,9 +52,9 @@ if (Get-Command "git" -ErrorAction SilentlyContinue) {
     git config --global alias.br branch
     git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 
-    if (check_socks5_proxy_up $Proxy) {
-        git config --global http.proxy "socks5://$Proxy"
-        git config --global https.proxy "socks5://$Proxy"
+    if ($Proxy) {
+        git config --global http.proxy "$Proxy"
+        git config --global https.proxy "$Proxy"
     } else {
         git config --global --unset http.proxy
         git config --global --unset https.proxy
