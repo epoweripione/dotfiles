@@ -40,9 +40,13 @@ if [[ -d "$HOME/.nvs" ]]; then
 fi
 
 
-[[ ! -x "$(command -v npm-check)" ]] && npm install -g npm-check
+[[ ! -x "$(command -v ncu)" ]] && npm install -g npm-check-updates
+# [[ ! -x "$(command -v npm-check)" ]] && npm install -g npm-check
 
-if [[ -x "$(command -v npm-check)" ]]; then
+if [[ -x "$(command -v ncu)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}npm global packages${BLUE} using ${ORANGE}npm-check-updates${BLUE}..."
+    ncu -u -g
+elif [[ -x "$(command -v npm-check)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}npm global packages${BLUE} using ${ORANGE}npm-check${BLUE}..."
     npm-check -u -g -y
 elif [[ -x "$(command -v npm)" ]]; then
