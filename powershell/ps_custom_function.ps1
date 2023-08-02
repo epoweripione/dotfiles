@@ -432,6 +432,18 @@ function RestartWSL {
     }
 }
 
+function RestartWSA {
+    if (-Not (isadmin)) {
+        Write-Host "This script needs to be run As Admin!" -ForegroundColor Red
+        return
+    }
+
+    if (Get-Service -Name "WsaService" -ErrorAction SilentlyContinue) {
+        Stop-Service -Name "WsaService"
+        Start-Service -Name "WsaService"
+    }
+}
+
 # https://www.powershellgallery.com/packages/RoughDraft/0.1/Content/Get-Font.ps1
 function GetFonts() {
     <#
@@ -504,6 +516,8 @@ function CheckSetGlobalProxy() {
         [switch]$InputAddress,
         [string]$Msg = "Porxy address?"
     )
+
+    if ($env:GLOBAL_PROXY_IP) { return }
 
     if (!$ProxyHttpPort) {
         $ProxyHttpPort = $ProxyMixedPort
