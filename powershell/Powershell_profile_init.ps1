@@ -436,5 +436,8 @@ if (Get-Command "zoxide" -ErrorAction SilentlyContinue) {
 #     Invoke-Expression (&starship init powershell)
 # }
 
-CheckSetGlobalProxy
+if (!$GLOBAL_PROXY_IP) {$GLOBAL_PROXY_IP="127.0.0.1"}
+if (!$GLOBAL_PROXY_MIXED_PORT) {$GLOBAL_PROXY_MIXED_PORT="7890"}
+if (!$GLOBAL_PROXY_HTTP_PORT) {$GLOBAL_PROXY_HTTP_PORT="7890"}
+CheckSetGlobalProxy -ProxyAddress "$GLOBAL_PROXY_IP" -ProxyMixedPort "$GLOBAL_PROXY_MIXED_PORT" -ProxyHttpPort "$GLOBAL_PROXY_HTTP_PORT"
 '@ | Tee-Object $PROFILE -Append | Out-Null

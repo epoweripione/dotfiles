@@ -80,7 +80,9 @@ if [[ -s "${MY_SHELL_SCRIPTS}/custom_functions.sh" ]]; then
     [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
     # Check & set global proxy
-    [[ "${THE_WORLD_BLOCKED}" == "true" ]] && check_set_global_proxy 7891 7890
+    if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+        check_set_global_proxy "${GLOBAL_PROXY_SOCKS_PORT:-7891}" "${GLOBAL_PROXY_MIXED_PORT:-7890}"
+    fi
 fi
 
 # aliases
