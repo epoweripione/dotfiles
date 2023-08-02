@@ -23,10 +23,22 @@ sudo sed -i -e 's/^GRUB_SAVEDEFAULT=true/#GRUB_SAVEDEFAULT=true/g' \
     -e 's/^#GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=menu/g' \
     -e 's/^GRUB_TIMEOUT_STYLE=hidden/GRUB_TIMEOUT_STYLE=menu/g' \
     -e 's/^GRUB_HIDDEN_TIMEOUT=0/#GRUB_HIDDEN_TIMEOUT=0/g' \
-    -e 's/^GRUB_TIMEOUT=[[:digit:]]/GRUB_TIMEOUT=3/g' /etc/default/grub
+    -e 's/^GRUB_TIMEOUT=[[:digit:]]/GRUB_TIMEOUT=3/g' \
+    -e 's/^#GRUB_REMOVE_LINUX_ROOTFLAGS=.*/GRUB_REMOVE_LINUX_ROOTFLAGS=true/g' \
+    -e 's/^GRUB_REMOVE_LINUX_ROOTFLAGS=false/GRUB_REMOVE_LINUX_ROOTFLAGS=true/g' \
+    -e 's/^#GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/g' \
+    -e 's/^GRUB_DISABLE_OS_PROBER=true/GRUB_DISABLE_OS_PROBER=false/g' /etc/default/grub
+
+if ! grep -q '^GRUB_TIMEOUT_STYLE=menu' /etc/default/grub; then
+    echo "GRUB_TIMEOUT_STYLE=menu" | sudo tee -a /etc/default/grub >/dev/null
+fi
 
 if ! grep -q '^GRUB_REMOVE_LINUX_ROOTFLAGS=true' /etc/default/grub; then
     echo "GRUB_REMOVE_LINUX_ROOTFLAGS=true" | sudo tee -a /etc/default/grub >/dev/null
+fi
+
+if ! grep -q '^GRUB_DISABLE_OS_PROBER=false' /etc/default/grub; then
+    echo "GRUB_DISABLE_OS_PROBER=false" | sudo tee -a /etc/default/grub >/dev/null
 fi
 
 ## [GRUB/Tips and tricks](https://wiki.archlinux.org/title/GRUB/Tips_and_tricks)

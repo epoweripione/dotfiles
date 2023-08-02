@@ -1,8 +1,64 @@
 # Boot
+## boot status
+```bash
+sudo bootctl status
+```
+
+## boot logs
 ```bash
 journalctl --boot=-1 --priority=3
 journalctl -xb -p 1..3
 journalctl -xb | grep -i -E 'error|failed'
+```
+
+## [GRUB/Restore the GRUB Bootloader](https://wiki.manjaro.org/index.php/GRUB/Restore_the_GRUB_Bootloader)
+```bash
+# Boot from the Manjaro USB in Live mode
+
+# After booting, open a terminal/console and run this command to automatically mount Manjaro installation
+# It should search the installation and do all the steps needed to enter it
+sudo manjaro-chroot -a
+
+## With a BTRFS filesystem
+# Identify partitions
+sudo lsblk -o PATH,PTTYPE,PARTTYPE,FSTYPE,PARTTYPENAME -e7
+sudo blkid -t TYPE="btrfs"
+
+## For example: `/dev/sda1` as EFI partition and `/dev/sda2` as ROOT partition
+## BTRFS partition without encrypted
+# mount root partition
+ROOT_DISK=/dev/sda2 && ROOT_MOUNT_POINT=/mnt && sudo mount -o subvol=@ "${ROOT_DISK}" "${ROOT_MOUNT_POINT}"
+# mount EFI partition
+EFI_DISK=/dev/sda1 && EFI_BOOT_POINT=/mnt/boot/efi && sudo mount "${EFI_DISK}" "${EFI_BOOT_POINT}"
+
+## BTRFS partition encrypted with LUKS
+# Unlock
+ROOT_DISK=/dev/sda2 && ROOT_CRYPT_POINT="root" && sudo cryptsetup open "${ROOT_DISK}" "${ROOT_CRYPT_POINT}"
+# mount unlock root partition
+sudo mount -o subvol=@ "/dev/mapper/${ROOT_CRYPT_POINT}" "${ROOT_MOUNT_POINT}"
+# mount EFI partition
+EFI_DISK=/dev/sda1 && EFI_BOOT_POINT=/mnt/boot/efi && sudo mount "${EFI_DISK}" "${EFI_BOOT_POINT}"
+
+# Manual chroot
+sudo manjaro-chroot "${ROOT_MOUNT_POINT}" /bin/bash
+
+## Install grub loader in BIOS or UEFI mode
+# UEFI mode
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=manjaro --recheck
+# BIOS mode
+grub-install --force --target=i386-pc --boot-directory=/boot --recheck
+
+# Make sure that the file at `/etc/default/grub` have the following variables (without a `#` in front of)
+GRUB_TIMEOUT_STYLE=menu
+GRUB_DISABLE_OS_PROBER=false
+GRUB_REMOVE_LINUX_ROOTFLAGS=true
+# Just open it with an editor, change these variables and save it
+nano /etc/default/grub
+
+# Update the grub configuration
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# Type `exit` to leave the chroot and reboot
 ```
 
 ## Failed to find module 'xxx'
