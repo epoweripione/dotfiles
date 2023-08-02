@@ -230,3 +230,23 @@ function newZellijLayout() {
         return 1
     fi
 }
+
+# Clean snapper snapshots to keep the last N snapshots
+function SnapperDeleteSnapshots() {
+    local keep_snapshot=${1:-10}
+    local snapper_configs current_config
+    local start_id end_id
+
+    snapper_configs=$(snapper list-configs --columns=config | grep -v 'Config\|-')
+
+    keep_snapshot=$((keep_snapshot + 1))
+    while read -r current_config; do
+        start_id=$(snapper -c "${current_config}" list | awk '{print $1}' | grep -E '[[:digit:]]+' | grep -wv '0' | head -n1)
+        end_id=$(snapper -c "${current_config}" list | awk '{print $1}' | grep -E '[[:digit:]]+'| grep -wv '0' | tail -n "${keep_snapshot}" | head -n1)
+        if [[ -n "${start_id}" && -n "${end_id}" ]]; then
+            [[ start_id -lt end_id ]] && snapper -c "${current_config}" delete "${start_id}-${end_id}"
+        fi
+    done <<<"${snapper_configs}"
+
+    snapper list -a
+}
