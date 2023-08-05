@@ -45,6 +45,9 @@ if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
         (echo -e '\n# rtx'; echo 'eval "$(rtx activate zsh)"') >> "$HOME/.zshrc"
     fi
 
+    # Hook rtx into ZSH
+    [[ -z "${RTX_SHELL}" ]] && eval "$(rtx activate zsh)"
+
     ## completions
     # if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}" ]]; then
     #     mkdir -p "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/rtx" && \
