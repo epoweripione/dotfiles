@@ -321,7 +321,11 @@ fi
 
 if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}node modules${BLUE}..."
-    cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && npm install
+    if [[ -x "$(command -v pnpm)" ]]; then
+        cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && pnpm install
+    elif [[ -x "$(command -v npm)" ]]; then
+        cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && npm install
+    fi
 fi
 
 if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
