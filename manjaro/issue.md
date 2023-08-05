@@ -35,7 +35,7 @@ EFI_DISK=/dev/sda1 && EFI_BOOT_POINT=/mnt/boot/efi && sudo mount "${EFI_DISK}" "
 # Unlock
 ROOT_DISK=/dev/sda2 && ROOT_CRYPT_POINT="root" && sudo cryptsetup open "${ROOT_DISK}" "${ROOT_CRYPT_POINT}"
 # mount unlock root partition
-sudo mount -o subvol=@ "/dev/mapper/${ROOT_CRYPT_POINT}" "${ROOT_MOUNT_POINT}"
+ROOT_MOUNT_POINT=/mnt && sudo mount -o subvol=@ "/dev/mapper/${ROOT_CRYPT_POINT}" "${ROOT_MOUNT_POINT}"
 # mount EFI partition
 EFI_DISK=/dev/sda1 && EFI_BOOT_POINT=/mnt/boot/efi && sudo mount "${EFI_DISK}" "${EFI_BOOT_POINT}"
 
