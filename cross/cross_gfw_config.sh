@@ -132,9 +132,9 @@ function main() {
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
         colorEcho "${BLUE}Checking & loading proxy..."
 
-        [[ -z "${GLOBAL_PROXY_IP}" ]] && use_clash 127.0.0.1 7891 7890
+        [[ -z "${GLOBAL_PROXY_IP}" ]] && use_clash 127.0.0.1 "${GLOBAL_PROXY_SOCKS_PORT:-7891}" "${GLOBAL_PROXY_MIXED_PORT:-7890}"
 
-        check_set_global_proxy 7891 7890
+        check_set_global_proxy "${GLOBAL_PROXY_SOCKS_PORT:-7891}" "${GLOBAL_PROXY_MIXED_PORT:-7890}"
     fi
 }
 

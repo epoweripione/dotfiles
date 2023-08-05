@@ -72,7 +72,7 @@ if [[ "$isNewInstall" == "yes" ]]; then
         sudo cp ${PROXYCHAINS_CONFIG} ${PROXYCHAINS_CONFIG}.bak && \
             sudo sed -i 's/socks4/# socks4/g' ${PROXYCHAINS_CONFIG}
 
-        check_set_global_proxy 7891 7890
+        check_set_global_proxy "${GLOBAL_PROXY_SOCKS_PORT:-7891}" "${GLOBAL_PROXY_MIXED_PORT:-7890}"
 
         if [[ -n "${GLOBAL_PROXY_IP}" ]]; then
             echo 'socks5 ${GLOBAL_PROXY_IP} ${GLOBAL_PROXY_SOCKS_PORT}' | sudo tee -a ${PROXYCHAINS_CONFIG} >/dev/null
