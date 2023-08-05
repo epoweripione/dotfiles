@@ -15,6 +15,13 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 - **[Oh My Zsh](https://ohmyz.sh/)** to managing Zsh configuration
 - **ys** theme for Zsh without Graphical Environment
 - **[Oh My Posh](https://ohmyposh.dev/)** theme for Zsh with Desktop Environment(KDE, GNOME, XFCE, WSL...)
+- [ZSH theme change script](/zsh/zsh_change_theme.sh)
+  * ys
+  * [agnosterzak](https://github.com/zakaziko99/agnosterzak-ohmyzsh-theme)
+  * [agkozak](https://github.com/agkozak/agkozak-zsh-prompt)
+  * [alien](https://github.com/eendroroy/alien)
+  * [powerlevel10k](https://github.com/romkatv/powerlevel10k)
+  * [spaceship](https://github.com/denysdovhan/spaceship-prompt)
 - [Zsh plugins](/zsh/zsh_update.sh)
   * [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
   * [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
@@ -36,6 +43,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * [jq](https://jqlang.github.io/jq/)
   * [fzf](https://github.com/junegunn/fzf)
   * [Modern Unix](https://github.com/ibraheemdev/modern-unix)
+  * ...
 - Helper functions
   * [public](/functions/public.sh): color echo, version compare...
   * [system](/functions/system.sh): cron jobs, systemd services, snapper snapshots...
@@ -43,6 +51,21 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * [network](/functions/network.sh): ipv4, ipv6, url, web service...
   * [proxy](/functions/proxy.sh): get & set proxy
   * [git](/functions/git.sh): clone, update git repos
+    + **Git_Clone_Update** clone or update a git repo:
+      ```bash
+      Git_Clone_Update "username/repository" "$HOME/repository" # default host `https://github.com/`
+      Git_Clone_Update "https://gitlab.com/username/repository" "$HOME/repository" # full repo url
+      Git_Clone_Update "git@github.com:username/repository.git" "$HOME/repository"
+      ```
+    + **Git_Clone_Update_Branch** clone or update a git repo only specified branch:
+      ```bash
+      Git_Clone_Update_Branch "https://github.com/username/repository" "$HOME/repository" # auto get default branch
+      Git_Clone_Update_Branch "username/repository" "$HOME/repository" "https://github.com" "dev" # dev branch
+      ```
+    + **Git_Update_Repo_in_SubDir** update all git repos in subdirectories
+      ```bash
+      Git_Update_Repo_in_SubDir "$ZSH/custom" # update all ZSH plugins & themes
+      ```
   * [docker](/functions/docker.sh): docker mirrors, pull multiple images...
   * [installer](/functions/installer.sh): functions to install apps
   * [versions](/functions/versions.sh): version manager functions for goup, rtx, asdf...
@@ -52,8 +75,32 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * Auto resolve download URL that match running platform, especially for apps release on `Github`
   * Speed up downloads with `axel`, if fails use `curl` instead
   * Automatically extract `executable`, `man`, `Zsh completions` files from compressed files and install to corresponding directories(`/usr/local/bin`, `/usr/share/man`, `/usr/local/share/zsh/site-functions`)
+  * Install apps using installer will set mirros if the world blocked
+    + [Homebrew](/installer/homebrew_installer.sh)
+      - [https://mirrors.ustc.edu.cn/homebrew-bottles](https://mirrors.ustc.edu.cn/homebrew-bottles)
+      - [https://mirrors.ustc.edu.cn/homebrew-core.git](https://mirrors.ustc.edu.cn/homebrew-core.git)
+      - [https://mirrors.ustc.edu.cn/homebrew-cask.git](https://mirrors.ustc.edu.cn/homebrew-cask.git)
+      - [https://mirrors.ustc.edu.cn/homebrew-cask-versions.git](https://mirrors.ustc.edu.cn/homebrew-cask-versions.git)
+    + [Docker Registry](/installer/docker_installer.sh)
+      - [https://docker.mirrors.sjtug.sjtu.edu.cn](https://docker.mirrors.sjtug.sjtu.edu.cn)
+      - [https://docker.nju.edu.cn/](https://docker.nju.edu.cn/)
+      - [https://hub-mirror.c.163.com](https://hub-mirror.c.163.com)
+    + [Nodejs](/nodejs/nvm_node_installer.sh)
+      - [https://npmmirror.com/](https://npmmirror.com/)
+    + [Go](/installer/goup_go_installer.sh)
+      - [https://goproxy.cn](https://goproxy.cn)
+    + [Rust](/installer/cargo_rust_installer.sh)
+      - [https://rsproxy.cn](https://rsproxy.cn)
+      - [https://rsproxy.cn/rustup](https://rsproxy.cn/rustup)
+    + [Python/pip](/installer/python_pip_config.sh)
+      - [https://mirrors.aliyun.com/pypi/simple/](https://mirrors.aliyun.com/pypi/simple/)
+    + [Anaconda](/installer/conda_python_installer.sh)
+      - [https://mirrors.bfsu.edu.cn/anaconda/](https://mirrors.bfsu.edu.cn/anaconda/)
+    + [Flutter](/installer/flutter_installer.sh)
+      - [https://pub.flutter-io.cn](https://pub.flutter-io.cn)
+      - [https://storage.flutter-io.cn](https://storage.flutter-io.cn)
 - [Git configs](/git/git_global_config.sh)
-- [Update apps that installed by app store or version managers]((/zsh/zsh_upgrade_all_packages.sh))
+- [Update apps that installed by app store or version managers](/zsh/zsh_upgrade_all_packages.sh)
   * pacman, apt-get, dnf, yum...
   * [Homebrew](https://brew.sh/)
   * [flatpak](https://flatpak.org/)
@@ -74,7 +121,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * Homebrew
   * PHP
   * Java
-  * Golang
+  * Go
   * Flutter
   * Rust
   * Python/pip
@@ -106,6 +153,10 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
         ".localdomain"
     )
     ```
+  * git clone options
+    ```bash
+    GIT_CLONE_DEFAULT_OPTION="-c core.autocrlf=false -c core.filemode=false"
+    ```
   * Github clone & download mirror
     ```bash
     GITHUB_HUB_URL="https://github.com"
@@ -129,10 +180,14 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * [After the first start](/manjaro/btrfs_03_after_install_after_restart.sh)
 - Encrypt `BTRFS` with `LUKS2`
   * [Enable LUKS2 and Argon2 support](/manjaro/btrfs_convert_LUKS1_to_LUKS2.sh)
+- Enable Snap
+- Enable Flatpak
+- Enable AUR
 - `bootsplash` theme
 - `Snapper` to take snapshots on `BTRFS`
 - `GRUB` with `Snapper` snapshots
 - [Daily use apps](/manjaro/manjaro_setup.sh)
+  * Define variable `AppManjaroInstallList=(...)` in `~/.dotfiles.env.local` for apps to install
 - `Samba`
 - `SmartDNS`
 - `CJK` fonts
@@ -141,12 +196,32 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 - `CUPS`: Printers, Scanner
 - `KVM` & `QEMU` Emulator
 - `Conky` themes
+  * [Hybrid](https://bitbucket.org/dirn-typo/hybrid) on `top-right` of desktop
+  * Use [wttr.in](https://wttr.in/) to update [Weather](/snippets/weather_wttr.sh) on `bottom-left` of desktop(`Nodejs` needs installed)
 - Run Windows Applications with [cassowary](https://github.com/casualsnek/cassowary)
 - Run Windows Applications with [winapps](https://github.com/Osmium-Linux/winapps)
+- [Arch Linux Chinese Community Repository](https://github.com/archlinuxcn/mirrorlist-repo) if GEO in `China`
+- [Auto setting proxy if exists, use `127.0.0.1:7890` by default](/manjaro/desktop_proxy.sh)
+- Accelerate the speed of `AUR PKGBUILD` if the world blocked
+  * use `axel` to download, if fails use `curl` instead
+  * if download from `github.com`, use env variable `GITHUB_DOWNLOAD_URL` `GITHUB_RAW_URL` if exists
+
+## macOS (Same as `Linux`, but not fully tested)
 
 ## Windows
-- [ Windows Terminal](https://github.com/microsoft/terminal)
+- [Windows Terminal](https://github.com/microsoft/terminal)
 - [Powershell](/powershell/)
+  * Modules
+    + Find-String
+    + Posh-git
+    + Terminal-Icons
+    + PSEverything
+    + PSFzf
+    + Get-ChildItemColor
+    + PoshFunctions
+  * [Oh My Posh](https://ohmyposh.dev/) theme
+  * [unix-style key bindings](/powershell/Microsoft.PowerShell_profile.ps1)
+  * [Tab Expansion with PSFzf](https://github.com/kelleyma49/PSFzf)
   * [Scoop](https://scoop.sh/) to install apps
     + [Scoop & Apps](/powershell/scoop_install_apps.ps1)
   * Custom environment variables in `~/.powershell.env.ps1`
@@ -160,9 +235,10 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
         ```powershell
         $GITHUB_HUB_URL="https://github.com"
         $GITHUB_DOWNLOAD_URL="https://github.com"
-        $GITHUB_RAW_URL = "https://raw.githubusercontent.com"
+        $GITHUB_RAW_URL="https://raw.githubusercontent.com"
         ```
-    + Helper functions
+    + [Helper functions](/powershell/ps_custom_function.ps1)
+    + ...
 - [WSL](/wsl/wsl2_init.sh)
   * Base on `Debian` distro
   * All the features above for `Linux`
@@ -170,7 +246,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 - [MSYS2](/msys2/)
 
 ## Android
-- [Termux](https://termux.com/)
+- [Termux](/termux_init.sh)
 
 ## [Nodejs](/nodejs/)
 - Use `npmmirror.com` for `npm` packages if the world blocked
@@ -178,6 +254,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 - [nvm](https://github.com/nvm-sh/nvm) to manager `node` versions
 - [nvs](https://github.com/jasongin/nvs) to manager `node` versions
 - `npm-check-updates` to update `npm` packages
+- [A simple file server](/nodejs/simpleserver/)
 
 ## [NAS](/nas/)
 - scripts for `openwrt` (test purpose)
@@ -185,8 +262,18 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 ## [K8S](/k8s/)
 - Script for `k8s` (test purpose)
 
+## [CJK Text Optimization for Tampermonkey](/cjk/) (unstable)
+- Set `font-family` by `html.lang`
+  * `Noto` fonts for `SC/TC/HK/JP/KR` locale
+  * `emoji` for Emoji
+- Add spaces between CJK characters and Latin letters
+- Remove hidden obfuscated characters
+- Code block pretty
+- Element inspector to Screenshot
+- Element inspector to Markdown
 
-# Install
+
+# Install on Linux
 ## 1. Use the installed distro package manager to install `curl` and `git`
 ```bash
 sudo pacman -S curl git
@@ -227,6 +314,47 @@ or
 ### npm-check
 1. Use `npm install -g npm-check` to install the `npm-check` package globally.
 2. Use `npm-check -u -y` to upgrade all dependencies to their latest major versions.
+
+
+# Install on Windows Powershell
+## Install [Windows Terminal](https://github.com/microsoft/terminal/releases) if running `Windows 10`
+**`Windows 11` has built-in `Windows Terminal`**
+
+## Install [Powershell](https://github.com/kelleyma49/PSFzf/releases)
+
+## Open `Powershell` as Administrator
+
+## Download powershell scripts to `~\Documents\PowerShell\Scripts` via `pwsh_script_download.ps1`
+```powershell
+curl -fsSL -o "~\pwsh_script_download.ps1" "https://git.io/JPS2j" && ~\pwsh_script_download.ps1
+```
+
+## Init `Powershell`
+```powershell
+~\Documents\PowerShell\Scripts\Powershell_init.ps1
+```
+
+## Use `scoop` to batch install apps & fonts
+Edit file `~\Documents\PowerShell\Scripts\scoop_install_apps.ps1` to define the apps & fonts you want to install:
+- `$Apps` - List of apps to install
+- `$sudoApps` - List of apps to install with administrative privileges
+- `$sudoFonts` - List of fonts to install with administrative privileges
+
+```powershell
+~\Documents\PowerShell\Scripts\scoop_install_apps.ps1
+```
+
+
+# Install on WSL(Windows Subsystem for Linux)
+- Install `WSL` distro
+```powershell
+wsl --list --online
+wsl --install -d Debian # or distro which your favor
+wsl --update
+```
+- Open `WSL` distro
+- Follow the guide in `Install on Linux`
+
 
 # commitizen
 `${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/commitizen-relax_installer.sh`
