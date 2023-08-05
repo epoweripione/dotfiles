@@ -73,7 +73,7 @@ changeTheme() {
         echo '(( ! ${+functions[p10k]} )) || p10k finalize' >> "$HOME/.zshrc"
     fi
 
-    colorEcho "${GREEN}ZSH theme has change to ${theme}，please exit and restart ZSH Shell!"
+    colorEcho "${GREEN}ZSH theme has change to ${theme}, please exit and restart ZSH Shell!"
 }
 
 
