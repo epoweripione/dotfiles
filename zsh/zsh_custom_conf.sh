@@ -69,9 +69,6 @@ if [[ "$OS_TYPE" =~ "MSYS_NT" || "$OS_TYPE" =~ "MINGW" || "$OS_TYPE" =~ "CYGWIN_
 fi
 
 
-# Load custom environment variables
-[[ -s "$HOME/.dotfiles.env.local" ]] && source "$HOME/.dotfiles.env.local"
-
 # Load custom functions
 if [[ -s "${MY_SHELL_SCRIPTS}/custom_functions.sh" ]]; then
     source "${MY_SHELL_SCRIPTS}/custom_functions.sh"
