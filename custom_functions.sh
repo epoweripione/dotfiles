@@ -4,7 +4,7 @@
 [[ -s "$HOME/.dotfiles.env.local" ]] && source "$HOME/.dotfiles.env.local"
 
 if [[ -z "${MY_SHELL_SCRIPTS}" ]]; then
-    [[ -d "$$HOME/.dotfiles" ]] && export MY_SHELL_SCRIPTS="$$HOME/.dotfiles"
+    [[ -d "$HOME/.dotfiles" ]] && export MY_SHELL_SCRIPTS="$HOME/.dotfiles"
 fi
 
 FunctionList=(
