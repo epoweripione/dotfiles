@@ -341,6 +341,7 @@ function UpdateScoop {
     # cleanup
     scoop config aria2-enabled false
     scoop cleanup *
+    scoop cleanup * -g
 }
 
 function SearchScoopBucket {
