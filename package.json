@@ -6,8 +6,8 @@
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.9",
-    "@babel/preset-env": "^7.22.9",
+    "@babel/core": "^7.22.10",
+    "@babel/preset-env": "^7.22.10",
     "@commitlint/cli": "^17.6.7",
     "@commitlint/config-conventional": "^17.6.7",
     "@types/lodash": "^4.14.196",
@@ -18,7 +18,7 @@
     "conventional-changelog-cz-emoji-config": "^1.0.1",
     "cz-conventional-changelog": "^3.3.0",
     "cz-emoji": "^1.3.1",
-    "cz-git": "^1.7.0",
+    "cz-git": "^1.7.1",
     "cz-relax": "^0.2.1",
     "eslint": "^8.46.0",
     "husky": "^8.0.3",
