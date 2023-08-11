@@ -1,38 +1,39 @@
 #!/usr/bin/env bash
 
-# hostname & hostip
-[[ -z "${HOSTNAME}" ]] && HOSTNAME=$(uname -n 2>/dev/null)
-[[ -z "${HOSTNAME}" ]] && HOSTNAME=$(hostname 2>/dev/null)
-[[ -n "${HOSTNAME}" ]] && export HOSTNAME
+# Proxy functions
+function get_no_proxy() {
+    # hostname & hostip
+    [[ -z "${HOSTNAME}" ]] && HOSTNAME=$(uname -n 2>/dev/null)
+    [[ -z "${HOSTNAME}" ]] && HOSTNAME=$(hostname 2>/dev/null)
+    [[ -n "${HOSTNAME}" ]] && export HOSTNAME
 
-[[ -z "${HOSTIP}" ]] && HOSTIP=$(hostname -I 2>/dev/null | cut -d' ' -f1)
-[[ -n "${HOSTIP}" ]] && export HOSTIP
+    [[ -z "${HOSTIP}" ]] && HOSTIP=$(hostname -I 2>/dev/null | cut -d' ' -f1)
+    [[ -n "${HOSTIP}" ]] && export HOSTIP
 
-[[ -z "${HOSTIP_ALL}" ]] && HOSTIP_ALL=$(hostname -I 2>/dev/null)
-[[ -n "${HOSTIP_ALL}" ]] && HOSTIP_ALL="${HOSTIP_ALL% }" && HOSTIP_ALL="${HOSTIP_ALL// /,}" && export HOSTIP_ALL
+    [[ -z "${HOSTIP_ALL}" ]] && HOSTIP_ALL=$(hostname -I 2>/dev/null)
+    [[ -n "${HOSTIP_ALL}" ]] && HOSTIP_ALL="${HOSTIP_ALL% }" && HOSTIP_ALL="${HOSTIP_ALL// /,}" && export HOSTIP_ALL
 
-# no proxy lists
-if [[ -z "${NO_PROXY_LIST[*]}" ]]; then
-    NO_PROXY_LIST=(
-        "127.0.0.1"
-        "::1"
-        ".corp"
-        ".internal"
-        ".local"
-        ".localdomain"
-    )
-fi
-for Target in "${NO_PROXY_LIST[@]}"; do
-    [[ -n "${GLOBAL_NO_PROXY}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${Target}" || GLOBAL_NO_PROXY="${Target}"
-done
+    # no proxy lists
+    if [[ -z "${NO_PROXY_LIST[*]}" ]]; then
+        NO_PROXY_LIST=(
+            "127.0.0.1"
+            "::1"
+            ".corp"
+            ".internal"
+            ".local"
+            ".localdomain"
+        )
+    fi
+    for Target in "${NO_PROXY_LIST[@]}"; do
+        [[ -n "${GLOBAL_NO_PROXY}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${Target}" || GLOBAL_NO_PROXY="${Target}"
+    done
 
-[[ -n "${HOSTNAME}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${HOSTNAME}"
-[[ -n "${HOSTIP_ALL}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${HOSTIP_ALL}"
+    [[ -n "${HOSTNAME}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${HOSTNAME}"
+    [[ -n "${HOSTIP_ALL}" ]] && GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY},${HOSTIP_ALL}"
 
-export GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY}"
+    export GLOBAL_NO_PROXY="${GLOBAL_NO_PROXY}"
+}
 
-
-## Proxy functions
 function set_proxy() {
     # PROTOCOL://USERNAME:PASSWORD@HOST:PORT
     # http://127.0.0.1:8080
