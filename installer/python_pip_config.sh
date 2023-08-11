@@ -146,40 +146,40 @@ fi
 
 # pip.conf
 mkdir -p "$HOME/.pip"
-PIP_CONFIG="$HOME/.pip/pip.conf"
+[[ -z "${PYTHON_PIP_CONFIG}" ]] && PYTHON_PIP_CONFIG="$HOME/.pip/pip.conf"
 
 # fix `pip list` warning
-if ! grep -q "format=columns" "${PIP_CONFIG}" 2>/dev/null; then
-    if ! grep -q "^\[global\]" "${PIP_CONFIG}" 2>/dev/null; then
-        echo "[global]" >> "${PIP_CONFIG}"
+if ! grep -q "format=columns" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
+    if ! grep -q "^\[global\]" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
+        echo "[global]" >> "${PYTHON_PIP_CONFIG}"
     fi
-    sed -i "/^\[global\]/a\format=columns" "${PIP_CONFIG}"
+    sed -i "/^\[global\]/a\format=columns" "${PYTHON_PIP_CONFIG}"
 fi
 
 ## pip mirror
 # pip config list
 # alias pip="pip --proxy 127.0.0.1:8080"
 # alias pipinstall='pip install -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com'
-PIP_MIRROR_URL=https://mirrors.aliyun.com/pypi/simple/
-PIP_MIRROR_HOST=mirrors.aliyun.com
-if [[ "${THE_WORLD_BLOCKED}" == "true" ]] && ! grep -q "${PIP_MIRROR_HOST}" "${PIP_CONFIG}" 2>/dev/null; then
-    if grep -q "index-url" "${PIP_CONFIG}" 2>/dev/null; then
-        sed -i "s|index-url.*|index-url=${PIP_MIRROR_URL}|" "${PIP_CONFIG}"
+[[ -z "${MIRROR_PYTHON_PIP_URL}" ]] && MIRROR_PYTHON_PIP_URL="https://mirrors.aliyun.com/pypi/simple/"
+[[ -z "${MIRROR_PYTHON_PIP_HOST}" ]] && MIRROR_PYTHON_PIP_HOST="mirrors.aliyun.com"
+if [[ "${THE_WORLD_BLOCKED}" == "true" ]] && ! grep -q "${MIRROR_PYTHON_PIP_HOST}" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
+    if grep -q "index-url" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
+        sed -i "s|index-url.*|index-url=${MIRROR_PYTHON_PIP_URL}|" "${PYTHON_PIP_CONFIG}"
     else
-        sed -i "/^\[global\]/a\index-url=${PIP_MIRROR_URL}" "${PIP_CONFIG}"
+        sed -i "/^\[global\]/a\index-url=${MIRROR_PYTHON_PIP_URL}" "${PYTHON_PIP_CONFIG}"
     fi
 
-    if grep -q "trusted-host" "${PIP_CONFIG}" 2>/dev/null; then
-        sed -i "s|trusted-host.*|trusted-host=${PIP_MIRROR_HOST}|" "${PIP_CONFIG}"
+    if grep -q "trusted-host" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
+        sed -i "s|trusted-host.*|trusted-host=${MIRROR_PYTHON_PIP_HOST}|" "${PYTHON_PIP_CONFIG}"
     else
-        if ! grep -q "\[install\]" "${PIP_CONFIG}" 2>/dev/null; then
-            echo -e "\n[install]" | tee -a "${PIP_CONFIG}" >/dev/null
+        if ! grep -q "\[install\]" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
+            echo -e "\n[install]" | tee -a "${PYTHON_PIP_CONFIG}" >/dev/null
         fi
-        sed -i "/^\[install\]/a\trusted-host=${PIP_MIRROR_HOST}" "${PIP_CONFIG}"
+        sed -i "/^\[install\]/a\trusted-host=${MIRROR_PYTHON_PIP_HOST}" "${PYTHON_PIP_CONFIG}"
     fi
 fi
 
-cat "${PIP_CONFIG}"
+cat "${PYTHON_PIP_CONFIG}"
 
 : '
 [global]
@@ -231,7 +231,7 @@ fi
 
 # pip configurations for root user
 if [[ ! -s "/root/.pip/pip.conf" ]]; then
-    sudo mkdir -p "/root/.pip" && sudo cp -f "${PIP_CONFIG}" "/root/.pip"
+    sudo mkdir -p "/root/.pip" && sudo cp -f "${PYTHON_PIP_CONFIG}" "/root/.pip"
 fi
 
 ## Upgrade installed system packages

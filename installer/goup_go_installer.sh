@@ -96,42 +96,15 @@ fi
 # goup upgrade: upgrades goup.
 
 [[ ":$PATH:" != *":$HOME/.go/bin:"* ]] && export PATH=$PATH:$HOME/.go/bin:$HOME/.go/current/bin
-[[ "${THE_WORLD_BLOCKED}" == "true" ]] && export GOUP_GO_HOST=golang.google.cn
 
-colorEcho "${BLUE}  Installing latest ${FUCHSIA}go${BLUE}..."
-# fix: proxyconnect tcp: dial tcp: lookup socks5h: no such host
-if echo "${all_proxy}" | grep -q 'socks5h'; then
-    proxy_socks5h_to_socks5 goup install
-else
-    goup install
-fi
+# install latest version
+goupInstallLatest
 
-# Go module
-if [[ -x "$(command -v go)" ]]; then
-    GO_VERSION=$(go version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    if version_ge "${GO_VERSION}" '1.13'; then
-        go env -w GO111MODULE=auto
-        if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-            go env -w GOPROXY="https://goproxy.cn,direct"
-            # go env -w GOPROXY="https://goproxy.io,direct"
-            # go env -w GOPROXY="https://mirrors.aliyun.com/goproxy/,direct"
-            # go env -w GOPROXY="https://proxy.golang.org,direct"
+# remove unuse installed go version but keep the latest minor version
+goupRemoveUnuse
 
-            go env -w GOSUMDB="sum.golang.google.cn"
-            # go env -w GOSUMDB="gosum.io+ce6e7565+AY5qEHUk/qmHc5btzW45JVoENfazw8LielDsaI+lEbq6"
-
-            ## https://goproxy.io/zh/docs/goproxyio-private.html
-            # go env -w GOPRIVATE="*.corp.example.com"
-        fi
-    else
-        export GO111MODULE=auto
-        if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-            export GOPROXY="https://goproxy.cn"
-            export GOSUMDB="sum.golang.google.cn"
-        fi
-    fi
-    unset GO_VERSION
-fi
+# go mirrors
+setMirrorGo
 
 # godoc -http :8000
 if [[ ! -x "$(command -v godoc)" && -x "$(command -v go)" ]]; then

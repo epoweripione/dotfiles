@@ -26,17 +26,13 @@ App_Installer_Reset
 colorEcho "${BLUE}Installing ${FUCHSIA}Miniconda3${BLUE}..."
 
 # mirror channels
-CONDA_MIRROR=""
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    # https://mirrors.bfsu.edu.cn/help/anaconda/
-    # https://mirrors.tuna.tsinghua.edu.cn/help/anaconda/
-    # https://mirror.sjtu.edu.cn/docs/anaconda
-    CONDA_MIRROR="https://mirrors.bfsu.edu.cn"
+    [[ -z "${MIRROR_PYTHON_CONDA}" ]] && MIRROR_PYTHON_CONDA="https://mirrors.bfsu.edu.cn"
 fi
 
 if [[ ! -d "$HOME/miniconda3" ]]; then
-    if [[ -n "${CONDA_MIRROR}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${CONDA_MIRROR}/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+    if [[ -n "${MIRROR_PYTHON_CONDA}" ]]; then
+        INSTALLER_DOWNLOAD_URL="${MIRROR_PYTHON_CONDA}/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh"
     else
         INSTALLER_DOWNLOAD_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
     fi
@@ -49,24 +45,24 @@ if [[ -d "$HOME/miniconda3" ]]; then
     source "$HOME/miniconda3/bin/activate"
 
     ## Use mirror channels
-    if [[ -n "${CONDA_MIRROR}" ]]; then
-        # conda config --add channels ${CONDA_MIRROR}/anaconda/pkgs/main/
-        # conda config --add channels ${CONDA_MIRROR}/anaconda/cloud/pytorch/
+    if [[ -n "${MIRROR_PYTHON_CONDA}" && ! -s "$HOME/.condarc" ]]; then
+        # conda config --add channels ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/main/
+        # conda config --add channels ${MIRROR_PYTHON_CONDA}/anaconda/cloud/pytorch/
         tee -a "$HOME/.condarc" >/dev/null <<-EOF
 channels:
   - defaults
 show_channel_urls: true
 default_channels:
-  - ${CONDA_MIRROR}/anaconda/pkgs/main
-  - ${CONDA_MIRROR}/anaconda/pkgs/r
-  - ${CONDA_MIRROR}/anaconda/pkgs/msys2
+  - ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/main
+  - ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/r
+  - ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/msys2
 custom_channels:
-  conda-forge: ${CONDA_MIRROR}/anaconda/cloud
-  msys2: ${CONDA_MIRROR}/anaconda/cloud
-  bioconda: ${CONDA_MIRROR}/anaconda/cloud
-  menpo: ${CONDA_MIRROR}/anaconda/cloud
-  pytorch: ${CONDA_MIRROR}/anaconda/cloud
-  simpleitk: ${CONDA_MIRROR}/anaconda/cloud
+  conda-forge: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
+  msys2: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
+  bioconda: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
+  menpo: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
+  pytorch: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
+  simpleitk: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
 EOF
     fi
 

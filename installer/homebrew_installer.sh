@@ -25,63 +25,18 @@ colorEcho "${BLUE}Installing ${FUCHSIA}homebrew${BLUE}..."
 [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
 
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
-    export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
-    export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
-    export HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
+    [[ -z "${HOMEBREW_BREW_GIT_REMOTE}" ]] && HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
+    [[ -z "${HOMEBREW_CORE_GIT_REMOTE}" ]] && HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
+    [[ -z "${HOMEBREW_BOTTLE_DOMAIN}" ]] && HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
+    [[ -z "${HOMEBREW_API_DOMAIN}" ]] && HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
+
+    # cask
+    [[ -z "${MIRROR_HOMEBREW_CASK}" ]] && MIRROR_HOMEBREW_CASK="https://mirrors.ustc.edu.cn/homebrew-cask.git"
+    [[ -z "${MIRROR_HOMEBREW_CASK_VERSIONS}" ]] && MIRROR_HOMEBREW_CASK_VERSIONS="https://mirrors.ustc.edu.cn/homebrew-cask-versions.git"
 fi
 
-# Brew installation fails due to Ruby versioning?
-# https://unix.stackexchange.com/questions/694020/brew-installation-fails-due-to-ruby-versioning
-BREW_RUBY_VERSION="2.6.10"
-BREW_RUBY_MAIN_VERSION=$(echo "${BREW_RUBY_VERSION}" | cut -d'.' -f1-2)
-RUBY_DOWNLOAD_URL="https://cache.ruby-china.com/pub/ruby/${BREW_RUBY_MAIN_VERSION}/ruby-${BREW_RUBY_VERSION}.tar.bz2"
-
-SYSTEM_RUBY_VERSION="0.0.0"
-[[ -x "$(command -v ruby)" ]] && SYSTEM_RUBY_VERSION=$(ruby -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-
-# if [[ "${BREW_RUBY_VERSION}" != "${SYSTEM_RUBY_VERSION}" ]]; then
-if [[ -z "${BREW_RUBY_VERSION}" ]]; then
-    if check_os_arch; then
-        # https://github.com/rbenv/rbenv
-        if [[ -x "$(command -v pacman)" && "$(command -v yay)" ]]; then
-            yay --noconfirm --needed -S rbenv
-            # https://github.com/Homebrew/discussions/discussions/3183
-            sudo pacman --noconfirm --needed -S libxcrypt-compat
-        fi
-
-        if [[ -x "$(command -v rbenv)" ]]; then
-            mkdir -p "$(rbenv root)/plugins"
-            mkdir -p "$(rbenv root)/cache"
-
-            if ! grep -q 'rbenv init -' "$HOME/.zshrc" >/dev/null 2>&1; then
-                echo -e '\n# rbenv' >> "$HOME/.zshrc"
-                echo 'eval "$(rbenv init -)"' >> "$HOME/.zshrc"
-            fi
-
-            if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-                Git_Clone_Update_Branch "andorchen/rbenv-china-mirror" "$(rbenv root)/plugins/rbenv-china-mirror"
-                export RUBY_BUILD_MIRROR_URL="https://cache.ruby-china.com"
-            fi
-
-            Git_Clone_Update_Branch "rbenv/ruby-build" "$(rbenv root)/plugins/ruby-build"
-
-            wget "${RUBY_DOWNLOAD_URL}" -P "$(rbenv root)/cache"
-            rbenv install "${BREW_RUBY_VERSION}" && rbenv rehash
-            if rbenv versions | grep "${BREW_RUBY_VERSION}" >/dev/null 2>&1; then
-                rbenv global "${BREW_RUBY_VERSION}"
-            fi
-
-            ## fallback to system installed version
-            # rbenv global system
-        fi
-
-        if [[ -x "$(command -v gem)" ]]; then
-            noproxy_cmd gem sources --add "https://gems.ruby-china.com/" --remove "https://rubygems.org/"
-            gem sources -l
-        fi
-    fi
-fi
+## [Brew installation fails due to Ruby versioning?](https://unix.stackexchange.com/questions/694020/brew-installation-fails-due-to-ruby-versioning)
+# rbenv install 2.6.10
 
 case "${OS_INFO_TYPE}" in
     darwin | linux)
@@ -134,9 +89,9 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -x "$(command -v brew)" ]]; then
         # cd "$(brew --repo)/Library/Taps/homebrew/homebrew-cask" && \
         #     git remote set-url origin "https://mirrors.ustc.edu.cn/homebrew-cask.git"
 
-        brew tap --custom-remote --force-auto-update homebrew/core "https://mirrors.ustc.edu.cn/homebrew-core.git"
-        brew tap --custom-remote --force-auto-update homebrew/cask "https://mirrors.ustc.edu.cn/homebrew-cask.git"
-        brew tap --custom-remote --force-auto-update homebrew/cask-versions "https://mirrors.ustc.edu.cn/homebrew-cask-versions.git"
+        brew tap --custom-remote --force-auto-update homebrew/core "${HOMEBREW_CORE_GIT_REMOTE}"
+        brew tap --custom-remote --force-auto-update homebrew/cask "${MIRROR_HOMEBREW_CASK}"
+        brew tap --custom-remote --force-auto-update homebrew/cask-versions "${MIRROR_HOMEBREW_CASK_VERSIONS}"
     fi
 fi
 

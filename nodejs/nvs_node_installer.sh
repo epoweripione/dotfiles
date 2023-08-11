@@ -34,7 +34,7 @@ if [[ -d "$HOME/.nvs" ]]; then
     fi
 
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-        nvs remote node https://npmmirror.com/mirrors/node/
+        nvs remote node "${NVS_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"}"
     fi
 fi
 

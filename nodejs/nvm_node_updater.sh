@@ -44,16 +44,16 @@ if [[ -z "${NVM_NOT_UPDATE}" && -d "$HOME/.nvm" ]]; then
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
         colorEcho "${BLUE}Updating ${FUCHSIA}node LTS${BLUE}..."
         if [[ "${NVM_DEFAULT_VERSION}" == "N/A" ]]; then
-            NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install --lts
+            NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"} nvm install --lts
         else
-            NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install --lts --reinstall-packages-from=default
+            NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"} nvm install --lts --reinstall-packages-from=default
         fi
 
         colorEcho "${BLUE}Updating ${FUCHSIA}node latest${BLUE}..."
         if [[ "${NVM_DEFAULT_VERSION}" == "N/A" ]]; then
-            NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install node
+            NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"} nvm install node
         else
-            NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install node --reinstall-packages-from=default
+            NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"} nvm install node --reinstall-packages-from=default
         fi
     else
         colorEcho "${BLUE}Updating ${FUCHSIA}node LTS${BLUE}..."

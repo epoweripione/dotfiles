@@ -43,10 +43,10 @@ if [[ "$(command -v nvm)" ]]; then
     if [[ ! "$(command -v node)" ]]; then
         if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
             colorEcho "${BLUE}Installing ${FUCHSIA}node LTS${BLUE}..."
-            NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install --lts
+            NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"} nvm install --lts
 
             colorEcho "${BLUE}Installing ${FUCHSIA}node latest${BLUE}..."
-            NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node nvm install node
+            NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"} nvm install node
         else
             colorEcho "${BLUE}Installing ${FUCHSIA}node LTS${BLUE}..."
             nvm install --lts
