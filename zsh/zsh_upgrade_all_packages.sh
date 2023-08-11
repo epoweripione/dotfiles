@@ -139,7 +139,7 @@ if [[ -d "$HOME/.sdkman" ]]; then
 fi
 
 
-[[ -x "$(command -v goup)" ]] && goup_Upgrade
+[[ -x "$(command -v goup)" ]] && goupUpgrade
 
 
 if [[ -x "$(command -v rustup)" ]]; then
