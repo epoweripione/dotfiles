@@ -75,7 +75,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * Auto resolve download URL that match running platform, especially for apps release on `Github`
   * Speed up downloads with `axel`, if fails use `curl` instead
   * Automatically extract `executable`, `man`, `Zsh completions` files from compressed files and install to corresponding directories(`/usr/local/bin`, `/usr/share/man`, `/usr/local/share/zsh/site-functions`)
-  * Install apps using installer will set mirros if the world blocked
+  * Install apps using installer will set mirrors if the world blocked, you can override them in `~/.dotfiles.env.local`
     + [Homebrew](/installer/homebrew_installer.sh)
       - [https://mirrors.ustc.edu.cn/homebrew-bottles](https://mirrors.ustc.edu.cn/homebrew-bottles)
       - [https://mirrors.ustc.edu.cn/homebrew-core.git](https://mirrors.ustc.edu.cn/homebrew-core.git)
@@ -116,7 +116,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * [jabba](https://github.com/shyiko/jabba)
   * ...
 - alias for docker: `alias | grep '^docker'`
-- [Auto setting environment variables for apps](/zsh/zsh_custom_env.sh)
+- [Auto setting environment variables for apps](/functions/env.sh)
   * Snap
   * Homebrew
   * PHP
@@ -157,11 +157,90 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
     ```bash
     GIT_CLONE_DEFAULT_OPTION="-c core.autocrlf=false -c core.filemode=false"
     ```
+  * installer options
+    ```bash
+    INSTALLER_CHECK_CURL_OPTION="-fsL --connect-timeout 5"
+    INSTALLER_DOWNLOAD_CURL_OPTION="-fSL --connect-timeout 5"
+    INSTALLER_DOWNLOAD_AXEL_OPTION="--num-connections=5 --timeout=30 --alternate"
+    ```
   * Github clone & download mirror
     ```bash
     GITHUB_HUB_URL="https://github.com"
     GITHUB_DOWNLOAD_URL="https://github.com"
     GITHUB_RAW_URL="https://raw.githubusercontent.com"
+    GITHUB_API_TOKEN=""
+    ```
+  * mirrors
+    ```bash
+    USE_MIRROR_WHEN_BLOCKED="true"
+
+    # docker
+    MIRROR_DOCKER_REGISTRY='"https://docker.mirrors.sjtug.sjtu.edu.cn","https://docker.nju.edu.cn/","https://hub-mirror.c.163.com"'
+
+    # homebrew
+    HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
+    HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
+    HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
+    HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
+
+    # go
+    GOUP_GO_HOST="golang.google.cn"
+    MIRROR_GO_PROXY="https://goproxy.cn,direct"
+    # MIRROR_GO_PROXY="https://goproxy.io,direct"
+    # MIRROR_GO_PROXY="https://mirrors.aliyun.com/goproxy/,direct"
+    # MIRROR_GO_PROXY="https://proxy.golang.org,direct"
+    MIRROR_GO_SUMDB="sum.golang.google.cn"
+    # MIRROR_GO_SUMDB="gosum.io+ce6e7565+AY5qEHUk/qmHc5btzW45JVoENfazw8LielDsaI+lEbq6"
+    # MIRROR_GO_PRIVATE="*.corp.example.com"
+
+    # flutter
+    PUB_HOSTED_URL="https://pub.flutter-io.cn"
+    FLUTTER_STORAGE_BASE_URL="https://storage.flutter-io.cn"
+    # PUB_HOSTED_URL="https://mirror.sjtu.edu.cn/dart-pub"
+    # FLUTTER_STORAGE_BASE_URL="https://mirror.sjtu.edu.cn"
+
+    # rust
+    RUSTUP_DIST_SERVER="https://rsproxy.cn"
+    RUSTUP_UPDATE_ROOT="https://rsproxy.cn/rustup"
+    MIRROR_RUST_CARGO="rsproxy-sparse"
+    # RUSTUP_DIST_SERVER="https://mirror.sjtu.edu.cn/rust-static"
+    # RUSTUP_UPDATE_ROOT="https://mirror.sjtu.edu.cn/rust-static/rustup"
+    # MIRROR_RUST_CARGO="sjtu"
+
+    # nodejs
+    MIRROR_NODEJS_REGISTRY="https://registry.npmmirror.com"
+
+    MIRROR_NODEJS_DISTURL="https://npmmirror.com/dist"
+    MIRROR_NODEJS_SASS_BINARY_SITE="https://npmmirror.com/mirrors/node-sass"
+    MIRROR_NODEJS_ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+    # MIRROR_NODEJS_PUPPETEER_DOWNLOAD_HOST="https://npmmirror.com/mirrors"
+    MIRROR_NODEJS_PUPPETEER_DOWNLOAD_BASE_URL="https://cdn.npmmirror.com/binaries/chrome-for-testing"
+    MIRROR_NODEJS_CHROMEDRIVER_CDNURL="https://npmmirror.com/mirrors/chromedriver"
+    MIRROR_NODEJS_OPERADRIVER_CDNURL="https://npmmirror.com/mirrors/operadriver"
+    MIRROR_NODEJS_PHANTOMJS_CDNURL="https://npmmirror.com/mirrors/phantomjs"
+    MIRROR_NODEJS_SELENIUM_CDNURL="https://npmmirror.com/mirrors/selenium"
+    MIRROR_NODEJS_NODE_INSPECTOR_CDNURL="https://npmmirror.com/mirrors/node-inspector"
+
+    # nvm
+    NVM_NODEJS_ORG_MIRROR="https://npmmirror.com/mirrors/node"
+    NVM_LOAD_NVMRC_IN_CURRENT_DIRECTORY=false
+
+    # nvs
+    NVS_NODEJS_ORG_MIRROR="https://npmmirror.com/mirrors/node"
+
+    # python/pip
+    PYTHON_PIP_CONFIG="$HOME/.pip/pip.conf"
+    MIRROR_PYTHON_PIP_URL="https://mirrors.aliyun.com/pypi/simple/"
+    MIRROR_PYTHON_PIP_HOST="mirrors.aliyun.com"
+
+    # anaconda
+    MIRROR_PYTHON_CONDA="https://mirrors.bfsu.edu.cn"
+    # MIRROR_PYTHON_CONDA="https://mirror.sjtu.edu.cn"
+    # MIRROR_PYTHON_CONDA="https://mirrors.tuna.tsinghua.edu.cn"
+
+    # ruby
+    RUBY_BUILD_MIRROR_URL="https://cache.ruby-china.com"
+    RUBY_GEM_SOURCE_MIRROR="https://gems.ruby-china.com/"
     ```
   * [Install and/or update Apps](/zsh/zsh_upgrade_all_packages.sh)
     ```bash
