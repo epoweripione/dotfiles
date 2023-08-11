@@ -2,20 +2,110 @@
 
 # Version Manager Functions
 
-# goup (pronounced Go Up) is an elegant Go version manager
-# https://github.com/owenthereal/goup
-function goup_Upgrade() {
+# [goup (pronounced Go Up) is an elegant Go version manager](https://github.com/owenthereal/goup)
+# install latest go version
+function goupInstallLatest() {
+    local GO_VER_LATEST GO_VER_INSTALLED
+
+    [[ ! -x "$(command -v goup)" ]] && colorEcho "${FUCHSIA}goup${RED} is not installed!" && return 1
+
+    [[ "${THE_WORLD_BLOCKED}" == "true" && -z "${GOUP_GO_HOST}" ]] && export GOUP_GO_HOST="golang.google.cn"
+
+    GO_VER_LATEST=$(curl "${CURL_CHECK_OPTS[@]}" "https://${GOUP_GO_HOST:-"go.dev"}/VERSION?m=text" | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    GO_VER_INSTALLED=$(goup list 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}')
+
+    if grep -q "${GO_VER_LATEST//go/}" <<<"${GO_VER_INSTALLED}"; then
+        colorEcho "${FUCHSIA}${GO_VER_LATEST}${BLUE} already installed."
+    else
+        colorEcho "${BLUE}Installing ${FUCHSIA}${GO_VER_LATEST}${BLUE}..."
+        # fix: proxyconnect tcp: dial tcp: lookup socks5h: no such host
+        if echo "${all_proxy}" | grep -q 'socks5h'; then
+            proxy_socks5h_to_socks5 goup install "${GO_VER_LATEST}"
+        else
+            goup install "${GO_VER_LATEST}"
+        fi
+    fi
+}
+
+# update goup & latest go version
+function goupUpgrade() {
+    local GO_VER_LATEST GO_VER_INSTALLED
+
     [[ ! -x "$(command -v goup)" ]] && colorEcho "${FUCHSIA}goup${RED} is not installed!" && return 1
 
     colorEcho "${BLUE}Updating ${FUCHSIA} Go toolchains and goup${BLUE}..."
     # fix: proxyconnect tcp: dial tcp: lookup socks5h: no such host
     if echo "${all_proxy}" | grep -q 'socks5h'; then
         proxy_socks5h_to_socks5 sudo "$(which goup)" upgrade
-        proxy_socks5h_to_socks5 goup install
     else
         sudo "$(which goup)" upgrade
-        goup install
     fi
+
+    [[ "${THE_WORLD_BLOCKED}" == "true" && -z "${GOUP_GO_HOST}" ]] && export GOUP_GO_HOST="golang.google.cn"
+
+    GO_VER_LATEST=$(curl "${CURL_CHECK_OPTS[@]}" "https://${GOUP_GO_HOST:-"go.dev"}/VERSION?m=text" | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    GO_VER_INSTALLED=$(goup list 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}')
+
+    if ! grep -q "${GO_VER_LATEST//go/}" <<<"${GO_VER_INSTALLED}"; then
+        colorEcho "${BLUE}Installing ${FUCHSIA}${GO_VER_LATEST}${BLUE}..."
+        # fix: proxyconnect tcp: dial tcp: lookup socks5h: no such host
+        if echo "${all_proxy}" | grep -q 'socks5h'; then
+            proxy_socks5h_to_socks5 goup install "${GO_VER_LATEST}"
+        else
+            goup install "${GO_VER_LATEST}"
+        fi
+    fi
+}
+
+# remove unuse installed go version but keep the latest minor version
+# e.g.: 1.19 1.20.5 1.20.6 1.20.7 1.21.0 will remove 1.20.5, 1.20.6
+function goupRemoveUnuse() {
+    local GO_VER_LATEST GO_VER_UNUSE GO_VER_MINOR TargetVer
+
+    [[ ! -x "$(command -v goup)" ]] && colorEcho "${FUCHSIA}goup${RED} is not installed!" && return 1
+
+    [[ "${THE_WORLD_BLOCKED}" == "true" && -z "${GOUP_GO_HOST}" ]] && export GOUP_GO_HOST="golang.google.cn"
+
+    GO_VER_LATEST=$(curl "${CURL_CHECK_OPTS[@]}" "https://${GOUP_GO_HOST:-"go.dev"}/VERSION?m=text" | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+
+    GO_VER_UNUSE=$(goup list 2>&1 | grep -v '\*' | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | sort -rV)
+
+    GO_VER_MINOR=$(awk -F'.' '{print $1"."$2}' <<<"${GO_VER_LATEST//go/}")
+    while read -r TargetVer; do
+        [[ -z "${TargetVer}" || -z "${GO_VER_MINOR}" ]] && continue
+        [[ "${TargetVer}" == *"${GO_VER_MINOR}"* ]] && goup remove "go${TargetVer}"
+        GO_VER_MINOR=$(awk -F'.' '{print $1"."$2}' <<<"${TargetVer}")
+    done <<<"${GO_VER_UNUSE}"
+
+    colorEcho "${BLUE}Installed go versions:"
+    goup list
+}
+
+# rbenv: install ruby version
+function rbenvInstallRuby() {
+    local RUBY_VERSION=$1
+    local RUBY_MINOR_VERSION download_filename download_url
+
+    [[ -z "${RUBY_VERSION}" ]] && colorEcho "${RED}Ruby version can't empty!" && return 1
+
+    RUBY_MINOR_VERSION=$(cut -d'.' -f1-2 <<<"${RUBY_VERSION}")
+
+    download_url="${RUBY_BUILD_MIRROR_URL:-"https://cache.ruby-lang.org"}/pub/ruby/${RUBY_MINOR_VERSION}/ruby-${RUBY_VERSION}.tar.gz"
+    download_filename="$(rbenv root)/cache/ruby-${RUBY_VERSION}.tar.gz"
+
+    colorEcho "${BLUE}Downloading ${FUCHSIA}ruby ${RUBY_VERSION}${BLUE} from ${ORANGE}${download_url}..."
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${download_filename}" "${download_url}"
+    curl_rtn_code=$?
+
+    if [[ ${curl_rtn_code} -eq 0 ]]; then
+        colorEcho "${BLUE}Installing ${FUCHSIA}ruby ${YELLOW}${RUBY_VERSION}${BLUE}..."
+        rbenv install "${RUBY_VERSION}" && rbenv rehash
+    fi
+}
+
+# rbenv: fallback to system installed version
+function rbenvFallbackSystemVersion() {
+    rbenv global system
 }
 
 # [Runtime Executor (asdf rust clone)](https://github.com/jdxcode/rtx)
