@@ -109,8 +109,8 @@ if ! grep -q "submenu '\${submenuname}' --class recovery" "/etc/grub.d/41_snapsh
 fi
 
 # Memory Tester
-sudo sed -i -e 's/--class memtest86/--class memtest/' "/etc/grub.d/60_memtest86+"
-sudo sed -i -e 's/--class memtest86/--class memtest/' "/etc/grub.d/60_memtest86+-efi"
+[[ -f "/etc/grub.d/60_memtest86+" ]] && sudo sed -i -e 's/--class memtest86/--class memtest/' "/etc/grub.d/60_memtest86+"
+[[ -f "/etc/grub.d/60_memtest86+-efi" ]] && sudo sed -i -e 's/--class memtest86/--class memtest/' "/etc/grub.d/60_memtest86+-efi"
 
 colorEcho "${BLUE}Regenerate ${FUCHSIA}GRUB2 configuration${BLUE}..."
 sudo mkinitcpio -P
