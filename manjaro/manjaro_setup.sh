@@ -418,6 +418,9 @@ fi
 # [He3](https://he3.app/)
 [[ -s "${MY_SHELL_SCRIPTS}/installer/he3_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/he3_installer.sh"
 
+# [洛雪音乐助手桌面版](https://github.com/lyswhut/lx-music-desktop)
+[[ -s "${MY_SHELL_SCRIPTS}/installer/lx-music-desktop.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/lx-music-desktop.sh"
+
 # Notepadqq
 # [[ -s "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh"
 
