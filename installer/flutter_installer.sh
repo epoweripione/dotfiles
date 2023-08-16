@@ -132,6 +132,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${INSTALLER_FILE_PATH}" ]]; then
             cmake
             ninja
         )
+        colorEcho "${FUCHSIA}  Android Studio${BLUE}: Checking Pre-requisite packages..."
         for TargetPackage in "${PackagesList[@]}"; do
             if checkPackageNeedInstall "${TargetPackage}"; then
                 colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."

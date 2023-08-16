@@ -56,6 +56,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         zlib-static
         zlib1g-dev
     )
+    colorEcho "${FUCHSIA}OpenWrt${BLUE}: Checking Pre-requisite packages..."
     for TargetPackage in "${PackagesList[@]}"; do
         if checkPackageNeedInstall "${TargetPackage}"; then
             colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."

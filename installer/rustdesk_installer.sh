@@ -57,6 +57,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         gtk3
         vcpkg
     )
+    colorEcho "${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}: Checking Pre-requisite packages..."
     for TargetPackage in "${PackagesList[@]}"; do
         if checkPackageNeedInstall "${TargetPackage}"; then
             colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."

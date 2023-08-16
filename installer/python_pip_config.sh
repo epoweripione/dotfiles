@@ -73,6 +73,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         libgif-dev
         libgirepository1.0-dev
     )
+    colorEcho "${FUCHSIA}Python${BLUE}: Checking Pre-requisite packages..."
     for TargetPackage in "${PackagesList[@]}"; do
         if checkPackageNeedInstall "${TargetPackage}"; then
             colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
