@@ -69,6 +69,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${INSTALLER_IS_UPDATE}" == "no" ]];
             zlib
             libxcrypt-compat
         )
+        colorEcho "${FUCHSIA}rbenv${BLUE}: Checking Pre-requisite packages..."
         for TargetPackage in "${PackagesList[@]}"; do
             if checkPackageNeedInstall "${TargetPackage}"; then
                 colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
@@ -109,6 +110,10 @@ if [[ -x "$(command -v rbenv)" ]]; then
 
     colorEcho "${BLUE}Updating ${FUCHSIA}ruby-build${BLUE}..."
     Git_Clone_Update_Branch "rbenv/ruby-build" "$(rbenv root)/plugins/ruby-build"
+fi
+
+if [[ -d "$HOME/.rbenv" && ! -x "$(command -v rbenv)" ]]; then
+    [[ ":$PATH:" != *":$HOME/.rbenv/bin:"* ]] && export PATH=$PATH:$HOME/.rbenv/bin
 fi
 
 # install latest ruby if no installed version
