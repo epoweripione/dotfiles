@@ -124,3 +124,18 @@ balooctl status
 ## File search in Dolphin works after disabling Baloo, but file search in KRunner does not work anymore
 ## System Settings→Search→File Search→Disable File Search
 `balooctl disable && balooctl purge`
+
+## [Reinstall GRUB](https://wiki.manjaro.org/index.php/GRUB/Restore_the_GRUB_Bootloader/en#Reinstall_GRUB)
+```bash
+sudo mv /etc/grub.d /etc/grub.d.gc
+sudo pacman -S grub
+# sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+# grub-btrfs
+sudo pacman --noconfirm -S snap-pac grub-btrfs snapper-gui
+sudo sed -i -e 's/#GRUB_BTRFS_SUBMENUNAME="Arch Linux snapshots"/GRUB_BTRFS_SUBMENUNAME="Select snapshot"/g' /etc/default/grub-btrfs/config
+
+yay -aS --sudoloop --noredownload --norebuild --noconfirm --noeditmenu snap-pac-grub
+
+"${MY_SHELL_SCRIPTS}/manjaro/grub-tweaks.sh"
+```
