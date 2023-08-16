@@ -174,6 +174,14 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
     ```bash
     USE_MIRROR_WHEN_BLOCKED="true"
 
+    # Debian
+    MIRROR_PACKAGE_MANAGER_APT="mirror.sjtu.edu.cn"
+    # MIRROR_PACKAGE_MANAGER_APT="mirrors.ustc.edu.cn"
+    # MIRROR_PACKAGE_MANAGER_APT="mirrors.tuna.tsinghua.edu.cn"
+
+    # CentOS Stream
+    MIRROR_CENTOS_STREAM="https://mirrors.aliyun.com/centos-stream"
+
     # docker
     MIRROR_DOCKER_REGISTRY='"https://docker.mirrors.sjtug.sjtu.edu.cn","https://docker.nju.edu.cn/","https://hub-mirror.c.163.com"'
 

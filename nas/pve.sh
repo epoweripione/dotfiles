@@ -57,16 +57,14 @@ wget "https://${PROXMOX_MIRROR_URL}/debian/proxmox-release-${OS_CODENAME}.gpg" -
 sed -i.bak 's|http://download.proxmox.com|https://mirrors.ustc.edu.cn/proxmox|g' "/usr/share/perl5/PVE/APLInfo.pm"
 
 ## apt mirror
-# APT_MIRROR_URL="mirrors.tuna.tsinghua.edu.cn"
-# APT_MIRROR_URL="mirrors.ustc.edu.cn"
-APT_MIRROR_URL="mirror.sjtu.edu.cn"
+[[ -z "${MIRROR_PACKAGE_MANAGER_APT}" ]] && MIRROR_PACKAGE_MANAGER_APT="mirror.sjtu.edu.cn"
 sudo sed -i \
-    -e "s|ftp.debian.org|${APT_MIRROR_URL}|g" \
-    -e "s|deb.debian.org|${APT_MIRROR_URL}|g" \
-    -e "s|security.debian.org/debian-security|${APT_MIRROR_URL}/debian-security|g" \
-    -e "s|security.debian.org |${APT_MIRROR_URL}/debian-security |g" "/etc/apt/sources.list"
+    -e "s|ftp.debian.org|${MIRROR_PACKAGE_MANAGER_APT}|g" \
+    -e "s|deb.debian.org|${MIRROR_PACKAGE_MANAGER_APT}|g" \
+    -e "s|security.debian.org/debian-security|${MIRROR_PACKAGE_MANAGER_APT}/debian-security|g" \
+    -e "s|security.debian.org |${MIRROR_PACKAGE_MANAGER_APT}/debian-security |g" "/etc/apt/sources.list"
 
-sudo sed -i "s|http://${APT_MIRROR_URL}|https://${APT_MIRROR_URL}|g" "/etc/apt/sources.list"
+sudo sed -i "s|http://${MIRROR_PACKAGE_MANAGER_APT}|https://${MIRROR_PACKAGE_MANAGER_APT}|g" "/etc/apt/sources.list"
 
 apt update && apt upgrade -y && apt dist-upgrade -y
 
@@ -123,7 +121,7 @@ systemctl restart systemd-sysctl.service
 # Creating a Debian Container
 CONTAINER_NAME=${1:-"omv"}
 CONTAINER_PATH="/var/lib/machines/${CONTAINER_NAME}"
-debootstrap --include=systemd-container --arch=amd64 stable "${CONTAINER_PATH}" "https://${APT_MIRROR_URL}/debian/"
+debootstrap --include=systemd-container --arch=amd64 stable "${CONTAINER_PATH}" "https://${MIRROR_PACKAGE_MANAGER_APT}/debian/"
 
 # login to the newly created container and make some changes to allow root logins
 systemd-nspawn -D "${CONTAINER_PATH}" --machine "${CONTAINER_NAME}"
@@ -315,8 +313,8 @@ apt install -y curl wget gnupg postfix
 # fix postfix install error
 sed -i "s/^myhostname =.*/myhostname = ${HOSTNAME}/" /etc/postfix/main.cf
 
-APT_MIRROR_URL="mirror.sjtu.edu.cn"
-OMV_MIRROR_URL="mirrors.tuna.tsinghua.edu.cn"
+[[ -z "${MIRROR_PACKAGE_MANAGER_APT}" ]] && MIRROR_PACKAGE_MANAGER_APT="mirror.sjtu.edu.cn"
+[[ -z "${MIRROR_OPEN_MEDIA_VAULT}" ]] && MIRROR_OPEN_MEDIA_VAULT="mirrors.tuna.tsinghua.edu.cn"
 
 INSTALLER_DOWNLOAD_URL="https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install"
 curl -fsSL -o "$HOME/omv_installer.sh" "${INSTALLER_DOWNLOAD_URL}"
@@ -336,9 +334,9 @@ omv-salt deploy run omvextras
 
 "$HOME/omv_installer.sh" -n
 
-sed -i "s|download.docker.com|${APT_MIRROR_URL}/docker-ce|g" "/etc/apt/sources.list.d/omvextras.list"
-sed -i "s|http://httpredir.debian.org|https://${APT_MIRROR_URL}|g" "/etc/apt/sources.list.d/openmediavault-kernel-backports.list"
-sed -i "s|http://security.debian.org|https://${APT_MIRROR_URL}|g" "/etc/apt/sources.list.d/openmediavault-os-security.list"
+sed -i "s|download.docker.com|${MIRROR_PACKAGE_MANAGER_APT}/docker-ce|g" "/etc/apt/sources.list.d/omvextras.list"
+sed -i "s|http://httpredir.debian.org|https://${MIRROR_PACKAGE_MANAGER_APT}|g" "/etc/apt/sources.list.d/openmediavault-kernel-backports.list"
+sed -i "s|http://security.debian.org|https://${MIRROR_PACKAGE_MANAGER_APT}|g" "/etc/apt/sources.list.d/openmediavault-os-security.list"
 
 apt update && apt upgrade -y
 
@@ -362,17 +360,17 @@ machinectl shell "root@${CONTAINER_NAME}" /bin/bash -c "chmod +x /root/${CONTAIN
 # wget -O "/etc/apt/trusted.gpg.d/openmediavault-archive-keyring.asc" "https://packages.openmediavault.org/public/archive.key"
 # apt-key add "/etc/apt/trusted.gpg.d/openmediavault-archive-keyring.asc"
 
-# OMV_MIRROR_URL="mirrors.tuna.tsinghua.edu.cn"
+# MIRROR_OPEN_MEDIA_VAULT="mirrors.tuna.tsinghua.edu.cn"
 # cat <<EOF > /etc/apt/sources.list.d/openmediavault.list
-# deb https://${OMV_MIRROR_URL}/OpenMediaVault/public usul main
-# deb https://${OMV_MIRROR_URL}/OpenMediaVault/packages usul main
+# deb https://${MIRROR_OPEN_MEDIA_VAULT}/OpenMediaVault/public usul main
+# deb https://${MIRROR_OPEN_MEDIA_VAULT}/OpenMediaVault/packages usul main
 # ## Uncomment the following line to add software from the proposed repository.
-# # deb https://${OMV_MIRROR_URL}/OpenMediaVault/public usul-proposed main
-# # deb https://${OMV_MIRROR_URL}/OpenMediaVault/packages usul-proposed main
+# # deb https://${MIRROR_OPEN_MEDIA_VAULT}/OpenMediaVault/public usul-proposed main
+# # deb https://${MIRROR_OPEN_MEDIA_VAULT}/OpenMediaVault/packages usul-proposed main
 # ## This software is not part of OpenMediaVault, but is offered by third-party
 # ## developers as a service to OpenMediaVault users.
-# # deb https://${OMV_MIRROR_URL}/OpenMediaVault/public usul partner
-# # deb https://${OMV_MIRROR_URL}/OpenMediaVault/packages usul partner
+# # deb https://${MIRROR_OPEN_MEDIA_VAULT}/OpenMediaVault/public usul partner
+# # deb https://${MIRROR_OPEN_MEDIA_VAULT}/OpenMediaVault/packages usul partner
 # EOF
 
 # export LANG=C.UTF-8

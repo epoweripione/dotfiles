@@ -109,16 +109,14 @@ fi
 
 # Install packages
 # Use apt mirror & Install pre-requisite packages
+[[ -z "${MIRROR_PACKAGE_MANAGER_APT}" ]] && MIRROR_PACKAGE_MANAGER_APT="mirror.sjtu.edu.cn"
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     colorEcho "${BLUE}Setting apt mirror..."
-    # APT_MIRROR_URL="mirrors.tuna.tsinghua.edu.cn"
-    # APT_MIRROR_URL="mirrors.ustc.edu.cn"
-    APT_MIRROR_URL="mirror.sjtu.edu.cn"
     sudo sed -i \
-        -e "s|ftp.debian.org|${APT_MIRROR_URL}|g" \
-        -e "s|deb.debian.org|${APT_MIRROR_URL}|g" \
-        -e "s|security.debian.org/debian-security|${APT_MIRROR_URL}/debian-security|g" \
-        -e "s|security.debian.org |${APT_MIRROR_URL}/debian-security |g" "/etc/apt/sources.list"
+        -e "s|ftp.debian.org|${MIRROR_PACKAGE_MANAGER_APT}|g" \
+        -e "s|deb.debian.org|${MIRROR_PACKAGE_MANAGER_APT}|g" \
+        -e "s|security.debian.org/debian-security|${MIRROR_PACKAGE_MANAGER_APT}/debian-security|g" \
+        -e "s|security.debian.org |${MIRROR_PACKAGE_MANAGER_APT}/debian-security |g" "/etc/apt/sources.list"
 fi
 
 colorEcho "${BLUE}Installing ${FUCHSIA}pre-requisite packages${BLUE}..."
@@ -130,7 +128,7 @@ sudo apt update && \
 colorEcho "${BLUE}Add ${FUCHSIA}custom repositories${BLUE}..."
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     # Use https mirror
-    sudo sed -i "s|http://${APT_MIRROR_URL}|https://${APT_MIRROR_URL}|g" "/etc/apt/sources.list"
+    sudo sed -i "s|http://${MIRROR_PACKAGE_MANAGER_APT}|https://${MIRROR_PACKAGE_MANAGER_APT}|g" "/etc/apt/sources.list"
     sudo apt update
 fi
 

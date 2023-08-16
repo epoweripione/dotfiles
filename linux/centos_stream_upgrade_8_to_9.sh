@@ -42,11 +42,11 @@ sudo package-cleanup --leaves
 sudo package-cleanup --orphans
 
 colorEcho "${BLUE}Installing new repos..."
-[[ "${THE_WORLD_BLOCKED}" == "true" ]] && STREAM_MIRROR="https://mirrors.aliyun.com/centos-stream" || STREAM_MIRROR="http://mirror.stream.centos.org"
+MIRROR_CENTOS_STREAM=${MIRROR_CENTOS_STREAM:-"http://mirror.stream.centos.org"}
 sudo dnf -y install \
-    "${STREAM_MIRROR}/9-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-9.0-12.el9.noarch.rpm" \
-    "${STREAM_MIRROR}/9-stream/BaseOS/x86_64/os/Packages/centos-stream-release-9.0-12.el9.noarch.rpm" \
-    "${STREAM_MIRROR}/9-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-9.0-12.el9.noarch.rpm"
+    "${MIRROR_CENTOS_STREAM}/9-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-9.0-12.el9.noarch.rpm" \
+    "${MIRROR_CENTOS_STREAM}/9-stream/BaseOS/x86_64/os/Packages/centos-stream-release-9.0-12.el9.noarch.rpm" \
+    "${MIRROR_CENTOS_STREAM}/9-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-9.0-12.el9.noarch.rpm"
 
 colorEcho "${BLUE}Installing epel repos..."
 curl -o "${WORKDIR}/epel-release-latest-9.noarch.rpm" "https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm"
