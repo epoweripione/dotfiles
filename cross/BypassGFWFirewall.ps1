@@ -3,9 +3,24 @@ if (Get-Process -Name "naive" -ErrorAction SilentlyContinue) {
 }
 
 $NaiveCMD = "naive.exe"
-if (-Not (Get-Command "${NaiveCMD}" -ErrorAction SilentlyContinue)) {
+if (Get-Command "${NaiveCMD}" -ErrorAction SilentlyContinue) {
+    $NaiveCMD = (Get-Command "${NaiveCMD}" -ErrorAction SilentlyContinue).Path
+} else {
     if (Test-Path "$env:SystemDrive\Tools\naiveproxy\naive.exe") {
         $NaiveCMD = "$env:SystemDrive\Tools\naiveproxy\naive.exe"
+    }
+}
+
+if (Get-Process -Name "mieru" -ErrorAction SilentlyContinue) {
+    Stop-Process -Name "mieru" -Force
+}
+
+$MieruCMD = "mieru.exe"
+if (Get-Command "${MieruCMD}" -ErrorAction SilentlyContinue) {
+    $MieruCMD = (Get-Command "${MieruCMD}" -ErrorAction SilentlyContinue).Path
+} else {
+    if (Test-Path "$env:SystemDrive\Tools\mieru\mieru.exe") {
+        $MieruCMD = "$env:SystemDrive\Tools\mieru\mieru.exe"
     }
 }
 
@@ -21,6 +36,7 @@ if (Test-Path "$env:USERPROFILE\.proxy.env.ps1") {
     . "$env:SystemDrive\Tools\.proxy.env.ps1"
 }
 
+# naive
 foreach ($TargetUrl in ${NAIVEPROXY_URL}) {
     $NaiveArgs = "--listen=""socks://127.0.0.1:${NAIVEPROXY_PORT}"" --proxy=""${TargetUrl}"""
 
@@ -30,4 +46,23 @@ foreach ($TargetUrl in ${NAIVEPROXY_URL}) {
         -WindowStyle "Hidden"
 
     ${NAIVEPROXY_PORT}++
+}
+
+# mieru
+if ((Test-Path "${MieruCMD}") -and (Test-Path "$env:SystemDrive\Tools\mieru\mieru.json")) {
+    # mieru.exe describe config
+
+    # mieru.exe apply config "$env:SystemDrive\Tools\mieru\mieru.json"
+    $MieruArgs = "apply config ""$env:SystemDrive\Tools\mieru\mieru.json"""
+    Start-Process -FilePath "${MieruCMD}" `
+    -ArgumentList "${MieruArgs}" `
+    -WorkingDirectory "$env:USERPROFILE" `
+    -WindowStyle "Hidden"
+
+    # mieru stop; mieru start
+    $MieruArgs = "start"
+    Start-Process -FilePath "${MieruCMD}" `
+    -ArgumentList "${MieruArgs}" `
+    -WorkingDirectory "$env:USERPROFILE" `
+    -WindowStyle "Hidden"
 }
