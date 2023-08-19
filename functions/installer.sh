@@ -327,13 +327,13 @@ function App_Installer_Get_Remote() {
             [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
 
             # Extract download urls from expanded_assets
-            remote_url=$(grep '\/expanded_assets\/' <<<"${INSTALLER_REMOTE_CONTENT}" \
+            remote_url=$(grep '/expanded_assets/' <<<"${INSTALLER_REMOTE_CONTENT}" \
                 | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" \
                 | head -n1)
             [[ -n "${remote_url}" ]] && INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
 
             [[ -n "${INSTALLER_REMOTE_CONTENT}" ]] && \
-                INSTALLER_REMOTE_CONTENT=$(sed 's|<a href="/|<a href="https://github.com/|g' <<<"${INSTALLER_REMOTE_CONTENT}" | grep '\/releases\/download\/')
+                INSTALLER_REMOTE_CONTENT=$(sed 's|<a href="/|<a href="https://github.com/|g' <<<"${INSTALLER_REMOTE_CONTENT}" | grep '/releases/download/')
         fi
     fi
 
