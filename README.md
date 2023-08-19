@@ -191,6 +191,9 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
     HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
     HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
 
+    # flatpak
+    MIRROR_FLATPAK_URL="https://mirror.sjtu.edu.cn/flathub"
+
     # go
     GOUP_GO_HOST="golang.google.cn"
     MIRROR_GO_PROXY="https://goproxy.cn,direct"

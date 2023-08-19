@@ -49,11 +49,8 @@ INSTALLER_INSTALL_NAME="flutter"
 # https://flutter.dev/community/china
 FLUTTER_STORAGE_BASE_URL="https://storage.googleapis.com"
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    export PUB_HOSTED_URL=https://pub.flutter-io.cn
-    export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
-
-    # export PUB_HOSTED_URL=https://mirror.sjtu.edu.cn/dart-pub
-    # export FLUTTER_STORAGE_BASE_URL=https://mirror.sjtu.edu.cn
+    [[ -z "${PUB_HOSTED_URL}" ]] && PUB_HOSTED_URL="https://pub.flutter-io.cn"
+    [[ -z "${FLUTTER_STORAGE_BASE_URL}" ]] && FLUTTER_STORAGE_BASE_URL="https://storage.flutter-io.cn"
 fi
 
 # git clone -b dev https://github.com/flutter/flutter.git

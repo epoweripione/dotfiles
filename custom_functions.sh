@@ -43,7 +43,7 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && "${USE_MIRROR_WHEN_BLOCKED}" == "true"
     setMirrorHomebrew
     # setMirrorGo # set by installer/goup_go_installer.sh, installer/gvm_go_installer.sh
     setMirrorFlutter
-    setMirrorRust
+    [[ -x "$(command -v rustup)" ]] && setMirrorRust
     setMirrorNodejs
     # setMirrorNpm # set by nodejs/nvm_node_installer.sh, nodejs/nvs_node_installer.sh
     setMirrorPip

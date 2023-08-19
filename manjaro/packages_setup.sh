@@ -124,10 +124,12 @@ sudo pacman --noconfirm --needed -S base-devel cmake patch pkg-config automake
 # [Flatpak](https://flatpak.org/)
 colorEcho "${BLUE}Installing ${FUCHSIA}Flatpak${BLUE}..."
 sudo pacman --noconfirm --needed -S flatpak libpamac-flatpak-plugin
-if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
+if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+    [[ -z "${MIRROR_FLATPAK_URL}" ]] && MIRROR_FLATPAK_URL="https://mirror.sjtu.edu.cn/flathub"
+    sudo flatpak remote-modify flathub --url="${MIRROR_FLATPAK_URL}"
+
     # sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     # sudo flatpak remote-add --if-not-exists flathub https://mirror.sjtu.edu.cn/flathub/flathub.flatpakrepo
-    sudo flatpak remote-modify flathub --url=https://mirror.sjtu.edu.cn/flathub
 
     # flatpak remote-add --user --if-not-exists flathub https://mirror.sjtu.edu.cn/flathub/flathub.flatpakrepo
     # flatpak remote-modify --user flathub --url=https://mirror.sjtu.edu.cn/flathub
