@@ -396,11 +396,6 @@ or
 2. Use `npm update` to perform safe dependency upgrades.
 3. Use `npm install <packagename>@latest` to upgrade to the latest major version of a package.
 
-### npm-check-updates
-1. Use `npm install -g npm-check-updates` to install the `npm-check-updates` package globally.
-2. Use `npm-check-updates -u` or `ncu -u` to check newer versions.
-3. Use `npm-check-updates -u` or `ncu -u` to upgrade all dependencies to their latest major versions.
-
 ### npm-check
 1. Use `npm install -g npm-check` to install the `npm-check` package globally.
 2. Use `npm-check -u -y` to upgrade all dependencies to their latest major versions.
