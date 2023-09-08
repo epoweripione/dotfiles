@@ -217,6 +217,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "snipaste-beta"
         "ffmpeg"
         "listen1desktop"
+        "thorium-reader"
         "mpc-be"
         "vlc"
         "potplayer"
