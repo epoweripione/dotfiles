@@ -6,23 +6,39 @@ function pip_Package_Install() {
     # pip_Package_Install numpy
     local PackageName=$1
     local PackageVersion=${2:-""}
-    local PYTHON_CMD
+    local PythonCMD PipCMD
 
     if [[ -z "${PackageName}" ]]; then
         colorEcho "${FUCHSIA}Package name${RED} can't empty!"
         return 1
     fi
 
-    if [[ ! -x "$(PIP_CMD_USER)" ]]; then
+    PythonCMD=""
+    if [[ -x "$(command -v python3)" ]]; then
+        PythonCMD="python3"
+    elif [[ -x "$(command -v python)" ]]; then
+        PythonCMD="python"
+    fi
+
+    if [[ -z "${PythonCMD}" ]]; then
+        colorEcho "${FUCHSIA}    python${RED} is not installed!"
+        return 1
+    fi
+
+    # fix: error: externally-managed-environment
+    PipCMD="$HOME/.local/bin/pip"
+    [[ ! -f "{PipCMD}" ]] && ${PythonCMD} -m venv "$HOME/.local"
+
+    if [[ ! -x "${PipCMD}" ]]; then
         colorEcho "${FUCHSIA}    pip${RED} is not installed!"
         return 1
     fi
 
     colorEcho "${BLUE}  Installing ${FUCHSIA}pip package ${ORANGE}${PackageName}${BLUE}..."
     if [[ -z "${PackageVersion}" ]]; then
-        ${PIP_CMD_USER} install -U "${PackageName}"
+        ${PipCMD} install -U "${PackageName}"
     else
-        ${PIP_CMD_USER} install -U "${PackageName}"=="${PackageVersion}"
+        ${PipCMD} install -U "${PackageName}"=="${PackageVersion}"
     fi
 }
 
