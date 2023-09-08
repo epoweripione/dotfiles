@@ -237,7 +237,7 @@ function SnapperDeleteSnapshots() {
     local snapper_configs current_config
     local start_id end_id
 
-    snapper_configs=$(snapper list-configs --columns=config | grep -v 'Config\|-')
+    snapper_configs=$(snapper list-configs --columns=config | sed '1,/--/ d')
 
     keep_snapshot=$((keep_snapshot + 1))
     while read -r current_config; do
