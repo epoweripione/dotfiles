@@ -110,15 +110,24 @@ curl "${CURL_DOWNLOAD_OPTS[@]}" \
     --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
     "wttr.in/${WEATHER_CITY}?format=j1" \
     -o "${WEATHER_JSON}"
-
-# sleep 5
+curl_rtn_code=$?
+if [[ ${curl_rtn_code} -gt 0 ]]; then
+    colorEcho "${RED}Error occurred while getting ${FUCHSIA}weather JSON data from ${FUCHSIA}wttr.in${RED}!"
+    exit 1
+fi
 
 colorEcho "${BLUE}Getting weather from ${FUCHSIA}wttr.in${BLUE}..."
 curl "${CURL_DOWNLOAD_OPTS[@]}" \
         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
         "wttr.in/${WEATHER_CITY}.png" \
-        -o "${WORKDIR}/weather.png" && \
+        -o "${WORKDIR}/weather.png"
+curl_rtn_code=$?
+if [[ ${curl_rtn_code} -eq 0 ]]; then
     convert -transparent black "${WORKDIR}/weather.png" "${WEATHER_PNG}"
+else
+    colorEcho "${RED}Error occurred while getting ${FUCHSIA}weather PNG data from ${FUCHSIA}wttr.in${RED}!"
+    exit 1
+fi
 
 # curl "${CURL_DOWNLOAD_OPTS[@]}" \
 #         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
