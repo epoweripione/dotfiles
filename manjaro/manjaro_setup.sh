@@ -299,6 +299,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "redshift"
         "ventoy-bin"
         "wsysmon-git"
+        "archlinuxcn/mission-center"
         #"easystroke"
         ## WPS
         "wps-office-cn"
@@ -313,6 +314,16 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "extra/libreoffice-extension-writer2latex"
         # "extra/libreoffice-extension-texmaths"
         # "archlinuxcn/libreoffice-extension-languagetool"
+        ## [TeX Live](https://wiki.archlinux.org/title/TeX_Live)
+        "texlive"
+        "texlive-langchinese"
+        # XeLaTex Compiler: Options -> configure TeXstudio -> Default Compiler -> XeLaTex
+        "texstudio"
+        # "lyx"
+        ## Beamer
+        # "beamerpresenter"
+        # "beamer-theme-metropolis"
+        # "bed-latex"
     )
 fi
 for TargetApp in "${AppManjaroInstallList[@]}"; do
