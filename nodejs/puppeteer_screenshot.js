@@ -89,9 +89,10 @@ const PuppeteerAcceptCookies = async () => {
 }
 
 // Take Screenshot for a given website
+// https://developer.chrome.com/articles/new-headless/
 const PuppeteerScreenshotFull = async () => {
     const browser = await puppeteer.launch({
-		headless: true,
+		headless: "new",
 		userDataDir: `${UserDataDir}`,
 		executablePath: executablePath(),
 	});
@@ -140,7 +141,7 @@ const PuppeteerScreenshotFull = async () => {
 // Take Screenshot of an Element
 const PuppeteerScreenshotElement = async () => {
     const browser = await puppeteer.launch({
-		headless: true,
+		headless: "new",
 		userDataDir: `${UserDataDir}`,
 		executablePath: executablePath(),
 	});
