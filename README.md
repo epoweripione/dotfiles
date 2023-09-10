@@ -252,6 +252,9 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
     # ruby
     RUBY_BUILD_MIRROR_URL="https://cache.ruby-china.com"
     RUBY_GEM_SOURCE_MIRROR="https://gems.ruby-china.com/"
+
+    # lyx
+    MIRROR_LYX_BASE="https://mirrors.tuna.tsinghua.edu.cn/lyx/"
     ```
   * [Install and/or update Apps](/zsh/zsh_upgrade_all_packages.sh)
     ```bash
