@@ -117,14 +117,29 @@ done
 colorEcho "${BLUE}Installing ${FUCHSIA}Font Manager${BLUE}..."
 sudo pacman --noconfirm --needed -S font-manager
 
+# Microsoft Windows 11 TrueType fonts
+colorEcho "${BLUE}Installing ${FUCHSIA}Microsoft Windows TrueType fonts${BLUE}..."
+if [[ ! -d "/usr/share/fonts/WindowsFonts" ]]; then
+    FontDownloadURL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/ms-win11-fonts.zip"
+    mkdir -p "${WORKDIR}/WindowsFonts" && \
+        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/ms-win11-fonts.zip" "${FontDownloadURL}" && \
+        unzip -q "${WORKDIR}/ms-win11-fonts.zip" -d "${WORKDIR}/WindowsFonts" && \
+        sudo mkdir -p "/usr/share/fonts/WindowsFonts" && \
+        sudo mv -f "${WORKDIR}/WindowsFonts/eastern/"*.* "/usr/share/fonts/WindowsFonts" && \
+        sudo mv -f "${WORKDIR}/WindowsFonts/western/"*.* "/usr/share/fonts/WindowsFonts" && \
+        sudo chmod -R 744 "/usr/share/fonts/WindowsFonts"
+fi
+
 # FiraCode Nerd Font Complete Mono
 colorEcho "${BLUE}Installing ${FUCHSIA}FiraCode Nerd Font Complete Mono${BLUE}..."
-NerdFont_URL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.2.0.zip"
-mkdir -p "${WORKDIR}/FiraCode-Mono" && \
-    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/FiraCode-Mono.zip" "${NerdFont_URL}" && \
-    unzip -q "${WORKDIR}/FiraCode-Mono.zip" -d "${WORKDIR}/FiraCode-Mono" && \
-    sudo mv -f "${WORKDIR}/FiraCode-Mono/" "/usr/share/fonts/" && \
-    sudo chmod -R 744 "/usr/share/fonts/FiraCode-Mono"
+if [[ ! -d "/usr/share/fonts/FiraCode-Mono" ]]; then
+    FontDownloadURL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.2.0.zip"
+    mkdir -p "${WORKDIR}/FiraCode-Mono" && \
+        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/FiraCode-Mono.zip" "${FontDownloadURL}" && \
+        unzip -q "${WORKDIR}/FiraCode-Mono.zip" -d "${WORKDIR}/FiraCode-Mono" && \
+        sudo mv -f "${WORKDIR}/FiraCode-Mono/" "/usr/share/fonts/" && \
+        sudo chmod -R 744 "/usr/share/fonts/FiraCode-Mono"
+fi
 # fc-list | grep "FiraCode" | column -t -s ":"
 
 # CJK fontconfig & colour emoji
