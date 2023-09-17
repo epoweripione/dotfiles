@@ -20,6 +20,53 @@ else
     fi
 fi
 
+# Download & Check configuration for clash
+function clashConfigurationDownloadCheck() {
+    local ConfigURL=$1
+    local DownloadTo=$2
+    local ConfigFile=$3
+    local DnsFile=$4
+    local DownloadStatus DnsEnable
+
+    colorEcho "${BLUE}Downloading clash configuration from ${FUCHSIA}${ConfigURL}${BLUE}..."
+    curl -fSL --noproxy "*" --connect-timeout 10 --max-time 60 -o "${DownloadTo}" "${ConfigURL}"
+    DownloadStatus=$?
+    if [[ ${DownloadStatus} -eq 0 ]]; then
+        sed -i -e "s/^allow-lan:.*/allow-lan: false/" \
+            -e "s/^external-controller:.*/# &/" \
+            -e "s/^port:.*/# &/" \
+            -e "s/^redir-port:.*/# &/" \
+            -e "s/^mixed-port:.*/# &/" \
+            -e "s/^socks-port:.*/# &/" "${DownloadTo}"
+
+        sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${DownloadTo}"
+
+        [[ -x "$(command -v yq)" ]] && DnsEnable=$(yq e ".dns.enable // \"\"" "${DownloadTo}")
+        [[ -z "${DnsEnable}" && -s "${DnsFile}" ]] && sed -i "/^redir-port/r ${DnsFile}" "${DownloadTo}"
+        sed -i "s/enhanced-mode: redir-host/# enhanced-mode: fake-ip/" "${DownloadTo}"
+
+        sudo cp -f "${DownloadTo}" "${ConfigFile}"
+
+        # if pgrep -f "clash" >/dev/null 2>&1; then
+        if systemctl is-enabled clash >/dev/null 2>&1; then
+            colorEcho "${BLUE}Checking clash connectivity..."
+            sudo systemctl restart clash && sleep 3
+
+            if check_socks5_proxy_up "127.0.0.1:7890"; then
+                colorEcho "${GREEN}The configuration looks ok, done!"
+                return 0
+            else
+                colorEcho "${RED}Connection failed!"
+                return 1
+            fi
+        else
+            return 0
+        fi
+    fi
+
+    return 1
+}
+
 # fix "command not found" when running via cron
 DirList=(
     "/usr/local/sbin"
@@ -136,42 +183,7 @@ for TargetURL in "${SUB_LIST[@]}"; do
         DownloadURL="${TargetURL}&url=${URL_URL}&${URL_CONFIG}"
         [[ -n "${URL_EXCLUDE}" ]] && DownloadURL="${DownloadURL}&${URL_EXCLUDE}"
 
-        colorEcho "${BLUE}Downloading clash configuration from ${FUCHSIA}${DownloadURL}${BLUE}..."
-        curl -fSL --noproxy "*" --connect-timeout 10 --max-time 60 \
-            -o "${SUB_DOWNLOAD_FILE}" "${DownloadURL}"
-
-        curl_download_status=$?
-        if [[ ${curl_download_status} -eq 0 ]]; then
-            sed -i -e "s/^allow-lan:.*/allow-lan: false/" \
-                -e "s/^external-controller:.*/# &/" \
-                -e "s/^port:.*/# &/" \
-                -e "s/^redir-port:.*/# &/" \
-                -e "s/^mixed-port:.*/# &/" \
-                -e "s/^socks-port:.*/# &/" "${SUB_DOWNLOAD_FILE}"
-
-            sed -i "1i\mixed-port: 7890\nredir-port: 7892" "${SUB_DOWNLOAD_FILE}"
-
-            [[ -x "$(command -v yq)" ]] && DNS_ENABLE=$(yq e ".dns.enable // \"\"" "${SUB_DOWNLOAD_FILE}")
-            [[ -z "${DNS_ENABLE}" && -s "${DNS_CONIFG_FILE}" ]] && sed -i "/^redir-port/r ${DNS_CONIFG_FILE}" "${SUB_DOWNLOAD_FILE}"
-            sed -i "s/enhanced-mode: redir-host/# enhanced-mode: fake-ip/" "${SUB_DOWNLOAD_FILE}"
-
-            sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
-
-            # if pgrep -f "clash" >/dev/null 2>&1; then
-            if systemctl is-enabled clash >/dev/null 2>&1; then
-                colorEcho "${BLUE}Checking clash connectivity..."
-                sudo systemctl restart clash && sleep 3
-
-                if check_socks5_proxy_up "127.0.0.1:7890"; then
-                    colorEcho "${GREEN}The configuration looks ok, done!"
-                    exit 0
-                else
-                    colorEcho "${RED}Connection failed!"
-                fi
-            else
-                exit 0
-            fi
-        else
+        if clashConfigurationDownloadCheck "${DownloadURL}" "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}" "${DNS_CONIFG_FILE}"; then
             break
         fi
     done
