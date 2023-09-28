@@ -109,24 +109,37 @@ if [[ ! -s "${DNS_CONIFG_FILE}" ]]; then
     tee -a "${DNS_CONIFG_FILE}" >/dev/null <<-'EOF'
 dns:
   enable: true
-  listen: 127.0.0.1:8053
+  listen: 127.0.0.1:7853
   ipv6: true
-
   fake-ip-range: 198.18.0.1/16
-
   nameserver:
     - 223.5.5.5
-    - 114.114.114.114
+    - 223.6.6.6
+    - 119.29.29.29
+    - 119.28.28.28
+    - 117.50.10.10
     - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
     - "[2400:3200::1]:53"
-
+    - "[2400:3200:baba::1]:53"
+    - "[2402:4e00::]:53"
   fallback:
+    - tcp://1.0.0.1
     - tcp://1.1.1.1
     - tcp://8.8.8.8
+    - tcp://8.8.4.4
+    - tcp://9.9.9.9
     - tls://1.0.0.1:853
+    - tls://1.1.1.1:853
     - tls://dns.google:853
+    - https://cloudflare-dns.com/dns-query
+    - https://dns.google/dns-query
+    - "[2606:4700:4700::1001]:53"
     - "[2606:4700:4700::1111]:53"
+    - "[2001:4860:4860::8888]:53"
+    - "[2001:4860:4860::8844]:53"
     - "[2620:fe::9]:53"
+    - "[2620:fe::fe]:53"
 EOF
 fi
 
