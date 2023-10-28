@@ -100,6 +100,9 @@ enabled = true
 root = /
 options = "metadata,umask=22,fmask=11"
 mountFsTab = false
+
+[boot]
+systemd = true
 EOF
 fi
 
