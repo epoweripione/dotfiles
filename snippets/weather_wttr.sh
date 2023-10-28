@@ -105,6 +105,11 @@ WEATHER_JSON="${WORKDIR}/weather.json"
 WEATHER_HTML="${WORKDIR}/weather_wttr.html"
 WEATHER_HTML_PNG="${WORKDIR}/weather_wttr.png"
 
+if [[ -z "${WEATHER_CITY}" ]]; then
+    get_network_wan_geo_city
+    [[ -n "${NETWORK_WAN_NET_IP_CITY}" ]] && WEATHER_CITY="${NETWORK_WAN_NET_IP_CITY}"
+fi
+
 colorEcho "${BLUE}Getting ${FUCHSIA}weather ${ORANGE}JSON${BLUE} from ${FUCHSIA}wttr.in${BLUE}..."
 curl "${CURL_DOWNLOAD_OPTS[@]}" \
     --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
