@@ -162,8 +162,8 @@ sudo systemctl restart dnsmasq
 
 # Restart network
 colorEcho "${BLUE}Restarting ${FUCHSIA}Network${BLUE}..."
-systemctl is-enabled network >/dev/null 2>&1 && sudo systemctl restart NetworkManager
-systemctl is-enabled networking >/dev/null 2>&1 && sudo systemctl restart NetworkManager
+systemctl is-enabled network >/dev/null 2>&1 && sudo systemctl restart network
+systemctl is-enabled networking >/dev/null 2>&1 && sudo systemctl restart networking
 systemctl is-enabled NetworkManager >/dev/null 2>&1 && sudo systemctl restart NetworkManager
 
 sudo systemctl restart systemd-resolved
