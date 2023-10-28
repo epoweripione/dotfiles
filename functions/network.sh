@@ -263,16 +263,16 @@ function get_network_wan_ipv4() {
     local remote_host_list target_host
 
     remote_host_list=(
-        "https://api-ipv4.ip.sb/ip"
-        "http://ip-api.com/line/?fields=query"
+        # "http://ip-api.com/line/?fields=query"
         "https://v4.ident.me/"
         "http://icanhazip.com/"
         "http://ipinfo.io/ip"
         "https://ifconfig.co/"
+        "https://api-ipv4.ip.sb/ip"
     )
 
     for target_host in "${remote_host_list[@]}"; do
-        NETWORK_WAN_NET_IP=$(curl -fsL -4 --connect-timeout 5 --max-time 10 "${target_host}" \
+        NETWORK_WAN_NET_IP=$(curl -fsL -4 --noproxy "*" --connect-timeout 5 --max-time 10 "${target_host}" \
                         | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
                         | head -n1)
         [[ -n "$NETWORK_WAN_NET_IP" ]] && break
@@ -286,14 +286,14 @@ function get_network_wan_ipv6() {
     local remote_host_list target_host
 
     remote_host_list=(
-        "https://api-ipv6.ip.sb/ip"
         "https://v6.ident.me/"
         "http://icanhazip.com/"
         "https://ifconfig.co/"
+        "https://api-ipv6.ip.sb/ip"
     )
 
     for target_host in "${remote_host_list[@]}"; do
-        NETWORK_WAN_NET_IPV6=$(curl -fsL -6 --connect-timeout 5 --max-time 10 "${target_host}" \
+        NETWORK_WAN_NET_IPV6=$(curl -fsL -6 --noproxy "*" --connect-timeout 5 --max-time 10 "${target_host}" \
                         | grep -Eo '^([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}$' \
                         | head -n1)
         [[ -n "$NETWORK_WAN_NET_IPV6" ]] && break
@@ -311,19 +311,39 @@ function get_network_wan_geo() {
     fi
 
     if [[ -z "$NETWORK_WAN_NET_IP_GEO" ]]; then
-        NETWORK_WAN_NET_IP_GEO=$(curl -fsL -4 --connect-timeout 5 --max-time 10 \
+        NETWORK_WAN_NET_IP_GEO=$(curl -fsL -4 --noproxy "*" --connect-timeout 5 --max-time 10 --user-agent Mozilla \
             "https://api.ip.sb/geoip" | jq -r '.country//empty')
     fi
 
     if [[ -z "$NETWORK_WAN_NET_IP_GEO" ]]; then
         # Country lookup: China
-        NETWORK_WAN_NET_IP_GEO=$(curl -fsL -4 --connect-timeout 5 --max-time 10 \
-            "http://ip-api.com/line/?fields=country")
-        if [[ -z "$NETWORK_WAN_NET_IP_GEO" ]]; then
-            # Country lookup: CN
-            NETWORK_WAN_NET_IP_GEO=$(curl -fsL -4 --connect-timeout 5 --max-time 10 \
-                "http://ip-api.com/line/?fields=countryCode")
-        fi
+        NETWORK_WAN_NET_IP_GEO=$(curl -fsL -4 --noproxy "*" --connect-timeout 5 --max-time 10 \
+            "https://ifconfig.co/country")
+    fi
+
+    if [[ -z "$NETWORK_WAN_NET_IP_GEO" ]]; then
+        # Country lookup: CN
+        NETWORK_WAN_NET_IP_GEO=$(curl -fsL -4 --noproxy "*" --connect-timeout 5 --max-time 10 \
+            "https://ipinfo.io/country")
+    fi
+}
+
+function get_network_wan_geo_city() {
+    unset NETWORK_WAN_NET_IP_CITY
+
+    if [[ -z "$NETWORK_WAN_NET_IP_CITY" ]]; then
+        NETWORK_WAN_NET_IP_CITY=$(curl -fsL -4 --noproxy "*" --connect-timeout 5 --max-time 10 --user-agent Mozilla \
+            "https://api.ip.sb/geoip" | jq -r '.city//empty')
+    fi
+
+    if [[ -z "$NETWORK_WAN_NET_IP_CITY" ]]; then
+        NETWORK_WAN_NET_IP_CITY=$(curl -fsL -4 --noproxy "*" --connect-timeout 5 --max-time 10 \
+            "https://ifconfig.co/city")
+    fi
+
+    if [[ -z "$NETWORK_WAN_NET_IP_CITY" ]]; then
+        NETWORK_WAN_NET_IP_CITY=$(curl -fsL -4 --noproxy "*" --connect-timeout 5 --max-time 10 \
+            "https://ipinfo.io/city")
     fi
 }
 
