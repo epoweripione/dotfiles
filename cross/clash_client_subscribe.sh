@@ -170,13 +170,13 @@ else
     SUB_CNT=$(wc -l <<<"${SUB_LIST_CONTENT}")
 
     # random line
-    [[ "${SUB_LIST_LINE}" == "0" ]] && SUB_LIST_LINE=$(( ( RANDOM % 10 )  + SUB_CNT - 9 + 1 ))
-    [[ "${SUB_LIST_LINE}" == "0" ]] && SUB_LIST_LINE="1"
+    [[ ${SUB_LIST_LINE} -eq 0 ]] && SUB_LIST_LINE=$(( ( RANDOM % 10 )  + SUB_CNT - 9 + 1 ))
+    [[ ${SUB_LIST_LINE} -le 0 ]] && SUB_LIST_LINE=1
 
     SUB_URL=$(sed -n "${SUB_LIST_LINE}p" <<<"${SUB_LIST_CONTENT}")
 
     # empty URL fallback to line 1
-    [[ -z "${SUB_URL}" ]] && SUB_LIST_LINE="1"
+    [[ -z "${SUB_URL}" ]] && SUB_LIST_LINE=1
     SUB_URL=$(sed -n "${SUB_LIST_LINE}p" <<<"${SUB_LIST_CONTENT}")
 
     [[ -z "${SUB_URL}" ]] && colorEcho "${RED}Can't get URL from line ${FUCHSIA}${SUB_LIST_LINE}${RED}!" && exit 1
