@@ -193,7 +193,13 @@ for TargetURL in "${SUB_LIST[@]}"; do
         [[ -z "${URL_URL}" ]] && continue
 
         # https://www.example.com/sub?target=clash&url=<url>&config=<config>&exclude=<exclude>
-        DownloadURL="${TargetURL}&url=${URL_URL}&${URL_CONFIG}"
+        # TargetURL="https://api.example.com/"
+        if grep -q 'sub?target=' <<<"${TargetURL}"; then
+            DownloadURL="${TargetURL}&url=${URL_URL}&${URL_CONFIG}"
+        else
+            DownloadURL="${TargetURL}sub?target=clash&url=${URL_URL}&${URL_CONFIG}"
+        fi
+
         [[ -n "${URL_EXCLUDE}" ]] && DownloadURL="${DownloadURL}&${URL_EXCLUDE}"
 
         if clashConfigurationDownloadCheck "${DownloadURL}" "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}" "${DNS_CONIFG_FILE}"; then
