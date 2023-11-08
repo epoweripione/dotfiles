@@ -27,13 +27,27 @@ python -c 'print(int("FF", 16))'
 
 ruby -e 'p "FF".to_i(16)'
 
-nodejs <<< "console.log(parseInt('FF', 16))"
+node <<< "console.log(parseInt('FF', 16))"
 
+# [Rhino](https://github.com/mozilla/rhino)
+# sudo pacman -S rhino
 rhino<<EOF
 print(parseInt('FF', 16))
 EOF
 
 groovy -e 'println Integer.parseInt("FF",16)'
+```
+
+# [How to trim whitespace from a Bash variable?](https://stackoverflow.com/questions/369758/how-to-trim-whitespace-from-a-bash-variable)
+```bash
+# remove leading whitespace only
+echo ' test test test ' | sed -e 's/^[[:space:]]*//'
+
+# remove trailing whitespace only
+echo ' test test test ' | sed -e 's/[[:space:]]*$//'
+
+# remove both leading and trailing spaces
+echo ' test test test ' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 ```
 
 # [View unicode codepoints](https://superuser.com/questions/377793/view-unicode-codepoints-for-all-letters-in-file-on-bash)
