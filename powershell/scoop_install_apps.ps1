@@ -255,7 +255,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "ghostscript"
         "xnresize"
         "xnviewmp"
-        # "telegram"
+        "telegram"
         # "cdburnerxp"
         # "wincdemu"
         "windowsupdateshistoryviewer"
