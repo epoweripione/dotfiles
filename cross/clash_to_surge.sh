@@ -84,7 +84,7 @@ function setProxies() {
             [[ -n "${PROXY_PLUGIN_PATH}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, obfs-uri=${PROXY_PLUGIN_PATH}"
         fi
 
-        echo "${OUTPUT_LINE}" | sed 's/\s#.*//g' | tee -a "${CONFIG_TO}" >/dev/null
+        echo "${OUTPUT_LINE}" | sed -e 's/\s#.*//g' -e 's/"//g' -e "s/'//g" | tee -a "${CONFIG_TO}" >/dev/null
     fi
 
     PROXY_NAME_PRE="${PROXY_NAME}"
@@ -112,12 +112,12 @@ function setProxies() {
 
 function setProxyGroup() {
     if [[ -n "${GROUP_NAME_PRE}" ]]; then
-        OUTPUT_LINE="${GROUP_NAME_PRE} = ${GROUP_TYPE},${GROUP_PROXIES}"
-        [[ -n "${GROUP_URL}" ]] && OUTPUT_LINE="${OUTPUT_LINE},url=${GROUP_URL}"
-        [[ -n "${GROUP_INTERVAL}" ]] && OUTPUT_LINE="${OUTPUT_LINE},interval=${GROUP_INTERVAL}"
-        [[ -n "${GROUP_TOLERANCE}" ]] && OUTPUT_LINE="${OUTPUT_LINE},tolerance=${GROUP_TOLERANCE}"
+        OUTPUT_LINE="${GROUP_NAME_PRE} = ${GROUP_TYPE}, ${GROUP_PROXIES}"
+        [[ -n "${GROUP_URL}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, url=${GROUP_URL}"
+        [[ -n "${GROUP_INTERVAL}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, interval=${GROUP_INTERVAL}"
+        [[ -n "${GROUP_TOLERANCE}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, tolerance=${GROUP_TOLERANCE}"
 
-        echo "${OUTPUT_LINE}" | sed 's/\s#.*//g' | tee -a "${CONFIG_TO}" >/dev/null
+        echo "${OUTPUT_LINE}" | sed -e 's/\s#.*//g' -e 's/"//g' -e "s/'//g" | tee -a "${CONFIG_TO}" >/dev/null
     fi
 
     GROUP_NAME_PRE="${GROUP_NAME}"
@@ -129,6 +129,19 @@ function setProxyGroup() {
     GROUP_INTERVAL=""
     GROUP_TOLERANCE=""
 }
+
+# fix "command not found" when running via cron
+DirList=(
+    "/usr/local/sbin"
+    "/usr/local/bin"
+    "/usr/sbin"
+    "/usr/bin"
+    "/sbin"
+    "/bin"
+)
+for TargetDir in "${DirList[@]}"; do
+    [[ -d "${TargetDir}" && ":$PATH:" != *":${TargetDir}:"* ]] && PATH="${TargetDir}:$PATH"
+done
 
 colorEcho "${BLUE}Converting ${ORANGE}${CONFIG_SRC} ${BLUE}to${FUCHSIA} ${CONFIG_TO}${BLUE}..."
 
@@ -221,7 +234,8 @@ while IFS= read -r READLINE || [[ "${READLINE}" ]]; do
             fi
             ;;
         "proxy-groups")
-            GROUP_NAME=$(sed -nr 's/\s*-\s*name:\s*(.+)/\1/p' <<<"${READLINE}")
+            # GROUP_NAME=$(sed -nr 's/\s*-\s*name:\s*(.+)/\1/p' <<<"${READLINE}")
+            GROUP_NAME=$( (sed 's/,/\n/g' | grep 'name:' | sed 's/[{}]//g' | sed -nr 's/.*name:\s*(.+)/\1/p' | head -n1) <<<"${READLINE}")
             [[ -n "${GROUP_NAME}" ]] && setProxyGroup
 
             [[ -z "${GROUP_TYPE}" ]] && GROUP_TYPE=$( (sed 's/,/\n/g' | grep 'type:' | sed 's/[{}]//g' | sed -nr 's/.*type:\s*(.+)/\1/p') <<<"${READLINE}")
@@ -229,15 +243,19 @@ while IFS= read -r READLINE || [[ "${READLINE}" ]]; do
             [[ -z "${GROUP_INTERVAL}" ]] && GROUP_INTERVAL=$( (sed 's/,/\n/g' | grep 'interval:' | sed 's/[{}]//g' | sed -nr 's/.*interval:\s*(.+)/\1/p') <<<"${READLINE}")
             [[ -z "${GROUP_TOLERANCE}" ]] && GROUP_TOLERANCE=$( (sed 's/,/\n/g' | grep 'tolerance:' | sed 's/[{}]//g' | sed -nr 's/.*tolerance:\s*(.+)/\1/p') <<<"${READLINE}")
 
-            if grep -q "proxies:" <<<"${READLINE}"; then
-                GROUP_PROXIES_START="yes"
-                GROUP_PROXIES=""
-            fi
+            if grep -q "proxies:\s*\[" <<<"${READLINE}"; then
+                GROUP_PROXIES=$(sed -nr 's/.*proxies:\s*\[(.+)\].*/\1/p' <<<"${READLINE}")
+            else
+                if grep -q "proxies:" <<<"${READLINE}"; then
+                    GROUP_PROXIES_START="yes"
+                    GROUP_PROXIES=""
+                fi
 
-            if [[ "${GROUP_PROXIES_START}" == "yes" ]]; then
-                GROUP_PROXY=$(sed -nr 's/\s*-\s*(.+)/\1/p' <<<"${READLINE}")
-                if [[ -n "${GROUP_PROXY}" ]]; then
-                    [[ -n "${GROUP_PROXIES}" ]] && GROUP_PROXIES="${GROUP_PROXIES},${GROUP_PROXY}" || GROUP_PROXIES="${GROUP_PROXY}"
+                if [[ "${GROUP_PROXIES_START}" == "yes" ]]; then
+                    GROUP_PROXY=$(sed -nr 's/\s*-\s*(.+)/\1/p' <<<"${READLINE}")
+                    if [[ -n "${GROUP_PROXY}" ]]; then
+                        [[ -n "${GROUP_PROXIES}" ]] && GROUP_PROXIES="${GROUP_PROXIES},${GROUP_PROXY}" || GROUP_PROXIES="${GROUP_PROXY}"
+                    fi
                 fi
             fi
             ;;
