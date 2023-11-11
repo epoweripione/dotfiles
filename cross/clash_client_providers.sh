@@ -92,6 +92,7 @@ if [[ -s "/srv/subconverter/subconverter" ]]; then
 
     if Git_Clone_Update_Branch "ACL4SSR/ACL4SSR" "$HOME/subconverter/ACL4SSR" "github.com" "master"; then
         sudo mkdir -p "/srv/subconverter/ACL4SSR"
+        sudo mkdir -p "/srv/subconverter/templates"
         sudo cp -rf "$HOME/subconverter/ACL4SSR"/* "/srv/subconverter/ACL4SSR"
         sudo cp -f /srv/subconverter/ACL4SSR/Clash/*.list /srv/subconverter/rules/ACL4SSR/Clash
         sudo cp -f /srv/subconverter/ACL4SSR/Clash/Ruleset/*.list /srv/subconverter/rules/ACL4SSR/Clash/Ruleset
@@ -357,7 +358,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         done
 
         case "${TARGET_OPTION}" in
-            "private")
+            "*private*")
                 [[ -n "${PROXIES_PRIVATE}" ]] && \
                     PROXIES_PRIVATE=$(echo -e "${PROXIES_PRIVATE}\n${TARGET_PROXIES}") || \
                     PROXIES_PRIVATE="${TARGET_PROXIES}"
@@ -506,13 +507,13 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             # CONTENT_TAG="${RULES}"
             [[ -n "${CONTENT_PREFIX}" ]] && echo "${CONTENT_PREFIX}" | tee -a "${TARGET_CONFIG_FILE}" >/dev/null
 
-            if [[ -s "${RULE_CUSTOM_FILE}" ]]; then
-                cat "${RULE_CUSTOM_FILE}" >> "${TARGET_CONFIG_FILE}"
-            fi
+            # if [[ -s "${RULE_CUSTOM_FILE}" ]]; then
+            #     cat "${RULE_CUSTOM_FILE}" >> "${TARGET_CONFIG_FILE}"
+            # fi
 
-            if [[ -s "${RULES_FILE_NAME}" ]]; then
-                cat "${RULES_FILE_NAME}" >> "${TARGET_CONFIG_FILE}"
-            fi
+            # if [[ -s "${RULES_FILE_NAME}" ]]; then
+            #     cat "${RULES_FILE_NAME}" >> "${TARGET_CONFIG_FILE}"
+            # fi
 
             CONTENT_PREFIX=""
             ;;
@@ -675,6 +676,16 @@ done
 # for TargetIndex in "${GROUP_DELETE_INDEX[@]}"; do
 #     yq e -i "del(.proxy-groups[${TargetIndex}])" "${TARGET_CONFIG_FILE}"
 # done
+
+# rules
+colorEcho "${BLUE}    Generating ${FUCHSIA}rules${BLUE}..."
+if [[ -s "${RULE_CUSTOM_FILE}" ]]; then
+    cat "${RULE_CUSTOM_FILE}" >> "${TARGET_CONFIG_FILE}"
+fi
+
+if [[ -s "${RULES_FILE_NAME}" ]]; then
+    cat "${RULES_FILE_NAME}" >> "${TARGET_CONFIG_FILE}"
+fi
 
 # Copy to dir
 if [[ -n "${COPY_TO_DIR}" ]]; then
