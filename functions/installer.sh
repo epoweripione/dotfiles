@@ -807,3 +807,48 @@ function App_Installer_Install() {
 
     return 0
 }
+
+# Auto extract download address, decompress and install prebuilt binary from given URL
+function intallPrebuiltBinary() {
+    # Usage:
+    # intallPrebuiltBinary rclone "rclone/rclone" # github releases
+    # intallPrebuiltBinary nnn "jarun/nnn" "nnn-nerd-.*\.tar\.gz" # github releases
+    # intallPrebuiltBinary earthly "earthly/earthly" "earthly-*" # github releases
+    # intallPrebuiltBinary "https://dev.yorhel.nl/ncdu" "/download/ncdu-[^<>:;,?\"*|/]+\.tar\.gz" "ncdu-.*\.tar\.gz" # full URL
+    # or use in script, for example: `installer/zoxide_installer.sh`
+    local binary_name=$1
+    local remote_url=$2
+    local file_match_pattern=$3
+    local version_match_pattern=$4
+    local multi_match_filter=$5
+
+    [[ -z "${binary_name}" ]] && colorEcho "${FUCHSIA}Binary name${RED} can't empty!" && return 1
+    [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}URL${RED} can't empty!" && return 1
+
+    App_Installer_Reset
+
+    INSTALLER_APP_NAME="${binary_name}"
+    INSTALLER_INSTALL_NAME="${binary_name}"
+
+    [[ -n "${file_match_pattern}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${file_match_pattern}"
+
+    if [[ "${remote_url}" =~ ^(https?://|ftp://) ]]; then
+        if App_Installer_Get_Remote "${remote_url}" "${file_match_pattern}" "${version_match_pattern}" "${multi_match_filter}"; then
+            [[ "${INSTALLER_DOWNLOAD_URL}" =~ ^(https?://|ftp://) ]] || INSTALLER_DOWNLOAD_URL="${remote_url}${INSTALLER_DOWNLOAD_URL}"
+            if ! App_Installer_Install "${remote_url}"; then
+                colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
+                return 1
+            fi
+        fi
+    else
+        # github releases: https://api.github.com/repos/${remote_url}/releases/latest
+        INSTALLER_GITHUB_REPO="${remote_url}"
+
+        if ! App_Installer_Install; then
+            colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
+            return 1
+        fi
+    fi
+
+    return 0
+}
