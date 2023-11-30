@@ -67,7 +67,7 @@ function setMirrorRust() {
     if [[ ! -s "$HOME/.cargo/config" ]]; then
         mkdir -p "$HOME/.cargo"
         cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/cargo.toml" "$HOME/.cargo/config"
-        sed -i -e "s|'crates-io-sparse'|'${MIRROR_RUST_CARGO}'|g" "$HOME/.cargo/config"
+        sed -i -e "s|'crates-io-sparse'|'${MIRROR_RUST_CARGO}'|g" -e "s|# replace-with|replace-with|g" "$HOME/.cargo/config"
     fi
 }
 

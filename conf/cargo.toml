@@ -1,5 +1,5 @@
 [source.crates-io]
-replace-with = 'crates-io-sparse'
+# replace-with = 'crates-io-sparse'
 
 [source.tuna]
 registry = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
