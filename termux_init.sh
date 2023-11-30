@@ -71,6 +71,23 @@ extra-keys = [ \
     ]
 EOF
 
+# file editor
+if [[ ! -s "$HOME/bin/termux-file-editor" ]]; then
+    mkdir -p "$HOME/bin"
+    tee "$HOME/bin/termux-file-editor" >/dev/null <<-'EOF'
+#!/data/data/com.termux/files/usr/bin/sh
+
+# if [ "${1##*.}" = "apk" ]; then
+#     cd ~/apks
+#     apktool decode "$1"
+# elif [ "${1##*.}" = "pdf" ]; then
+#     papis add "$1"
+# fi
+
+nano "$1"
+EOF
+fi
+
 ## apt mirror
 # apt edit-sources
 termux-change-repo
