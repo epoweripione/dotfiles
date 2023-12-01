@@ -815,7 +815,7 @@ function intallPrebuiltBinary() {
     # intallPrebuiltBinary nnn "jarun/nnn" "nnn-nerd-.*\.tar\.gz" # github releases
     # intallPrebuiltBinary earthly "earthly/earthly" "earthly-*" # github releases
     # intallPrebuiltBinary "https://dev.yorhel.nl/ncdu" "/download/ncdu-[^<>:;,?\"*|/]+\.tar\.gz" "ncdu-.*\.tar\.gz" # full URL
-    # or use in script, for example: `installer/zoxide_installer.sh`
+    # or use in script, for example: `installer/ffsend_installer.sh`
     local binary_name=$1
     local remote_url=$2
     local file_match_pattern=$3
