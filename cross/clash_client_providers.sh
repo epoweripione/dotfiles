@@ -216,8 +216,9 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         sed -i 's/^\s*-/-/g' "${DOWNLOAD_FILE}"
         sed -i -e 's/":/: /g' -e 's/:"/: /g' -e 's/",/, /g' -e 's/,"/, /g' -e 's/"//g' "${DOWNLOAD_FILE}"
         sed -i -e "s/':/: /g" -e "s/:'/: /g" -e "s/',/, /g" -e "s/,'/, /g" -e "s/'//g" "${DOWNLOAD_FILE}"
-        sed -i -e 's/\[/【/g' -e 's/\]/】/g' -e 's/|/｜/g' -e 's/\?/？/g' -e 's/\&/δ/g' "${DOWNLOAD_FILE}"
-        sed -i -e 's/ @/ /g' -e "s/name:\s*\-\s*/name: /g" "${DOWNLOAD_FILE}"
+        # sed -i -e 's/\[/【/g' -e 's/\]/】/g' -e 's/|/｜/g' -e 's/\?/？/g' -e 's/\&/δ/g' "${DOWNLOAD_FILE}"
+        sed -i -e "s/name:\s*\-\s*/name: /g" "${DOWNLOAD_FILE}"
+        sed -i -e 's/\&[a-zA-Z0-9]\+;//g' -e 's/\[/【/g' -e 's/\]/】/g' -e 's/[\|\?\&\@]//g' "${DOWNLOAD_FILE}"
 
         # Delete lines with empty name
         sed -i '/name:\s*,/d' "${DOWNLOAD_FILE}"
