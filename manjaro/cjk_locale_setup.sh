@@ -461,7 +461,7 @@ fi
 # colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
 # curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 colorEcho "${BLUE}Installing ${FUCHSIA}Emoji keyboard${BLUE}..."
-yay --noconfirm --needed -S aur/emoji-keyboard
+yay --noconfirm --needed -S aur/emoji-keyboard-bin
 
 # [Emote](https://github.com/tom-james-watson/Emote): Modern popup emoji picker
 # Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E` 

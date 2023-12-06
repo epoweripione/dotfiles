@@ -47,8 +47,8 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
 
     # Clash for Windows
     colorEcho "${BLUE}Installing ${FUCHSIA}Clash for Windows${BLUE}..."
-    # yay --noconfirm --needed -S nftables iproute2 aur/clash-for-windows-bin
-    yay --noconfirm --needed -S nftables iproute2 aur/clash-for-windows-electron-bin
+    yay --noconfirm --needed -S nftables iproute2
+    yay --noconfirm --needed -S aur/clash-for-windows-bin
 
     ## If you want to use clash-meta, install it and run  
     # sudo ln -sf /usr/bin/clash-meta /opt/clash-for-windows/static/files/linux/x64/clash-linux 
