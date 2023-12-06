@@ -149,7 +149,7 @@ colorEcho "${BLUE}Converting ${ORANGE}${CONFIG_SRC} ${BLUE}to${FUCHSIA} ${CONFIG
 
 # surge config auto update URL 
 if [[ -n "${AutoUpdateUrl}" ]]; then
-    echo "#\!MANAGED-CONFIG ${AutoUpdateUrl} interval=18000 strict=false" | tee "${CONFIG_TO}" >/dev/null
+    echo "#!MANAGED-CONFIG ${AutoUpdateUrl} interval=18000 strict=false" | tee "${CONFIG_TO}" >/dev/null
     echo '' | tee -a "${CONFIG_TO}" >/dev/null
 else
     echo '' | tee "${CONFIG_TO}" >/dev/null
