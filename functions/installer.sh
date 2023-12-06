@@ -853,3 +853,45 @@ function intallPrebuiltBinary() {
 
     return 0
 }
+
+## Download and decrypt file that encrypt with OpenSSL
+## Using the AES-256-CBC algorithm with key file
+## Create a key-file
+# openssl rand 256 > keyfile.key
+# openssl rand -hex 256 > keyfile.key
+# openssl rand -base64 256 > keyfile.key
+## Encryption
+# openssl enc -e -aes256 -pbkdf2 -in file.txt -out file.enc -kfile keyfile.key
+## Decryption
+# openssl enc -d -aes256 -pbkdf2 -in file.enc -out file.txt -kfile keyfile.key
+function downloadDecryptFile() {
+    # Usage: downloadDecryptFile "https://transfer.sh/xxxx/file.enc" "file.enc" "$HOME/keyfile.key" "file.txt"
+    local download_url=$1
+    local download_filename=$2
+    local encrypt_keyfile=$3
+    local decrypt_filename=$4
+    local remote_filename SaltedStartLine
+
+    [[ -z "${download_url}" ]] && colorEcho "${FUCHSIA}Download URL${RED} can't empty!" && return 1
+
+    remote_filename=$(echo "${download_url}" | awk -F"/" '{print $NF}')
+    [[ -z "${download_filename}" ]] && download_filename="${remote_filename}"
+
+    # Download
+    colorEcho "${BLUE}Downloading ${FUCHSIA}${download_url}${BLUE} to ${ORANGE}${download_filename}${BLUE}..."
+    curl "${CURL_DOWNLOAD_OPTS[@]}" --noproxy "*" -o "${download_filename}" "${download_url}"
+    curl_rtn_code=$?
+
+    if [[ ${curl_rtn_code} -eq 0 ]]; then
+        if [[ -n "${encrypt_keyfile}" && -n "${decrypt_filename}" ]]; then
+            colorEcho "${BLUE}Decrypting ${FUCHSIA}${download_url}${BLUE} to ${ORANGE}${decrypt_filename}${BLUE} using ${CYAN}${encrypt_keyfile}${BLUE}..."
+            if ! openssl enc -d -aes256 -pbkdf2 -in "${download_filename}" -out "${decrypt_filename}" -kfile "${encrypt_keyfile}"; then
+                return 0
+            fi
+        fi
+    else
+        return 1
+    fi
+
+    return 0
+}
