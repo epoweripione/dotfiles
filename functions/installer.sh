@@ -815,7 +815,7 @@ function intallPrebuiltBinary() {
     # intallPrebuiltBinary nnn "jarun/nnn" "nnn-nerd-.*\.tar\.gz" # github releases
     # intallPrebuiltBinary earthly "earthly/earthly" "earthly-*" # github releases
     # intallPrebuiltBinary "https://dev.yorhel.nl/ncdu" "/download/ncdu-[^<>:;,?\"*|/]+\.tar\.gz" "ncdu-.*\.tar\.gz" # full URL
-    # or use in script, for example: `installer/ffsend_installer.sh`
+    # or use in script, for example: `cross/mihomo_installer.sh`, `installer/ffsend_installer.sh`
     local binary_name=$1
     local remote_url=$2
     local file_match_pattern=$3
@@ -825,7 +825,8 @@ function intallPrebuiltBinary() {
     [[ -z "${binary_name}" ]] && colorEcho "${FUCHSIA}Binary name${RED} can't empty!" && return 1
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}URL${RED} can't empty!" && return 1
 
-    App_Installer_Reset
+    # Reset ENV vars if there is an application installed before
+    [[ -n "${INSTALLER_APP_NAME}" ]] && App_Installer_Reset
 
     INSTALLER_APP_NAME="${binary_name}"
     INSTALLER_INSTALL_NAME="${binary_name}"
