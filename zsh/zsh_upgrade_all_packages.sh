@@ -139,8 +139,10 @@ if [[ -d "$HOME/.sdkman" ]]; then
 fi
 
 
-[[ -x "$(command -v goup)" ]] && goupUpgrade
-
+if [[ -x "$(command -v goup)" ]]; then
+    goupUpgrade
+    goupRemoveUnuse
+fi
 
 if [[ -x "$(command -v rustup)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA} Rust toolchains and rustup${BLUE}..."
