@@ -259,6 +259,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "xnresize"
         "xnviewmp"
         "telegram"
+        "zoom"
         # "cdburnerxp"
         # "wincdemu"
         "windowsupdateshistoryviewer"
