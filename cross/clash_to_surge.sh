@@ -43,6 +43,8 @@ if [[ -z "${CONFIG_TO}" ]]; then
     exit 1
 fi
 
+AutoUpdateUrl=${3:-""}
+
 function setProxies() {
     if [[ -n "${PROXY_NAME_PRE}" ]]; then
         OUTPUT_LINE="${PROXY_NAME_PRE} = ${PROXY_TYPE}"
@@ -145,9 +147,17 @@ done
 
 colorEcho "${BLUE}Converting ${ORANGE}${CONFIG_SRC} ${BLUE}to${FUCHSIA} ${CONFIG_TO}${BLUE}..."
 
+# surge config auto update URL 
+if [[ -n "${AutoUpdateUrl}" ]]; then
+    echo "#\!MANAGED-CONFIG ${AutoUpdateUrl} interval=18000 strict=false" | tee "${CONFIG_TO}" >/dev/null
+    echo '' | tee -a "${CONFIG_TO}" >/dev/null
+else
+    echo '' | tee "${CONFIG_TO}" >/dev/null
+fi
+
 # General
 colorEcho "${BLUE}  Processing ${FUCHSIA}[General]${BLUE}..."
-tee "${CONFIG_TO}" >/dev/null <<-'EOF'
+tee -a "${CONFIG_TO}" >/dev/null <<-'EOF'
 [General]
 loglevel = notify
 interface = 127.0.0.1
