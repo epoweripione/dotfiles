@@ -17,6 +17,8 @@ else
     fi
 fi
 
+App_Installer_Reset
+
 # [Send - Simple, private file sharing, A fork of Mozilla's Firefox Send](https://github.com/timvisee/send)
 # [ffsend - Easily and securely share files from the command line](https://github.com/timvisee/ffsend)
 INSTALLER_GITHUB_REPO="timvisee/ffsend"
