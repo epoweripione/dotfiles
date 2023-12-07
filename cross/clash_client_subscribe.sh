@@ -68,17 +68,7 @@ function clashConfigurationDownloadCheck() {
 }
 
 # fix "command not found" when running via cron
-DirList=(
-    "/usr/local/sbin"
-    "/usr/local/bin"
-    "/usr/sbin"
-    "/usr/bin"
-    "/sbin"
-    "/bin"
-)
-for TargetDir in "${DirList[@]}"; do
-    [[ -d "${TargetDir}" && ":$PATH:" != *":${TargetDir}:"* ]] && PATH="${TargetDir}:$PATH"
-done
+FixSystemBinPath
 
 # yq
 if [[ ! -x "$(command -v yq)" ]]; then

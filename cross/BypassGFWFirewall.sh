@@ -1,17 +1,26 @@
 #!/usr/bin/env bash
 
 # fix "command not found" when running via cron
-DirList=(
-    "/usr/local/sbin"
-    "/usr/local/bin"
-    "/usr/sbin"
-    "/usr/bin"
-    "/sbin"
-    "/bin"
-)
-for TargetDir in "${DirList[@]}"; do
-    [[ -d "${TargetDir}" && ":$PATH:" != *":${TargetDir}:"* ]] && PATH="${TargetDir}:$PATH"
-done
+function FixSystemBinPath() {
+    local DirList=()
+    local TargetDir
+
+    DirList=(
+        "/usr/local/sbin"
+        "/usr/local/bin"
+        "/usr/sbin"
+        "/usr/bin"
+        "/sbin"
+        "/bin"
+    )
+
+    for TargetDir in "${DirList[@]}"; do
+        [[ -d "${TargetDir}" && ":$PATH:" != *":${TargetDir}:"* ]] && PATH="${TargetDir}:$PATH"
+    done
+}
+
+# fix "command not found" when running via cron
+FixSystemBinPath
 
 ## Run proxy client from local variables
 # NAIVEPROXY_PORT=7895
