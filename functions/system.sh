@@ -250,3 +250,22 @@ function SnapperDeleteSnapshots() {
 
     snapper list -a
 }
+
+# fix "command not found" when running via cron
+function FixSystemBinPath() {
+    local DirList=()
+    local TargetDir
+
+    DirList=(
+        "/usr/local/sbin"
+        "/usr/local/bin"
+        "/usr/sbin"
+        "/usr/bin"
+        "/sbin"
+        "/bin"
+    )
+
+    for TargetDir in "${DirList[@]}"; do
+        [[ -d "${TargetDir}" && ":$PATH:" != *":${TargetDir}:"* ]] && PATH="${TargetDir}:$PATH"
+    done
+}
