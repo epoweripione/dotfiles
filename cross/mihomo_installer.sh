@@ -34,6 +34,16 @@ else
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_BINARY_NAME}${BLUE}..."
+
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
+    fi
+fi
+
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     if intallPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"; then
         # Replace clash with mihomo
         if [[ -d "/srv/clash" ]]; then
