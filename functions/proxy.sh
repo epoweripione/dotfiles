@@ -625,3 +625,31 @@ function set_special_socks5_proxy() {
         [[ -f "${CURL_SPECIAL_CONFIG}" ]] && rm "${CURL_SPECIAL_CONFIG}"
     fi
 }
+
+# download clash config & restart clash
+function downloadClashConfig() {
+    # Usage: downloadClashConfig "https://transfer.sh/xxxx/clash.yaml.enc" "/srv/clash/clash.yaml.enc" "$HOME/keyfile.key" "/srv/clash/clash.yaml"
+    local download_url=$1
+    local download_filename=$2
+    local encrypt_keyfile=$3
+    local decrypt_filename=$4
+
+    if [[ ! -s "/srv/clash/clash" ]]; then
+        colorEcho "${RED}  Please install and run ${FUCHSIA}clash${RED} first!"
+        return 1
+    fi
+
+    if downloadDecryptFile "${download_url}" "${download_filename}" "${encrypt_keyfile}" "${decrypt_filename}"; then
+        if /srv/clash/clash -f /srv/clash/public.yml -t; then
+            sudo cp -f "/srv/clash/public.yml" "/srv/clash/config.yaml"
+            sudo systemctl restart clash
+            sleep 3
+
+            if check_socks5_proxy_up "127.0.0.1:7890"; then
+                colorEcho "${GREEN}The configuration looks ok!"
+            else
+                sudo journalctl -u clash --since "1 minutes ago" -e
+            fi
+        fi
+    fi
+}
