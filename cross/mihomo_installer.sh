@@ -38,7 +38,10 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         # Replace clash with mihomo
         if [[ -d "/srv/clash" ]]; then
             INSTALLER_BINARY_FILE="$(which ${INSTALLER_BINARY_NAME})"
-            [[ -f "/srv/clash/clash" && -f "${INSTALLER_BINARY_FILE}" ]] && sudo cp -f "${INSTALLER_BINARY_FILE}" "/srv/clash/clash"
+            if [[ -f "${INSTALLER_BINARY_FILE}" ]]; then
+                [[ -f "/srv/clash/clash" ]] && sudo rm -f "/srv/clash/clash"
+                sudo cp -f "${INSTALLER_BINARY_FILE}" "/srv/clash/clash"
+            fi
 
             # geo database
             colorEcho "${BLUE}  Installing ${FUCHSIA}geo database${BLUE}..."
@@ -46,6 +49,11 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
             MMDB_FILE="${WORKDIR}/Country.mmdb"
             curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${MMDB_FILE}" "${MMDB_URL}" && \
                 sudo mv -f "${MMDB_FILE}" "/srv/clash/Country.mmdb"
+
+            if [[ -f "/srv/clash/Country.mmdb" ]]; then
+                mkdir -p "$HOME/.config/mihomo"
+                cp -f "/srv/clash/Country.mmdb" "$HOME/.config/mihomo"
+            fi
 
             systemctl is-enabled clash >/dev/null 2>&1 && sudo systemctl restart clash
         fi
