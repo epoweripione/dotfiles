@@ -201,7 +201,11 @@ function newZellijSession() {
             NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
 
             if [ "${NO_SESSIONS}" -ge 2 ]; then
-                zellij attach "$(echo "${ZJ_SESSIONS}" | sk)" options --default-mode=locked
+                if [[ "$(command -v fzf)" ]]; then
+                    zellij attach "$(echo "${ZJ_SESSIONS}" | awk '{print $1}' | fzf)" options --default-mode=locked
+                else
+                    zellij attach "$(echo "${ZJ_SESSIONS}" | sk)" options --default-mode=locked
+                fi
                 # zellij attach "$(echo "${ZJ_SESSIONS}" | sk)" options --default-mode=locked --disable-mouse-mode
             else
                 zellij attach -c options --default-mode=locked
@@ -222,7 +226,11 @@ function newZellijLayout() {
         ZJ_LAYOUT_DIR=$(zellij setup --check | grep "LAYOUT DIR" - | grep -o '".*"' - | tr -d '"')
 
         if [[ -d "${ZJ_LAYOUT_DIR}" ]];then
-            ZJ_LAYOUT="$(fd --type file . "${ZJ_LAYOUT_DIR}" | sed 's|.*/||' | sk || exit)"
+            if [[ "$(command -v fzf)" ]]; then
+                ZJ_LAYOUT="$(fd --type file . "${ZJ_LAYOUT_DIR}" | sed 's|.*/||' | fzf || exit)"
+            else
+                ZJ_LAYOUT="$(fd --type file . "${ZJ_LAYOUT_DIR}" | sed 's|.*/||' | sk || exit)"
+            fi
             zellij --layout "${ZJ_LAYOUT}"
         fi
     else
