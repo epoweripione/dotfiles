@@ -886,7 +886,7 @@ function downloadDecryptFile() {
         if [[ -n "${encrypt_keyfile}" && -n "${decrypt_filename}" ]]; then
             colorEcho "${BLUE}Decrypting ${FUCHSIA}${download_url}${BLUE} to ${ORANGE}${decrypt_filename}${BLUE} using ${CYAN}${encrypt_keyfile}${BLUE}..."
             if ! openssl enc -d -aes256 -pbkdf2 -in "${download_filename}" -out "${decrypt_filename}" -kfile "${encrypt_keyfile}"; then
-                return 0
+                return 1
             fi
         fi
     else
