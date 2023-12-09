@@ -70,7 +70,12 @@ while read -r line; do
     [[ "${TARGET_HOST}" == "#" ]] && continue
 
     # https://www.example.com/sub?target=clash&url=<url>&config=<config>&exclude=<exclude>
-    TARGET_URL="${TARGET_HOST}&url=${URL_URL}&${URL_CONFIG}"
+    if grep -q 'sub?target=' <<<"${TARGET_HOST}"; then
+        TARGET_URL="${TARGET_HOST}&url=${URL_URL}&${URL_CONFIG}"
+    else
+        TARGET_URL="${TARGET_HOST}sub?target=clash&url=${URL_URL}&${URL_CONFIG}"
+    fi
+
     [[ -n "${URL_EXCLUDE}" ]] && TARGET_URL="${TARGET_URL}&${URL_EXCLUDE}"
 
     if ! check_url_status "${TARGET_HOST}" "${TARGET_URL}"; then
