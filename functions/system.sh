@@ -245,18 +245,21 @@ function SnapperDeleteSnapshots() {
     local snapper_configs current_config
     local start_id end_id
 
-    snapper_configs=$(snapper list-configs --columns=config | sed '1,/--/ d')
+    snapper_configs=$(sudo snapper list-configs --columns=config | sed '1,/--/ d')
 
     keep_snapshot=$((keep_snapshot + 1))
     while read -r current_config; do
-        start_id=$(snapper -c "${current_config}" list | awk '{print $1}' | grep -E '[[:digit:]]+' | grep -wv '0' | head -n1)
-        end_id=$(snapper -c "${current_config}" list | awk '{print $1}' | grep -E '[[:digit:]]+'| grep -wv '0' | tail -n "${keep_snapshot}" | head -n1)
+        start_id=$(sudo snapper -c "${current_config}" list | awk '{print $1}' | grep -E '[[:digit:]]+' | grep -wv '0' | head -n1)
+        end_id=$(sudo snapper -c "${current_config}" list | awk '{print $1}' | grep -E '[[:digit:]]+'| grep -wv '0' | tail -n "${keep_snapshot}" | head -n1)
         if [[ -n "${start_id}" && -n "${end_id}" ]]; then
-            [[ start_id -lt end_id ]] && snapper -c "${current_config}" delete "${start_id}-${end_id}"
+            [[ start_id -lt end_id ]] && sudo snapper -c "${current_config}" delete "${start_id}-${end_id}"
         fi
     done <<<"${snapper_configs}"
 
-    snapper list -a
+    sudo snapper list -a
+
+    colorEcho "${BLUE}Updating ${FUCHSIA}GRUB2 configuration${BLUE}..."
+    sudo update-grub
 }
 
 # fix "command not found" when running via cron
