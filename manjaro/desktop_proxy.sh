@@ -38,17 +38,19 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
     yay --noconfirm --needed -S archlinuxcn/hysteria
 
     # Clash
-    colorEcho "${BLUE}Installing ${FUCHSIA}Clash Premium${BLUE}..."
-    # yay --noconfirm --needed -S aur/clash-premium-bin
-    yay --noconfirm --needed -S archlinuxcn/clash-premium-bin
+    # colorEcho "${BLUE}Installing ${FUCHSIA}Clash Premium${BLUE}..."
+    # yay --noconfirm --needed -S archlinuxcn/clash-premium-bin
 
-    colorEcho "${BLUE}Installing ${FUCHSIA}Clash Meta${BLUE}..."
-    yay --noconfirm --needed -S archlinuxcn/clash-meta
+    # colorEcho "${BLUE}Installing ${FUCHSIA}Clash Meta${BLUE}..."
+    # yay --noconfirm --needed -S archlinuxcn/clash-meta
+
+    colorEcho "${BLUE}Installing ${FUCHSIA}mihomo${BLUE}..."
+    yay --noconfirm --needed -S aur/mihomo
 
     # Clash for Windows
-    colorEcho "${BLUE}Installing ${FUCHSIA}Clash for Windows${BLUE}..."
-    yay --noconfirm --needed -S nftables iproute2
-    yay --noconfirm --needed -S aur/clash-for-windows-bin
+    # colorEcho "${BLUE}Installing ${FUCHSIA}Clash for Windows${BLUE}..."
+    # yay --noconfirm --needed -S nftables iproute2
+    # yay --noconfirm --needed -S aur/clash-for-windows-bin
 
     ## If you want to use clash-meta, install it and run  
     # sudo ln -sf /usr/bin/clash-meta /opt/clash-for-windows/static/files/linux/x64/clash-linux 
@@ -61,12 +63,13 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
 
     # Clash Verge
     colorEcho "${BLUE}Installing ${FUCHSIA}Clash Verge${BLUE}..."
-    yay --noconfirm --needed -S archlinuxcn/clash-verge
+    yay --noconfirm --needed -S aur/clash-verge-rev-bin
 
     # Fix `start tun interface error: operation not permitted`
     # [setcap 详解](https://www.cnblogs.com/nf01/articles/10418141.html)
     [[ -x "$(command -v clash)" ]] && sudo setcap cap_net_admin=+eip "$(which clash)"
     [[ -x "$(command -v clash-meta)" ]] && sudo setcap cap_net_admin=+eip "$(which clash-meta)"
+    [[ -x "$(command -v mihomo)" ]] && sudo setcap cap_net_admin=+eip "$(which mihomo)"
     [[ -x "$(command -v cfw)" ]] && sudo setcap cap_net_admin=+eip "$(which cfw)"
     [[ -x "$(command -v clash-verge)" ]] && sudo setcap cap_net_admin=+eip "$(which clash-verge)"
 
