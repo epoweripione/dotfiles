@@ -330,6 +330,15 @@ function GetMyIp {curl -fsSL -4 http://ip-api.com/json/ | ConvertFrom-Json}
 function EditHosts {sudo notepad $env:windir\System32\drivers\etc\hosts}
 function EditHistory {notepad (Get-PSReadlineOption).HistorySavePath}
 
+# eza
+function ezan {eza -ghl --icons --git --time-style=long-iso}
+function ezal {eza -aghl --icons --git --time-style=long-iso}
+function ezaa {eza -abghHliS --icons --git --time-style=long-iso}
+function ezat {eza --tree --icons}
+function ezat1 {eza --tree --icons --level=1}
+function ezat2 {eza --tree --icons --level=2}
+function ezat3 {eza --tree --icons --level=3}
+
 ## Other alias
 Set-Alias open Invoke-Item -option AllScope
 Set-Alias .. GoBack -option AllScope

@@ -109,11 +109,23 @@ if [[ -x "$(command -v docker)" ]]; then
     alias docker-certs-maker='docker run --rm -it --name certs-maker -v $PWD:/ssl soulteary/certs-maker'
 fi
 
-# exa
-if [[ -x "$(command -v exa)" ]]; then
-    alias exal="exa -aghl --icons --git --time-style=long-iso"
-    alias exaa="exa -abghHliS --icons --git --time-style=long-iso"
-    alias exat="exa --tree --icons"
+
+if [[ -x "$(command -v eza)" ]]; then
+    alias ezan="eza -ghl --icons --git --time-style=long-iso"
+    alias ezal="eza -aghl --icons --git --time-style=long-iso"
+    alias ezaa="eza -abghHliS --icons --git --time-style=long-iso"
+    alias ezat="eza --tree --icons"
+    alias ezat1="eza --tree --icons --level=1"
+    alias ezat2="eza --tree --icons --level=2"
+    alias ezat3="eza --tree --icons --level=3"
+    # replace exa with eza
+    alias exan="eza -ghl --icons --git --time-style=long-iso"
+    alias exal="eza -aghl --icons --git --time-style=long-iso"
+    alias exaa="eza -abghHliS --icons --git --time-style=long-iso"
+    alias exat="eza --tree --icons"
+    alias exat1="eza --tree --icons --level=1"
+    alias exat2="eza --tree --icons --level=2"
+    alias exat3="eza --tree --icons --level=3"
 fi
 
 # pip

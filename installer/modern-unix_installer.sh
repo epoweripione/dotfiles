@@ -21,7 +21,8 @@ fi
 # https://github.com/ibraheemdev/modern-unix
 AppList=(
     "bat"
-    "exa"
+    # "exa"
+    "eza"
     "lsd"
     "git-delta"
     "dust"
