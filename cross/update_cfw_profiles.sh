@@ -94,6 +94,27 @@ if [[ -z "${PROFILE}" && -n "${WSL_USERPROFILE}" ]]; then
     fi
 fi
 
+
+# clash-verge-rev
+PROFILE=""
+if [[ -s "$HOME/.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles.yaml" ]]; then
+    PROFILE="$HOME/.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles.yaml"
+    PROFILE_DIR="$HOME/.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles"
+fi
+
+if [[ -z "${PROFILE}" && -n "${WSL_USERPROFILE}" ]]; then
+    if [[ -s "${WSL_USERPROFILE}/.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles.yaml" ]]; then
+        PROFILE="${WSL_USERPROFILE}/.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles.yaml"
+        PROFILE_DIR="${WSL_USERPROFILE}/.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles"
+    fi
+
+    if [[ -s "${WSL_USERPROFILE}/scoop/persist/clash-verge/.config/io.github.clash-verge-rev.clash-verge-rev/profiles.yaml" ]]; then
+        PROFILE="${WSL_USERPROFILE}/scoop/persist/clash-verge/.config/io.github.clash-verge-rev.clash-verge-rev/profiles.yaml"
+        PROFILE_DIR="${WSL_USERPROFILE}/scoop/persist/clash-verge/.config/io.github.clash-verge-rev.clash-verge-rev/profiles"
+    fi
+fi
+
+
 if [[ -s "${PROFILE}" ]]; then
     PROFILE_LEN=$(yq '.items | length' "${PROFILE}")
     for ((i=0; i < PROFILE_LEN; ++i)); do
