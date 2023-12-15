@@ -28,9 +28,12 @@ fi
 #     "https://user:password@example.com"
 # )
 # DOWNLOAD_APPS=(
-#     "naive#naiveproxy.tar.xz#https://github.com/klzgrad/naiveproxy/releases/download/v109.0.5414.74-1/naiveproxy-v109.0.5414.74-1-linux-x64.tar.xz"
-#     "clash#clash.gz#https://github.com/Dreamacro/clash/releases/download/premium/clash-linux-amd64-2022.11.25.gz"
+#     "naive#naiveproxy.tar.xz#https://github.com/klzgrad/naiveproxy/releases/download/v120.0.6099.43-1/naiveproxy-v120.0.6099.43-1-linux-x64.tar.xz"
+#     "mihomo#mihomo.gz#https://github.com/MetaCubeX/mihomo/releases/download/v1.17.0/mihomo-linux-amd64-v1.17.0.gz"
+#     "mieru#mieru.tar.gz#https://github.com/enfein/mieru/releases/download/v2.2.0/mieru_2.2.0_linux_amd64.tar.gz"
 #     "Country.mmdb#Country.mmdb#https://github.com/Hackl0us/GeoIP2-CN/raw/release/Country.mmdb"
+#     "geoip.dat#geoip.dat#https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat"
+#     "geosite.dat#geosite.dat#https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
 #     "config.yaml#config.yaml#https://www.test.com/config.yaml"
 # )
 
@@ -103,6 +106,18 @@ if [[ -s "${PROXY_WORKDIR}/clash" && -s "${PROXY_WORKDIR}/config.yaml" ]]; then
 
     ps -fC "clash"
     # htop -p "$(pgrep -d, clash)"
+fi
+
+# mihomo
+if [[ -s "${PROXY_WORKDIR}/mihomo" && -s "${PROXY_WORKDIR}/config.yaml" ]]; then
+    colorEcho "${BLUE}Running ${FUCHSIA}mihomo${BLUE}..."
+
+    sudo pkill -f "mihomo"
+    chmod +x "${PROXY_WORKDIR}/mihomo"
+    nohup "${PROXY_WORKDIR}/mihomo" -d "${PROXY_WORKDIR}" >/dev/null 2>&1 &
+
+    ps -fC "mihomo"
+    # htop -p "$(pgrep -d, mihomo)"
 fi
 
 # mieru
