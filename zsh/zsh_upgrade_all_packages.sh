@@ -173,10 +173,8 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "lnav"
         "magic-wormhole"
         # "nano"
-        "navi"
         "nnn"
         "skim"
-        "tealdeer"
         "yq"
         "zoxide"
     )
@@ -240,6 +238,8 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "viu"
         "wrk"
         "xh"
+        "navi"
+        "tealdeer"
     )
 fi
 for Target in "${AppWSLDesktopList[@]}"; do
