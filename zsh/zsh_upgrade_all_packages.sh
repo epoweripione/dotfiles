@@ -68,11 +68,11 @@ fi
 # Snapper pre snapshots
 if [[ -x "$(command -v snapper)" ]]; then
     if snapper list-configs 2>/dev/null | grep -q "root"; then
-        SNAPPER_NUM_ROOT=$(snapper -c root create -t pre -p --description "pre ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh")
+        SNAPPER_NUM_ROOT=$(sudo snapper -c root create -t pre -p --description "pre ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh")
     fi
 
     if snapper list-configs 2>/dev/null | grep -q "home"; then
-        SNAPPER_NUM_HOME=$(snapper -c home create -t pre -p --description "pre ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh")
+        SNAPPER_NUM_HOME=$(sudo snapper -c home create -t pre -p --description "pre ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh")
     fi
 fi
 
@@ -379,11 +379,11 @@ fi
 # Snapper post snapshots
 if [[ -x "$(command -v snapper)" ]]; then
     if [[ -n "${SNAPPER_NUM_ROOT}" ]]; then
-        snapper -c root create -t post --pre-number "${SNAPPER_NUM_ROOT}" --description "post ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh"
+        sudo snapper -c root create -t post --pre-number "${SNAPPER_NUM_ROOT}" --description "post ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh"
     fi
 
     if [[ -n "${SNAPPER_NUM_HOME}" ]]; then
-        snapper -c home create -t post --pre-number "${SNAPPER_NUM_HOME}" --description "post ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh"
+        sudo snapper -c home create -t post --pre-number "${SNAPPER_NUM_HOME}" --description "post ${MY_SHELL_SCRIPTS}/zsh/zsh_upgrade_all_packages.sh"
     fi
 
     if [[ -n "${SNAPPER_NUM_ROOT}" || -n "${SNAPPER_NUM_HOME}" ]]; then
