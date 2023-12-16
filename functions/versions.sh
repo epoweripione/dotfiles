@@ -123,7 +123,7 @@ function rtx_App_Update() {
 
     if [[ "${appName}" == "all" ]]; then
         colorEcho "${BLUE}Checking update for all installed ${FUCHSIA}rtx plugins${BLUE}..."
-        rtx plugins update --all
+        rtx plugins update
         InstalledPlugins=$(rtx plugins ls 2>/dev/null)
     else
         colorEcho "${BLUE}Checking update for ${FUCHSIA}rtx plugin ${ORANGE}${appName}${BLUE}..."
