@@ -214,8 +214,13 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         ## Clipborad
         "copyq"
         ## Develop
-        "jre17-openjdk"
+        # "jdk-openjdk"
+        # "jre-openjdk"
         "dbeaver"
+        "dbeaver-plugin-apache-poi"
+        "dbeaver-plugin-batik"
+        "dbeaver-plugin-office"
+        "dbeaver-plugin-svg-format"
         "wireshark-qt"
         "visual-studio-code-bin"
         # "aur/powershell-bin"
