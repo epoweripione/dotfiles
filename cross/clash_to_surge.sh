@@ -46,7 +46,16 @@ fi
 AutoUpdateUrl=${3:-""}
 
 function setProxies() {
-    if [[ -n "${PROXY_NAME_PRE}" ]]; then
+    local PROXY_FILTERED
+
+    if [[ -n "${PROXY_NAME_PRE}" && -n "${PROXY_TYPE}" ]]; then
+        if ! grep -Ewaq "(${SUPPORTED_PROTOCOL})" <<<"${PROXY_TYPE}"; then
+            FILTERED_PROXY_NAME+=("${PROXY_NAME_PRE}")
+            PROXY_FILTERED="yes"
+        fi
+    fi
+
+    if [[ -n "${PROXY_NAME_PRE}" && -z "${PROXY_FILTERED}" ]]; then
         OUTPUT_LINE="${PROXY_NAME_PRE} = ${PROXY_TYPE}"
         [[ -n "${PROXY_SERVER}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, ${PROXY_SERVER}"
         [[ -n "${PROXY_PORT}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, ${PROXY_PORT}"
@@ -86,7 +95,7 @@ function setProxies() {
             [[ -n "${PROXY_PLUGIN_PATH}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, obfs-uri=${PROXY_PLUGIN_PATH}"
         fi
 
-        echo "${OUTPUT_LINE}" | sed -e 's/\s#.*//g' -e 's/"//g' -e "s/'//g" | tee -a "${CONFIG_TO}" >/dev/null
+        sed -e 's|\s#.*||g' -e 's|"||g' -e "s|'||g" <<<"${OUTPUT_LINE}" | tee -a "${CONFIG_TO}" >/dev/null
     fi
 
     PROXY_NAME_PRE="${PROXY_NAME}"
@@ -113,13 +122,21 @@ function setProxies() {
 }
 
 function setProxyGroup() {
+    local PROXY_FILTERED
+
     if [[ -n "${GROUP_NAME_PRE}" ]]; then
+        for PROXY_FILTERED in "${FILTERED_PROXY_NAME[@]}"; do
+            if [[ ", ${GROUP_PROXIES}," == *", ${PROXY_FILTERED},"* ]]; then
+                GROUP_PROXIES=$(sed -e "s|, ${PROXY_FILTERED},|,|g" <<<", ${GROUP_PROXIES}," | sed -e 's|^,\s||' -e 's|.$||')
+            fi
+        done
+
         OUTPUT_LINE="${GROUP_NAME_PRE} = ${GROUP_TYPE}, ${GROUP_PROXIES}"
         [[ -n "${GROUP_URL}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, url=${GROUP_URL}"
         [[ -n "${GROUP_INTERVAL}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, interval=${GROUP_INTERVAL}"
         [[ -n "${GROUP_TOLERANCE}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, tolerance=${GROUP_TOLERANCE}"
 
-        echo "${OUTPUT_LINE}" | sed -e 's/\s#.*//g' -e 's/"//g' -e "s/'//g" | tee -a "${CONFIG_TO}" >/dev/null
+        sed -e 's|\s#.*||g' -e 's|"||g' -e "s|'||g" <<<"${OUTPUT_LINE}" | tee -a "${CONFIG_TO}" >/dev/null
     fi
 
     GROUP_NAME_PRE="${GROUP_NAME}"
@@ -177,6 +194,10 @@ On = direct
 Off = reject
 
 EOF
+
+# [supported protocol](https://getsurfboard.com/docs/profile-format/proxy/)
+SUPPORTED_PROTOCOL="http|https|socks5|socks5-tls|ss|vmess|trojan" # |wireguard
+FILTERED_PROXY_NAME=()
 
 # Proxy & Proxy Group
 OUTPUT_TYPE=""
@@ -254,7 +275,7 @@ while IFS= read -r READLINE || [[ "${READLINE}" ]]; do
                 if [[ "${GROUP_PROXIES_START}" == "yes" ]]; then
                     GROUP_PROXY=$(sed -nr 's/\s*-\s*(.+)/\1/p' <<<"${READLINE}")
                     if [[ -n "${GROUP_PROXY}" ]]; then
-                        [[ -n "${GROUP_PROXIES}" ]] && GROUP_PROXIES="${GROUP_PROXIES},${GROUP_PROXY}" || GROUP_PROXIES="${GROUP_PROXY}"
+                        [[ -n "${GROUP_PROXIES}" ]] && GROUP_PROXIES="${GROUP_PROXIES}, ${GROUP_PROXY}" || GROUP_PROXIES="${GROUP_PROXY}"
                     fi
                 fi
             fi
