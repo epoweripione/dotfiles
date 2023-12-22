@@ -80,7 +80,12 @@ function setProxies() {
 
         [[ -n "${PROXY_CIPHER}" && "${PROXY_CIPHER}" != "auto" ]] && OUTPUT_LINE="${OUTPUT_LINE}, encrypt-method=${PROXY_CIPHER}"
         [[ -n "${PROXY_SKIP_CERT_VERIFY}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, skip-cert-verify=${PROXY_SKIP_CERT_VERIFY}"
-        [[ -n "${PROXY_SNI}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, sni=${PROXY_SNI}"
+
+        if [[ -n "${PROXY_SNI}" ]]; then
+            OUTPUT_LINE="${OUTPUT_LINE}, sni=${PROXY_SNI}"
+        else
+            [[ -n "${PROXY_SERVERNAME}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, sni=${PROXY_SNI}"
+        fi
 
         if [[ "${PROXY_TYPE}" == "vmess" ]]; then
             [[ "${PROXY_ALTERID}" == "0" ]] && OUTPUT_LINE="${OUTPUT_LINE}, vmess-aead=true"
@@ -103,6 +108,7 @@ function setProxies() {
     PROXY_NAME=""
     PROXY_TYPE=""
     PROXY_SERVER=""
+    PROXY_SERVERNAME=""
     PROXY_PORT=""
     PROXY_USERNAME=""
     PROXY_UUID=""
@@ -234,6 +240,7 @@ while IFS= read -r READLINE || [[ "${READLINE}" ]]; do
 
             [[ -z "${PROXY_TYPE}" ]] && PROXY_TYPE=$( (sed 's/,/\n/g' | grep 'type:' | sed 's/[{}]//g' | sed -nr 's/.*type:\s*(.+)/\1/p') <<<"${READLINE}")
             [[ -z "${PROXY_SERVER}" ]] && PROXY_SERVER=$( (sed 's/,/\n/g' | grep 'server:' | sed 's/[{}]//g' | sed -nr 's/.*server:\s*(.+)/\1/p') <<<"${READLINE}")
+            [[ -z "${PROXY_SERVERNAME}" ]] && PROXY_SERVERNAME=$( (sed 's/,/\n/g' | grep 'servername:' | sed 's/[{}]//g' | sed -nr 's/.*servername:\s*(.+)/\1/p') <<<"${READLINE}")
             [[ -z "${PROXY_PORT}" ]] && PROXY_PORT=$( (sed 's/,/\n/g' | grep 'port:' | sed 's/[{}]//g' | sed -nr 's/.*port:\s*(.+)/\1/p') <<<"${READLINE}")
             [[ -z "${PROXY_USERNAME}" ]] && PROXY_USERNAME=$( (sed 's/,/\n/g' | grep 'username:' | sed 's/[{}]//g' | sed -nr 's/.*username:\s*(.+)/\1/p') <<<"${READLINE}")
             [[ -z "${PROXY_UUID}" ]] && PROXY_UUID=$( (sed 's/,/\n/g' | grep 'uuid:' | sed 's/[{}]//g' | sed -nr 's/.*uuid:\s*(.+)/\1/p') <<<"${READLINE}")
