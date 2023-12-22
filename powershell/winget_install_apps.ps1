@@ -84,6 +84,7 @@ if (Get-Command "winget" -ErrorAction SilentlyContinue) {
         # "WinSCP.WinSCP"
         # "WiresharkFoundation.Wireshark"
         "Microsoft.VisualStudio.Enterprise"
+        "Hiddify.Next"
     )
 
     foreach ($TargetApp in $Apps) {
