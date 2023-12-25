@@ -808,6 +808,30 @@ function App_Installer_Install() {
     return 0
 }
 
+# Get installed app version
+function App_Installer_Get_Installed_Version() {
+    local appBinary=$1
+    local binaryFile versionFile
+
+    [[ -z "${appBinary}" ]] && colorEcho "${FUCHSIA}App binary name${RED} can't empty!" && return 1
+
+    binaryFile=$(which "${appBinary}")
+    [[ -z "${binaryFile}" ]] && INSTALLER_VER_CURRENT="0.0.0" && return 1
+
+    INSTALLER_VER_CURRENT=$(${appBinary} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -V 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+
+    if [[ -z "${INSTALLER_VER_CURRENT}" ]]; then
+        versionFile="${binaryFile}.version"
+        [[ -s "${versionFile}" ]] && INSTALLER_VER_CURRENT=$(head -n1 "${versionFile}")
+    fi
+
+    [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT="0.0.0" && return 1
+
+    return 0
+}
+
 # Auto extract download address, decompress and install prebuilt binary from given URL
 function intallPrebuiltBinary() {
     # Usage:
@@ -830,6 +854,20 @@ function intallPrebuiltBinary() {
 
     INSTALLER_APP_NAME="${binary_name}"
     INSTALLER_INSTALL_NAME="${binary_name}"
+
+    # remote version
+    if [[ -z "${INSTALLER_VER_REMOTE}" && -n "${INSTALLER_CHECK_URL}" ]]; then
+        App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    fi
+
+    # installed version
+    if [[ -n "${INSTALLER_VER_REMOTE}" && "${INSTALLER_VER_CURRENT}" == "0.0.0" ]]; then
+        App_Installer_Get_Installed_Version "${INSTALLER_APP_NAME}"
+        if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+            colorEcho "${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE} already installed!"
+            return 0
+        fi
+    fi
 
     [[ -n "${file_match_pattern}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${file_match_pattern}"
 
