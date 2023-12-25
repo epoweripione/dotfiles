@@ -25,7 +25,7 @@ App_Installer_Reset
 [[ -z "${OS_PACKAGE_MANAGER}" ]] && get_os_package_manager
 
 # [mieru](https://github.com/enfein/mieru)
-INSTALLER_APP_NAME="mieru"
+INSTALLER_APP_NAME="mita"
 INSTALLER_GITHUB_REPO="enfein/mieru"
 
 INSTALLER_IS_INSTALL="no"
