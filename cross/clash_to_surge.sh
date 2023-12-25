@@ -137,12 +137,14 @@ function setProxyGroup() {
             fi
         done
 
-        OUTPUT_LINE="${GROUP_NAME_PRE} = ${GROUP_TYPE}, ${GROUP_PROXIES}"
-        [[ -n "${GROUP_URL}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, url=${GROUP_URL}"
-        [[ -n "${GROUP_INTERVAL}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, interval=${GROUP_INTERVAL}"
-        [[ -n "${GROUP_TOLERANCE}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, tolerance=${GROUP_TOLERANCE}"
+        if [[ -n "${GROUP_PROXIES}" ]]; then
+            OUTPUT_LINE="${GROUP_NAME_PRE} = ${GROUP_TYPE}, ${GROUP_PROXIES}"
+            [[ -n "${GROUP_URL}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, url=${GROUP_URL}"
+            [[ -n "${GROUP_INTERVAL}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, interval=${GROUP_INTERVAL}"
+            [[ -n "${GROUP_TOLERANCE}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, tolerance=${GROUP_TOLERANCE}"
 
-        sed -e 's|\s#.*||g' -e 's|"||g' -e "s|'||g" <<<"${OUTPUT_LINE}" | tee -a "${CONFIG_TO}" >/dev/null
+            sed -e 's|\s#.*||g' -e 's|"||g' -e "s|'||g" <<<"${OUTPUT_LINE}" | tee -a "${CONFIG_TO}" >/dev/null
+        fi
     fi
 
     GROUP_NAME_PRE="${GROUP_NAME}"
