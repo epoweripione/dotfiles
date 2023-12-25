@@ -45,6 +45,8 @@ fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     if intallPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"; then
+        mkdir -p "$HOME/.config/singbox"
+
         GEOIP_URL="https://github.com/SagerNet/sing-geoip/releases/latest/download/geoip.db"
         GEOIP_FILE="${WORKDIR}/geoip.dat"
         curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${GEOIP_FILE}" "${GEOIP_URL}" && \
