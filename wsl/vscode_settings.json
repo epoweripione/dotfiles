@@ -1,6 +1,8 @@
 {
 	"window.titleBarStyle": "custom",
 	"window.restoreFullscreen": true,
+	"window.density.editorTabHeight": "compact",
+
 	"explorer.confirmDelete": false,
 
 	"workbench.colorTheme": "Aura Soft Dark (Soft Text)",
@@ -10,16 +12,21 @@
 	"workbench.editor.highlightModifiedTabs": true,
 	"workbench.editor.decorations.badges": true,
 	"workbench.editor.decorations.colors": true,
+	"workbench.editor.wrapTabs": true,
 
 	"editor.minimap.enabled": true,
 	"editor.renderControlCharacters": true,
 	"editor.renderWhitespace": "selection",
-	"editor.fontFamily": "'FiraCode Nerd Font Mono', 'Fira Code', 'Sarasa Term SC', '更纱黑体 SC'",
+	"editor.fontFamily": "'FiraCode Nerd Font Mono', 'Fira Code', 'Sarasa Term SC', '等距更纱黑体 SC'",
 	"editor.fontLigatures": true,
 	"editor.formatOnPaste": false,
 	"editor.linkedEditing": true,
 	"editor.bracketPairColorization.enabled": true,
 	"editor.guides.bracketPairs": true,
+	"editor.autoClosingBrackets": "always",
+	"editor.autoClosingQuotes": "always",
+
+	"diffEditor.hideUnchangedRegions.enabled": true,
 
 	"extensions.closeExtensionDetailsOnViewChange": true,
 	"extensions.ignoreRecommendations": true,
