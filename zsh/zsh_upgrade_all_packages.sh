@@ -188,6 +188,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
 fi
 for Target in "${AppAlwaysInstallList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
+    [[ ! -s "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
     [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
 done
 
@@ -251,6 +252,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
 fi
 for Target in "${AppWSLDesktopList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
+    [[ ! -s "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
     [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
 done
 
