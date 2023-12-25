@@ -56,9 +56,9 @@ if [[ -x "$(command -v sk)" ]]; then
 fi
 
 # go
-if [[ -x "$(command -v go)" ]]; then
-    [[ -n "${all_proxy}" ]] && alias go='noproxy_cmd go'
-fi
+# if [[ -x "$(command -v go)" ]]; then
+#     [[ -n "${all_proxy}" ]] && alias go='noproxy_cmd go'
+# fi
 
 # docker
 if [[ -x "$(command -v docker)" ]]; then
