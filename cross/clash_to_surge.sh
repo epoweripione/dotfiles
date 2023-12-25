@@ -137,7 +137,9 @@ function setProxyGroup() {
             fi
         done
 
-        if [[ -n "${GROUP_PROXIES}" ]]; then
+        if [[ -z "${GROUP_PROXIES}" ]]; then
+            FILTERED_GROUP_NAME+=("${GROUP_NAME_PRE}")
+        else
             OUTPUT_LINE="${GROUP_NAME_PRE} = ${GROUP_TYPE}, ${GROUP_PROXIES}"
             [[ -n "${GROUP_URL}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, url=${GROUP_URL}"
             [[ -n "${GROUP_INTERVAL}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, interval=${GROUP_INTERVAL}"
@@ -206,6 +208,7 @@ EOF
 # [supported protocol](https://getsurfboard.com/docs/profile-format/proxy/)
 SUPPORTED_PROTOCOL="http|https|socks5|socks5-tls|ss|vmess|trojan" # |wireguard
 FILTERED_PROXY_NAME=()
+FILTERED_GROUP_NAME=()
 
 # Proxy & Proxy Group
 OUTPUT_TYPE=""
@@ -294,6 +297,11 @@ done < "${CONFIG_SRC}"
 
 # last group
 setProxyGroup
+
+# delete empty group
+for GROUP_FILTERED in "${FILTERED_GROUP_NAME[@]}"; do
+    sed -ri -e "s|, ${GROUP_FILTERED},|,|g" -e "s|, ${GROUP_FILTERED}$||g" "${CONFIG_TO}"
+done
 
 # Rule
 colorEcho "${BLUE}  Processing ${FUCHSIA}[Rule]${BLUE}..."
