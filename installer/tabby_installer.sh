@@ -24,7 +24,7 @@ INSTALLER_APP_NAME="Tabby"
 INSTALLER_GITHUB_REPO="Eugeny/tabby"
 
 INSTALLER_INSTALL_NAME="tabby"
-INSTALLER_VER_FILE="/opt/tabby/${INSTALLER_INSTALL_NAME}.version"
+# INSTALLER_VER_FILE="/opt/tabby/${INSTALLER_INSTALL_NAME}.version"
 
 if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
