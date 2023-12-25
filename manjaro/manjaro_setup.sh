@@ -68,6 +68,8 @@ else
     fi
 fi
 
+[[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
+
 # Setup pacman repository & AUR & install pre-requisite packages
 [[ -s "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh"
 
@@ -241,6 +243,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "docker"
         "docker-compose"
         # "kitematic"
+        "distrobox"
         ## [Podman](https://wiki.archlinux.org/title/Podman)
         # "extra/podman"
         # "extra/cni-plugins"
@@ -435,7 +438,7 @@ fi
 [[ -s "${MY_SHELL_SCRIPTS}/installer/he3_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/he3_installer.sh"
 
 # [洛雪音乐助手桌面版](https://github.com/lyswhut/lx-music-desktop)
-[[ -s "${MY_SHELL_SCRIPTS}/installer/lx-music-desktop.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/lx-music-desktop.sh"
+[[ -s "${MY_SHELL_SCRIPTS}/installer/lx-music-desktop_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/lx-music-desktop_installer.sh"
 
 # Notepadqq
 # [[ -s "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh"
@@ -449,6 +452,16 @@ fi
 # systemctl --user enable --now psd.service
 # psd parse
 
+# [Environment variables](https://wiki.archlinux.org/title/environment_variables)
+# [Session Environment Variables](https://userbase.kde.org/Session_Environment_Variables)
+if [[ -s "$HOME/.dotfiles/manjaro/desktop_environment_variables.sh" ]]; then
+    ENV_VAR_FILE=""
+    [[ "${OS_INFO_DESKTOP}" == "KDE" ]] && ENV_VAR_FILE="$HOME/.config/plasma-workspace/env/desktop_environment_variables.sh"
+
+    if [[ -n "${ENV_VAR_FILE}" && ! -s "${ENV_VAR_FILE}" ]]; then
+        cp "$HOME/.dotfiles/manjaro/desktop_environment_variables.sh" "${ENV_VAR_FILE}"
+    fi
+fi
 
 ## Others
 # mute tone when logout

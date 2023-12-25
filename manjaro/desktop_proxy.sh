@@ -44,8 +44,11 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
     # colorEcho "${BLUE}Installing ${FUCHSIA}Clash Meta${BLUE}..."
     # yay --noconfirm --needed -S archlinuxcn/clash-meta
 
-    colorEcho "${BLUE}Installing ${FUCHSIA}mihomo${BLUE}..."
-    yay --noconfirm --needed -S aur/mihomo
+    # colorEcho "${BLUE}Installing ${FUCHSIA}mihomo${BLUE}..."
+    # yay --noconfirm --needed -S aur/mihomo
+
+    # colorEcho "${BLUE}Installing ${FUCHSIA}sing-box${BLUE}..."
+    # yay --noconfirm --needed -S aur/sing-box
 
     # Clash for Windows
     # colorEcho "${BLUE}Installing ${FUCHSIA}Clash for Windows${BLUE}..."
@@ -64,6 +67,10 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
     # Clash Verge
     colorEcho "${BLUE}Installing ${FUCHSIA}Clash Verge${BLUE}..."
     yay --noconfirm --needed -S aur/clash-verge-rev-bin
+
+    # Hiddify-Next
+    colorEcho "${BLUE}Installing ${FUCHSIA}Hiddify-Next${BLUE}..."
+    yay --noconfirm --needed -S aur/hiddify-next-bin
 
     # Fix `start tun interface error: operation not permitted`
     # [setcap 详解](https://www.cnblogs.com/nf01/articles/10418141.html)

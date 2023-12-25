@@ -154,7 +154,7 @@ fi
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
     AppAlwaysInstallList=(
-        "asdf"
+        # "asdf"
         "rtx"
         "as-tree"
         "bat"
@@ -174,9 +174,16 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "magic-wormhole"
         # "nano"
         "nnn"
-        "skim"
+        # "skim"
         "yq"
         "zoxide"
+        # "clash"
+        "mihomo"
+        "mieru"
+        "mita"
+        "sing-box"
+        "clash2singbox"
+        "subconverter"
     )
 fi
 for Target in "${AppAlwaysInstallList[@]}"; do
@@ -256,19 +263,15 @@ if [[ -z "${AppUpdateOnlyList[*]}" ]]; then
         "goproxy"
         # "gvm_go"
         "he3"
+        "lx-music-desktop"
         # "inlets"
         # "proxychains"
         "safe-rm"
-        # "clash"
-        "mihomo"
-        "mieru"
-        "mita"
-        "subconverter"
-        "sing-box"
         "trojan"
         "v2ray"
         "xray"
         "flutter"
+        "tabby"
     )
 fi
 for Target in "${AppUpdateOnlyList[@]}"; do
@@ -352,6 +355,11 @@ if [[ -x "$(command -v brew)" ]]; then
     # brew cleanup
     brew update
     brew upgrade
+fi
+
+if [[ -x "$(command -v mc)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}mc${BLUE}..."
+    mc update
 fi
 
 # if [[ -x "$(command -v pip)" ]]; then
