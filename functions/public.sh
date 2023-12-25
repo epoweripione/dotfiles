@@ -19,21 +19,46 @@ DARKGRAY='\033[1;30m'
 LIGHTGRAY='\033[0;37m'
 WHITE='\033[1;37m'
 
+# color echo with datetime
+# export COLOR_ECHO_DATETIME_FORMAT="%F %T.%6N %:z" # [2000-01-01 12:00:00.123456 +00:00]
+# export COLOR_ECHO_DATETIME_FORMAT="%FT%T%:z" # [2000-01-01T12:00:00+00:00]
 function colorEcho() {
+    local DATETIME
+    [[ -n "${COLOR_ECHO_DATETIME_FORMAT}" ]] && DATETIME="[$(date +"${COLOR_ECHO_DATETIME_FORMAT}")] "
+
     if [[ $# -gt 1 ]]; then
         local COLOR=$1
-        echo -e "${COLOR}${@:2}${NOCOLOR}"
+        if [[ -n "${COLOR_ECHO_DATETIME_FORMAT}" ]]; then
+            echo -e "${DATETIME}${COLOR}${@:2}${NOCOLOR}"
+        else
+            echo -e "${COLOR}${@:2}${NOCOLOR}"
+        fi
     else
-        echo -e "${@:1}${NOCOLOR}"
+        if [[ -n "${COLOR_ECHO_DATETIME_FORMAT}" ]]; then
+            echo -e "${DATETIME}${@:1}${NOCOLOR}"
+        else
+            echo -e "${@:1}${NOCOLOR}"
+        fi
     fi
 }
 
 function colorEchoN() {
+    local DATETIME
+    [[ -n "${COLOR_ECHO_DATETIME_FORMAT}" ]] && DATETIME="[$(date +"${COLOR_ECHO_DATETIME_FORMAT}")] "
+
     if [[ $# -gt 1 ]]; then
         local COLOR=$1
-        echo -e -n "${COLOR}${@:2}${NOCOLOR}"
+        if [[ -n "${COLOR_ECHO_DATETIME_FORMAT}" ]]; then
+            echo -e -n "${DATETIME}${COLOR}${@:2}${NOCOLOR}"
+        else
+            echo -e -n "${COLOR}${@:2}${NOCOLOR}"
+        fi
     else
-        echo -e -n "${@:1}${NOCOLOR}"
+        if [[ -n "${COLOR_ECHO_DATETIME_FORMAT}" ]]; then
+            echo -e -n "${DATETIME}${@:1}${NOCOLOR}"
+        else
+            echo -e -n "${@:1}${NOCOLOR}"
+        fi
     fi
 }
 

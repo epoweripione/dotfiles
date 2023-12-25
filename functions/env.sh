@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# color echo with datetime
+# export COLOR_ECHO_DATETIME_FORMAT="%F %T.%6N %:z" # [2000-01-01 12:00:00.123456 +00:00]
+# export COLOR_ECHO_DATETIME_FORMAT="%FT%T%:z" # [2000-01-01T12:00:00+00:00]
+[[ -n "${COLOR_ECHO_DATETIME_FORMAT}" ]] && export COLOR_ECHO_DATETIME_FORMAT
+
 # no proxy ip & domain
 get_no_proxy
 
