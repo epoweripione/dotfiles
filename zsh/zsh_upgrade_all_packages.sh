@@ -183,7 +183,6 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "mita"
         "sing-box"
         "clash2singbox"
-        "subconverter"
     )
 fi
 for Target in "${AppAlwaysInstallList[@]}"; do
@@ -269,6 +268,7 @@ if [[ -z "${AppUpdateOnlyList[*]}" ]]; then
         # "inlets"
         # "proxychains"
         "safe-rm"
+        "subconverter"
         "trojan"
         "v2ray"
         "xray"
