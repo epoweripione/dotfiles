@@ -194,6 +194,14 @@ function dockerRemoveDangling() {
     # fi
 }
 
+function dockerForceRemoveDangling() {
+    local list imageTag
+
+    colorEcho "${BLUE}Removing all dangling containers & images..."
+    docker system df
+    docker system prune --force
+}
+
 # Relocating the Docker root directory
 # docker info -f '{{ .DockerRootDir}}' # /var/lib/docker
 function dockerRelocateRoot() {
