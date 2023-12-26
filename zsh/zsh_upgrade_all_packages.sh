@@ -180,7 +180,6 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         # "clash"
         "mihomo"
         "mieru"
-        "mita"
         "sing-box"
         "clash2singbox"
     )
@@ -268,6 +267,7 @@ if [[ -z "${AppUpdateOnlyList[*]}" ]]; then
         # "inlets"
         # "proxychains"
         "safe-rm"
+        "mita"
         "subconverter"
         "trojan"
         "v2ray"
