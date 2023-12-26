@@ -101,12 +101,12 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     fi
 
     if [[ "${INSTALLER_IS_UPDATE}" == "no" ]]; then
-        [[ ! -s "/srv/subconverter/pref.yml" ]] && cp "/srv/subconverter/pref.example.yml" "/srv/subconverter/pref.yml"
+        [[ ! -s "/srv/subconverter/pref.yml" ]] && sudo cp "/srv/subconverter/pref.example.yml" "/srv/subconverter/pref.yml"
 
         colorEchoN "${ORANGE}Enter api access password: "
         read -r -s API_PASSWORD
         if [[ -n "${API_PASSWORD}" ]]; then
-            sed -i "s|api_access_token:.*|api_access_token: ${API_PASSWORD}|" "/srv/subconverter/pref.yml"
+            sudo sed -i "s|api_access_token:.*|api_access_token: ${API_PASSWORD}|" "/srv/subconverter/pref.yml"
             # sed -i "s|api_access_token:.*|api_access_token: ${API_PASSWORD}|" "/srv/subconverter/pref-new.yml"
             # sed -i "s|api_access_token=.*|api_access_token=${API_PASSWORD}|" "/srv/subconverter/pref.ini"
         fi
