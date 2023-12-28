@@ -226,6 +226,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "ffmpeg"
         "listen1desktop"
         "thorium-reader"
+        "mp3tag"
         "mpc-be"
         "vlc"
         "potplayer"
