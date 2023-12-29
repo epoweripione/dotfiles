@@ -268,6 +268,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "zoom"
         # "cdburnerxp"
         # "wincdemu"
+        "isocreator"
+        "ultraiso"
         "windowsupdateshistoryviewer"
         "ventoy"
         "cht"
