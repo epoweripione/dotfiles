@@ -175,6 +175,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         # "nano"
         "nnn"
         # "skim"
+        "tailspin"
         "yq"
         "zoxide"
         # "clash"
