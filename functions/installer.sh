@@ -542,6 +542,42 @@ function App_Installer_Download_Extract() {
     fi
 }
 
+# Get archive file extension
+function App_Installer_Get_Archive_File_Extension() {
+    local filename=$1
+    local archive_ext_list archive_ext TargetExt
+
+    [[ -z "${filename}" ]] && colorEcho "${FUCHSIA}Filename${RED} can't empty!" && return 1
+
+    archive_ext=""
+    archive_ext_list=(
+        ".tar.bz2"
+        ".tar.bz"
+        ".tar.gz"
+        ".tar.xz"
+        ".tbz2"
+        ".tbz"
+        ".tgz"
+        ".txz"
+        ".bz2"
+        ".bz"
+        ".gz"
+        ".xz"
+        ".zip"
+        ".7z"
+    )
+    for TargetExt in "${archive_ext_list[@]}"; do
+        if echo "${filename}" | grep -q "${TargetExt}$"; then
+            archive_ext="${TargetExt}"
+            break
+        fi
+    done
+
+    INSTALLER_ARCHIVE_EXT="${archive_ext}"
+
+    [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && return 0 || return 1
+}
+
 # Extract archive file
 function Archive_File_Extract() {
     local filename=$1
@@ -695,6 +731,8 @@ function App_Installer_Install() {
 
     [[ -z "${WORKDIR}" ]] && WORKDIR="$(pwd)"
     INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
+
+    [[ -z "${INSTALLER_ARCHIVE_EXT}" ]] && App_Installer_Get_Archive_File_Extension "${INSTALLER_DOWNLOAD_URL}"
     [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE}.${INSTALLER_ARCHIVE_EXT}"
 
     # download & extract file
@@ -839,32 +877,52 @@ function intallPrebuiltBinary() {
     # intallPrebuiltBinary nnn "jarun/nnn" "nnn-nerd-.*\.tar\.gz" # github releases
     # intallPrebuiltBinary earthly "earthly/earthly" "earthly-*" # github releases
     # intallPrebuiltBinary "https://dev.yorhel.nl/ncdu" "/download/ncdu-[^<>:;,?\"*|/]+\.tar\.gz" "ncdu-.*\.tar\.gz" # full URL
-    # or use in script, for example: `cross/mihomo_installer.sh`, `installer/ffsend_installer.sh`
+
+    # Or separated by #: binary_name#remote_url#archive_file_extension#file_match_pattern#version_match_pattern#multi_match_filter
+    # intallPrebuiltBinary 'tspin#bensadeh/tailspin#tar.gz#tspin*' # github releases
+    # intallPrebuiltBinary 'ncdu#https://dev.yorhel.nl/ncdu#tar.gz#ncdu-[^<>:;,?"*|/]+\.tar\.gz#ncdu-.*\.tar\.gz' # full URL
+
+    # Or use in script, for example: `cross/mihomo_installer.sh`, `installer/ffsend_installer.sh`, `installer/tailsping_installer.sh`
     local binary_name=$1
     local remote_url=$2
     local file_match_pattern=$3
     local version_match_pattern=$4
     local multi_match_filter=$5
+    local binary_url_pattern
 
     [[ -z "${binary_name}" ]] && colorEcho "${FUCHSIA}Binary name${RED} can't empty!" && return 1
-    [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}URL${RED} can't empty!" && return 1
 
     # Reset ENV vars if there is an application installed before
     [[ -n "${INSTALLER_APP_NAME}" ]] && App_Installer_Reset
+
+    # maybe: binary_name#remote_url#archive_file_extension#file_match_pattern#version_match_pattern#multi_match_filter
+    # tspin#bensadeh/tailspin#tar.gz#tspin*
+    # ncdu#https://dev.yorhel.nl/ncdu#tar.gz#ncdu-[^<>:;,?"*|/]+\.tar\.gz#ncdu-.*\.tar\.gz
+    if [[ -z "${remote_url}" ]]; then
+        binary_url_pattern="${binary_name}"
+
+        binary_name=$(awk -F'#' '{print $1}' <<<"${binary_url_pattern}")
+        remote_url=$(awk -F'#' '{print $2}' <<<"${binary_url_pattern}")
+
+        [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}URL${RED} can't empty!" && return 1
+
+        INSTALLER_ARCHIVE_EXT=$(awk -F'#' '{print $3}' <<<"${binary_url_pattern}")
+        file_match_pattern=$(awk -F'#' '{print $4}' <<<"${binary_url_pattern}")
+        version_match_pattern=$(awk -F'#' '{print $5}' <<<"${binary_url_pattern}")
+        multi_match_filter=$(awk -F'#' '{print $6}' <<<"${binary_url_pattern}")
+    fi
 
     INSTALLER_APP_NAME="${binary_name}"
     INSTALLER_INSTALL_NAME="${binary_name}"
 
     # remote version
-    if [[ -z "${INSTALLER_VER_REMOTE}" && -n "${INSTALLER_CHECK_URL}" ]]; then
-        App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
-    fi
+    [[ -z "${INSTALLER_VER_REMOTE}" ]] && App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
     # installed version
     if [[ -n "${INSTALLER_VER_REMOTE}" && "${INSTALLER_VER_CURRENT}" == "0.0.0" ]]; then
         App_Installer_Get_Installed_Version "${INSTALLER_APP_NAME}"
         if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
-            colorEcho "${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE} already installed!"
+            # colorEcho "${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE} already installed!"
             return 0
         fi
     fi
