@@ -916,7 +916,10 @@ function intallPrebuiltBinary() {
     INSTALLER_INSTALL_NAME="${binary_name}"
 
     # remote version
-    [[ -z "${INSTALLER_VER_REMOTE}" ]] && App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if [[ -z "${INSTALLER_VER_REMOTE}" ]]; then
+        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+        App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    fi
 
     # installed version
     if [[ -n "${INSTALLER_VER_REMOTE}" && "${INSTALLER_VER_CURRENT}" == "0.0.0" ]]; then
