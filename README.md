@@ -68,7 +68,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
       ```
   * [docker](/functions/docker.sh): docker mirrors, pull multiple images...
   * [installer](/functions/installer.sh): functions to install apps
-  * [versions](/functions/versions.sh): version manager functions for goup, rtx, asdf...
+  * [versions](/functions/versions.sh): version manager functions for goup, mise, asdf...
   * [web](/functions/web.sh)
   * [misc](/functions/misc.sh)
 - [Scripts](/installer/) & [functions](/functions/installer.sh) to install apps
@@ -118,7 +118,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * [nvm](https://github.com/nvm-sh/nvm)
   * [nvs](https://github.com/jasongin/nvs)
   * [asdf](https://asdf-vm.com/)
-  * [rtx](https://github.com/jdxcode/rtx)
+  * [mise](https://mise.jdx.dev/)
   * [jabba](https://github.com/shyiko/jabba)
   * ...
 - alias for docker: `alias | grep '^docker'`
@@ -265,7 +265,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * [Install and/or update Apps](/zsh/zsh_upgrade_all_packages.sh)
     ```bash
     # Apps always install and update
-    AppAlwaysInstallList=("asdf" "rtx" "as-tree" "bat" "broot" "croc" "dasel" "duf" "dust" "erdtree" "exa" "fd" "git-delta" "lazygit" "lnav" "magic-wormhole" "navi" "nnn" "skim" "tealdeer" "yq" "zoxide")
+    AppAlwaysInstallList=("asdf" "mise" "as-tree" "bat" "broot" "croc" "dasel" "duf" "dust" "erdtree" "exa" "fd" "git-delta" "lazygit" "lnav" "magic-wormhole" "navi" "nnn" "skim" "tealdeer" "yq" "zoxide")
     # Apps only install and update on WSL or Desktop environment
     AppWSLDesktopList=("bottom" "btop" "choose" "curlie" "distrobox" "dog" "fq" "fx" "git-lfs" "gotty" "httpie" "httpie-go" "httpstat" "hyperfine" "lsd" "nali" "ncdu" "nu" "onefetch" "ohmyposh" "poetry" "procs" "pup" "rclone" "re-txt" "restic" "sd" "tig" "usql" "viu" "wrk" "xh")
     # Apps only update when installed

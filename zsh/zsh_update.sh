@@ -319,7 +319,7 @@ Plugins="git"
 Plugins="${Plugins} cp rsync sudo supervisor colored-man-pages"
 # Plugins="${Plugins} command-time"
 
-[[ -d "$HOME/.asdf" && ! "$(command -v rtx)" ]] && Plugins="${Plugins} asdf"
+[[ -d "$HOME/.asdf" && ! "$(command -v mise)" ]] && Plugins="${Plugins} asdf"
 
 [[ -x "$(command -v tmux)" ]] && Plugins="${Plugins} tmux"
 # [[ -x "$(command -v autojump)" ]] && Plugins="${Plugins} autojump"

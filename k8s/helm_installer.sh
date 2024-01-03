@@ -22,7 +22,7 @@ fi
 
 # Helm: The package manager for Kubernetes
 # https://helm.sh/
-[[ ! -x "$(command -v helm)" && "$(command -v rtx)" ]] && rtx global helm@latest
+[[ ! -x "$(command -v helm)" && "$(command -v mise)" ]] && mise global helm@latest
 [[ ! -x "$(command -v helm)" && "$(command -v asdf)" ]] && asdf_App_Install helm
 
 [[ ! -x "$(command -v helm)" ]] && colorEcho "${FUCHSIA}helm${BLUE} is not installed!" && exit 1

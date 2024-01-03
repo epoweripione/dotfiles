@@ -108,26 +108,26 @@ function rbenvFallbackSystemVersion() {
     rbenv global system
 }
 
-# [Runtime Executor (asdf rust clone)](https://github.com/jdxcode/rtx)
-function rtx_App_Update() {
+# [The front-end to your dev env (formerly called "rtx")](https://mise.jdx.dev/)
+function mise_App_Update() {
     # Usage:
-    # rtx_App_Update all
-    # rtx_App_Update neovim
-    # rtx_App_Update nodejs lts
+    # mise_App_Update all
+    # mise_App_Update neovim
+    # mise_App_Update nodejs lts
     local appName=${1:-"all"}
     local appVersion=$2
     local InstalledPlugins InstalledApp allVersion currentVersion currentVerNum majorVersion matchVersion latestVersion
     local appInstallStatus=0
 
-    [[ ! "$(command -v rtx)" ]] && colorEcho "${FUCHSIA}rtx${RED} is not installed!" && return 1
+    [[ ! "$(command -v mise)" ]] && colorEcho "${FUCHSIA}mise${RED} is not installed!" && return 1
 
     if [[ "${appName}" == "all" ]]; then
-        colorEcho "${BLUE}Checking update for all installed ${FUCHSIA}rtx plugins${BLUE}..."
-        rtx plugins update
-        InstalledPlugins=$(rtx plugins ls 2>/dev/null)
+        colorEcho "${BLUE}Checking update for all installed ${FUCHSIA}mise plugins${BLUE}..."
+        mise plugins update
+        InstalledPlugins=$(mise plugins ls 2>/dev/null)
     else
-        colorEcho "${BLUE}Checking update for ${FUCHSIA}rtx plugin ${ORANGE}${appName}${BLUE}..."
-        rtx plugins update "${appName}"
+        colorEcho "${BLUE}Checking update for ${FUCHSIA}mise plugin ${ORANGE}${appName}${BLUE}..."
+        mise plugins update "${appName}"
         InstalledPlugins="${appName}"
     fi
 
@@ -138,7 +138,7 @@ function rtx_App_Update() {
         appInstallStatus=0
         allVersion=""
         latestVersion=""
-        currentVersion=$(rtx current "${InstalledApp}" 2>/dev/null)
+        currentVersion=$(mise current "${InstalledApp}" 2>/dev/null)
         [[ -z "${currentVersion}" ]] && continue # no installed version
 
         if [[ -n "${appVersion}" ]]; then
@@ -158,12 +158,12 @@ function rtx_App_Update() {
         fi
 
         if [[ -n "${matchVersion}" ]]; then
-            allVersion=$(rtx ls-remote "${InstalledApp}" 2>/dev/null | grep "${matchVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+            allVersion=$(mise ls-remote "${InstalledApp}" 2>/dev/null | grep "${matchVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
         else
-            allVersion=$(rtx ls-remote "${InstalledApp}" 2>/dev/null | grep -E '([0-9]{1,}\.)+[0-9]{1,}' 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+            allVersion=$(mise ls-remote "${InstalledApp}" 2>/dev/null | grep -E '([0-9]{1,}\.)+[0-9]{1,}' 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
         fi
 
-        [[ -z "${allVersion}" ]] && allVersion=$(rtx ls-remote "${InstalledApp}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+        [[ -z "${allVersion}" ]] && allVersion=$(mise ls-remote "${InstalledApp}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
         [[ -n "${allVersion}" ]] && latestVersion=$(sort -rV <<<"${allVersion}" | head -n1)
 
         [[ -z "${latestVersion}" ]] && continue
@@ -172,17 +172,17 @@ function rtx_App_Update() {
         [[ -z "${appVersion}" && "${latestVersion}" == "${currentVersion}" ]] && continue
 
         # Uninstall first if specify appVersion (stable, lts...)
-        [[ -n "${appVersion}" && "${latestVersion}" == "${currentVersion}" ]] && rtx uninstall "${InstalledApp}@${currentVersion}"
+        [[ -n "${appVersion}" && "${latestVersion}" == "${currentVersion}" ]] && mise uninstall "${InstalledApp}@${currentVersion}"
 
-        rtx install "${InstalledApp}@${latestVersion}"
+        mise install "${InstalledApp}@${latestVersion}"
         appInstallStatus=$?
 
         if [[ ${appInstallStatus} -eq 0 ]]; then
             # Set the global runtime version to latest installed version
-            rtx global "${InstalledApp}@${latestVersion}"
+            mise global "${InstalledApp}@${latestVersion}"
 
             # Uninstall old version
-            [[ -z "${appVersion}" ]] && rtx uninstall "${InstalledApp}@${currentVersion}"
+            [[ -z "${appVersion}" ]] && mise uninstall "${InstalledApp}@${currentVersion}"
         fi
     done <<<"${InstalledPlugins}"
 }

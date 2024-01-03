@@ -112,7 +112,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${INSTALLER_FILE_PATH}" ]]; then
     # Android Studio
     # https://developer.android.com/studio/install
     # Install desired Java version
-    [[ ! -x "$(command -v java)" && "$(command -v rtx)" ]] && rtx global java@zulu-17
+    [[ ! -x "$(command -v java)" && "$(command -v mise)" ]] && mise global java@zulu-17
     [[ ! -x "$(command -v java)" && "$(command -v asdf)" ]] && asdf_App_Install java zulu-17
 
     if [[ -x "$(command -v pacman)" ]]; then

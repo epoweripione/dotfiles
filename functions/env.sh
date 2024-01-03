@@ -294,6 +294,11 @@ fi
 #     [[ ":$PATH:" != *":$HOME/.rbenv/bin:"* ]] && export PATH=$PATH:$HOME/.rbenv/bin
 # fi
 
+# mise
+if [[ -d "$HOME/.local/share/mise/shims" ]]; then
+    [[ ":$PATH:" != *":$HOME/.local/share/mise/shims:"* ]] && export PATH=$PATH:$HOME/.local/share/mise/shims
+fi
+
 # WSL1
 if check_os_wsl1; then
     # Docker

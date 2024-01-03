@@ -783,7 +783,7 @@ function App_Installer_Install() {
                 done < <(tr ' ' '\n' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
             fi
         else
-            [[ ! -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
+            [[ ! -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
         fi
         [[ -z "${exec_list[*]}" ]] && exec_list=("${INSTALLER_ARCHIVE_EXEC_NAME}")
 
@@ -792,13 +792,13 @@ function App_Installer_Install() {
         for exec_name in "${exec_list[@]}"; do
             [[ -z "${exec_name}" ]] && continue
 
-            if [[ ! -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" ]]; then
+            if [[ ! -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" ]]; then
                 exec_name=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${exec_name}")
                 INSTALLER_ARCHIVE_EXEC_DIR=$(dirname "${exec_name}") && exec_name=$(basename "${exec_name}")
             fi
             [[ -z "${exec_name}" ]] && continue
 
-            if [[ -s "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" ]]; then
+            if [[ -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" ]]; then
                 [[ -n "${INSTALLER_INSTALL_NAME}" ]] && install_filename="${INSTALLER_INSTALL_NAME}" || install_filename="${exec_name}"
 
                 sudo cp -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
@@ -817,7 +817,7 @@ function App_Installer_Install() {
                 [[ ! -d "/usr/share/man/man${i}" ]] && sudo mkdir -p "/usr/share/man/man${i}"
                 install_files=$(find "${INSTALLER_ARCHIVE_ROOT}" -type f -name "*.${i}")
                 while read -r finded_file; do
-                    [[ ! -s "${finded_file}" ]] && continue
+                    [[ ! -f "${finded_file}" ]] && continue
                     sudo cp -f "${finded_file}" "/usr/share/man/man${i}"
                 done <<<"${install_files}"
             done
@@ -827,7 +827,7 @@ function App_Installer_Install() {
                 [[ ! -d "/usr/local/share/zsh/site-functions" ]] && sudo mkdir -p "/usr/local/share/zsh/site-functions"
                 install_files=$(find "${INSTALLER_ARCHIVE_ROOT}" -type f -name "${INSTALLER_ZSH_COMP_FILE}")
                 while read -r finded_file; do
-                    [[ ! -s "${finded_file}" ]] && continue
+                    [[ ! -f "${finded_file}" ]] && continue
                     [[ -n "${INSTALLER_ZSH_COMP_INSTALL}" ]] && install_filename="${INSTALLER_ZSH_COMP_INSTALL}" || install_filename=$(basename "${finded_file}")
                     sudo cp -f "${finded_file}" "/usr/local/share/zsh/site-functions/${install_filename}" && \
                         sudo chmod 644 "/usr/local/share/zsh/site-functions/${install_filename}" && \

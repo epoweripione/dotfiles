@@ -68,6 +68,13 @@ function colorEchoAllColor() {
     colorEcho "${LIGHTGRAY}lightgray ${DARKGRAY}darkgray ${WHITE}white"
 }
 
+# running SHELL
+function get_running_shell() {
+    unset INFO_SHELL_RUNNING
+
+    INFO_SHELL_RUNNING=$(ps -p $$ -o cmd='',comm='',fname='' 2>/dev/null | sed 's/^-//' | grep -oE '\w+' | head -n1)
+}
+
 # read array options
 function Get_Read_Array_Options() {
     local runShell
