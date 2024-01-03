@@ -39,6 +39,8 @@ if (-Not (Get-Command "scoop" -ErrorAction SilentlyContinue)) {
 
     Set-ExecutionPolicy RemoteSigned -scope CurrentUser
 
+    # The default setup is configured so all user installed programs and Scoop itself live in C:\Users\<user>\scoop
+    # Globally installed programs ( --global ) live in C:\ProgramData\scoop
     if (-Not (($null -eq $AppsInstallDir) -or ($AppsInstallDir -eq ""))) {
         $AppsInstallDir = "$AppsInstallDir".trim("\")
         if (-Not (Test-Path "$AppsInstallDir")) {
@@ -352,9 +354,12 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "Cascadia-Code"
         ## epower
         "NotoSans-CJK"
+        "NotoSans-Mono-CJK"
         "NotoSerif-CJK"
         "FiraCode-Mono-NF"
         "Sarasa-Gothic-SC"
+        # "NotoColorEmoji"
+        # "OpenMoji"
         ## nerd-fonts
         # "FiraCode-NF"
         # "FiraMono-NF"
