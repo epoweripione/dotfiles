@@ -772,11 +772,16 @@ function App_Installer_Install() {
     [[ "${INSTALLER_IS_INSTALL}" != "yes" ]] && return 0
 
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-    # set the app execute filename in archive
-    [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
-
     [[ -z "${WORKDIR}" ]] && WORKDIR="$(pwd)"
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
+
+    # download filename & execute filename in archive
+    if [[ -n "${INSTALLER_INSTALL_NAME}" ]]; then
+        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
+        [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
+    else
+        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_APP_NAME}"
+        [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_APP_NAME}"
+    fi
 
     [[ -z "${INSTALLER_ARCHIVE_EXT}" ]] && App_Installer_Get_Archive_File_Extension "${INSTALLER_DOWNLOAD_URL}"
     [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE}.${INSTALLER_ARCHIVE_EXT}"
@@ -808,12 +813,16 @@ function App_Installer_Install() {
                 fi
             fi
 
-            if [[ -n "${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
+            if [[ -f "${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
                 INSTALLER_ARCHIVE_EXEC_DIR=$(dirname "${INSTALLER_ARCHIVE_EXEC_NAME}")
                 INSTALLER_ARCHIVE_EXEC_NAME=$(basename "${INSTALLER_ARCHIVE_EXEC_NAME}")
             else
                 INSTALLER_ARCHIVE_EXEC_DIR="${WORKDIR}"
-                INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
+                if [[ -n "${INSTALLER_INSTALL_NAME}" ]]; then
+                    INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
+                else
+                    INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_APP_NAME}"
+                fi
             fi
         fi
 
@@ -851,7 +860,7 @@ function App_Installer_Install() {
                 sudo cp -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
                     sudo chmod +x "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
                     app_installed="yes" && \
-                    colorEcho "${GREEN}  Installed: ${ORANGE}${INSTALLER_INSTALL_PATH}/${install_filename}" && \
+                    colorEcho "${GREEN}  Installed: ${YELLOW}${INSTALLER_INSTALL_PATH}/${install_filename}" && \
                     echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_INSTALL_PATH}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
             fi
         done
@@ -870,7 +879,7 @@ function App_Installer_Install() {
                     [[ ! -f "${finded_file}" ]] && continue
                     install_filename=$(basename "${finded_file}")
                     sudo cp -f "${finded_file}" "${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
-                        colorEcho "${GREEN}  Installed: ${ORANGE}${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
+                        colorEcho "${GREEN}  Installed: ${YELLOW}${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
                         echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
                 done <<<"${install_files}"
             done
@@ -886,13 +895,14 @@ function App_Installer_Install() {
                     sudo cp -f "${finded_file}" "${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
                         sudo chmod 644 "${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
                         sudo chown "$(id -u)":"$(id -g)" "${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
-                        colorEcho "${GREEN}  Installed: ${ORANGE}${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
+                        colorEcho "${GREEN}  Installed: ${YELLOW}${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
                         echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
                 done <<<"${install_files}"
             fi
         else
             colorEcho "${RED}  Can't find ${FUCHSIA}${INSTALLER_ARCHIVE_EXEC_NAME}${RED} in ${YELLOW}${INSTALLER_DOWNLOAD_FILE}!"
             echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} Can't find ${INSTALLER_ARCHIVE_EXEC_NAME} in ${INSTALLER_DOWNLOAD_FILE}" >> "${INSTALLER_INSTALL_LOGFILE}"
+            echo "" >> "${INSTALLER_INSTALL_LOGFILE}"
             return 1
         fi
         echo "" >> "${INSTALLER_INSTALL_LOGFILE}"
@@ -946,12 +956,20 @@ function intallPrebuiltBinary() {
     local file_match_pattern=$3
     local version_match_pattern=$4
     local multi_match_filter=$5
+    local workdir_self_created="no"
+    local binary_installed="no"
     local binary_url_pattern
 
     [[ -z "${binary_name}" ]] && colorEcho "${FUCHSIA}Binary name${RED} can't empty!" && return 1
 
     # Reset ENV vars if there is an application installed before
     [[ -n "${INSTALLER_APP_NAME}" || "${INSTALLER_IS_INSTALL}" != "yes" ]] && App_Installer_Reset
+
+    if [[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]]; then
+        WORKDIR="$(mktemp -d)"
+        [[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
+        workdir_self_created="yes"
+    fi
 
     # maybe: binary_name#remote_url#archive_file_extension#file_match_pattern#version_match_pattern#multi_match_filter
     # tspin#bensadeh/tailspin#tar.gz#tspin*
@@ -996,19 +1014,27 @@ function intallPrebuiltBinary() {
     if [[ "${remote_url}" =~ ^(https?://|ftp://) ]]; then
         if App_Installer_Get_Remote "${remote_url}" "${file_match_pattern}" "${version_match_pattern}" "${multi_match_filter}"; then
             [[ "${INSTALLER_DOWNLOAD_URL}" =~ ^(https?://|ftp://) ]] || INSTALLER_DOWNLOAD_URL="${remote_url}${INSTALLER_DOWNLOAD_URL}"
-            if ! App_Installer_Install "${remote_url}"; then
-                colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
-                return 1
+            if App_Installer_Install "${remote_url}"; then
+                binary_installed="yes"
             fi
         fi
     else
-        if ! App_Installer_Install; then
-            colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
-            return 1
+        if App_Installer_Install; then
+            binary_installed="yes"
         fi
     fi
 
-    return 0
+    if [[ "${workdir_self_created}" == "yes" ]]; then
+        cd "${CURRENT_DIR}" || return 1
+        rm -rf "${WORKDIR}"
+    fi
+
+    if [[ "${binary_installed}" == "yes" ]]; then
+        return 0
+    else
+        colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
+        return 1
+    fi
 }
 
 ## Download and decrypt file that encrypt with OpenSSL
