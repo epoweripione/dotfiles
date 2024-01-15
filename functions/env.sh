@@ -251,6 +251,10 @@ if [[ -z "${PIP_CMD_USER}" ]]; then
     [[ -n "${PIP_CMD_USER}" ]] && export PIP_CMD_USER
 fi
 
+if [[ -x "$(command -v pip)" ]]; then
+    export PIP_REQUIRE_VIRTUALENV=true
+fi
+
 # nvs
 if [[ -d "$HOME/.nvs" ]]; then
     if type 'nvs' 2>/dev/null | grep -q 'function'; then
