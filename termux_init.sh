@@ -100,7 +100,10 @@ termux-change-repo
 colorEcho "${BLUE}Installing ${FUCHSIA}packages${BLUE}..."
 pkg upgrade -y && \
     pkg install -y binutils curl wget git nano openssh unzip unrar htop nmap rsync \
-        bat fd fzf lsd lsof nnn screenfetch starship tree zoxide
+        bat eza fd fzf lsd lsof nnn screenfetch starship tree zoxide
+
+# intallPrebuiltBinary 'naiveproxy#klzgrad/naiveproxy#tar.xz#naive*'
+# intallPrebuiltBinary 'mihomo#MetaCubeX/mihomo#gz#mihomo*'
 
 # Termux Sudo Without Root
 # https://github.com/virtual-designer/termux-sudo-without-root
