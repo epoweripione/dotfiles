@@ -38,16 +38,18 @@ case "$1" in
         pgrep -f "mieru" >/dev/null 2>&1 && pkill -f "mieru"
         ;;
     'up')
-        # [[ ! -x "$(command -v naiveproxy)" ]] && echo "naiveproxy not installed!" && exit 1
-
-        if [[ -x "$(command -v naiveproxy)" ]]; then
+        if [[ -x "$(command -v naive)" || -x "$(command -v naiveproxy)" ]]; then
             pgrep -f "naive" >/dev/null 2>&1 && pkill -f "naive"
             pgrep -f "naiveproxy" >/dev/null 2>&1 && pkill -f "naiveproxy"
 
             for TargetUrl in "${NAIVEPROXY_URL[@]}"; do
                 [[ -z "${TargetUrl}" ]] && continue
 
-                nohup naiveproxy --listen="socks://127.0.0.1:${NAIVEPROXY_PORT}" --proxy="${TargetUrl}" >/dev/null 2>&1 &
+                if [[ -x "$(command -v naive)" ]]; then
+                    nohup naive --listen="socks://127.0.0.1:${NAIVEPROXY_PORT}" --proxy="${TargetUrl}" >/dev/null 2>&1 &
+                else
+                    nohup naiveproxy --listen="socks://127.0.0.1:${NAIVEPROXY_PORT}" --proxy="${TargetUrl}" >/dev/null 2>&1 &
+                fi
 
                 NAIVEPROXY_PORT=$((NAIVEPROXY_PORT + 1))
             done
