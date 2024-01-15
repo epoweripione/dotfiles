@@ -854,15 +854,18 @@ function App_Installer_Install() {
             fi
             [[ -z "${exec_name}" ]] && continue
 
-            if [[ -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" ]]; then
-                [[ -n "${INSTALLER_INSTALL_NAME}" ]] && install_filename="${INSTALLER_INSTALL_NAME}" || install_filename="${exec_name}"
+            finded_file="${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}"
+            [[ ! -f "${finded_file}" ]] && continue
 
-                sudo cp -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
-                    sudo chmod +x "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
-                    app_installed="yes" && \
-                    colorEcho "${GREEN}  Installed: ${YELLOW}${INSTALLER_INSTALL_PATH}/${install_filename}" && \
-                    echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_INSTALL_PATH}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
-            fi
+            [[ -n "${INSTALLER_INSTALL_NAME}" ]] && install_filename="${INSTALLER_INSTALL_NAME}" || install_filename="${exec_name}"
+
+            sudo cp -f "${finded_file}" "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
+                sudo chmod +x "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
+                app_installed="yes" && \
+                colorEcho "${GREEN}  Installed: ${YELLOW}${INSTALLER_INSTALL_PATH}/${install_filename}" && \
+                echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_INSTALL_PATH}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
+
+            rm -f "${finded_file}"
         done
 
         # man pages, zsh completions
@@ -881,6 +884,8 @@ function App_Installer_Install() {
                     sudo cp -f "${finded_file}" "${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
                         colorEcho "${GREEN}  Installed: ${YELLOW}${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
                         echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
+
+                    rm -f "${finded_file}"
                 done <<<"${install_files}"
             done
 
@@ -897,6 +902,8 @@ function App_Installer_Install() {
                         sudo chown "$(id -u)":"$(id -g)" "${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
                         colorEcho "${GREEN}  Installed: ${YELLOW}${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
                         echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
+
+                    rm -f "${finded_file}"
                 done <<<"${install_files}"
             fi
         else
