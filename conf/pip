@@ -1,0 +1,7 @@
+[global]
+require-virtualenv=true
+index-url=https://mirrors.aliyun.com/pypi/simple/
+format=columns
+
+[install]
+trusted-host=mirrors.aliyun.com
