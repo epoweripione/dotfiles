@@ -42,6 +42,11 @@ function pip_Package_Install() {
     fi
 }
 
+# pip install packages globally
+function gpip() {
+    PIP_REQUIRE_VIRTUALENV=false pip "$@"
+}
+
 # Check pacakge exists
 function checkPackageExists() {
     local PackageName=${1:-""}
@@ -167,10 +172,28 @@ function Get_Installer_AXEL_Options() {
 function App_Installer_Get_OS_Info_Match_Cond() {
     OS_INFO_UNMATCH_COND=""
 
+    [[ -z "${OS_INFO_RELEASE}" ]] && get_os_release
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
     [[ -z "${OS_INFO_FLOAT}" ]] && get_arch_float
     [[ -z "${CPU_ARCH_LEVEL}" ]] && get_cpu_arch_level
+
+    OS_INFO_MATCH_RELEASE="${OS_INFO_RELEASE}"
+    OS_INFO_MATCH_OPENWRT_BOARD=""
+    OS_INFO_MATCH_OPENWRT_ARCH=""
+    case "${OS_INFO_RELEASE}" in
+        android)
+            OS_INFO_MATCH_RELEASE="${OS_INFO_MATCH_RELEASE}|Android|ANDROID"
+            ;;
+        openwrt)
+            OS_INFO_MATCH_RELEASE="${OS_INFO_MATCH_RELEASE}|OpenWrt|OpenWRT|OPENWRT"
+            # Filename like: *-openwrt-aarch64_cortex-a53*
+            # OPENWRT_BOARD="mediatek/mt7622"
+            [[ -r "/etc/os-release" ]] && OS_INFO_MATCH_OPENWRT_BOARD="$(. /etc/os-release && echo "$OPENWRT_BOARD")"
+            # OPENWRT_ARCH="aarch64_cortex-a53"
+            [[ -r "/etc/os-release" ]] && OS_INFO_MATCH_OPENWRT_ARCH="$(. /etc/os-release && echo "$OPENWRT_ARCH")"
+            ;;
+    esac
 
     OS_INFO_MATCH_TYPE="${OS_INFO_TYPE}"
     case "${OS_INFO_TYPE}" in
@@ -306,7 +329,7 @@ function App_Installer_Get_Remote() {
     local version_match_pattern=$3
     local multi_match_filter=$4
     local match_urls match_result match_cnt
-    local match_result_type match_result_arch match_result_float match_result_cpu_level
+    local match_result_release match_result_type match_result_arch match_result_float match_result_cpu_level
 
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
@@ -380,10 +403,21 @@ function App_Installer_Get_Remote() {
         match_urls=$(grep -Evi "${OS_INFO_UNMATCH_COND}" <<<"${match_urls}")
     fi
 
+    match_result_release=""
     match_result_type=""
     match_result_arch=""
     match_result_float=""
     match_result_cpu_level=""
+
+    if [[ -n "${OS_INFO_MATCH_RELEASE}" ]]; then
+        match_result_release=$(grep -Ei "${OS_INFO_MATCH_RELEASE}" <<<"${match_urls}")
+        [[ -n "${match_result_release}" ]] && match_urls="${match_result_release}"
+        # openwrt arch
+        if [[ -n "${OS_INFO_MATCH_OPENWRT_ARCH}" ]]; then
+            match_result_release=$(grep -Ei "${OS_INFO_MATCH_OPENWRT_ARCH}" <<<"${match_urls}")
+            [[ -n "${match_result_release}" ]] && match_urls="${match_result_release}"
+        fi
+    fi
 
     if [[ -n "${OS_INFO_MATCH_TYPE}" ]]; then
         match_result_type=$(grep -Ei "${OS_INFO_MATCH_TYPE}" <<<"${match_urls}")
@@ -659,7 +693,17 @@ function App_Installer_Reset() {
     INSTALLER_IS_INSTALL="yes"
     INSTALLER_IS_UPDATE="no"
 
-    INSTALLER_INSTALL_PATH="/usr/local/bin"
+    if [[ -n "$PREFIX" ]]; then
+        # Termux for Android
+        INSTALLER_INSTALL_PATH="$PREFIX/bin"
+        INSTALLER_MANPAGE_PATH="$PREFIX/share/man"
+        INSTALLER_ZSH_FUNCTION_PATH="$PREFIX/share/zsh/site-functions"
+    else
+        INSTALLER_INSTALL_PATH="/usr/local/bin"
+        INSTALLER_MANPAGE_PATH="/usr/share/man"
+        INSTALLER_ZSH_FUNCTION_PATH="/usr/local/share/zsh/site-functions"
+    fi
+
     INSTALLER_INSTALL_METHOD=""
     INSTALLER_INSTALL_NAME=""
     INSTALLER_EXEC_FULLNAME=""
@@ -686,6 +730,8 @@ function App_Installer_Reset() {
     INSTALLER_ZSH_COMP_INSTALL=""
 
     INSTALLER_CHOICE="N"
+
+    INSTALLER_INSTALL_LOGFILE="$HOME/.dotfiles.installer.log"
 
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
     [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
@@ -789,6 +835,7 @@ function App_Installer_Install() {
 
         # install app
         app_installed="no"
+        echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_DOWNLOAD_URL}" >> "${INSTALLER_INSTALL_LOGFILE}"
         for exec_name in "${exec_list[@]}"; do
             [[ -z "${exec_name}" ]] && continue
 
@@ -803,7 +850,9 @@ function App_Installer_Install() {
 
                 sudo cp -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}" "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
                     sudo chmod +x "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
-                    app_installed="yes"
+                    app_installed="yes" && \
+                    colorEcho "${GREEN}  Installed: ${ORANGE}${INSTALLER_INSTALL_PATH}/${install_filename}" && \
+                    echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_INSTALL_PATH}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
             fi
         done
 
@@ -814,30 +863,39 @@ function App_Installer_Install() {
 
             # man pages (man1..man8)
             for ((i=1; i <= 8; ++i)); do
-                [[ ! -d "/usr/share/man/man${i}" ]] && sudo mkdir -p "/usr/share/man/man${i}"
+                [[ ! -d "${INSTALLER_MANPAGE_PATH}/man${i}" ]] && sudo mkdir -p "${INSTALLER_MANPAGE_PATH}/man${i}"
+                [[ ! -d "${INSTALLER_MANPAGE_PATH}/man${i}" ]] && continue
                 install_files=$(find "${INSTALLER_ARCHIVE_ROOT}" -type f -name "*.${i}")
                 while read -r finded_file; do
                     [[ ! -f "${finded_file}" ]] && continue
-                    sudo cp -f "${finded_file}" "/usr/share/man/man${i}"
+                    install_filename=$(basename "${finded_file}")
+                    sudo cp -f "${finded_file}" "${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
+                        colorEcho "${GREEN}  Installed: ${ORANGE}${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
+                        echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
                 done <<<"${install_files}"
             done
 
             # zsh completions
             if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
-                [[ ! -d "/usr/local/share/zsh/site-functions" ]] && sudo mkdir -p "/usr/local/share/zsh/site-functions"
+                [[ ! -d "${INSTALLER_ZSH_FUNCTION_PATH}" ]] && sudo mkdir -p "${INSTALLER_ZSH_FUNCTION_PATH}"
                 install_files=$(find "${INSTALLER_ARCHIVE_ROOT}" -type f -name "${INSTALLER_ZSH_COMP_FILE}")
                 while read -r finded_file; do
                     [[ ! -f "${finded_file}" ]] && continue
+                    [[ ! -d "${INSTALLER_ZSH_FUNCTION_PATH}" ]] && continue
                     [[ -n "${INSTALLER_ZSH_COMP_INSTALL}" ]] && install_filename="${INSTALLER_ZSH_COMP_INSTALL}" || install_filename=$(basename "${finded_file}")
-                    sudo cp -f "${finded_file}" "/usr/local/share/zsh/site-functions/${install_filename}" && \
-                        sudo chmod 644 "/usr/local/share/zsh/site-functions/${install_filename}" && \
-                        sudo chown "$(id -u)":"$(id -g)" "/usr/local/share/zsh/site-functions/${install_filename}"
+                    sudo cp -f "${finded_file}" "${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
+                        sudo chmod 644 "${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
+                        sudo chown "$(id -u)":"$(id -g)" "${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
+                        colorEcho "${GREEN}  Installed: ${ORANGE}${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" && \
+                        echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_ZSH_FUNCTION_PATH}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
                 done <<<"${install_files}"
             fi
         else
-            colorEcho "${RED}  Can't find ${FUCHSIA}${INSTALLER_ARCHIVE_EXEC_NAME}${RED} in downloaded file ${YELLOW}${INSTALLER_DOWNLOAD_FILE}!"
+            colorEcho "${RED}  Can't find ${FUCHSIA}${INSTALLER_ARCHIVE_EXEC_NAME}${RED} in ${YELLOW}${INSTALLER_DOWNLOAD_FILE}!"
+            echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} Can't find ${INSTALLER_ARCHIVE_EXEC_NAME} in ${INSTALLER_DOWNLOAD_FILE}" >> "${INSTALLER_INSTALL_LOGFILE}"
             return 1
         fi
+        echo "" >> "${INSTALLER_INSTALL_LOGFILE}"
     else
         colorEcho "${RED}  Download failed from ${ORANGE}${INSTALLER_DOWNLOAD_URL}${RED}!"
         return 1
@@ -893,7 +951,7 @@ function intallPrebuiltBinary() {
     [[ -z "${binary_name}" ]] && colorEcho "${FUCHSIA}Binary name${RED} can't empty!" && return 1
 
     # Reset ENV vars if there is an application installed before
-    [[ -n "${INSTALLER_APP_NAME}" ]] && App_Installer_Reset
+    [[ -n "${INSTALLER_APP_NAME}" || "${INSTALLER_IS_INSTALL}" != "yes" ]] && App_Installer_Reset
 
     # maybe: binary_name#remote_url#archive_file_extension#file_match_pattern#version_match_pattern#multi_match_filter
     # tspin#bensadeh/tailspin#tar.gz#tspin*
@@ -913,7 +971,10 @@ function intallPrebuiltBinary() {
     fi
 
     INSTALLER_APP_NAME="${binary_name}"
-    INSTALLER_INSTALL_NAME="${binary_name}"
+    [[ -z "${file_match_pattern}" ]] && INSTALLER_INSTALL_NAME="${binary_name}"
+
+    # github releases: https://api.github.com/repos/${remote_url}/releases/latest
+    [[ "${remote_url}" =~ ^(https?://|ftp://) ]] || INSTALLER_GITHUB_REPO="${remote_url}"
 
     # remote version
     if [[ -z "${INSTALLER_VER_REMOTE}" ]]; then
@@ -941,9 +1002,6 @@ function intallPrebuiltBinary() {
             fi
         fi
     else
-        # github releases: https://api.github.com/repos/${remote_url}/releases/latest
-        INSTALLER_GITHUB_REPO="${remote_url}"
-
         if ! App_Installer_Install; then
             colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
             return 1
