@@ -129,21 +129,23 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "jetbrains"
         # "php"
         # "games"
+        "he3-app"
     )
 
     $BucketsURL = @(
-        ""
-        ""
-        ""
-        ""
-        ""
+        "" # extras
+        "" # versions
+        "" # nerd-fonts
+        "" # java
+        "" # nirsoft
         "https://github.com/h404bi/dorado"
         # "https://github.com/dodorz/scoop-bucket"
         "https://github.com/epoweripione/scoop-bucket"
-        ""
-        ""
-        # ""
-        # ""
+        "" # nonportable
+        # "" # jetbrains
+        # "" # php
+        # "" # games
+        "https://github.com/he3-app/he3-scoop"
     )
 
     $AddedBuckets = scoop bucket list 6>&1 | Out-String
@@ -188,6 +190,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "zulu11-jdk"
         # "zulu11-jre"
         "python"
+        "extras/miniconda3"
         "php"
         "composer"
         "cacert"
@@ -307,6 +310,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "trafficmonitor"
         "treesize-free"
         # "windterm"
+        ## OCR
+        "umi-ocr"
         ## Diagram
         "graphviz"
         "plantuml"
@@ -343,11 +348,15 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "WiseRegistryCleaner"
         ## https://github.com/lukesampson/scoop/wiki/Theming-Powershell
         # "concfg"
+        ## he3-app
+        "he3"
     )
 
     $sudoApps = @(
         "file-converter-np"
         # "nmap"
+        "tesseract"
+        "tesseract-languages"
     )
 
     $sudoFonts = @(
