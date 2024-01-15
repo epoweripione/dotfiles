@@ -99,7 +99,7 @@ termux-change-repo
 # install packages
 colorEcho "${BLUE}Installing ${FUCHSIA}packages${BLUE}..."
 pkg upgrade -y && \
-    pkg install -y binutils curl wget git nano openssh unzip unrar htop nmap rsync \
+    pkg install -y binutils axel curl wget git nano openssh unzip unrar htop nmap rsync \
         bat eza fd fzf lsd lsof nnn screenfetch starship tree zoxide
 
 # intallPrebuiltBinary 'naiveproxy#klzgrad/naiveproxy#tar.xz#naive*'
