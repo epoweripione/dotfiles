@@ -66,6 +66,9 @@ if ($?) {
     Expand-Archive -Path ".\dotfiles.zip" -DestinationPath .
     Rename-Item -Path ".\dotfiles-main" -NewName ".\dotfiles"
 
+    Copy-Item -Path ".\conf\condarc" -Destination "~\.condarc"
+    Copy-Item -Path ".\conf\pip" -Destination "~\.pip"
+
     $PWSH_DIR = "~\Documents\PowerShell\Scripts"
     if (-Not (Test-Path "$PWSH_DIR")) {New-Item -path "$PWSH_DIR" -type Directory | Out-Null}
     # Copy-Item -Path ".\dotfiles\powershell\*" -Destination "$PWSH_DIR" -Recurse -Force -Confirm:$false
@@ -91,13 +94,6 @@ if ($?) {
 
     $IMAGE_DIR = "~\Pictures"
     Copy-Item -Path ".\dotfiles\wsl\*.jpg" -Destination "$IMAGE_DIR"
-
-    if (Test-Path "~\scoop\apps\clash-for-windows\current\data\parser.js") {
-        $USER_DIR = $env:USERPROFILE -Replace '\\','/'
-        (Get-Content -path "~\scoop\apps\clash-for-windows\current\data\cfw-settings.yaml" -Raw) `
-        -Replace 'C:/Users/Leung',"$USER_DIR" `
-        | Set-Content -Path "~\scoop\apps\clash-for-windows\current\data\cfw-settings.yaml"
-    }
 
     Remove-Item -Path ".\dotfiles" -Recurse -Force -Confirm:$false
     Remove-Item -Path ".\dotfiles.zip" -Force -Confirm:$false
