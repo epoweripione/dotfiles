@@ -265,11 +265,11 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * [Install and/or update Apps](/zsh/zsh_upgrade_all_packages.sh)
     ```bash
     # Apps always install and update
-    AppAlwaysInstallList=("asdf" "mise" "as-tree" "bat" "broot" "croc" "dasel" "duf" "dust" "erdtree" "exa" "fd" "git-delta" "lazygit" "lnav" "magic-wormhole" "navi" "nnn" "skim" "tealdeer" "yq" "zoxide")
+    AppAlwaysInstallList=("asdf" "mise" "as-tree" "bat" "broot" "croc" "dasel" "duf" "dust" "erdtree" "eza" "fd" "git-delta" "lazygit" "lnav" "magic-wormhole" "navi" "nnn" "tealdeer" "yq" "zoxide")
     # Apps only install and update on WSL or Desktop environment
     AppWSLDesktopList=("bottom" "btop" "choose" "curlie" "distrobox" "dog" "fq" "fx" "git-lfs" "gotty" "httpie" "httpie-go" "httpstat" "hyperfine" "lsd" "nali" "ncdu" "nu" "onefetch" "ohmyposh" "poetry" "procs" "pup" "rclone" "re-txt" "restic" "sd" "tig" "usql" "viu" "wrk" "xh")
     # Apps only update when installed
-    AppUpdateOnlyList=("frp" "goproxy" "he3" "safe-rm" "clash" "mieru" "mita" "subconverter" "sing-box" "trojan" "v2ray" "xray" "flutter")
+    AppUpdateOnlyList=("frp" "goproxy" "he3" "safe-rm" "mihomo" "mieru" "mita" "subconverter" "sing-box" "flutter")
     ```
 
 ### Manjaro
