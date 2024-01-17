@@ -386,3 +386,32 @@ function asdf_App_Update() {
         fi
     done <<<"${InstalledPlugins}"
 }
+
+# [List AUR packages installed and only AUR packages](https://bbs.archlinux.org/viewtopic.php?id=76218)
+# `pacman -Qqm` lists foreign packages. which, for must users, means AUR
+# `pacman -Qqe` lists packages that were explicitely installed
+function yayGetAurFlagOutdatedPackages() {
+    local InstalledPackages TargetPackage PackageSearchResult OutdatePackages
+
+    InstalledPackages=$(yay -Qqm)
+    OutdatePackages=()
+    while read -r TargetPackage; do
+        [[ -z "${TargetPackage}" ]] && continue
+
+        # [How to show and update echo on same line](https://stackoverflow.com/questions/12628327/how-to-show-and-update-echo-on-same-line)
+        colorEchoN "${BLUE}Checking ${FUCHSIA}${TargetPackage}${BLUE}...\033[0K\r"
+
+        # PackageSearchResult=$(yay -Ss "${TargetPackage}" 2>/dev/null | grep -i '(installed)')
+        PackageSearchResult=$(yay -Ss "${TargetPackage}" 2>/dev/null | grep -i '(installed)' | grep -i 'out-of-date')
+        [[ -n "${PackageSearchResult}" ]] && OutdatePackages+=("${PackageSearchResult}")
+    done <<<"${InstalledPackages}"
+
+    if [[ -z "${OutdatePackages[*]}" ]]; then
+        colorEcho "${GREEN}Everything looks ok! \033[0K\r"
+    else
+        colorEcho "${RED}Out-of-date packages:\033[0K\r"
+        for TargetPackage in "${OutdatePackages[@]}"; do
+            colorEcho "${CYAN}${TargetPackage}"
+        done
+    fi
+}
