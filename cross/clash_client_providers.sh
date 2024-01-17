@@ -49,7 +49,9 @@ if [[ ! -s "${SUB_URL_LIST}" ]]; then
     exit 1
 fi
 
-CLASH_CONFIG=${4:-"/etc/clash/clash_client_providers.yml"}
+OUTPUT_OPTIONS=${4:-""} # private,subscription
+
+CLASH_CONFIG=${5:-"/etc/clash/clash_client_providers.yml"}
 if [[ ! -s "${CLASH_CONFIG}" ]]; then
     colorEcho "${FUCHSIA}    ${CLASH_CONFIG}${RED} does not exist!"
     exit 1
@@ -108,6 +110,7 @@ FILELIST=()
 FILEOPTION=()
 
 GLOBAL_FILTER=$(grep '^# global' "${SUB_URL_LIST}" | cut -d' ' -f3)
+CONVERTER_SERVICE=$(grep '^# converter' "${SUB_URL_LIST}" | cut -d' ' -f3)
 while read -r READLINE || [[ "${READLINE}" ]]; do
     [[ -z "${READLINE}" ]] && continue
 
@@ -120,11 +123,21 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     TARGET_TYPE_FILTER=$(echo "${READLINE}" | cut -d' ' -f5)
     TARGET_WORD_REPLACE=$(echo "${READLINE}" | cut -d' ' -f6)
 
+    # private,subscription
+    [[ "${TARGET_OPTION}" =~ "private" && "${OUTPUT_OPTIONS}" != *"private"* ]] && continue
+    [[ "${TARGET_OPTION}" =~ "subscription" && "${OUTPUT_OPTIONS}" != *"subscription"* ]] && continue
+
     colorEcho "${BLUE}  Getting ${FUCHSIA}${TARGET_FILE}${BLUE}..."
     DOWNLOAD_FILE="${WORKDIR}/${TARGET_FILE}.yml"
 
     if echo "${TARGET_URL}" | grep -q "^http"; then
         curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+
+        curl_download_status=$?
+        if [[ ${curl_download_status} != 0 ]]; then
+            colorEcho "${RED}    Error when downloading from ${FUCHSIA}${TARGET_URL}${RED}!"
+            [[ "${TARGET_OPTION}" == "rules" ]] && exit 1 || continue
+        fi
     else
         if [[ -s "/etc/clash/${TARGET_URL}" ]]; then
             cp "/etc/clash/${TARGET_URL}" "${DOWNLOAD_FILE}"
@@ -135,16 +148,11 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         fi
     fi
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} != 0 ]]; then
-        colorEcho "${RED}    Error when downloading from ${FUCHSIA}${TARGET_URL}${RED}!"
-        [[ "${TARGET_OPTION}" == "rules" ]] && exit 1 || continue
-    fi
-
     if [[ "${TARGET_OPTION}" =~ "scrap" ]]; then
         SCRAP_PATTERN=()
         SCRAP_SUCCESS="no"
         SCRAP_INDEX=0
+        CONVERTER_URL=""
 
         IFS=" " read -r "${READ_ARRAY_OPTS[@]}" SCRAP_PATTERN <<< "${TARGET_OPTION//→/ }"
         for TargetPattern in "${SCRAP_PATTERN[@]}"; do
@@ -160,11 +168,15 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 TARGET_URL=$(echo "${TARGET_URL}" | grep -o -P "(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
                 [[ -z "${TARGET_URL}" ]] && continue
 
-                colorEcho "${BLUE}    Scraping from ${FUCHSIA}${TARGET_URL}${BLUE}..."
-                curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+                if [[ "${TARGET_OPTION}" =~ "converter" ]]; then
+                    CONVERTER_URL="${TARGET_URL}"
+                else
+                    colorEcho "${BLUE}    Scraping from ${FUCHSIA}${TARGET_URL}${BLUE}..."
+                    curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
 
-                curl_download_status=$?
-                [[ ${curl_download_status} -gt 0 ]] && continue
+                    curl_download_status=$?
+                    [[ ${curl_download_status} -gt 0 ]] && continue
+                fi
 
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
                     SCRAP_SUCCESS="yes"
@@ -175,7 +187,20 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             done <<<"${MATCH_URL}"
         done
 
-        [[ "${SCRAP_SUCCESS}" == "no" ]] && continue
+        if [[ "${SCRAP_SUCCESS}" == "no" ]]; then
+            [[ "${TARGET_OPTION}" =~ "converter" ]] && CONVERTER_URL="${TARGET_URL}"
+            [[ -z "${CONVERTER_URL}" ]] && continue
+        fi
+
+        if [[ -n "${CONVERTER_URL}" ]]; then
+            colorEcho "${BLUE}    Converting from ${FUCHSIA}${CONVERTER_URL}${BLUE}..."
+            CONVERTER_URL=$(printf %s "${CONVERTER_URL}" | jq -sRr @uri) # encode URL
+            CONVERTER_URL=$(sed "s|\[URL\]|${CONVERTER_URL}|" <<<"${CONVERTER_SERVICE}")
+            curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${CONVERTER_URL}"
+
+            curl_download_status=$?
+            [[ ${curl_download_status} -gt 0 ]] && continue
+        fi
     fi
 
     [[ ! -s "${DOWNLOAD_FILE}" ]] && continue
