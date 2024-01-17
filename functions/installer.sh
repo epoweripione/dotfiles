@@ -731,6 +731,10 @@ function App_Installer_Reset() {
 
     INSTALLER_CHOICE="N"
 
+    # additional downloads: Filename#URL#Install_File_Full_Path
+    # e.g.: `cross/mihomo_installer.sh`
+    INSTALLER_ADDON_FILES=()
+
     INSTALLER_INSTALL_LOGFILE="$HOME/.dotfiles.installer.log"
 
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
@@ -749,6 +753,7 @@ function App_Installer_Install() {
     # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/earthly_installer.sh` or `installer/lazygit_installer.sh` as example
     local remote_url=$1
     local exec_list exec_name app_installed finded_file install_files install_filename
+    local addon_download addon_name addon_url addon_file addon_dir
 
     [[ "${INSTALLER_IS_INSTALL}" != "yes" ]] && return 0
 
@@ -844,7 +849,7 @@ function App_Installer_Install() {
 
         # install app
         app_installed="no"
-        echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_DOWNLOAD_URL}" >> "${INSTALLER_INSTALL_LOGFILE}"
+        echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_VER_REMOTE} ${INSTALLER_DOWNLOAD_URL}" >> "${INSTALLER_INSTALL_LOGFILE}"
         for exec_name in "${exec_list[@]}"; do
             [[ -z "${exec_name}" ]] && continue
 
@@ -906,6 +911,32 @@ function App_Installer_Install() {
                     rm -f "${finded_file}"
                 done <<<"${install_files}"
             fi
+
+            # additional downloads
+            for addon_download in "${INSTALLER_ADDON_FILES[@]}"; do
+                [[ -z "${addon_download}" ]] && continue
+
+                addon_name=$(awk -F# '{print $1}' <<<"${addon_download}")
+                addon_url=$(awk -F# '{print $2}' <<<"${addon_download}")
+                addon_file=$(awk -F# '{print $3}' <<<"${addon_download}")
+
+                addon_dir=$(dirname "${addon_file}")
+                if [[ ! -d "${addon_dir}" ]]; then
+                    if ! mkdir -p "${addon_dir}" 2>/dev/null; then
+                        if ! sudo mkdir -p "${addon_dir}" 2>/dev/null; then
+                            colorEcho "${RED}  Failed to create directory ${YELLOW}${addon_dir}${RED} for ${FUCHSIA}${addon_name}${RED}!"
+                            echo "[$(date +%FT%T%:z)] Failed to create directory ${addon_dir} for ${addon_name}" >> "${INSTALLER_INSTALL_LOGFILE}"
+                            continue
+                        fi
+                    fi
+                fi
+
+                if App_Installer_Download "${addon_url}" "${WORKDIR}/${addon_name}"; then
+                    cp -f "${WORKDIR}/${addon_name}" "${addon_file}" && \
+                        colorEcho "${GREEN}  Installed: ${YELLOW}${addon_file}" && \
+                        echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${addon_file}" >> "${INSTALLER_INSTALL_LOGFILE}"
+                fi
+            done
         else
             colorEcho "${RED}  Can't find ${FUCHSIA}${INSTALLER_ARCHIVE_EXEC_NAME}${RED} in ${YELLOW}${INSTALLER_DOWNLOAD_FILE}!"
             echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} Can't find ${INSTALLER_ARCHIVE_EXEC_NAME} in ${INSTALLER_DOWNLOAD_FILE}" >> "${INSTALLER_INSTALL_LOGFILE}"
