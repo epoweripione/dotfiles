@@ -216,7 +216,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "windowsterminal"
         "wsa-pacman"
         # "clash-for-windows"
-        "clash-verge"
+        "clash-verge-rev"
         "mihomo"
         "naiveproxy"
         "hysteria"
