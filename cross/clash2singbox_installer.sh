@@ -44,22 +44,5 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    if intallPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"; then
-        mkdir -p "$HOME/.config/singbox"
-
-        GEOIP_URL="https://github.com/SagerNet/sing-geoip/releases/latest/download/geoip.db"
-        GEOIP_FILE="${WORKDIR}/geoip.dat"
-        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${GEOIP_FILE}" "${GEOIP_URL}" && \
-            cp -f "${GEOIP_FILE}" "$HOME/.config/singbox/geoip.dat"
-
-        GEOSITE_URL="https://github.com/SagerNet/sing-geosite/releases/latest/download/geosite.db"
-        GEOSITE_FILE="${WORKDIR}/geosite.dat"
-        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${GEOSITE_FILE}" "${GEOSITE_URL}" && \
-            cp -f "${GEOSITE_FILE}" "$HOME/.config/singbox/geosite.dat"
-
-        if [[ -d "/srv/singbox" ]]; then
-            [[ -s "${GEOIP_FILE}" ]] && sudo cp -f "${GEOIP_FILE}" "/srv/singbox/geoip.dat"
-            [[ -s "${GEOSITE_FILE}" ]] && sudo cp -f "${GEOSITE_FILE}" "/srv/singbox/geosite.dat"
-        fi
-    fi
+    intallPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"
 fi

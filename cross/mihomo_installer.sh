@@ -26,6 +26,13 @@ INSTALLER_MATCH_PATTERN="mihomo*"
 
 INSTALLER_ARCHIVE_EXT="gz"
 
+# geo database
+INSTALLER_ADDON_FILES=(
+    "Country.mmdb#https://raw.githubusercontent.com/Hackl0us/GeoIP2-CN/release/Country.mmdb#$HOME/.config/mihomo/Country.mmdb"
+    "geoip.dat#https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat#$HOME/.config/mihomo/geoip.dat"
+    "geosite.dat#https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat#$HOME/.config/mihomo/geosite.dat"
+)
+
 if [[ -x "$(command -v ${INSTALLER_BINARY_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
     INSTALLER_VER_CURRENT=$(${INSTALLER_BINARY_NAME} -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
@@ -45,25 +52,6 @@ fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     if intallPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"; then
-        # geo database
-        colorEcho "${BLUE}  Installing ${FUCHSIA}geo database${BLUE}..."
-        mkdir -p "$HOME/.config/mihomo"
-
-        MMDB_URL="https://raw.githubusercontent.com/Hackl0us/GeoIP2-CN/release/Country.mmdb"
-        MMDB_FILE="${WORKDIR}/Country.mmdb"
-        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${MMDB_FILE}" "${MMDB_URL}" && \
-            cp -f "${MMDB_FILE}" "$HOME/.config/mihomo/Country.mmdb"
-
-        GEOIP_URL="https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat"
-        GEOIP_FILE="${WORKDIR}/geoip.dat"
-        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${GEOIP_FILE}" "${GEOIP_URL}" && \
-            cp -f "${GEOIP_FILE}" "$HOME/.config/mihomo/geoip.dat"
-
-        GEOSITE_URL="https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
-        GEOSITE_FILE="${WORKDIR}/geosite.dat"
-        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${GEOSITE_FILE}" "${GEOSITE_URL}" && \
-            cp -f "${GEOSITE_FILE}" "$HOME/.config/mihomo/geosite.dat"
-
         # Replace clash with mihomo
         if [[ -d "/srv/clash" ]]; then
             INSTALLER_BINARY_FILE="$(which ${INSTALLER_BINARY_NAME})"
@@ -72,9 +60,9 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
                 sudo cp -f "${INSTALLER_BINARY_FILE}" "/srv/clash/clash"
             fi
 
-            [[ -s "${MMDB_FILE}" ]] && sudo cp -f "${MMDB_FILE}" "/srv/clash/Country.mmdb"
-            [[ -s "${GEOIP_FILE}" ]] && sudo cp -f "${GEOIP_FILE}" "/srv/clash/geoip.dat"
-            [[ -s "${GEOSITE_FILE}" ]] && sudo cp -f "${GEOSITE_FILE}" "/srv/clash/geosite.dat"
+            [[ -s "$HOME/.config/mihomo/Country.mmdb" ]] && sudo cp -f "$HOME/.config/mihomo/Country.mmdb" "/srv/clash/Country.mmdb"
+            [[ -s "$HOME/.config/mihomo/geoip.dat" ]] && sudo cp -f "$HOME/.config/mihomo/geoip.dat" "/srv/clash/geoip.dat"
+            [[ -s "$HOME/.config/mihomo/geosite.dat" ]] && sudo cp -f "$HOME/.config/mihomo/geosite.dat" "/srv/clash/geosite.dat"
 
             systemctl is-enabled clash >/dev/null 2>&1 && sudo systemctl restart clash
         fi
