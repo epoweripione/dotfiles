@@ -288,8 +288,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "smplayer-skins"
         "smplayer-themes"
         ## Proxy
-        "frps"
-        "frpc"
+        "aur/frps-bin"
+        "aur/frpc-bin"
         ## Screenshot
         "deepin-screenshot"
         "flameshot"
