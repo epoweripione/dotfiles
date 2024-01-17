@@ -173,9 +173,13 @@ if [[ -x "$(command -v node)" ]]; then
     alias encodeURIComponent="node -e \"process.stdin.on('data', data => process.stdout.write(encodeURIComponent(data.toString())))\""
     alias decodeURIComponent="node -e \"process.stdin.on('data', data => process.stdout.write(decodeURIComponent(data.toString())))\""
 else
-    [[ -x "$(command -v xxd)" ]] && alias encodeURIComponent="tr -d '\n' | xxd -plain | sed 's/\(..\)/%\1/g'"
-    [[ -x "$(command -v od)" ]] && alias encodeURIComponent="tr -d '\n' | od -An -tx1 | tr ' ' %"
-    alias decodeURIComponent="sed 's/%/\\\\x/g' | xargs -0 printf '%b'"
+    # [[ -x "$(command -v xxd)" ]] && alias encodeURIComponent="tr -d '\n' | xxd -plain | sed 's/\(..\)/%\1/g'"
+    # [[ -x "$(command -v od)" ]] && alias encodeURIComponent="tr -d '\n' | od -An -tx1 | tr ' ' %"
+
+    # printf %s "<url>" | jq -sRr @uri
+    [[ -x "$(command -v jq)" ]] && alias encodeURIComponent="xargs printf %s | jq -sRr @uri"
+
+    [[ -x "$(command -v perl)" ]] && alias decodeURIComponent='perl -pe '\''s/\+/ /g;'\'' -e '\''s/%(..)/chr(hex($1))/eg;'\'''
 fi
 
 # macOS
