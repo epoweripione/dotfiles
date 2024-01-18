@@ -39,10 +39,6 @@ fi
 
 if App_Installer_Install; then
     [[ -f "/usr/local/share/zsh/site-functions/exa.zsh" ]] && sudo rm -f "/usr/local/share/zsh/site-functions/exa.zsh"
-
-    if curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/_eza" "https://raw.githubusercontent.com/eza-community/eza/main/completions/zsh/_eza"; then
-        sudo cp -f "${WORKDIR}/_eza" "/usr/local/share/zsh/site-functions/_eza"
-    fi
 else
     colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
