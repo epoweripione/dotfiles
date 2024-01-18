@@ -221,6 +221,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "naiveproxy"
         "hysteria"
         "sing-box"
+        "connect"
         # "trojan"
         "frp"
         # "v2rayn"
@@ -494,7 +495,7 @@ if (Test-Path "$HOME\scoop\apps\android-studio\current\jbr") {
         Remove-Item -Path "$HOME\scoop\apps\android-studio\current\jre" -Recurse -Force -Confirm:$false
         New-Item -ItemType SymbolicLink -Path "$HOME\scoop\apps\android-studio\current\jre" -Target "$HOME\scoop\apps\android-studio\current\jbr"
     }
-fi
+}
 
 # go
 if (Get-Command "go" -ErrorAction SilentlyContinue) {
