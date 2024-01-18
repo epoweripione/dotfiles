@@ -216,6 +216,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         ## Clipborad
         "copyq"
         ## Develop
+        "hub"
         # "jdk-openjdk"
         # "jre-openjdk"
         "dbeaver"
