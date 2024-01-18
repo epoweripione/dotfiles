@@ -44,9 +44,11 @@ else
 fi
 
 if App_Installer_Install; then
-    [[ -s "$HOME/.config/singbox/Country.mmdb" ]] && sudo cp -f "$HOME/.config/singbox/Country.mmdb" "/srv/clash/Country.mmdb"
-    [[ -s "$HOME/.config/singbox/geoip.dat" ]] && sudo cp -f "$HOME/.config/singbox/geoip.dat" "/srv/clash/geoip.dat"
-    [[ -s "$HOME/.config/singbox/geosite.dat" ]] && sudo cp -f "$HOME/.config/singbox/geosite.dat" "/srv/clash/geosite.dat"
+    if [[ -d "/srv/singbox" ]]; then
+        [[ -s "$HOME/.config/singbox/Country.mmdb" ]] && sudo cp -f "$HOME/.config/singbox/Country.mmdb" "/srv/singbox/Country.mmdb"
+        [[ -s "$HOME/.config/singbox/geoip.dat" ]] && sudo cp -f "$HOME/.config/singbox/geoip.dat" "/srv/singbox/geoip.dat"
+        [[ -s "$HOME/.config/singbox/geosite.dat" ]] && sudo cp -f "$HOME/.config/singbox/geosite.dat" "/srv/singbox/geosite.dat"
+    fi
 else
     colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
