@@ -34,6 +34,33 @@ if [[ -x "$(command -v git)" ]]; then
     git config --global alias.br branch
     git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 
+    ## Proxy
+    # if [[ -n "${GLOBAL_PROXY_IP}" && -n "${GLOBAL_PROXY_MIXED_PORT}" ]]; then
+    #     git config --global http.proxy "http://${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_MIXED_PORT}"
+    #     git config --global https.proxy "http://${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_MIXED_PORT}"
+    # else
+    #     git config --global --unset http.proxy
+    #     git config --global --unset https.proxy
+    # fi
+
+    ## Fix `ssh -T git@github.com` can't be established
+    # ssh -v -i "$HOME/.ssh/id_ed25519" -o "ProxyCommand nc -X connect -x 127.0.0.1:7890 %h %p" -T git@github.com
+    # git -c core.sshCommand="ssh -v -i $HOME/.ssh/id_ed25519 -o 'ProxyCommand nc -X connect -x 127.0.0.1:7890 %h %p'" clone ...
+    # git config --local core.sshCommand "ssh -o 'ProxyCommand nc -X connect -x ${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_MIXED_PORT} %h %p'"
+    ## or add `ProxyCommand` in `.ssh/config`:
+    ## `ProxyCommand nc -X connect -x 127.0.0.1:7890 %h %p` # http proxy
+    ## `ProxyCommand nc -X 5 -x 127.0.0.1:7890 %h %p` # socks5 proxy
+    ## `ProxyCommand connect -H 127.0.0.1:7890 %h %p` # Git for Windows
+    # if [[ -x "$(command -v nc)" && -n "${GLOBAL_PROXY_IP}" ]]; then
+    #     if [[ -n "${GLOBAL_PROXY_MIXED_PORT}" ]]; then
+    #         git config --global core.sshCommand "ssh -o 'ProxyCommand nc -X connect -x ${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_MIXED_PORT} %h %p'"
+    #     elif [[ -n "${GLOBAL_PROXY_SOCKS_PORT}" ]]; then
+    #         git config --global core.sshCommand "ssh -o 'ProxyCommand nc -X 5 -x ${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_SOCKS_PORT} %h %p'"
+    #     fi
+    # else
+    #     git config --global --unset core.sshCommand
+    # fi
+
     ## fix filemode overwrite in repository
     # cd <workdir>
     # git config core.filemode false

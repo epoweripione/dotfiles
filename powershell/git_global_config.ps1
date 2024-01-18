@@ -55,9 +55,21 @@ if (Get-Command "git" -ErrorAction SilentlyContinue) {
     if ($Proxy) {
         git config --global http.proxy "$Proxy"
         git config --global https.proxy "$Proxy"
+
+        ## Fix `ssh -T git@github.com` can't be established
+        # ssh -v -i "$HOME/.ssh/id_ed25519" -o "ProxyCommand connect -H 127.0.0.1:7890 %h %p" -T git@github.com
+        # git -c core.sshCommand="ssh -v -i $HOME/.ssh/id_ed25519 -o 'ProxyCommand connect -H 127.0.0.1:7890 %h %p'"
+        ## or add `ProxyCommand` in `.ssh/config`:
+        ## `ProxyCommand connect -H 127.0.0.1:7890 %h %p`
+        # if (Get-Command "connect" -ErrorAction SilentlyContinue) {
+        #     if ((${env:GLOBAL_PROXY_IP}) -and (${env:GLOBAL_PROXY_MIXED_PORT})) {
+        #         git config --global core.sshCommand "ssh -o 'ProxyCommand connect -H ${env:GLOBAL_PROXY_IP}:${env:GLOBAL_PROXY_MIXED_PORT} %h %p'"
+        #     }
+        # }
     } else {
         git config --global --unset http.proxy
         git config --global --unset https.proxy
+        git config --global --unset core.sshCommand
     }
 
     if (Get-Command "delta" -ErrorAction SilentlyContinue) {
