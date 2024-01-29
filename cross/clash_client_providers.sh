@@ -48,6 +48,8 @@ if [[ ! -s "${SUB_URL_LIST}" ]]; then
     colorEcho "${FUCHSIA}    ${SUB_URL_LIST}${RED} does not exist!"
     exit 1
 fi
+TMP_URL_LIST="${WORKDIR}/url.txt"
+cp "${SUB_URL_LIST}" "${TMP_URL_LIST}"
 
 OUTPUT_OPTIONS=${4:-""} # private,subscription
 
@@ -176,7 +178,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 [[ -z "${TARGET_URL}" ]] && continue
 
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
-                    [[ "${TARGET_OPTION}" =~ "converter" ]] && SCRAP_ACTION="stop"
+                    [[ "${TARGET_OPTION}" =~ "converter" && "${TARGET_OPTION}" =~ "protect" ]] && SCRAP_ACTION="stop"
                 fi
 
                 if [[ "${SCRAP_ACTION}" != "stop" ]]; then
@@ -189,7 +191,9 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
                     if [[ "${TARGET_OPTION}" =~ "converter" ]]; then
-                        CONVERTER_URL="${TARGET_URL}"
+                        CONVERTER_URL="${TARGET_URL}" && break
+                    elif [[ "${TARGET_OPTION}" =~ "protect" ]]; then
+                        PROTECT_URL="${TARGET_URL}" && break
                     else
                         SCRAP_SUCCESS="yes"
                     fi
@@ -202,7 +206,6 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
         if [[ -z "${CONVERTER_URL}" && "${SCRAP_SUCCESS}" == "no" ]]; then
             [[ "${TARGET_OPTION}" =~ "converter" ]] && CONVERTER_URL="${TARGET_URL}"
-            [[ -z "${CONVERTER_URL}" ]] && continue
         fi
 
         if [[ -n "${CONVERTER_URL}" ]]; then
@@ -213,6 +216,37 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
             curl_download_status=$?
             [[ ${curl_download_status} -gt 0 ]] && continue
+        fi
+
+        if [[ -n "${PROTECT_URL}" ]]; then
+            PROTECT_MATCH=$(grep "^# ${TARGET_FILE}-match" "${TMP_URL_LIST}" | cut -d' ' -f3-)
+
+            PROTECT_CMD=$(grep "^# ${TARGET_FILE}-protect" "${TMP_URL_LIST}" | cut -d' ' -f3-)
+            PROTECT_CMD=$(sed -e "s|ProtectURL|${PROTECT_URL}|" -e "s|text.txt|${WORKDIR}/${TARGET_FILE}.txt|" -e "s|protect.txt|${DOWNLOAD_FILE}|" <<<"${PROTECT_CMD}")
+
+            # [How can we run a command stored in a variable?](https://unix.stackexchange.com/questions/444946/how-can-we-run-a-command-stored-in-a-variable)
+            runProtectCMD=()
+            [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
+            if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" runProtectCMD <<<"${PROTECT_CMD}" 2>/dev/null; then
+                while read -r cmdPart; do
+                    runProtectCMD+=("${cmdPart}")
+                done < <(tr ' ' '\n' <<<"${PROTECT_CMD}")
+            fi
+
+            colorEcho "${BLUE}    Running ${FUCHSIA}${runProtectCMD[*]}${BLUE}..."
+            cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" || exit
+            if "${runProtectCMD[@]}"; then
+                TARGET_URL=$(grep -o -P "${PROTECT_MATCH}" "${DOWNLOAD_FILE}" | head -n1)
+                TARGET_URL=$(grep -o -P "(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" <<<"${TARGET_URL}")
+                [[ -z "${TARGET_URL}" ]] && continue
+
+                colorEcho "${BLUE}    Scraping ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
+                curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+
+                curl_download_status=$?
+                [[ ${curl_download_status} -gt 0 ]] && continue
+            fi
+            cd "${CURRENT_DIR}" || exit
         fi
     fi
 
