@@ -40,7 +40,7 @@ const PuppeteerHTML = async () => {
     let html;
     if (element) {
         const pageElement = await page.$(element);
-        html = await pageElement.content();
+        html = await page.evaluate(element => element.innerHTML, pageElement);
     } else {
         html = await page.content();
     }
