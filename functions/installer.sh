@@ -284,7 +284,10 @@ function App_Installer_Get_Remote_Version() {
 
     # Get app version
     INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+
+    # Github repos
     if [[ -z "${INSTALLER_REMOTE_CONTENT}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
+        version_match_pattern="jq=.tag_name"
         if [[ -n "${GITHUB_API_TOKEN}" ]]; then
             # Use Github API token to fix rate limit exceeded
             INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}" "${remote_url}" 2>/dev/null)
@@ -294,18 +297,25 @@ function App_Installer_Get_Remote_Version() {
         if [[ -z "${INSTALLER_REMOTE_CONTENT}" ]]; then
             remote_url="${remote_url//api.github.com\/repos/github.com}"
             INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
-        fi
 
-        if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
-            INSTALLER_VER_REMOTE=$(grep '<title>' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep 'Release' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
+            if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
+                INSTALLER_FROM_GITHUB_RELEASE="yes"
+                INSTALLER_VER_REMOTE=$(grep '<title>' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+                [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep 'Release' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+                [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
+            fi
         fi
     fi
 
     [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && colorEcho "${RED}  Can't get latest version from ${FUCHSIA}${remote_url}${RED}!" && return 1
 
-    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
+    # use `jq` if start with `jq=`
+    # `jq=.tag_name` `jq=.channels.Stable.version`
+    if [[ -z "${INSTALLER_VER_REMOTE}" ]]; then
+        if grep -q -E "^jq=" <<<"${version_match_pattern}"; then
+            INSTALLER_VER_REMOTE=$(jq -r "${version_match_pattern/jq=/}//empty" 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
+        fi
+    fi
 
     [[ -z "${INSTALLER_VER_REMOTE}" && -n "${version_match_pattern}" ]] && \
         INSTALLER_VER_REMOTE=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
@@ -316,14 +326,14 @@ function App_Installer_Get_Remote_Version() {
 }
 
 # Get remote file download address from given url that match running platform
-function App_Installer_Get_Remote() {
+function App_Installer_Get_Remote_URL() {
     # INSTALLER_VER_REMOTE: release version
     # INSTALLER_DOWNLOAD_URL: download address that match running platform
     # The download filename should contain at least one of the platform type or architecture, like: `rclone-v1.56.2-linux-amd64.zip`
     # Usage:
-    # App_Installer_Get_Remote "https://api.github.com/repos/rclone/rclone/releases/latest"
-    # App_Installer_Get_Remote "https://api.github.com/repos/jarun/nnn/releases/latest" "nnn-nerd-.*\.tar\.gz"
-    # App_Installer_Get_Remote "https://dev.yorhel.nl/ncdu" 'ncdu-[^<>:;,?"*|/]+\.tar\.gz' "ncdu-.*\.tar\.gz"
+    # App_Installer_Get_Remote_URL "https://api.github.com/repos/rclone/rclone/releases/latest"
+    # App_Installer_Get_Remote_URL "https://api.github.com/repos/jarun/nnn/releases/latest" "nnn-nerd-.*\.tar\.gz"
+    # App_Installer_Get_Remote_URL "https://dev.yorhel.nl/ncdu" 'ncdu-[^<>:;,?"*|/]+\.tar\.gz' "ncdu-.*\.tar\.gz"
     local remote_url=$1
     local file_match_pattern=$2
     local version_match_pattern=$3
@@ -345,48 +355,35 @@ function App_Installer_Get_Remote() {
     # Get app version
     if [[ -z "${INSTALLER_REMOTE_CONTENT}" ]]; then
         [[ -n "${INSTALLER_APP_NAME}" ]] && colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
-        INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+        App_Installer_Get_Remote_Version "${remote_url}" "${version_match_pattern}"
     fi
 
-    if [[ -z "${INSTALLER_REMOTE_CONTENT}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
-        if [[ -n "${GITHUB_API_TOKEN}" ]]; then
-            # Use Github API token to fix rate limit exceeded
-            INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}" "${remote_url}" 2>/dev/null)
-        fi
+    [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && return 1
 
-        # Extract from github release page
-        if [[ -z "${INSTALLER_REMOTE_CONTENT}" ]]; then
-            remote_url="${remote_url//api.github.com\/repos/github.com}"
-            INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
-        fi
-
-        if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
-            INSTALLER_VER_REMOTE=$(grep '<title>' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep 'Release' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-            [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
-
-            # Extract download urls from expanded_assets
+    if [[ "${remote_url}" == "https://api.github.com/repos/"* ]]; then
+        file_match_pattern="jq=.assets[].browser_download_url"
+        # Extract download urls from github release expanded_assets
+        if [[ "${INSTALLER_FROM_GITHUB_RELEASE}" == "yes" ]]; then
             remote_url=$(grep '/expanded_assets/' <<<"${INSTALLER_REMOTE_CONTENT}" \
                 | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" \
                 | head -n1)
             [[ -n "${remote_url}" ]] && INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
 
-            [[ -n "${INSTALLER_REMOTE_CONTENT}" ]] && \
+            if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
                 INSTALLER_REMOTE_CONTENT=$(sed 's|<a href="/|<a href="https://github.com/|g' <<<"${INSTALLER_REMOTE_CONTENT}" | grep '/releases/download/')
+            fi
         fi
+
+        [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && return 1
     fi
 
-    [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && colorEcho "${RED}  Can't get latest version from ${FUCHSIA}${remote_url}${RED}!" && return 1
-
-    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(jq -r '.tag_name//empty' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
-
-    [[ -z "${INSTALLER_VER_REMOTE}" && -n "${version_match_pattern}" ]] && \
-        INSTALLER_VER_REMOTE=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-
-    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
-
     # Get download urls
-    match_urls=$(jq -r '.assets[].browser_download_url' 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}")
+    # use `jq` if start with `jq=`
+    # `jq=.assets[].browser_download_url` `jq=.channels.Stable.downloads.chrome[].url`
+    if grep -q -E "^jq=" <<<"${file_match_pattern}"; then
+        match_urls=$(jq -r "${file_match_pattern/jq=/}//empty" 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}")
+    fi
+
     if [[ -z "${match_urls}" ]]; then
         match_urls=$(grep -E "${file_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" \
             | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
@@ -396,6 +393,7 @@ function App_Installer_Get_Remote() {
 
     [[ -z "${match_urls}" ]] && match_urls=$(grep -Eo "${file_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}")
 
+    # Get urls which match running platform
     [[ -z "${OS_INFO_MATCH_TYPE}" ]] && App_Installer_Get_OS_Info_Match_Cond
 
     # Filter download urls by unmatching condition
@@ -730,6 +728,7 @@ function App_Installer_Reset() {
     INSTALLER_ZSH_COMP_INSTALL=""
 
     INSTALLER_CHOICE="N"
+    INSTALLER_FROM_GITHUB_RELEASE="no"
 
     # additional downloads: Filename#URL#Install_File_Full_Path
     # e.g.: `cross/mihomo_installer.sh`
@@ -762,9 +761,9 @@ function App_Installer_Install() {
     # get app remote version & download link that match running platform
     if [[ -z "${INSTALLER_DOWNLOAD_URL}" ]]; then
         if [[ -z "${INSTALLER_ARCHIVE_EXT}" && -n "${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
-            App_Installer_Get_Remote "${remote_url}" "${INSTALLER_ARCHIVE_EXEC_NAME}"
+            App_Installer_Get_Remote_URL "${remote_url}" "${INSTALLER_ARCHIVE_EXEC_NAME}"
         else
-            App_Installer_Get_Remote "${remote_url}"
+            App_Installer_Get_Remote_URL "${remote_url}"
         fi
     fi
 
@@ -843,7 +842,13 @@ function App_Installer_Install() {
                 done < <(tr ' ' '\n' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
             fi
         else
-            [[ ! -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
+            if [[ ! -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
+                if [[ -n "${INSTALLER_INSTALL_NAME}" ]]; then
+                    INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
+                else
+                    INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_APP_NAME}"
+                fi
+            fi
         fi
         [[ -z "${exec_list[*]}" ]] && exec_list=("${INSTALLER_ARCHIVE_EXEC_NAME}")
 
@@ -977,16 +982,16 @@ function App_Installer_Get_Installed_Version() {
 }
 
 # Auto extract download address, decompress and install prebuilt binary from given URL
-function intallPrebuiltBinary() {
+function installPrebuiltBinary() {
     # Usage:
-    # intallPrebuiltBinary rclone "rclone/rclone" # github releases
-    # intallPrebuiltBinary nnn "jarun/nnn" "nnn-nerd-.*\.tar\.gz" # github releases
-    # intallPrebuiltBinary earthly "earthly/earthly" "earthly-*" # github releases
-    # intallPrebuiltBinary "https://dev.yorhel.nl/ncdu" "/download/ncdu-[^<>:;,?\"*|/]+\.tar\.gz" "ncdu-.*\.tar\.gz" # full URL
+    # installPrebuiltBinary rclone "rclone/rclone" # github releases
+    # installPrebuiltBinary nnn "jarun/nnn" "nnn-nerd-.*\.tar\.gz" # github releases
+    # installPrebuiltBinary earthly "earthly/earthly" "earthly-*" # github releases
+    # installPrebuiltBinary "https://dev.yorhel.nl/ncdu" "/download/ncdu-[^<>:;,?\"*|/]+\.tar\.gz" "ncdu-.*\.tar\.gz" # full URL
 
     # Or separated by #: binary_name#remote_url#archive_file_extension#file_match_pattern#version_match_pattern#multi_match_filter
-    # intallPrebuiltBinary 'tspin#bensadeh/tailspin#tar.gz#tspin*' # github releases
-    # intallPrebuiltBinary 'ncdu#https://dev.yorhel.nl/ncdu#tar.gz#ncdu-[^<>:;,?"*|/]+\.tar\.gz#ncdu-.*\.tar\.gz' # full URL
+    # installPrebuiltBinary 'tspin#bensadeh/tailspin#tar.gz#tspin*' # github releases
+    # installPrebuiltBinary 'ncdu#https://dev.yorhel.nl/ncdu#tar.gz#ncdu-[^<>:;,?"*|/]+\.tar\.gz#ncdu-.*\.tar\.gz' # full URL
 
     # Or use in script, for example: `cross/mihomo_installer.sh`, `installer/ffsend_installer.sh`, `installer/tailsping_installer.sh`
     local binary_name=$1
@@ -1050,7 +1055,7 @@ function intallPrebuiltBinary() {
     [[ -n "${file_match_pattern}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${file_match_pattern}"
 
     if [[ "${remote_url}" =~ ^(https?://|ftp://) ]]; then
-        if App_Installer_Get_Remote "${remote_url}" "${file_match_pattern}" "${version_match_pattern}" "${multi_match_filter}"; then
+        if App_Installer_Get_Remote_URL "${remote_url}" "${file_match_pattern}" "${version_match_pattern}" "${multi_match_filter}"; then
             [[ "${INSTALLER_DOWNLOAD_URL}" =~ ^(https?://|ftp://) ]] || INSTALLER_DOWNLOAD_URL="${remote_url}${INSTALLER_DOWNLOAD_URL}"
             if App_Installer_Install "${remote_url}"; then
                 binary_installed="yes"
