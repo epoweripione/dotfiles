@@ -44,7 +44,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    if App_Installer_Get_Remote "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" "lite-xl-[^-]+-addons-.*\.tar\.gz"; then
+    if App_Installer_Get_Remote_URL "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" "lite-xl-[^-]+-addons-.*\.tar\.gz"; then
         if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "$(xdg-user-dir DOWNLOAD)/lite-xl.tar.gz"; then
             if Archive_File_Extract "$(xdg-user-dir DOWNLOAD)/lite-xl.tar.gz" "${WORKDIR}"; then
                 sudo cp -f -R "${WORKDIR}/lite-xl" "/opt/"

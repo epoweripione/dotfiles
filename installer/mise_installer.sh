@@ -25,7 +25,7 @@ INSTALLER_BINARY_NAME="mise"
 
 INSTALLER_ARCHIVE_EXT="tar.gz"
 
-intallPrebuiltBinary "${INSTALLER_BINARY_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}#${INSTALLER_MATCH_PATTERN}"
+installPrebuiltBinary "${INSTALLER_BINARY_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}#${INSTALLER_MATCH_PATTERN}"
 
 if [[ -x "$(command -v ${INSTALLER_BINARY_NAME})" ]]; then
     sed -i -e '/^# rtx$/d' -e '/rtx activate bash/d' "$HOME/.bashrc"

@@ -67,7 +67,7 @@ if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
     # From source on crates.io
     [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${INSTALLER_APP_NAME}"
 elif [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
-    if App_Installer_Get_Remote "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" 'tealdeer-[^"]+'; then
+    if App_Installer_Get_Remote_URL "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" 'tealdeer-[^"]+'; then
         if App_Installer_Install; then
             :
         else

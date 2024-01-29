@@ -37,7 +37,7 @@ else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if App_Installer_Get_Remote "https://dev.yorhel.nl/ncdu" 'ncdu-[^<>:;,?"*|/]+\.tar\.gz' "ncdu-.*\.tar\.gz"; then
+if App_Installer_Get_Remote_URL "https://dev.yorhel.nl/ncdu" 'ncdu-[^<>:;,?"*|/]+\.tar\.gz' "ncdu-.*\.tar\.gz"; then
     INSTALLER_DOWNLOAD_URL="https://dev.yorhel.nl/download/${INSTALLER_DOWNLOAD_URL}"
     if ! App_Installer_Install "https://dev.yorhel.nl/ncdu"; then
         colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"

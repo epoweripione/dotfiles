@@ -34,7 +34,7 @@ else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if App_Installer_Get_Remote "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" "${INSTALLER_ARCHIVE_EXEC_NAME}"; then
+if App_Installer_Get_Remote_URL "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" "${INSTALLER_ARCHIVE_EXEC_NAME}"; then
     if App_Installer_Install; then
         sudo earthly bootstrap --with-autocomplete
 

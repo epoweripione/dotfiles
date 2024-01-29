@@ -254,7 +254,7 @@ fi
 ## [naiveproxy](https://github.com/klzgrad/naiveproxy/wiki/OpenWrt-Support)
 # cat /etc/os-release
 # OPENWRT_ARCH="$(. /etc/os-release && echo "${OPENWRT_ARCH}")"
-# App_Installer_Get_Remote "https://api.github.com/repos/klzgrad/naiveproxy/releases/latest" "naiveproxy-.*openwrt-${OPENWRT_ARCH}.*\.tar\.xz"
+# App_Installer_Get_Remote_URL "https://api.github.com/repos/klzgrad/naiveproxy/releases/latest" "naiveproxy-.*openwrt-${OPENWRT_ARCH}.*\.tar\.xz"
 opkg install naiveproxy luci-app-naiveproxy
 
 

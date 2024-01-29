@@ -44,5 +44,5 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    intallPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"
+    installPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"
 fi

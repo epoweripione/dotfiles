@@ -38,7 +38,7 @@ else
 fi
 
 REMOTE_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
-if App_Installer_Get_Remote "${REMOTE_URL}" 'llama_.*' "llama_.*"; then
+if App_Installer_Get_Remote_URL "${REMOTE_URL}" 'llama_.*' "llama_.*"; then
     if App_Installer_Install; then
         :
     else

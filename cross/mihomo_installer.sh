@@ -51,7 +51,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    if intallPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"; then
+    if installPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"; then
         # Replace clash with mihomo
         if [[ -d "/srv/clash" ]]; then
             INSTALLER_BINARY_FILE="$(which ${INSTALLER_BINARY_NAME})"

@@ -68,7 +68,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    if App_Installer_Get_Remote "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" 'fx_[^"]+'; then
+    if App_Installer_Get_Remote_URL "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" 'fx_[^"]+'; then
         if App_Installer_Install; then
             :
         else

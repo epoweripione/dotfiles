@@ -43,7 +43,7 @@ for TargetRepo in "${GITHUB_REPOS[@]}"; do
     colorEchoN "${BLUE}${TargetRepo}: "
 
     INSTALLER_CHECK_URL="https://api.github.com/repos/${TargetRepo}/releases/latest"
-    if App_Installer_Get_Remote "${INSTALLER_CHECK_URL}"; then
+    if App_Installer_Get_Remote_URL "${INSTALLER_CHECK_URL}"; then
         colorEcho "${FUCHSIA}${INSTALLER_VER_REMOTE}"
 
         if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}"; then
