@@ -370,9 +370,9 @@ function App_Installer_Get_Remote_URL() {
     [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && return 1
 
     if [[ "${remote_url}" == "https://api.github.com/repos/"* ]]; then
-        jq_match_pattern=".assets[].browser_download_url"
         # Extract download urls from github release expanded_assets
         if [[ "${INSTALLER_FROM_GITHUB_RELEASE}" == "yes" ]]; then
+            jq_match_pattern=""
             remote_url=$(grep '/expanded_assets/' <<<"${INSTALLER_REMOTE_CONTENT}" \
                 | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" \
                 | head -n1)
@@ -381,12 +381,13 @@ function App_Installer_Get_Remote_URL() {
             if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
                 INSTALLER_REMOTE_CONTENT=$(sed 's|<a href="/|<a href="https://github.com/|g' <<<"${INSTALLER_REMOTE_CONTENT}" | grep '/releases/download/')
             fi
+        else
+            jq_match_pattern=".assets[].browser_download_url"
         fi
 
         [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && return 1
     fi
 
-    # Get download urls
     # use `jq` if start with `jq=`
     # `jq=.assets[].browser_download_url#\.tar\.gz` `jq=.channels.Stable.downloads.chrome[].url`
     if grep -q -E "^jq=" <<<"${file_match_pattern}"; then
@@ -400,15 +401,16 @@ function App_Installer_Get_Remote_URL() {
         fi
     fi
 
+    # Default match pattern & filter
     [[ -z "${file_match_pattern}" ]] && file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
     [[ -z "${multi_match_filter}" ]] && multi_match_filter="musl|static"
 
+    # Get download urls
     if [[ -n "${jq_match_pattern}" ]]; then
         match_urls=$(jq -r "${jq_match_pattern}//empty" 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}")
-        [[ -n "${file_match_pattern}" ]] && match_urls=$(grep -E "${file_match_pattern}" <<<"${match_urls}")
     fi
 
-    if [[ -z "${jq_match_pattern}" ]]; then
+    if [[ -n "${file_match_pattern}" ]]; then
         if [[ -z "${match_urls}" ]]; then
             match_urls=$(grep -E "${file_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" \
                 | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
