@@ -76,10 +76,10 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * Speed up downloads with `axel`, if fails use `curl` instead
   * Automatically extract `executable`, `man`, `Zsh completions` files from compressed files and install to corresponding directories(`/usr/local/bin`, `/usr/share/man`, `/usr/local/share/zsh/site-functions`)
   ```bash
-  intallPrebuiltBinary rclone "rclone/rclone" # github releases
-  intallPrebuiltBinary nnn "jarun/nnn" "nnn-nerd-.*\.tar\.gz" # github releases
-  intallPrebuiltBinary earthly "earthly/earthly" "earthly-*" # github releases
-  intallPrebuiltBinary "https://dev.yorhel.nl/ncdu" "/download/ncdu-[^<>:;,?\"*|/]+\.tar\.gz" "ncdu-.*\.tar\.gz" # full URL
+  installPrebuiltBinary rclone "rclone/rclone" # github releases
+  installPrebuiltBinary nnn "jarun/nnn" "nnn-nerd-.*\.tar\.gz" # github releases
+  installPrebuiltBinary earthly "earthly/earthly" "earthly-*" # github releases
+  installPrebuiltBinary "https://dev.yorhel.nl/ncdu" "/download/ncdu-[^<>:;,?\"*|/]+\.tar\.gz" "ncdu-.*\.tar\.gz" # full URL
   ```
   * Install apps using installer will set mirrors if the world blocked, you can override them in `~/.dotfiles.env.local`
     + [Homebrew](/installer/homebrew_installer.sh)
