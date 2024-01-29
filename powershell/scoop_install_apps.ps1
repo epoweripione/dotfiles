@@ -179,7 +179,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "tor-browser-zh-cn"
         "firefox-zh-cn"
         "speedyfox"
-        # "android-sdk"
+        "adb"
+        # "android-clt"
         # "android-studio"
         # "flutter"
         "go"
@@ -480,13 +481,33 @@ if (Get-Command "flutter" -ErrorAction SilentlyContinue) {
     # git config --global --add safe.directory "*"
 }
 
-# Android Studio
-if (Get-Command "sdkmanager" -ErrorAction SilentlyContinue) {
-    # fix: java.lang.NoClassDefFoundError: javax/xml/bind/annotation/XmlSchema
-    # https://stackoverflow.com/questions/46402772/failed-to-install-android-sdk-java-lang-noclassdeffounderror-javax-xml-bind-a
-    $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
-    $userenv = $userenv.TrimEnd(';')
-    [System.Environment]::SetEnvironmentVariable("PATH", "%ANDROID_HOME%\cmdline-tools\latest\bin;" + $userenv, 'User')
+## Android Studio
+# if (Get-Command "sdkmanager" -ErrorAction SilentlyContinue) {
+#     # fix: java.lang.NoClassDefFoundError: javax/xml/bind/annotation/XmlSchema
+#     # https://stackoverflow.com/questions/46402772/failed-to-install-android-sdk-java-lang-noclassdeffounderror-javax-xml-bind-a
+#     $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+#     $userenv = $userenv.TrimEnd(';')
+#     [System.Environment]::SetEnvironmentVariable("PATH", "%ANDROID_HOME%\cmdline-tools\latest\bin;" + $userenv, 'User')
+# }
+
+if ( -Not (Get-Command "sdkmanager" -ErrorAction SilentlyContinue)) {
+    if (Test-Path "$HOME\AppData\Local\Android\Sdk\cmdline-tools\latest\bin") {
+        $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        $userenv = $userenv.TrimEnd(';')
+        [System.Environment]::SetEnvironmentVariable("PATH", "%USERPROFILE%\AppData\Local\Android\Sdk\cmdline-tools\latest\bin;" + $userenv, 'User')
+    }
+}
+
+if ( -Not (Get-Command "adb" -ErrorAction SilentlyContinue)) {
+    if (Test-Path "$HOME\AppData\Local\Android\Sdk\platform-tools") {
+        $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        $userenv = $userenv.TrimEnd(';')
+        [System.Environment]::SetEnvironmentVariable("PATH", "%USERPROFILE%\AppData\Local\Android\Sdk\platform-tools;" + $userenv, 'User')
+    } esle if (Test-Path "$HOME\scoop\apps\adb\current\platform-tools") {
+        $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        $userenv = $userenv.TrimEnd(';')
+        [System.Environment]::SetEnvironmentVariable("PATH", "%USERPROFILE%\scoop\apps\adb\current\platform-tools;" + $userenv, 'User')
+    }
 }
 
 # [Unable to find bundled Java version on Flutter](https://stackoverflow.com/questions/51281702/unable-to-find-bundled-java-version-on-flutter)
