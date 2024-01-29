@@ -102,8 +102,8 @@ pkg upgrade -y && \
     pkg install -y binutils axel curl wget git nano openssh unzip unrar htop nmap rsync \
         bat eza fd fzf lsd lsof nnn screenfetch starship tree zoxide
 
-# intallPrebuiltBinary 'naiveproxy#klzgrad/naiveproxy#tar.xz#naive*'
-# intallPrebuiltBinary 'mihomo#MetaCubeX/mihomo#gz#mihomo*'
+# installPrebuiltBinary 'naiveproxy#klzgrad/naiveproxy#tar.xz#naive*'
+# installPrebuiltBinary 'mihomo#MetaCubeX/mihomo#gz#mihomo*'
 
 # Termux Sudo Without Root
 # https://github.com/virtual-designer/termux-sudo-without-root
