@@ -271,6 +271,7 @@ function App_Installer_Get_OS_Info_Match_Cond() {
 function App_Installer_Get_Remote_Version() {
     local remote_url=$1
     local version_match_pattern=$2
+    local jq_match_pattern
 
     [[ -z "${remote_url}" && -n "${INSTALLER_CHECK_URL}" ]] && remote_url="${INSTALLER_CHECK_URL}"
     [[ -z "${remote_url}" && -n "${INSTALLER_GITHUB_REPO}" ]] && remote_url="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
@@ -286,8 +287,10 @@ function App_Installer_Get_Remote_Version() {
     INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
 
     # Github repos
+    [[ "${remote_url}" == "https://api.github.com/repos/"* ]] && jq_match_pattern=".tag_name"
+
     if [[ -z "${INSTALLER_REMOTE_CONTENT}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
-        version_match_pattern="jq=.tag_name"
+        jq_match_pattern=""
         if [[ -n "${GITHUB_API_TOKEN}" ]]; then
             # Use Github API token to fix rate limit exceeded
             INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}" "${remote_url}" 2>/dev/null)
@@ -311,10 +314,20 @@ function App_Installer_Get_Remote_Version() {
 
     # use `jq` if start with `jq=`
     # `jq=.tag_name` `jq=.channels.Stable.version`
-    if [[ -z "${INSTALLER_VER_REMOTE}" ]]; then
-        if grep -q -E "^jq=" <<<"${version_match_pattern}"; then
-            INSTALLER_VER_REMOTE=$(jq -r "${version_match_pattern/jq=/}//empty" 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
+    if grep -q -E "^jq=" <<<"${version_match_pattern}"; then
+        version_match_pattern="${version_match_pattern/jq=/}"
+        if grep -q -E "#" <<<"${version_match_pattern}"; then
+            jq_match_pattern=$(awk -F# '{print $1}' <<<"${version_match_pattern}")
+            version_match_pattern=$(awk -F# '{print $2}' <<<"${version_match_pattern}")
+        else
+            jq_match_pattern="${version_match_pattern}"
+            version_match_pattern=""
         fi
+    fi
+
+    if [[ -z "${INSTALLER_VER_REMOTE}" && -n "${jq_match_pattern}" ]]; then
+        INSTALLER_VER_REMOTE=$(jq -r "${jq_match_pattern}//empty" 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
+        [[ -n "${version_match_pattern}" ]] && INSTALLER_VER_REMOTE=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_VER_REMOTE}")
     fi
 
     [[ -z "${INSTALLER_VER_REMOTE}" && -n "${version_match_pattern}" ]] && \
@@ -338,16 +351,12 @@ function App_Installer_Get_Remote_URL() {
     local file_match_pattern=$2
     local version_match_pattern=$3
     local multi_match_filter=$4
-    local match_urls match_result match_cnt
+    local match_urls match_result match_cnt jq_match_pattern
     local match_result_release match_result_type match_result_arch match_result_float match_result_cpu_level
 
     [[ -z "${remote_url}" ]] && colorEcho "${FUCHSIA}REMOTE URL${RED} can't empty!" && return 1
 
-    # INSTALLER_VER_REMOTE=""
     INSTALLER_DOWNLOAD_URL=""
-
-    [[ -z "${file_match_pattern}" ]] && file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
-    [[ -z "${multi_match_filter}" ]] && multi_match_filter="musl|static"
 
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
     [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
@@ -361,7 +370,7 @@ function App_Installer_Get_Remote_URL() {
     [[ -z "${INSTALLER_REMOTE_CONTENT}" ]] && return 1
 
     if [[ "${remote_url}" == "https://api.github.com/repos/"* ]]; then
-        file_match_pattern="jq=.assets[].browser_download_url"
+        jq_match_pattern=".assets[].browser_download_url"
         # Extract download urls from github release expanded_assets
         if [[ "${INSTALLER_FROM_GITHUB_RELEASE}" == "yes" ]]; then
             remote_url=$(grep '/expanded_assets/' <<<"${INSTALLER_REMOTE_CONTENT}" \
@@ -379,16 +388,33 @@ function App_Installer_Get_Remote_URL() {
 
     # Get download urls
     # use `jq` if start with `jq=`
-    # `jq=.assets[].browser_download_url` `jq=.channels.Stable.downloads.chrome[].url`
+    # `jq=.assets[].browser_download_url#\.tar\.gz` `jq=.channels.Stable.downloads.chrome[].url`
     if grep -q -E "^jq=" <<<"${file_match_pattern}"; then
-        match_urls=$(jq -r "${file_match_pattern/jq=/}//empty" 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}")
+        file_match_pattern="${file_match_pattern/jq=/}"
+        if grep -q -E "#" <<<"${file_match_pattern}"; then
+            jq_match_pattern=$(awk -F# '{print $1}' <<<"${file_match_pattern}")
+            file_match_pattern=$(awk -F# '{print $2}' <<<"${file_match_pattern}")
+        else
+            jq_match_pattern="${file_match_pattern}"
+            file_match_pattern=""
+        fi
     fi
 
-    if [[ -z "${match_urls}" ]]; then
-        match_urls=$(grep -E "${file_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" \
-            | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
-    else
-        match_urls=$(grep -E "${file_match_pattern}" <<<"${match_urls}")
+    [[ -z "${file_match_pattern}" ]] && file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
+    [[ -z "${multi_match_filter}" ]] && multi_match_filter="musl|static"
+
+    if [[ -n "${jq_match_pattern}" ]]; then
+        match_urls=$(jq -r "${jq_match_pattern}//empty" 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}")
+        [[ -n "${file_match_pattern}" ]] && match_urls=$(grep -E "${file_match_pattern}" <<<"${match_urls}")
+    fi
+
+    if [[ -z "${jq_match_pattern}" ]]; then
+        if [[ -z "${match_urls}" ]]; then
+            match_urls=$(grep -E "${file_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" \
+                | grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
+        else
+            match_urls=$(grep -E "${file_match_pattern}" <<<"${match_urls}")
+        fi
     fi
 
     [[ -z "${match_urls}" ]] && match_urls=$(grep -Eo "${file_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}")
