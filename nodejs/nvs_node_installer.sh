@@ -63,4 +63,9 @@ if [[ -x "$(command -v npm)" ]]; then
         colorEcho "${BLUE}Installing ${FUCHSIA}npm-check${BLUE}..."
         npm install -g npm-check
     fi
+
+    if [[ ! -x "$(command -v pnpm)" ]]; then
+        colorEcho "${BLUE}Installing ${FUCHSIA}pnpm${BLUE}..."
+        npm install -g pnpm
+    fi
 fi
