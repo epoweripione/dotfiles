@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 ## Run selenium and chrome driver to scrape data from cloudbytes.dev
+# python python/selenium_test.py --url "https://cloudbytes.dev" --selector "border-bottom" --type "CLASS_NAME" --outfile "/tmp/cloudbytes.txt"
 import sys, time
 import os.path
 
@@ -62,7 +63,7 @@ def getPageElement(url:str, selecor:str, selecortype:str, outfile:str):
 
     outText = ""
     for e in elements:
-        outText = outText + os.linesep + e.text
+        outText = outText + e.text + os.linesep
 
     if (outfile):
         utils.WriteText2File(outfile, outText)

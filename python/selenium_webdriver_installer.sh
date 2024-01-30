@@ -67,7 +67,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         "wget"
         "xdg-utils"
     )
-    colorEcho "${FUCHSIA}  Android Studio${BLUE}: Checking Pre-requisite packages..."
+    colorEcho "${FUCHSIA}Selenium WebDriver${BLUE}: Checking Pre-requisite packages..."
     for TargetPackage in "${PackagesList[@]}"; do
         if checkPackageNeedInstall "${TargetPackage}"; then
             colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
