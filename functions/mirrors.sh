@@ -39,11 +39,14 @@ function setMirrorGo() {
         if version_ge "${GO_VERSION}" '1.13'; then
             go env -w GOPROXY="${MIRROR_GO_PROXY:-"https://goproxy.cn,direct"}"
             go env -w GOSUMDB="${MIRROR_GO_SUMDB:-"sum.golang.google.cn"}"
+            # GONOSUMDB=*.corp.example.com,rsc.io/private
+            [[ -n "${MIRROR_GO_NOSUMDB}" ]] && go env -w GONOSUMDB="${MIRROR_GO_NOSUMDB}"
             # https://goproxy.io/zh/docs/goproxyio-private.html
             [[ -n "${MIRROR_GO_PRIVATE}" ]] && go env -w GOPRIVATE="${MIRROR_GO_PRIVATE}"
         else
             export GOPROXY=${MIRROR_GO_PROXY:-"https://goproxy.cn,direct"}
             export GOSUMDB=${MIRROR_GO_SUMDB:-"sum.golang.google.cn"}
+            [[ -n "${MIRROR_GO_NOSUMDB}" ]] && export GONOSUMDB="${MIRROR_GO_NOSUMDB}"
             [[ -n "${MIRROR_GO_PRIVATE}" ]] && export GOPRIVATE="${MIRROR_GO_PRIVATE}"
         fi
     fi
@@ -157,10 +160,12 @@ function unsetMirrorAll() {
     # go
     unset MIRROR_GO_PROXY
     unset MIRROR_GO_SUMDB
+    unset MIRROR_GO_NOSUMDB
     unset MIRROR_GO_PRIVATE
     if [[ -x "$(command -v go)" ]]; then
         go env -u GOPROXY
         go env -u GOSUMDB
+        go env -u GONOSUMDB
         go env -u GOPRIVATE
     fi
     # flutter
