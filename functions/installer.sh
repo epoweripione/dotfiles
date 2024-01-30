@@ -208,10 +208,10 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     OS_INFO_MATCH_ARCH="${OS_INFO_ARCH}"
     case "${OS_INFO_ARCH}" in
         amd64)
-            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|x86_64|x64|64bit"
+            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|x86_64|x64|64bit|64"
             ;;
         386)
-            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|486|586|686|x86|32bit|ia32"
+            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|486|586|686|x86|32bit|ia32|32"
             [[ -z "${OS_INFO_UNMATCH_COND}" ]] \
                 && OS_INFO_UNMATCH_COND="x86_64|x64|64bit" \
                 || OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|x86_64|x64|64bit"
@@ -780,7 +780,7 @@ function App_Installer_Install() {
     # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/earthly_installer.sh` or `installer/lazygit_installer.sh` as example
     local remote_url=$1
     local exec_list exec_name app_installed finded_file install_files install_filename
-    local addon_download addon_name addon_url addon_file addon_dir
+    local addon_download addon_name addon_url addon_file addon_dir addon_installed
 
     [[ "${INSTALLER_IS_INSTALL}" != "yes" ]] && return 0
 
@@ -965,9 +965,22 @@ function App_Installer_Install() {
                 fi
 
                 if App_Installer_Download "${addon_url}" "${WORKDIR}/${addon_name}"; then
-                    cp -f "${WORKDIR}/${addon_name}" "${addon_file}" && \
+                    addon_installed="no"
+                    if cp -f "${WORKDIR}/${addon_name}" "${addon_file}" 2>/dev/null; then
+                        addon_installed="yes"
+                    else
+                        if sudo cp -f "${WORKDIR}/${addon_name}" "${addon_file}" 2>/dev/null; then
+                            addon_installed="yes"
+                        fi
+                    fi
+
+                    if [[ "${addon_installed}" == "yes" ]]; then
                         colorEcho "${GREEN}  Installed: ${YELLOW}${addon_file}" && \
                         echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${addon_file}" >> "${INSTALLER_INSTALL_LOGFILE}"
+                    else
+                        colorEcho "${RED}  Failed to copy ${YELLOW}${addon_name}${RED} to ${FUCHSIA}${addon_file}${RED}!"
+                        echo "[$(date +%FT%T%:z)] Failed to copy ${addon_name} to ${addon_file}" >> "${INSTALLER_INSTALL_LOGFILE}"
+                    fi
                 fi
             done
         else
