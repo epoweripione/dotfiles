@@ -235,13 +235,18 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     OS_INFO_MATCH_ARCH="${OS_INFO_ARCH}"
     case "${OS_INFO_ARCH}" in
         amd64)
-            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|x86_64|x64|64bit|64"
+            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|x86_64|x64|64bit"
+            [[ -n "${OS_INFO_TYPE}" ]] && OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|${OS_INFO_TYPE}64" # linux64
             ;;
         386)
-            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|486|586|686|x86|32bit|ia32|32"
+            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|486|586|686|x86|32bit|ia32"
+            [[ -n "${OS_INFO_TYPE}" ]] && OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|${OS_INFO_TYPE}32" # linux32
+
             [[ -z "${OS_INFO_UNMATCH_COND}" ]] \
                 && OS_INFO_UNMATCH_COND="x86_64|x64|64bit" \
                 || OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|x86_64|x64|64bit"
+
+            [[ -n "${OS_INFO_TYPE}" ]] && OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|${OS_INFO_TYPE}64" # linux64
             ;;
         arm64)
             OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|armv8|aarch64"
