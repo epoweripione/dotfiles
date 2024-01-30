@@ -47,6 +47,33 @@ function gpip() {
     PIP_REQUIRE_VIRTUALENV=false pip "$@"
 }
 
+# [How do I allow pip inside anaconda3 venv when pip set to require virtualenv?](https://stackoverflow.com/questions/54263894/how-do-i-allow-pip-inside-anaconda3-venv-when-pip-set-to-require-virtualenv)
+function allow_pip_in_conda_environment() {
+    # abort if we're not in a conda env (or in the base environment)
+    if [[ -z "${CONDA_DEFAULT_ENV}" || "${CONDA_DEFAULT_ENV}" == "base" ]]; then
+        echo "Should be run from within a conda environment (not base)"
+        return
+    fi
+
+    ACTIVATE="$CONDA_PREFIX/etc/conda/activate.d/dont-require-venv-for-pip.sh"
+    DEACTIVATE="$CONDA_PREFIX/etc/conda/deactivate.d/require-venv-for-pip.sh"
+
+    # abort if either the activate or the deactivate hook already exists in this env
+    if [[ -f "$ACTIVATE" || -f "$DEACTIVATE" ]]; then
+        echo "This hook is already installed in this conda environment"
+        return
+    fi
+
+    # write the hooks (create dirs if they don't exist)
+    mkdir -p "$(dirname "$ACTIVATE")"
+    mkdir -p "$(dirname "$DEACTIVATE")"
+    echo "export PIP_REQUIRE_VIRTUALENV=false" > "$ACTIVATE"
+    echo "export PIP_REQUIRE_VIRTUALENV=true" > "$DEACTIVATE"
+
+    # switch off PIP_REQUIRE_VIRTUALENV in the current session as well
+    export PIP_REQUIRE_VIRTUALENV=false
+}
+
 # Check pacakge exists
 function checkPackageExists() {
     local PackageName=${1:-""}
