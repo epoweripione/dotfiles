@@ -104,7 +104,7 @@ goupInstallLatest
 goupRemoveUnuse
 
 # go mirrors
-setMirrorGo
+[[ "${THE_WORLD_BLOCKED}" == "true" ]] && setMirrorGo
 
 # godoc -http :8000
 if [[ ! -x "$(command -v godoc)" && -x "$(command -v go)" ]]; then

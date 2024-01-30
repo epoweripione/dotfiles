@@ -197,7 +197,7 @@ fi
 
 
 # go mirrors
-setMirrorGo
+[[ "${THE_WORLD_BLOCKED}" == "true" ]] && setMirrorGo
 
 
 ## fix ERROR: Unrecognized Go version
