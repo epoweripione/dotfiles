@@ -105,7 +105,7 @@ EOF
     # pip list --outdated
 
     ## https://pypi.org/project/pip-review/
-    pip install pip-review
+    # pip install pip-review
     # pip-review --auto
     # pip-review --local --interactive
 
