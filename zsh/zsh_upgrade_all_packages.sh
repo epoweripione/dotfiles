@@ -181,6 +181,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         # "clash"
         "mihomo"
         "mieru"
+        # "naive#klzgrad/naiveproxy#tar.xz#naive*"
         "sing-box"
         "clash2singbox"
     )
