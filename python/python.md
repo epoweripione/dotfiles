@@ -34,11 +34,19 @@ pipreqs <ProjectLocation>
 
 ### Maintain Requirements File
 ```bash
-#  check for missing dependencies,
+#  check for missing dependencies
 pip check
 
 # outdated packages
 pip list --outdated
+
+## upgrade all packages
+# Windows powershell
+# pip freeze | %{$_.split('==')[0]} | %{pip install -U $_}
+pip list --outdated | %{$_.split(' ')[0]} | ?{$_ -notmatch "^-|^package|^warning|^error"} | %{pip install -U $_}
+# Linux & macOS
+# pip freeze | cut -d= -f1 | xargs -r -n1 pip install -U
+pip list --outdated | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs -r -n1 pip install -U
 
 # upgrade the required package 
 pip install -U <PackageName>
