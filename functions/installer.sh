@@ -235,7 +235,7 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     OS_INFO_MATCH_ARCH="${OS_INFO_ARCH}"
     case "${OS_INFO_ARCH}" in
         amd64)
-            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|x86_64|x64|64bit"
+            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|x86_64|x86-64|x64|64bit"
             [[ -n "${OS_INFO_TYPE}" ]] && OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|${OS_INFO_TYPE}64" # linux64
             ;;
         386)
@@ -244,7 +244,7 @@ function App_Installer_Get_OS_Info_Match_Cond() {
 
             [[ -z "${OS_INFO_UNMATCH_COND}" ]] \
                 && OS_INFO_UNMATCH_COND="x86_64|x64|64bit" \
-                || OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|x86_64|x64|64bit"
+                || OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|x86_64|x86-64|x64|64bit"
 
             [[ -n "${OS_INFO_TYPE}" ]] && OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|${OS_INFO_TYPE}64" # linux64
             ;;
@@ -348,9 +348,9 @@ function App_Installer_Get_Remote_Version() {
     # `jq=.tag_name` `jq=.channels.Stable.version`
     if grep -q -E "^jq=" <<<"${version_match_pattern}"; then
         version_match_pattern="${version_match_pattern/jq=/}"
-        if grep -q -E "#" <<<"${version_match_pattern}"; then
-            jq_match_pattern=$(awk -F# '{print $1}' <<<"${version_match_pattern}")
-            version_match_pattern=$(awk -F# '{print $2}' <<<"${version_match_pattern}")
+        if grep -q -E "@" <<<"${version_match_pattern}"; then
+            jq_match_pattern=$(awk -F@ '{print $1}' <<<"${version_match_pattern}")
+            version_match_pattern=$(awk -F@ '{print $2}' <<<"${version_match_pattern}")
         else
             jq_match_pattern="${version_match_pattern}"
             version_match_pattern=""
