@@ -243,7 +243,7 @@ function App_Installer_Get_OS_Info_Match_Cond() {
             [[ -n "${OS_INFO_TYPE}" ]] && OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|${OS_INFO_TYPE}32" # linux32
 
             [[ -z "${OS_INFO_UNMATCH_COND}" ]] \
-                && OS_INFO_UNMATCH_COND="x86_64|x64|64bit" \
+                && OS_INFO_UNMATCH_COND="x86_64|x86-64|x64|64bit" \
                 || OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|x86_64|x86-64|x64|64bit"
 
             [[ -n "${OS_INFO_TYPE}" ]] && OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|${OS_INFO_TYPE}64" # linux64
@@ -285,7 +285,7 @@ function App_Installer_Get_OS_Info_Match_Cond() {
             OS_INFO_MATCH_FLOAT="${OS_INFO_MATCH_FLOAT}|armhf|gnueabihf|musleabihf"
             ;;
         softfloat)
-            OS_INFO_MATCH_FLOAT="${OS_INFO_MATCH_FLOAT}|armel|gnueabi|musleabi"
+            OS_INFO_MATCH_FLOAT="${OS_INFO_MATCH_FLOAT}|armeabi|armel|gnueabi|musleabi"
             [[ -z "${OS_INFO_UNMATCH_COND}" ]] \
                 && OS_INFO_UNMATCH_COND="gnueabihf|musleabihf" \
                 || OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|gnueabihf|musleabihf"
@@ -582,6 +582,7 @@ function App_Installer_Download_Extract() {
             ".tbz"
             ".tgz"
             ".txz"
+            ".tar"
             ".bz2"
             ".bz"
             ".gz"
@@ -608,6 +609,9 @@ function App_Installer_Download_Extract() {
                 ;;
             ".tar.xz" | ".txz")
                 tar -xJf "${download_filename}" -C "${workdir}" || extract_rtn_code=$?
+                ;;
+            ".tar")
+                tar -xf "${download_filename}" -C "${workdir}" || extract_rtn_code=$?
                 ;;
             ".bz2" | ".bz")
                 cd "${workdir}" || return 1
@@ -651,6 +655,7 @@ function App_Installer_Get_Archive_File_Extension() {
         ".tbz"
         ".tgz"
         ".txz"
+        ".tar"
         ".bz2"
         ".bz"
         ".gz"
@@ -692,6 +697,7 @@ function Archive_File_Extract() {
         ".tbz"
         ".tgz"
         ".txz"
+        ".tar"
         ".bz2"
         ".bz"
         ".gz"
@@ -718,6 +724,9 @@ function Archive_File_Extract() {
             ;;
         ".tar.xz" | ".txz")
             tar -xJf "${filename}" -C "${workdir}" || extract_rtn_code=$?
+            ;;
+        ".tar")
+            tar -xf "${download_filename}" -C "${workdir}" || extract_rtn_code=$?
             ;;
         ".bz2" | ".bz")
             cd "${workdir}" || return 1
