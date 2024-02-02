@@ -188,7 +188,13 @@ fi
 for Target in "${AppAlwaysInstallList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
     [[ ! -s "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
-    [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
+    if [[ -s "${AppInstaller}" ]]; then
+        source "${AppInstaller}"
+    else
+        if grep -q -E "#" <<<"${Target}"; then
+            installPrebuiltBinary "${Target}"
+        fi
+    fi
 done
 
 # zellij
@@ -214,6 +220,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "bottom"
         "btop"
         "choose"
+        "cpufetch#Dr-Noob/cpufetch##cpufetch_*"
         "curlie"
         "distrobox"
         "dog"
@@ -252,7 +259,13 @@ fi
 for Target in "${AppWSLDesktopList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
     [[ ! -s "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
-    [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
+    if [[ -s "${AppInstaller}" ]]; then
+        source "${AppInstaller}"
+    else
+        if grep -q -E "#" <<<"${Target}"; then
+            installPrebuiltBinary "${Target}"
+        fi
+    fi
 done
 
 # Update only for manual install apps
@@ -280,7 +293,13 @@ fi
 for Target in "${AppUpdateOnlyList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
     [[ ! -s "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
-    [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
+    if [[ -s "${AppInstaller}" ]]; then
+        source "${AppInstaller}"
+    else
+        if grep -q -E "#" <<<"${Target}"; then
+            installPrebuiltBinary "${Target}"
+        fi
+    fi
 done
 
 unset IS_UPDATE_ONLY
