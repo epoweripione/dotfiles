@@ -726,7 +726,7 @@ function Archive_File_Extract() {
             tar -xJf "${filename}" -C "${workdir}" || extract_rtn_code=$?
             ;;
         ".tar")
-            tar -xf "${download_filename}" -C "${workdir}" || extract_rtn_code=$?
+            tar -xf "${filename}" -C "${workdir}" || extract_rtn_code=$?
             ;;
         ".bz2" | ".bz")
             cd "${workdir}" || return 1
@@ -1005,6 +1005,7 @@ function App_Installer_Install() {
                     fi
                 fi
 
+                colorEcho "${BLUE}  Installing ${FUCHSIA}${addon_name} ${YELLOW}${addon_url}${BLUE}..."
                 if App_Installer_Download "${addon_url}" "${WORKDIR}/${addon_name}"; then
                     addon_installed="no"
                     if cp -f "${WORKDIR}/${addon_name}" "${addon_file}" 2>/dev/null; then
