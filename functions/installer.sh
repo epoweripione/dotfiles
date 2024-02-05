@@ -686,7 +686,7 @@ function Archive_File_Extract() {
 
     [[ -z "${workdir}" ]] && workdir="$(pwd)"
 
-    extract_rtn_code=1
+    extract_rtn_code=0
     archive_ext=""
     archive_ext_list=(
         ".tar.bz2"
@@ -711,6 +711,8 @@ function Archive_File_Extract() {
             break
         fi
     done
+
+    [[ -z "${archive_ext}" ]] && return 1
 
     case "${archive_ext}" in
         ".zip")
