@@ -1007,7 +1007,7 @@ function App_Installer_Install() {
                     fi
                 fi
 
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${addon_name} ${YELLOW}${addon_url}${BLUE}..."
+                colorEcho "${BLUE}  Installing ${FUCHSIA}${addon_name}${BLUE}..."
                 if App_Installer_Download "${addon_url}" "${WORKDIR}/${addon_name}"; then
                     addon_installed="no"
                     if cp -f "${WORKDIR}/${addon_name}" "${addon_file}" 2>/dev/null; then
