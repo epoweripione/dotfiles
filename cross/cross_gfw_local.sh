@@ -71,10 +71,10 @@ for TargetApp in "${DOWNLOAD_APPS[@]}"; do
     curl_download_status=$?
     if [[ ${curl_download_status} -eq 0 ]]; then
         if Archive_File_Extract "${WORKDIR}/${APP_DOWNLOAD_NAME}" "${WORKDIR}"; then
-            [[ -s "${WORKDIR}/${APP_DOWNLOAD_NAME}" ]] && mv -f "${WORKDIR}/${APP_DOWNLOAD_NAME}" "${PROXY_WORKDIR}/${APP_DOWNLOAD_NAME}"
-
             EXTRACT_FILE=$(find "${WORKDIR}" -type f -name "${APP_NAME}")
             [[ -s "${EXTRACT_FILE}" ]] && mv -f "${EXTRACT_FILE}" "${PROXY_WORKDIR}/${APP_NAME}"
+        else
+            mv -f "${WORKDIR}/${APP_DOWNLOAD_NAME}" "${PROXY_WORKDIR}/${APP_DOWNLOAD_NAME}"
         fi
     fi
 done

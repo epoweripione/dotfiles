@@ -686,7 +686,7 @@ function Archive_File_Extract() {
 
     [[ -z "${workdir}" ]] && workdir="$(pwd)"
 
-    extract_rtn_code=0
+    extract_rtn_code=1
     archive_ext=""
     archive_ext_list=(
         ".tar.bz2"
