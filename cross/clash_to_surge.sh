@@ -84,7 +84,7 @@ function setProxies() {
         if [[ -n "${PROXY_SNI}" ]]; then
             OUTPUT_LINE="${OUTPUT_LINE}, sni=${PROXY_SNI}"
         else
-            [[ -n "${PROXY_SERVERNAME}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, sni=${PROXY_SNI}"
+            [[ -n "${PROXY_SERVERNAME}" ]] && OUTPUT_LINE="${OUTPUT_LINE}, sni=${PROXY_SERVERNAME}"
         fi
 
         if [[ "${PROXY_TYPE}" == "vmess" ]]; then
