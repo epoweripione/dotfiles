@@ -216,6 +216,8 @@ while IFS= read -r READLINE || [[ "${READLINE}" ]]; do
     [[ -z "${READLINE}" ]] && continue
     grep -q -E '^\s*#' <<<"${READLINE}" && continue
 
+    READLINE=$(sed -e "s/\r//g" <<<"${READLINE}")
+
     [[ "${READLINE}" == "rules:" ]] && break
 
     if [[ -z "${OUTPUT_TYPE}" && "${READLINE}" == "proxies:" ]]; then
