@@ -94,28 +94,16 @@ fi
 # husky hooks
 if [[ -s "${CURRENT_DIR}/node_modules/.bin/husky" ]]; then
     npx husky install && \
-        npm set-script prepare "husky install && chmod ug+x .husky/*"
+        npm set-script prepare "husky && chmod ug+x .husky/*"
 fi
 
 if [[ ! -s "${CURRENT_DIR}/.husky/commit-msg" ]]; then
-    # npx husky add .husky/commit-msg 'npx --no -- commitlint --edit "$1"'
-    {
-        echo '#!/bin/sh'
-        echo '. "$(dirname "$0")/_/husky.sh"'
-        echo
-        echo 'npx --no -- commitlint --edit "$1"'
-    } > "${CURRENT_DIR}/.husky/commit-msg"
+    echo 'npx --no -- commitlint --edit "$1"' > "${CURRENT_DIR}/.husky/commit-msg"
 fi
 chmod +x "${CURRENT_DIR}/.husky/commit-msg"
 
 if [[ ! -s "${CURRENT_DIR}/.husky/prepare-commit-msg" ]]; then
-    # npx husky add .husky/prepare-commit-msg 'exec < /dev/tty && node_modules/.bin/cz --hook || true'
-    {
-        echo '#!/bin/sh'
-        echo '. "$(dirname "$0")/_/husky.sh"'
-        echo
-        echo 'exec < /dev/tty && node_modules/.bin/cz --hook || true'
-    } > "${CURRENT_DIR}/.husky/prepare-commit-msg"
+    echo 'exec < /dev/tty && node_modules/.bin/cz --hook || true' > "${CURRENT_DIR}/.husky/prepare-commit-msg"
 fi
 chmod +x "${CURRENT_DIR}/.husky/prepare-commit-msg"
 
