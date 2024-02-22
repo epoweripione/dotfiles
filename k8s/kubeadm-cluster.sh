@@ -204,7 +204,7 @@ CP_ADDRESS=${2:-""}
 
 [[ -z "${CP_ADDRESS}" ]] && CP_ADDRESS=$(hostname -i 2>/dev/null)
 
-# sudo -i "s/${HOSTNAME}/${CP_ENDPOINT}/g" /etc/hosts
+# sudo sed -i "s/${HOSTNAME}/${CP_ENDPOINT}/g" /etc/hosts
 # sudo hostnamectl set-hostname "${CP_ENDPOINT}"
 
 ## hosts map
