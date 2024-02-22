@@ -57,7 +57,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         gtk3
         vcpkg
     )
-    InstallSystemPackages "${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
+    InstallSystemPackages "${BLUE}Checking Pre-requisite packages for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..." "${PackagesList[@]}"
 fi
 
 # rust

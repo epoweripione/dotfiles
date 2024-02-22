@@ -73,7 +73,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         libgif-dev
         libgirepository1.0-dev
     )
-    InstallSystemPackages "${FUCHSIA}Python${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
+    InstallSystemPackages "${BLUE}Checking Pre-requisite packages for ${FUCHSIA}Python${BLUE}..." "${PackagesList[@]}"
 
     # [[ -x "$(command -v dnf)" ]] && sudo dnf group install -y "Development Tools"
 fi

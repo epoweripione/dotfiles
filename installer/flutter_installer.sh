@@ -124,7 +124,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${INSTALLER_FILE_PATH}" ]]; then
             cmake
             ninja
         )
-        InstallSystemPackages "${FUCHSIA}  Android Studio${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
+        InstallSystemPackages "" "${PackagesList[@]}"
     fi
 
     # Install Android Studio

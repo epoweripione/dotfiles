@@ -66,7 +66,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
             ncurses-devel
             readline
         )
-        InstallSystemPackages "${FUCHSIA}  ${INSTALLER_APP_NAME}${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
+        InstallSystemPackages "" "${PackagesList[@]}"
     fi
 
     # Git_Clone_Update_Branch "${INSTALLER_GITHUB_REPO}" "$HOME/${INSTALLER_APP_NAME}"

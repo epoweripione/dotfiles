@@ -56,7 +56,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         zlib-static
         zlib1g-dev
     )
-    InstallSystemPackages "${FUCHSIA}OpenWrt${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
+    InstallSystemPackages "${BLUE}Checking Pre-requisite packages for ${FUCHSIA}OpenWrt${BLUE}..." "${PackagesList[@]}"
 fi
 
 BUILDER_URL="https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-imagebuilder-x86-64.Linux-x86_64.tar.xz"

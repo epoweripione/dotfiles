@@ -46,7 +46,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         nfs-utils
         socat
     )
-    InstallSystemPackages "${FUCHSIA}kubeadm${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
+    InstallSystemPackages "${BLUE}Checking Pre-requisite packages for ${FUCHSIA}kubeadm${BLUE}..." "${PackagesList[@]}"
 fi
 
 # Kubeadm: Aggregator for issues filed against kubeadm

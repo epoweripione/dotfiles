@@ -69,7 +69,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${INSTALLER_IS_UPDATE}" == "no" ]];
             zlib
             libxcrypt-compat
         )
-        InstallSystemPackages "${FUCHSIA}rbenv${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
+        InstallSystemPackages "${BLUE}Checking Pre-requisite packages for ${FUCHSIA}rbenv${BLUE}..." "${PackagesList[@]}"
     fi
 
     colorEcho "${BLUE}Installing ${FUCHSIA}rbenv${BLUE}..."

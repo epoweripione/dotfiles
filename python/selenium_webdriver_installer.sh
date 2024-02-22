@@ -67,7 +67,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         "wget"
         "xdg-utils"
     )
-    InstallSystemPackages "${FUCHSIA}Selenium WebDriver${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
+    InstallSystemPackages "${BLUE}Checking Pre-requisite packages for ${FUCHSIA}Selenium WebDriver${BLUE}..." "${PackagesList[@]}"
 fi
 
 SELENIUM_DRIVER_URL="https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
