@@ -52,12 +52,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     fi
 
     # jq
-    if [[ ! -x "$(command -v jq)" ]]; then
-        if checkPackageNeedInstall "jq"; then
-            colorEcho "${BLUE}Installing ${FUCHSIA}jq${BLUE}..."
-            sudo pacman --noconfirm -S jq
-        fi
-    fi
+    [[ ! -x "$(command -v jq)" ]] && PackagesList=(jq) && InstallSystemPackages "" "${PackagesList[@]}"
 fi
 
 # Install packages If there is a package.json file in the directory

@@ -43,12 +43,8 @@ if [[ -x "$(command -v proxychains4)" ]]; then
         fi
     fi
 else
-    colorEcho "${BLUE}Installing ${FUCHSIA}proxychains-ng${BLUE}..."
-    if [[ -x "$(command -v pacman)" ]]; then
-        if checkPackageNeedInstall "proxychains4"; then
-            sudo pacman --noconfirm -S proxychains4
-        fi
-    fi
+    PackagesList=(proxychains4)
+    InstallSystemPackages "${BLUE}Installing ${FUCHSIA}proxychains-ng${BLUE}..." "${PackagesList[@]}"
 
     if [[ ! -x "$(command -v proxychains4)" ]]; then
         Git_Clone_Update_Branch "rofl0r/proxychains-ng" "$HOME/proxychains-ng"

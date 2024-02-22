@@ -22,12 +22,7 @@ if [[ -x "$(command -v pacman)" ]]; then
     PackagesList=(
         smartmontools
     )
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
+    InstallSystemPackages "" "${PackagesList[@]}"
 fi
 
 # https://zhuanlan.zhihu.com/p/398819857

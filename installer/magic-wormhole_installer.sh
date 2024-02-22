@@ -30,12 +30,7 @@ if [[ ! -x "$(command -v wormhole)" && -x "$(command -v pacman)" ]]; then
         # python-magic-wormhole-mailbox-server
         # python-magic-wormhole-transit-relay
     )
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
+    InstallSystemPackages "" "${PackagesList[@]}"
 fi
 
 if [[ ! -x "$(command -v wormhole)" && -x "$(command -v snap)" ]]; then
@@ -58,12 +53,7 @@ if [[ ! -x "$(command -v wormhole)" && -x "$(command -v pip)" ]]; then
             libsodium-dev
             libsodium-devel
         )
-        for TargetPackage in "${PackagesList[@]}"; do
-            if checkPackageNeedInstall "${TargetPackage}"; then
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-                sudo pacman --noconfirm -S "${TargetPackage}"
-            fi
-        done
+        InstallSystemPackages "" "${PackagesList[@]}"
     fi
 
     colorEcho "${BLUE}  Installing ${FUCHSIA}Magic Wormhole${BLUE}..."

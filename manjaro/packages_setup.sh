@@ -175,12 +175,16 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
 URL_DOMAIN=$(cut -f3 -d'/' <<< "$2")
 URL_OTHERS=$(cut -f4- -d'/' <<< "$2")
 
+AXEL_NO_PROXY="no"
+
 case "${URL_DOMAIN}" in
     "github.com")
         url="${GITHUB_DOWNLOAD_URL:-https://github.com}/${URL_OTHERS}"
+        [[ "${GITHUB_DOWNLOAD_URL:-https://github.com}" != "https://github.com" ]] && AXEL_NO_PROXY="yes"
         ;;
     "raw.githubusercontent.com")
         url="${GITHUB_RAW_URL:-https://raw.githubusercontent.com}/${URL_OTHERS}"
+        [[ "${GITHUB_RAW_URL:-https://raw.githubusercontent.com}" != "https://raw.githubusercontent.com" ]] && AXEL_NO_PROXY="yes"
         ;;
     *)
         url=$2
@@ -193,7 +197,11 @@ esac
 
 # /usr/bin/axel -N -n5 -a -o $1 $url || /usr/bin/axel -N -n5 -a -o $1 $2
 
-/usr/bin/axel -N -n5 -a -o $1 $url || /usr/bin/curl -qgb "" -fLC - --retry 3 --retry-delay 3 -o $1 $2
+if [[ "${AXEL_NO_PROXY}" == "yes" ]]; then
+    /usr/bin/axel -N -n5 -a -o $1 $url || /usr/bin/curl -qgb "" -fLC - --retry 3 --retry-delay 3 -o $1 $2
+else
+    /usr/bin/axel -n5 -a -o $1 $url || /usr/bin/curl -qgb "" -fLC - --retry 3 --retry-delay 3 -o $1 $2
+fi
 EOF
 
     sudo chmod +x "/etc/makepkg_axel.sh"

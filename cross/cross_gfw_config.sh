@@ -24,12 +24,7 @@ fi
 [[ -z "${OS_INFO_VDIS}" ]] && get_sysArch
 
 # jq
-if [[ ! -x "$(command -v jq)" ]]; then
-    if checkPackageNeedInstall "jq"; then
-        colorEcho "${BLUE}Installing ${FUCHSIA}jq${BLUE}..."
-        sudo pacman --noconfirm -S jq
-    fi
-fi
+[[ ! -x "$(command -v jq)" ]] && PackagesList=(jq) && InstallSystemPackages "" "${PackagesList[@]}"
 
 if [[ ! -x "$(command -v jq)" ]]; then
     colorEcho "${FUCHSIA}jq${RED} is not installed!"

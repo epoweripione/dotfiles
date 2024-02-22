@@ -32,13 +32,10 @@ App_Installer_Reset
 [[ -z "${OS_INFO_RELEASE}" ]] && get_os_release
 [[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
 
+[[ -z "${OS_PACKAGE_MANAGER}" ]] && get_os_package_manager
+
 # jq
-if [[ ! -x "$(command -v jq)" ]]; then
-    if checkPackageNeedInstall "jq"; then
-        colorEcho "${BLUE}Installing ${FUCHSIA}jq${BLUE}..."
-        sudo pacman --noconfirm -S jq
-    fi
-fi
+[[ ! -x "$(command -v jq)" ]] && PackagesList=(jq) && InstallSystemPackages "" "${PackagesList[@]}"
 
 # [Manage Docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/)
 if [[ $UID -ne 0 ]]; then
@@ -89,6 +86,13 @@ if [[ ! -x "$(command -v docker)" ]]; then
             sudo systemctl enable docker && \
             sudo systemctl start docker
     fi
+fi
+
+# Rocky, Alma...
+if [[ ! -x "$(command -v docker)" && "${OS_PACKAGE_MANAGER}" == "dnf" ]]; then
+    sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    sudo dnf -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    sudo systemctl --now enable docker
 fi
 
 if [[ ! -x "$(command -v docker)" ]]; then

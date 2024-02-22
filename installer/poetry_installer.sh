@@ -49,12 +49,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         PackagesList=(
             python3-venv
         )
-        for TargetPackage in "${PackagesList[@]}"; do
-            if checkPackageNeedInstall "${TargetPackage}"; then
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-                sudo pacman --noconfirm -S "${TargetPackage}"
-            fi
-        done
+        InstallSystemPackages "" "${PackagesList[@]}"
     fi
 
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."

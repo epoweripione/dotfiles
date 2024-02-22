@@ -27,12 +27,7 @@ if [[ ! -x "$(command -v ag)" ]]; then
         the_silver_searcher
         silver-searcher
     )
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
+    InstallSystemPackages "" "${PackagesList[@]}"
 fi
 
 # Pre-requisite packages
@@ -50,12 +45,7 @@ fi
 #     zlib1g-dev
 #     zlib-devel
 # )
-# for TargetPackage in "${PackagesList[@]}"; do
-#     if checkPackageNeedInstall "${TargetPackage}"; then
-#         colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-#         sudo pacman --noconfirm -S "${TargetPackage}"
-#     fi
-# done
+# InstallSystemPackages "" "${PackagesList[@]}"
 
 # [[ ! -x "$(command -v ag)" && "$(command -v mise)" ]] && mise global ag@latest
 # [[ ! -x "$(command -v ag)" && "$(command -v asdf)" ]] && asdf_App_Install ag

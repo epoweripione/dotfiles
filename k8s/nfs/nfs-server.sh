@@ -26,12 +26,7 @@ fi
 #         apparmor-utils
 #         lxc
 #     )
-#     for TargetPackage in "${PackagesList[@]}"; do
-#         if checkPackageNeedInstall "${TargetPackage}"; then
-#             colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-#             sudo pacman --noconfirm -S "${TargetPackage}"
-#         fi
-#     done
+#     InstallSystemPackages "" "${PackagesList[@]}"
 # fi
 
 # sudo tee "/etc/apparmor/rpc_pipefs.conf" 2>/dev/null <<-'EOF'
@@ -61,12 +56,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         nfs-common
         nfs-utils
     )
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
+    InstallSystemPackages "" "${PackagesList[@]}"
 fi
 
 # sudo systemctl enable rpcbind nfs-server && sudo systemctl start rpcbind nfs-server

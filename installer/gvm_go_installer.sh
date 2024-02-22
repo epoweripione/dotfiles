@@ -69,12 +69,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${INSTALLER_IS_UPDATE}" == "no" ]];
             build-essential
             glibc-devel
         )
-        for TargetPackage in "${PackagesList[@]}"; do
-            if checkPackageNeedInstall "${TargetPackage}"; then
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-                sudo pacman --noconfirm -S "${TargetPackage}"
-            fi
-        done
+        InstallSystemPackages "" "${PackagesList[@]}"
     fi
 
     if [[ "${OS_INFO_TYPE}" == "darwin" && -x "$(command -v brew)" ]]; then

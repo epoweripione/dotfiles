@@ -64,12 +64,7 @@ if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
             # http://support.moonpoint.com/os/unix/linux/ubuntu/groff_invalid_device.php
             groff
         )
-        for TargetPackage in "${PackagesList[@]}"; do
-            if checkPackageNeedInstall "${TargetPackage}"; then
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-                sudo pacman --noconfirm -S "${TargetPackage}"
-            fi
-        done
+        InstallSystemPackages "" "${PackagesList[@]}"
     fi
 
     INSTALLER_FILE_NAME="${INSTALLER_APP_NAME}-${INSTALLER_VER_REMOTE}.tar.gz"

@@ -26,12 +26,7 @@ App_Installer_Reset
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
 
 # jq
-if [[ ! -x "$(command -v jq)" ]]; then
-    if checkPackageNeedInstall "jq"; then
-        colorEcho "${BLUE}Installing ${FUCHSIA}jq${BLUE}..."
-        sudo pacman --noconfirm -S jq
-    fi
-fi
+[[ ! -x "$(command -v jq)" ]] && PackagesList=(jq) && InstallSystemPackages "" "${PackagesList[@]}"
 
 if [[ ! -x "$(command -v jq)" ]]; then
     colorEcho "${FUCHSIA}jq${RED} is not installed!"

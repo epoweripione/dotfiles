@@ -47,17 +47,9 @@ function remind() {
         return
     fi
 
-    # Install notify-send
-    if checkPackageNeedInstall "notify-send"; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}notify-send${BLUE}..."
-        sudo pacman --noconfirm -S notify-send
-    fi
-
-    # Install AT
-    if checkPackageNeedInstall "at"; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}at${BLUE}..."
-        sudo pacman --noconfirm -S at
-    fi
+    # Install notify-send, AT
+    PackagesList=("notify-send" "at")
+    InstallSystemPackages "" "${PackagesList[@]}"
 
     # Check presence of notify-send command
     if ! which notify-send >/dev/null; then

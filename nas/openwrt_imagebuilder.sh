@@ -56,13 +56,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         zlib-static
         zlib1g-dev
     )
-    colorEcho "${FUCHSIA}OpenWrt${BLUE}: Checking Pre-requisite packages..."
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
+    InstallSystemPackages "${FUCHSIA}OpenWrt${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
 fi
 
 BUILDER_URL="https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-imagebuilder-x86-64.Linux-x86_64.tar.xz"

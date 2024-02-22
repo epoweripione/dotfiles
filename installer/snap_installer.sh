@@ -34,12 +34,7 @@ if [[ ! -x "$(command -v snap)" ]]; then
         PackagesList=(
             snapd
         )
-        for TargetPackage in "${PackagesList[@]}"; do
-            if checkPackageNeedInstall "${TargetPackage}"; then
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-                sudo pacman --noconfirm -S "${TargetPackage}"
-            fi
-        done
+        InstallSystemPackages "" "${PackagesList[@]}"
     fi
 fi
 

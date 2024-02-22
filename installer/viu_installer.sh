@@ -115,12 +115,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
                 musl-tools
                 FiloSottile/musl-cross/musl-cross
             )
-            for TargetPackage in "${PackagesList[@]}"; do
-                if checkPackageNeedInstall "${TargetPackage}"; then
-                    colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-                    sudo pacman --noconfirm -S "${TargetPackage}"
-                fi
-            done
+            InstallSystemPackages "" "${PackagesList[@]}"
         fi
 
         ## Compile

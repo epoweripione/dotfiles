@@ -7,10 +7,7 @@
 function load_ssh_keys() {
     local IdentityFiles
 
-    if checkPackageNeedInstall "keychain"; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}keychain${BLUE}..."
-        sudo pacman --noconfirm -S keychain
-    fi
+    [[ ! -x "$(command -v keychain)" ]] && PackagesList=(keychain) && InstallSystemPackages "" "${PackagesList[@]}"
 
     if [[ ! -x "$(command -v keychain)" ]]; then
         colorEcho "${FUCHSIA}keychain${RED} is not installed!"

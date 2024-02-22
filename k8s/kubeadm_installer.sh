@@ -46,13 +46,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         nfs-utils
         socat
     )
-    colorEcho "${FUCHSIA}kubeadm${BLUE}: Checking Pre-requisite packages..."
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
+    InstallSystemPackages "${FUCHSIA}kubeadm${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
 fi
 
 # Kubeadm: Aggregator for issues filed against kubeadm

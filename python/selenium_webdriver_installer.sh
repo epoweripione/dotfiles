@@ -67,13 +67,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         "wget"
         "xdg-utils"
     )
-    colorEcho "${FUCHSIA}Selenium WebDriver${BLUE}: Checking Pre-requisite packages..."
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
+    InstallSystemPackages "${FUCHSIA}Selenium WebDriver${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
 fi
 
 SELENIUM_DRIVER_URL="https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"

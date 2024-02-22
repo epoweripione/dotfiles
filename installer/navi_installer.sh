@@ -87,10 +87,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${INSTALLER_IS_UPDATE}" == "no" && 
     # use cheatsheets from cheat.sh: https://github.com/chubin/cheat.sh
     # navi --cheatsh <query>
     if [[ ! -x "$(command -v cht.sh)" ]]; then
-        if checkPackageNeedInstall "rlwrap"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}rlwrap${BLUE}..."
-            sudo pacman --noconfirm -S "rlwrap"
-        fi
+        [[ ! -x "$(command -v rlwrap)" ]] && PackagesList=(rlwrap) && InstallSystemPackages "" "${PackagesList[@]}"
 
         colorEcho "${BLUE}  Installing ${FUCHSIA}cheat.sh${BLUE}..."
         curl "${CURL_DOWNLOAD_OPTS[@]}" "https://cht.sh/:cht.sh" | sudo tee "/usr/local/bin/cht.sh" >/dev/null && \

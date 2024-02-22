@@ -22,12 +22,7 @@ APPS_DATA_ROOT=${1:-"/data"}
 [[ ! -d "${APPS_DATA_ROOT}" ]] && colorEcho "${FUCHSIA}${APPS_DATA_ROOT}${RED} doesn't exist!" && exit 1
 
 # jq
-if [[ ! -x "$(command -v jq)" ]]; then
-    if checkPackageNeedInstall "jq"; then
-        colorEcho "${BLUE}Installing ${FUCHSIA}jq${BLUE}..."
-        sudo pacman --noconfirm -S jq
-    fi
-fi
+[[ ! -x "$(command -v jq)" ]] && PackagesList=(jq) && InstallSystemPackages "" "${PackagesList[@]}"
 
 # Docker
 # Relocating the Docker root directory

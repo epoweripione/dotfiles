@@ -82,12 +82,7 @@ if [[ "$CHECK_METHOD" == "dig" && ! -x "$(command -v dig)" ]]; then
         bind-utils
         dnsutils
     )
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
+    InstallSystemPackages "" "${PackagesList[@]}"
 fi
 
 if [[ "$CHECK_METHOD" == "dig" && ! -x "$(command -v dig)" ]]; then

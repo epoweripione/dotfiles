@@ -33,12 +33,7 @@ PackagesList=(
     qt5
     uchardet
 )
-for TargetPackage in "${PackagesList[@]}"; do
-    if checkPackageNeedInstall "${TargetPackage}"; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-        sudo pacman --noconfirm -S "${TargetPackage}"
-    fi
-done
+InstallSystemPackages "" "${PackagesList[@]}"
 
 colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE} from source..."
 [[ -z "${GIT_CLONE_OPTS[*]}" ]] && Get_Git_Clone_Options

@@ -29,12 +29,7 @@ if [[ -x "$(command -v pacman)" ]]; then
     # [[ -n "${OS_INFO_DESKTOP}" ]] && PackagesList+=("partitionmanager")
     # [[ -n "${OS_INFO_DESKTOP}" ]] && PackagesList+=("gnome-disk-utility")
 
-    for TargetPackage in "${PackagesList[@]}"; do
-        if checkPackageNeedInstall "${TargetPackage}"; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-            sudo pacman --noconfirm -S "${TargetPackage}"
-        fi
-    done
+    InstallSystemPackages "" "${PackagesList[@]}"
 fi
 
 ## List of LVM commands

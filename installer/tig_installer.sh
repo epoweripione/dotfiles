@@ -66,13 +66,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
             ncurses-devel
             readline
         )
-        colorEcho "${FUCHSIA}  ${INSTALLER_APP_NAME}${BLUE}: Checking Pre-requisite packages..."
-        for TargetPackage in "${PackagesList[@]}"; do
-            if checkPackageNeedInstall "${TargetPackage}"; then
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-                sudo pacman --noconfirm -S "${TargetPackage}"
-            fi
-        done
+        InstallSystemPackages "${FUCHSIA}  ${INSTALLER_APP_NAME}${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
     fi
 
     # Git_Clone_Update_Branch "${INSTALLER_GITHUB_REPO}" "$HOME/${INSTALLER_APP_NAME}"

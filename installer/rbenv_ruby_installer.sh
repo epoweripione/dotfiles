@@ -69,13 +69,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${INSTALLER_IS_UPDATE}" == "no" ]];
             zlib
             libxcrypt-compat
         )
-        colorEcho "${FUCHSIA}rbenv${BLUE}: Checking Pre-requisite packages..."
-        for TargetPackage in "${PackagesList[@]}"; do
-            if checkPackageNeedInstall "${TargetPackage}"; then
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-                sudo pacman --noconfirm -S "${TargetPackage}"
-            fi
-        done
+        InstallSystemPackages "${FUCHSIA}rbenv${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
     fi
 
     colorEcho "${BLUE}Installing ${FUCHSIA}rbenv${BLUE}..."

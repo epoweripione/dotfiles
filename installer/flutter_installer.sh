@@ -27,12 +27,7 @@ App_Installer_Reset
 [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
 
 # jq
-if [[ ! -x "$(command -v jq)" && -x "$(command -v pacman)" ]]; then
-    if checkPackageNeedInstall "jq"; then
-        colorEcho "${BLUE}Installing ${FUCHSIA}jq${BLUE}..."
-        sudo pacman --noconfirm -S jq
-    fi
-fi
+[[ ! -x "$(command -v jq)" ]] && PackagesList=(jq) && InstallSystemPackages "" "${PackagesList[@]}"
 
 if [[ ! -x "$(command -v jq)" ]]; then
     colorEcho "${FUCHSIA}jq${RED} is not installed!"
@@ -129,13 +124,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${INSTALLER_FILE_PATH}" ]]; then
             cmake
             ninja
         )
-        colorEcho "${FUCHSIA}  Android Studio${BLUE}: Checking Pre-requisite packages..."
-        for TargetPackage in "${PackagesList[@]}"; do
-            if checkPackageNeedInstall "${TargetPackage}"; then
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-                sudo pacman --noconfirm -S "${TargetPackage}"
-            fi
-        done
+        InstallSystemPackages "${FUCHSIA}  Android Studio${BLUE}: Checking Pre-requisite packages..." "${PackagesList[@]}"
     fi
 
     # Install Android Studio

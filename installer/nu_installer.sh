@@ -130,12 +130,7 @@ if [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
             libX11-devel
             openssl-devel 
         )
-        for TargetPackage in "${PackagesList[@]}"; do
-            if checkPackageNeedInstall "${TargetPackage}"; then
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${TargetPackage}${BLUE}..."
-                sudo pacman --noconfirm -S "${TargetPackage}"
-            fi
-        done
+        InstallSystemPackages "" "${PackagesList[@]}"
     fi
 
     # Download file

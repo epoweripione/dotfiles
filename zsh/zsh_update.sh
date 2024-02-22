@@ -175,12 +175,7 @@ fi
 
 ## fzf
 ## https://github.com/junegunn/fzf
-# if [[ ! -x "$(command -v fzf)" ]] && [[ -x "$(command -v pacman)" ]]; then
-#     if checkPackageNeedInstall "fzf"; then
-#         colorEcho "${BLUE}Installing ${FUCHSIA}fzf${BLUE}..."
-#         sudo pacman --noconfirm -S fzf
-#     fi
-# fi
+# [[ ! -x "$(command -v fzf)" ]] && PackagesList=(fzf) && InstallSystemPackages "" "${PackagesList[@]}"
 
 if [[ ! -x "$(command -v fzf)" ]]; then
     Git_Clone_Update_Branch "junegunn/fzf" "$HOME/.fzf"
