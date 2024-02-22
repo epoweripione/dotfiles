@@ -74,7 +74,7 @@ function allow_pip_in_conda_environment() {
     export PIP_REQUIRE_VIRTUALENV=false
 }
 
-# Check pacakge exists
+# Check package exists
 function checkPackageExists() {
     local PackageName=${1:-""}
     local PackageInfo=""
@@ -104,7 +104,7 @@ function checkPackageExists() {
     return 1
 }
 
-# Check pacakge is installed
+# Check package is installed
 function checkPackageInstalled() {
     local PackageName=${1:-""}
     local PackageLocalFiles=""
@@ -113,11 +113,11 @@ function checkPackageInstalled() {
     [[ -n "${PackageName}" ]] || return 1
     [[ -x "$(command -v pacman)" ]] || return 1
 
-    if PackageLocalFiles=$(pacman -Ql "${PackageName}" 2>&1); then
+    if PackageLocalFiles=$(pacman -Ql "${PackageName##*/}" 2>&1); then
         PackageInstalled="yes"
     else
         if [[ "${PackageLocalFiles}" == *"unimplemented"* ]]; then
-            if pacman -Qi "${PackageName}" >/dev/null 2>&1; then
+            if pacman -Qi "${PackageName##*/}" >/dev/null 2>&1; then
                 PackageInstalled="yes"
             fi
         fi
@@ -126,7 +126,7 @@ function checkPackageInstalled() {
     [[ "${PackageInstalled}" == "yes" ]] && return 0 || return 1
 }
 
-# Check pacakge exist and is not installed
+# Check package exist and is not installed
 function checkPackageNeedInstall() {
     local PackageName=${1:-""}
     local PackageExist="yes"
@@ -147,6 +147,27 @@ function checkPackageNeedInstall() {
     return 1
 }
 
+# Install system built-in repo packages
+# PackagesList=(cmake make) && InstallSystemPackages "${BLUE}Checking Pre-requisite packages..." "${PackagesList[@]}"
+function InstallSystemPackages() {
+    local PreInstallMsg="$1"
+    shift
+    local InstallList=("$@")
+    local PackagesToInstall=()
+    local TargetPackage
+
+    [[ -n "${PreInstallMsg}" ]] && colorEcho "${PreInstallMsg}"
+    for TargetPackage in "${InstallList[@]}"; do
+        if checkPackageNeedInstall "${TargetPackage}"; then
+            PackagesToInstall+=("${TargetPackage}")
+        fi
+    done
+
+    if [[ -n "${PackagesToInstall[*]}" ]]; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${PackagesToInstall[*]}${BLUE}..."
+        sudo pacman --noconfirm -S "${PackagesToInstall[@]}"
+    fi
+}
 
 # App installer
 function Get_Installer_CURL_Options() {
