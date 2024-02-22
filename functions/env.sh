@@ -247,7 +247,8 @@ if [[ -d "$HOME/.local/bin" ]]; then
 fi
 
 if [[ -z "${PIP_CMD_USER}" ]]; then
-    [[ -f "$HOME/.local/bin/pip" ]] && PIP_CMD_USER="$HOME/.local/bin/pip" || PIP_CMD_USER="$(which pip)"
+    [[ -f "$HOME/.local/bin/pip" ]] && PIP_CMD_USER="$HOME/.local/bin/pip"
+    [[ -z "${PIP_CMD_USER}" && -x "$(command -v pip)" ]] && PIP_CMD_USER="$(which pip)"
     [[ -n "${PIP_CMD_USER}" ]] && export PIP_CMD_USER
 fi
 
