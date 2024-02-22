@@ -277,9 +277,9 @@ Defaults timestamp_type="global"
 Defaults timestamp_timeout=60
 EOF
 
-# Allow members of the group sudo to execute any command without password prompt
-# sudo visudo OR sudo EDITOR=nano visudo
-# sudo sed -i 's/%sudo.*/%sudo   ALL=(ALL:ALL) NOPASSWD:ALL/' /etc/sudoers
+## Allow members of the group sudo to execute any command without password prompt
+## `sudo visudo` OR `sudo EDITOR=nano visudo`
+# sudo sed -i 's/%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD:ALL/' /etc/sudoers
 CommandList=(
     service
     apt
@@ -291,9 +291,35 @@ CommandList=(
 for TargetCommand in "${CommandList[@]}"; do
     [[ -x "$(command -v "${TargetCommand}")" ]] && \
         echo "%sudo ALL=NOPASSWD:$(which "${TargetCommand}")" \
-            | sudo tee "/etc/sudoers.d/nopasswd_sudo_command_${TargetCommand}" >/dev/null
+            | sudo tee "/etc/sudoers.d/nopasswd_sudo_command_${TargetCommand}" >/dev/null && \
+        sudo chmod 440 "/etc/sudoers.d/nopasswd_sudo_command_${TargetCommand}"
 done
 
+## Allow user sudo to execute any command without password prompt
+# sudo sed "/^# User privilege specification/a $(whoami) ALL=(ALL:ALL) NOPASSWD:ALL,!/bin/su" /etc/sudoers
+# echo "$(whoami) ALL=(ALL:ALL) NOPASSWD:ALL,!/bin/su" | sudo tee "/etc/sudoers.d/nopasswd_sudo_$(whoami)" >/dev/null && \
+#     sudo chmod 440 "/etc/sudoers.d/nopasswd_sudo_$(whoami)"
+
+## Command alias
+# sudo tee "/etc/sudoers.d/cmdalias_sudo" >/dev/null <<-'EOF'
+# Cmnd_Alias     SHUTDOWN = /sbin/shutdown,/usr/bin/poweroff,/sbin/poweroff
+# Cmnd_Alias     HALT = /usr/sbin/halt
+# Cmnd_Alias     REBOOT = /usr/bin/reboot,/sbin/reboot,/sbin/init
+# Cmnd_Alias     SHELLS = /bin/sh,/bin/bash,/usr/bin/csh, /usr/bin/ksh, \
+#                         /usr/local/bin/tcsh, /usr/bin/rsh, \
+#                         /usr/local/bin/zsh
+# Cmnd_Alias     NETWORK = /etc/init.d/network,/sbin/ifconfig,/sbin/ip,/bin/hostname,/sbin/ifup,/sbin/ifdown
+# Cmnd_Alias     PASSWORD = /usr/bin/passwd
+# Cmnd_Alias     USERS = /usr/sbin/usermod,/usr/sbin/adduser,/usr/sbin/userdel,/usr/sbin/useradd,/usr/sbin/vipw,/usr/sbin/visudo,/usr/bin/gpasswd
+# Cmnd_Alias     DISKS = /sbin/fdisk,/sbin/parted
+# EOF
+# sudo chmod 440 "/etc/sudoers.d/cmdalias_sudo"
+# echo "%minsu ALL=(ALL) NOPASSWD:ALL,!SHELLS,!HALT,!SHUTDOWN,!REBOOT,!NETWORK,!PASSWORD,!DISKS,!USERS" \
+#     | sudo tee "/etc/sudoers.d/nopasswd_sudo_minsu" >/dev/null && \
+#     sudo chmod 440 "/etc/sudoers.d/nopasswd_sudo_minsu"
+
+# check sudo file for config and other errors
+sudo visudo -c
 
 # Clear bash history
 cat /dev/null > "$HOME/.bash_history"
