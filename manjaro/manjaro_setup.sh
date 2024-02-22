@@ -335,10 +335,19 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "bed-latex"
     )
 fi
+
+colorEcho "${BLUE}Checking install status for ${FUCHSIA}${AppManjaroInstallList[*]}${BLUE}..."
+AppsToInstall=()
 for TargetApp in "${AppManjaroInstallList[@]}"; do
-    colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
-    yay --noconfirm --needed -S "${TargetApp}"
+    if checkPackageNeedInstall "${TargetApp}"; then
+        AppsToInstall+=("${TargetApp}")
+    fi
 done
+
+if [[ -n "${AppsToInstall[*]}" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}${AppsToInstall[*]}${BLUE}..."
+    yay --noconfirm --needed -S "${AppsToInstall[@]}"
+fi
 
 # Snap apps
 if [[ -z "${AppSnapInstallList[*]}" ]]; then
