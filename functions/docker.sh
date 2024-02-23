@@ -223,3 +223,53 @@ function dockerRelocateRoot() {
     [[ -f "/etc/docker/daemon_temp.json" ]] && sudo mv -f "/etc/docker/daemon_temp.json" "/etc/docker/daemon.json"
     sudo systemctl daemon-reload && sudo systemctl restart docker
 }
+
+# [How to Secure a Docker Host Using Firewalld](https://dev.to/soerenmetje/how-to-secure-a-docker-host-using-firewalld-2joo)
+function dockerSetFirewalld() {
+    local if_default if_docker
+
+    if ! firewall-cmd --state >/dev/null 2>&1; then
+        colorEcho "${FUCHSIA}firewalld${RED} is not running!"
+        return 1
+    fi
+
+    [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
+
+    jq -r ".\"iptables\"=false" "/etc/docker/daemon.json" | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
+    [[ -f "/etc/docker/daemon_temp.json" ]] && sudo mv -f "/etc/docker/daemon_temp.json" "/etc/docker/daemon.json"
+
+    # Masquerading allows for docker ingress and egress (this is the juicy bit)
+    sudo firewall-cmd --zone=public --add-masquerade --permanent
+
+    # Show interfaces to find out docker interface name
+    # Show interfaces to find out network interface name with your public IP
+    # ip link show && ip addr
+    if_default=$(ip route 2>/dev/null | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//" -e "s/[ \t]//g" | head -n1)
+    if_docker=$(ip route 2>/dev/null | grep docker | sed -e "s/^.*dev.//" -e "s/.proto.*//" -e "s/[ \t]//g" | head -n1)
+
+    # Assumes docker interface is docker0
+    sudo firewall-cmd --permanent --zone=trusted --add-interface="${if_docker:-docker0}"
+
+    # Assumes network interface with your public IP is eth0
+    sudo firewall-cmd --permanent --zone=public --add-interface="${if_default:-eth0}"
+
+    # Open Firewall Ports 80, 443
+    sudo firewall-cmd --permanent --zone=public --add-port=80/tcp
+    sudo firewall-cmd --permanent --zone=public --add-port=443/tcp
+
+    # Reload docker service
+    sudo systemctl daemon-reload && sudo systemctl restart docker
+
+    # Reload firewall to apply permanent rules
+    sudo firewall-cmd --reload
+
+    # List Firewall Ports
+    # sudo firewall-cmd --permanent --zone=public --list-ports
+    sudo firewall-cmd --get-active-zones
+
+    echo ""
+    sudo firewall-cmd --get-active-policies
+
+    echo ""
+    sudo firewall-cmd --list-all
+}
