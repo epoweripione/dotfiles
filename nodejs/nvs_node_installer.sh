@@ -66,6 +66,7 @@ if [[ -x "$(command -v npm)" ]]; then
 
     if [[ ! -x "$(command -v pnpm)" ]]; then
         colorEcho "${BLUE}Installing ${FUCHSIA}pnpm${BLUE}..."
-        npm install -g pnpm
+        # npm install -g pnpm
+        curl -fsSL https://get.pnpm.io/install.sh | sh -
     fi
 fi

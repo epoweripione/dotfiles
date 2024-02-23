@@ -284,6 +284,20 @@ if [[ -d "$HOME/.npm-global" ]]; then
     [[ ":$PATH:" != *":$HOME/.npm-global/bin:"* ]] && export PATH=$HOME/.npm-global/bin:$PATH
 fi
 
+# pnpm
+if [[ -d "$HOME/.local/share/pnpm" ]]; then
+    export PNPM_HOME="$HOME/.local/share/pnpm"
+    [[ ":$PATH:" != *":$PNPM_HOME:"* ]] && export PATH=$PNPM_HOME:$PATH
+
+    if [[ -x "$(command -v pnpm)" ]]; then
+        PNPM_STORE=$(pnpm config get store-dir)
+        if [[ -z "${PNPM_STORE}" ]]; then
+            mkdir -p "$HOME/.pnpm-store"
+            pnpm config set store-dir "$HOME/.pnpm-store"
+        fi
+    fi
+fi
+
 # sdkman
 if [[ -d "$HOME/.sdkman" ]]; then
     if type 'sdk' 2>/dev/null | grep -q 'function'; then

@@ -141,7 +141,20 @@ if [[ -x "$(command -v yarn)" ]]; then
 fi
 
 
-if [[ -x "$(command -v pnpm)" && -x "$(command -v corepack)" ]]; then
-    colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE}..."
-    corepack prepare pnpm@latest --activate
+if [[ -x "$(command -v pnpm)" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}pnpm${BLUE}..."
+    INSTALLER_CHECK_URL="https://api.github.com/repos/pnpm/pnpm/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+
+    INSTALLER_VER_CURRENT=$(pnpm -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}pnpm ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+        curl -fsSL https://get.pnpm.io/install.sh | sh -
+    fi
 fi
+
+# if [[ -x "$(command -v pnpm)" && -x "$(command -v corepack)" ]]; then
+#     colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE}..."
+#     corepack prepare pnpm@latest --activate
+# fi
