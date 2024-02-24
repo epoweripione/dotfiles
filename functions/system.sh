@@ -277,3 +277,17 @@ function FixSystemBinPath() {
         [[ -d "${TargetDir}" && ":$PATH:" != *":${TargetDir}:"* ]] && PATH="${TargetDir}:$PATH"
     done
 }
+
+# make sudo more user friendly
+# remove sudo timeout, make cache global, extend timeout
+function setSudoTimeout() {
+    sudo tee "/etc/sudoers.d/20-password-timeout-0-ppid-60min" <<-'EOF'
+Defaults passwd_timeout=0
+Defaults timestamp_type="global"
+
+# sudo only once for 60 minute
+Defaults timestamp_timeout=60
+EOF
+
+    sudo chmod 440 "/etc/sudoers.d/20-password-timeout-0-ppid-60min"
+}
