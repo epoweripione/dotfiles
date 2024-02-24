@@ -77,8 +77,10 @@ if [[ -n "$OS_TYPE" && ("$OS_ARCH" == "amd64" || "$OS_ARCH" == "x86_64") ]]; the
         fi
 
         if [[ ${curl_download_status} -eq 0 ]]; then
-            sudo tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "/usr/local/bin" && \
-                sudo ln -sv "/usr/local/bin/pacaptr" "/usr/bin/pacman" || true
+            sudo tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}" && \
+                sudo mv "${WORKDIR}/pacaptr" "${INSTALLER_INSTALL_PATH}"
+                sudo chmod +x "${INSTALLER_INSTALL_PATH}/pacaptr" && \
+                sudo ln -sv "${INSTALLER_INSTALL_PATH}/pacaptr" "/usr/bin/pacman" || true
         fi
     fi
 fi
