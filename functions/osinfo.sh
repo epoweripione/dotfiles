@@ -479,6 +479,7 @@ function get_os_package_manager() {
     [[ -x "/usr/bin/tazpkg" ]] && OS_PACKAGE_MANAGER="tazpkg" && return
     [[ -x "/usr/bin/swupd" ]] && OS_PACKAGE_MANAGER="swupd" && return
 
+    command -v xbps-install >/dev/null && OS_PACKAGE_MANAGER="xbps" && return
     command -v brew >/dev/null && OS_PACKAGE_MANAGER="homebrew" && return
 }
 
