@@ -81,6 +81,11 @@ function setMirrorNodejs() {
         export MIRROR_NODEJS_REGISTRY=${MIRROR_NODEJS_REGISTRY:-"https://registry.npmmirror.com"}
     fi
 
+    # corepack
+    if [[ "$(command -v corepack)" ]]; then
+        [[ -n "${MIRROR_NODEJS_REGISTRY}" ]] && export COREPACK_NPM_REGISTRY="${MIRROR_NODEJS_REGISTRY}"
+    fi
+
     # nvm
     if [[ "$(command -v nvm)" ]]; then
         export NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"}
