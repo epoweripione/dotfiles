@@ -296,8 +296,8 @@ for TargetCommand in "${CommandList[@]}"; do
 done
 
 ## Allow user sudo to execute any command without password prompt
-# sudo sed "/^# User privilege specification/a $(whoami) ALL=(ALL:ALL) NOPASSWD:ALL,!/bin/su" /etc/sudoers
-# echo "$(whoami) ALL=(ALL:ALL) NOPASSWD:ALL,!/bin/su" | sudo tee "/etc/sudoers.d/nopasswd_sudo_$(whoami)" >/dev/null && \
+# sudo sed "/^# User privilege specification/a $(whoami) ALL=(ALL:ALL) NOPASSWD:ALL,\!/bin/su" /etc/sudoers
+# echo "$(whoami) ALL=(ALL:ALL) NOPASSWD:ALL,\!/bin/su" | sudo tee "/etc/sudoers.d/nopasswd_sudo_$(whoami)" >/dev/null && \
 #     sudo chmod 440 "/etc/sudoers.d/nopasswd_sudo_$(whoami)"
 
 ## Command alias
@@ -314,7 +314,7 @@ done
 # Cmnd_Alias     DISKS = /sbin/fdisk,/sbin/parted
 # EOF
 # sudo chmod 440 "/etc/sudoers.d/cmdalias_sudo"
-# echo "%minsu ALL=(ALL) NOPASSWD:ALL,!SHELLS,!HALT,!SHUTDOWN,!REBOOT,!NETWORK,!PASSWORD,!DISKS,!USERS" \
+# echo "%minsu ALL=(ALL) NOPASSWD:ALL,\!SHELLS,\!HALT,\!SHUTDOWN,\!REBOOT,\!NETWORK,\!PASSWORD,\!DISKS,\!USERS" \
 #     | sudo tee "/etc/sudoers.d/nopasswd_sudo_minsu" >/dev/null && \
 #     sudo chmod 440 "/etc/sudoers.d/nopasswd_sudo_minsu"
 
