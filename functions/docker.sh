@@ -228,7 +228,7 @@ function dockerRelocateRoot() {
 function dockerSetFirewalld() {
     local if_default if_docker
 
-    if ! firewall-cmd --state >/dev/null 2>&1; then
+    if ! sudo firewall-cmd --state >/dev/null 2>&1; then
         colorEcho "${FUCHSIA}firewalld${RED} is not running!"
         return 1
     fi
