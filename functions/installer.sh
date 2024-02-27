@@ -1070,7 +1070,7 @@ function App_Installer_Get_Installed_Version() {
 
     [[ -z "${appBinary}" ]] && colorEcho "${FUCHSIA}App binary name${RED} can't empty!" && return 1
 
-    binaryFile=$(which "${appBinary}")
+    binaryFile=$(which "${appBinary}" 2>/dev/null)
     [[ -z "${binaryFile}" ]] && INSTALLER_VER_CURRENT="0.0.0" && return 1
 
     INSTALLER_VER_CURRENT=$(${appBinary} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
