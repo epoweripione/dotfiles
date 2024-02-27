@@ -51,6 +51,14 @@ if [[ -x "$(command -v pacman)" ]]; then
     # jq
     # https://stedolan.github.io/jq/
 
+    # epel
+    [[ -z "${OS_PACKAGE_MANAGER}" ]] && get_os_package_manager
+    if [[ "${OS_PACKAGE_MANAGER}" == "dnf" ]]; then
+        if checkPackageNeedInstall "epel-release"; then
+            sudo dnf install epel-release && sudo dnf upgrade
+        fi
+    fi
+
     # Pre-requisite packages
     PackagesList=(
         aria2
