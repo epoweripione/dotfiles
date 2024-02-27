@@ -229,6 +229,7 @@ function dockerSetFirewalld() {
     local if_default if_docker
 
     if ! sudo firewall-cmd --state >/dev/null 2>&1; then
+        # sudo pacman -S firewalld
         colorEcho "${FUCHSIA}firewalld${RED} is not running!"
         return 1
     fi
@@ -244,8 +245,8 @@ function dockerSetFirewalld() {
     # Show interfaces to find out docker interface name
     # Show interfaces to find out network interface name with your public IP
     # ip link show && ip addr
-    if_default=$(ip route 2>/dev/null | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//" -e "s/[ \t]//g" | head -n1)
-    if_docker=$(ip route 2>/dev/null | grep docker | sed -e "s/^.*dev.//" -e "s/.proto.*//" -e "s/[ \t]//g" | head -n1)
+    if_default=$(ip route 2>/dev/null | grep default | sed -e "s/^.*dev.//" | awk '{print $1}' | head -n1)
+    if_docker=$(ip route 2>/dev/null | grep docker | sed -e "s/^.*dev.//" | awk '{print $1}' | head -n1)
 
     # Assumes docker interface is docker0
     sudo firewall-cmd --permanent --zone=trusted --add-interface="${if_docker:-docker0}"
@@ -265,6 +266,7 @@ function dockerSetFirewalld() {
 
     # List Firewall Ports
     # sudo firewall-cmd --permanent --zone=public --list-ports
+    echo ""
     sudo firewall-cmd --get-active-zones
 
     echo ""

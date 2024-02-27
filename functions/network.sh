@@ -100,9 +100,12 @@ function get_network_interface_list() {
     unset NETWORK_INTERFACE_LIST
 
     if [[ -x "$(command -v ip)" ]]; then
-        NETWORK_INTERFACE_LIST=$(ip link 2>/dev/null | awk -F: '$0 !~ "lo|vir|^[^0-9]" {print $2;getline}')
+        NETWORK_INTERFACE_LIST=$(ip route 2>/dev/null | sed -e "s/^.*dev.//" | awk '{print $1}' | uniq)
         # Without wireless
         # NETWORK_INTERFACE_LIST=$(ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]" {print $2;getline}')
+        if [[ -z "${NETWORK_INTERFACE_LIST}" ]]; then
+            NETWORK_INTERFACE_LIST=$(ip link 2>/dev/null | awk -F: '$0 !~ "lo|vir|^[^0-9]" {print $2;getline}')
+        fi
     else
         NETWORK_INTERFACE_LIST=$(ls /sys/class/net 2>/dev/null | tr "\t" "\n" | grep -Ev "lo|vir|^[0-9]")
     fi
@@ -112,9 +115,9 @@ function get_network_interface_default() {
     unset NETWORK_INTERFACE_DEFAULT
 
     if [[ -x "$(command -v ip)" ]]; then
-        NETWORK_INTERFACE_DEFAULT=$(ip route 2>/dev/null | grep default | sed -e "s/^.*dev.//" -e "s/.proto.*//" -e "s/[ \t]//g" | head -n1)
+        NETWORK_INTERFACE_DEFAULT=$(ip route 2>/dev/null | grep default | sed -e "s/^.*dev.//" | awk '{print $1}' | head -n1)
         if [[ -z "${NETWORK_INTERFACE_DEFAULT}" ]]; then
-            NETWORK_INTERFACE_DEFAULT=$(ip route | grep -Ev "^0\.|^127\.|^172\." | sed -e "s/^.*dev.//" -e "s/.proto.*//" -e "s/[ \t]//g" | head -n1)
+            NETWORK_INTERFACE_DEFAULT=$(ip route 2>/dev/null | grep -Ev "^0\.|^127\.|^172\." | sed -e "s/^.*dev.//" | awk '{print $1}' | head -n1)
         fi
     elif [[ -x "$(command -v netstat)" ]]; then
         NETWORK_INTERFACE_DEFAULT=$(netstat -rn 2>/dev/null | awk '/^0.0.0.0/ {thif=substr($0,74,10); print thif;} /^default.*UG/ {thif=substr($0,65,10); print thif;}')
