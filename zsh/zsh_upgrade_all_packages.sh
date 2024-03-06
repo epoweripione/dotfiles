@@ -250,6 +250,8 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         # "starship"
         "tig"
         "usql"
+        "uv"
+        "vfox"
         "viu"
         "wrk"
         "xh"
