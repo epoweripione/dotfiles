@@ -150,6 +150,42 @@ function setMirrorGem() {
     fi
 }
 
+# [Rockylinux mirror](https://rockylinux.cn/download)
+function setMirrorRockylinux() {
+    local resetMirror=$1
+
+    MIRROR_ROCKYLINUX=${MIRROR_ROCKYLINUX:-"https://mirrors.aliyun.com/rockylinux"}
+    MIRROR_EPEL_RELEASE=${MIRROR_EPEL_RELEASE:-"https://mirrors.aliyun.com"}
+
+    if [[ "${resetMirror}" == "reset" ]]; then
+        # for i in /etc/yum.repos.d/Rocky*.bak; do sudo mv "$i" "${i%.bak}"; done
+        sudo sed -e 's|^#mirrorlist=|mirrorlist=|g' \
+            -e "s|^baseurl=${MIRROR_ROCKYLINUX}|#baseurl=http://dl.rockylinux.org/\$contentdir|g" \
+        -i.bak \
+        /etc/yum.repos.d/Rocky*.repo
+
+        # epel
+        # for i in /etc/yum.repos.d/epel*.bak; do sudo mv "$i" "${i%.bak}"; done
+        sudo sed -e 's|^#metalink=|metalink=|' \
+            -e "s|^baseurl=${MIRROR_EPEL_RELEASE}|#baseurl=https://download.example/pub|" \
+        -i.bak \
+        /etc/yum.repos.d/epel*.repo
+    else
+        sudo sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+            -e "s|^#baseurl=http://dl.rockylinux.org/\$contentdir|baseurl=${MIRROR_ROCKYLINUX}|g" \
+        -i.bak \
+        /etc/yum.repos.d/Rocky*.repo
+
+        # epel
+        sudo sed -e 's|^metalink=|#metalink=|' \
+            -e "s|^#baseurl=https://download.example/pub|baseurl=${MIRROR_EPEL_RELEASE}|" \
+        -i.bak \
+        /etc/yum.repos.d/epel*.repo
+    fi
+
+    dnf makecache
+}
+
 
 # unset all mirrors
 function unsetMirrorAll() {
