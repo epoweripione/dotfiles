@@ -17,6 +17,34 @@ else
     fi
 fi
 
+## [Black Screen with Plymouth - Cause and Solution](https://forum.manjaro.org/t/black-screen-with-plymouth-cause-and-solution/156980)
+## New installations
+# ISO released with 2024 has late KMS enabled by default
+# Using Nvidia you need to add a module to the kernel command line
+# Early KMS can be enabled by adding the driver to `MODULES=()` array - usually you don’t need this with `gpus` that have kernel drivers.
+## Existing installations
+# Edit the file `/etc/mkinitcpio.conf` and apply changes according to your GPU
+### Too boot a system showing blackscreen with `Nvidia`
+# access the `grub` menu `Esc` - press `e` on the boot entry and add `nvidia_drm.modeset=1 nvidia_drm.fbdev=1` to kernel command line.
+# Press `F10` to continue boot.
+### All GPU (open source kernel driver)
+# AMD, ATI, Intel, Nouveau
+# HOOKS=(... kms ...)
+# Optional
+# MODULES=(... amdgpu ...)
+# MODULES=(... radeon ...)
+# MODULES=(... i915 ...)
+# MODULES=(... nouveau ...)
+# Rebuild initramfs
+# `sudo mkinitcpio -P`
+### Nvidia GPU (proprietary driver)
+# Tests by the team shows that editing the default grub config in `/etc/default/grub` adding should be enough
+# `GRUB_CMDLINE_LINUX_DEFAULT="... nvidia_drm.modeset=1  ..."`
+# Rebuild your grub configuration
+# `sudo grub-mkconfig -o /boot/grub/grub.cfg`
+# If the above is not enough add this in addition to the above and rebuild the grub config
+# `GRUB_CMDLINE_LINUX_DEFAULT="... nvidia_drm.fbdev=1 ..."`
+
 # fix the "sparse file not allowed" error message on startup
 colorEcho "${BLUE}Setting ${FUCHSIA}GRUB${BLUE}..."
 sudo sed -i -e 's/^GRUB_SAVEDEFAULT=true/#GRUB_SAVEDEFAULT=true/g' \
