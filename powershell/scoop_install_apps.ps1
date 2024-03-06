@@ -300,6 +300,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "mkcert"
         "nu"
         "openark"
+        "optimizer"
         "procs"
         "smartmontools"
         "usql"
