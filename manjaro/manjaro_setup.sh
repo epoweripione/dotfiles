@@ -261,7 +261,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "aur/linuxqq"
         # "aur/deepin-wine-qq"
         "aur/deepin-wine-tim"
-        "aur/wechat-uos"
+        "aur/wechat-universal-bwrap"
         # "aur/deepin-wine-wechat"
         # "archlinuxcn/wine-wechat-setup"
         # "archlinuxcn/wine-for-wechat"
