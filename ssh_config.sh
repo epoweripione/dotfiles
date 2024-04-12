@@ -22,12 +22,31 @@ fi
 ## You will need to logout and back in for changes to take effect
 # sudo usermod -aG sudo <username>
 
-if [[ -d "/etc/ssh/ssh_config.d" ]]; then
-    sudo tee "/etc/ssh/ssh_config.d/00-only-ssh-login.conf" >/dev/null <<-'EOF'
+# Disable Password Authentication
+sudo sed -i 's/[#]*[ ]*PasswordAuthentication.*/PasswordAuthentication no/g' "/etc/ssh/sshd_config"
+sudo sed -i 's/[#]*[ ]*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/g' "/etc/ssh/sshd_config"
+
+# Disable Forwarding
+sudo sed -i 's/[#]*[ ]*AllowAgentForwarding.*/AllowAgentForwarding no/g' "/etc/ssh/sshd_config"
+sudo sed -i 's/[#]*[ ]*AllowTcpForwarding.*/AllowTcpForwarding no/g' "/etc/ssh/sshd_config"
+sudo sed -i 's/[#]*[ ]*X11Forwarding.*/X11Forwarding no/g' "/etc/ssh/sshd_config"
+
+# /etc/ssh/ssh_config.d/
+SUB_CONFIG_FILE=""
+if systemctl is-enabled ssh >/dev/null 2>&1; then
+    [[ -d "/etc/ssh/ssh_config.d" ]] && SUB_CONFIG_FILE="/etc/ssh/ssh_config.d/00-only-ssh-login.conf"
+fi
+
+if systemctl is-enabled sshd >/dev/null 2>&1; then
+    [[ -d "/etc/ssh/sshd_config.d" ]] && SUB_CONFIG_FILE="/etc/ssh/sshd_config.d/00-only-ssh-login.conf"
+fi
+
+if [[ -n "${SUB_CONFIG_FILE}" ]]; then
+    sudo tee "${SUB_CONFIG_FILE}" >/dev/null <<-'EOF'
 # Disable Password Authentication
 PasswordAuthentication no
 ChallengeResponseAuthentication no
-UsePAM no
+# UsePAM no
 
 # Disable Forwarding
 ForwardX11 no
@@ -40,21 +59,14 @@ ForwardAgent no
 # PermitRootLogin no
 # PermitRootLogin prohibit-password
 EOF
-else
-    # Disable Password Authentication
-    sudo sed -i 's/[#]*[ ]*PasswordAuthentication.*/PasswordAuthentication no/g' "/etc/ssh/sshd_config"
-    sudo sed -i 's/[#]*[ ]*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/g' "/etc/ssh/sshd_config"
-
-    # Disable Forwarding
-    sudo sed -i 's/[#]*[ ]*AllowAgentForwarding.*/AllowAgentForwarding no/g' "/etc/ssh/sshd_config"
-    sudo sed -i 's/[#]*[ ]*AllowTcpForwarding.*/AllowTcpForwarding no/g' "/etc/ssh/sshd_config"
-    sudo sed -i 's/[#]*[ ]*X11Forwarding.*/X11Forwarding no/g' "/etc/ssh/sshd_config"
 fi
-
 
 # Restart ssh service
 systemctl is-enabled ssh >/dev/null 2>&1 && sudo systemctl restart ssh
 systemctl is-enabled sshd >/dev/null 2>&1 && sudo systemctl restart sshd
+
+# output the effective configuration
+sudo sshd -T | grep -Ei 'Forward|Authentication'
 
 
 ## Generate ssh key
@@ -78,5 +90,11 @@ systemctl is-enabled sshd >/dev/null 2>&1 && sudo systemctl restart sshd
 #     chmod 700 ~/.ssh/ && \
 #     chmod 600 ~/.ssh/authorized_keys
 
+
+## [How to Check Failed SSH Login Attempts in Linux](https://operavps.com/docs/check-failed-ssh-login-in-linux/)
+# grep -E "Failed|Failure" /var/log/auth.log
+# grep -E "Failed|Failure" /var/log/secure
+# sudo journalctl -u ssh --since "yesterday"
+# sudo journalctl -u sshd --since "yesterday"
 
 cd "${CURRENT_DIR}" || exit
