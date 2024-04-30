@@ -243,14 +243,14 @@ function check_http_request_status() {
     local httpcode exitStatus=0
 
     if [[ -z "${proxy_address}" ]]; then
-        httpcode=$(curl -fsL --connect-timeout 3 --max-time 5 -w "%{http_code}\\n" "${url}" -o /dev/null)
+        httpcode=$(curl -fsL -I --connect-timeout 3 --max-time 5 -w "%{http_code}\\n" "${url}" -o /dev/null)
     else
         if [[ "${proxy_protocol}" == *"socks5"* ]]; then
-            httpcode=$(curl -fsL --connect-timeout 3 --max-time 5 --socks5-hostname "${proxy_address}" -w "%{http_code}\\n" "${url}" -o /dev/null)
+            httpcode=$(curl -fsL -I --connect-timeout 3 --max-time 5 --socks5-hostname "${proxy_address}" -w "%{http_code}\\n" "${url}" -o /dev/null)
         elif [[ "${proxy_protocol}" == *"noproxy"* ]]; then
-            httpcode=$(curl -fsL --connect-timeout 3 --max-time 5 --noproxy "*" -w "%{http_code}\\n" "${url}" -o /dev/null)
+            httpcode=$(curl -fsL -I --connect-timeout 3 --max-time 5 --noproxy "*" -w "%{http_code}\\n" "${url}" -o /dev/null)
         else
-            httpcode=$(curl -fsL --connect-timeout 3 --max-time 5 --proxy "${proxy_address}" -w "%{http_code}\\n" "${url}" -o /dev/null)
+            httpcode=$(curl -fsL -I --connect-timeout 3 --max-time 5 --proxy "${proxy_address}" -w "%{http_code}\\n" "${url}" -o /dev/null)
         fi
     fi
 
