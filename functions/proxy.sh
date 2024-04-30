@@ -235,6 +235,49 @@ function set_proxy_mirrors_env() {
     fi
 }
 
+# test http request status using http_code: return 1 when DENIED, ERROR, NO RESPONSE
+function check_http_request_status() {
+    local url=$1
+    local proxy_address=$2
+    local proxy_protocol=$3
+    local httpcode exitStatus=0
+
+    if [[ -z "${proxy_address}" ]]; then
+        httpcode=$(curl -fsL --connect-timeout 3 --max-time 5 -w "%{http_code}\\n" "${url}" -o /dev/null)
+    else
+        if [[ "${proxy_protocol}" == *"socks5"* ]]; then
+            httpcode=$(curl -fsL --connect-timeout 3 --max-time 5 --socks5-hostname "${proxy_address}" -w "%{http_code}\\n" "${url}" -o /dev/null)
+        elif [[ "${proxy_protocol}" == *"noproxy"* ]]; then
+            httpcode=$(curl -fsL --connect-timeout 3 --max-time 5 --noproxy "*" -w "%{http_code}\\n" "${url}" -o /dev/null)
+        else
+            httpcode=$(curl -fsL --connect-timeout 3 --max-time 5 --proxy "${proxy_address}" -w "%{http_code}\\n" "${url}" -o /dev/null)
+        fi
+    fi
+
+    case "${httpcode}" in
+        [2]*)
+            # UP
+            ;;
+        [3]*)
+            # REDIRECT
+            ;;
+        [4]*)
+            # 400 Bad Request
+            [[ "${httpcode}" != "400" ]] && exitStatus=4 # DENIED
+            ;;
+        [5]*)
+            exitStatus=5 # ERROR
+            ;;
+        *)
+            exitStatus=6 # NO RESPONSE
+            ;;
+    esac
+
+    # echo "${url} ${httpcode} ${proxy_protocol} ${proxy_address}"
+
+    return ${exitStatus}
+}
+
 # test the availability of a socks5 proxy
 function check_socks5_proxy_up() {
     # How to use:
@@ -249,11 +292,17 @@ function check_socks5_proxy_up() {
 
     [[ -z "${PROXY_ADDRESS}" ]] && PROXY_ADDRESS="127.0.0.1:1080"
 
-    curl -fsL -I --connect-timeout 3 --max-time 5 \
-        --socks5-hostname "${PROXY_ADDRESS}" \
-        "${webservice_url}" >/dev/null 2>&1 || exitStatus=$?
+    # curl -fsL -I --connect-timeout 3 --max-time 5 \
+    #     --socks5-hostname "${PROXY_ADDRESS}" \
+    #     "${webservice_url}" >/dev/null 2>&1 || exitStatus=$?
 
-    if [[ "$exitStatus" -eq "0" ]]; then
+    # if [[ "$exitStatus" -eq "0" ]]; then
+    #     return 0
+    # else
+    #     return 1
+    # fi
+
+    if check_http_request_status "${webservice_url}" "${PROXY_ADDRESS}" "socks5"; then
         return 0
     else
         return 1
@@ -274,11 +323,17 @@ function check_http_proxy_up() {
 
     [[ -z "${PROXY_ADDRESS}" ]] && PROXY_ADDRESS="127.0.0.1:8080"
 
-    curl -fsL -I --connect-timeout 3 --max-time 5 \
-        --proxy "${PROXY_ADDRESS}" \
-        "${webservice_url}" >/dev/null 2>&1 || exitStatus=$?
+    # curl -fsL -I --connect-timeout 3 --max-time 5 \
+    #     --proxy "${PROXY_ADDRESS}" \
+    #     "${webservice_url}" >/dev/null 2>&1 || exitStatus=$?
 
-    if [[ "$exitStatus" -eq "0" ]]; then
+    # if [[ "$exitStatus" -eq "0" ]]; then
+    #     return 0
+    # else
+    #     return 1
+    # fi
+
+    if check_http_request_status "${webservice_url}" "${PROXY_ADDRESS}"; then
         return 0
     else
         return 1
