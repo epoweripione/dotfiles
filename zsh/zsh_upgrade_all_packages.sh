@@ -315,6 +315,11 @@ if [[ -x "$(command -v conda)" ]]; then
     conda update -y --all
 fi
 
+if [[ -x "$(command -v mamba)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}all installed miniforge packages${BLUE}..."
+    mamba update -y --all
+fi
+
 if [[ -d "$HOME/.nvm" && -s "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_updater.sh" ]]; then
     source "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_updater.sh"
 fi
