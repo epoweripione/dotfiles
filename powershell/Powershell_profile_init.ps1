@@ -443,6 +443,11 @@ if (Get-Command "zoxide" -ErrorAction SilentlyContinue) {
     })
 }
 
+# https://github.com/version-fox/vfox
+if (Get-Command "vfox" -ErrorAction SilentlyContinue) {
+    Invoke-Expression "$(vfox activate pwsh)"
+}
+
 ## https://starship.rs/
 # if (Get-Command "starship" -ErrorAction SilentlyContinue) {
 #     Invoke-Expression (&starship init powershell)
