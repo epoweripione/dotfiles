@@ -894,18 +894,19 @@ function App_Installer_Install() {
             if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
                 if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
                     INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not -name "*.${INSTALLER_ARCHIVE_EXT}" -not -name "*.[[:digit:]]" -not -name "${INSTALLER_ZSH_COMP_FILE}")
+                        -not \( -name "*.${INSTALLER_ARCHIVE_EXT}" -or -name "${INSTALLER_ZSH_COMP_FILE}" \
+                                -or -name "*.[[:digit:]]" -or -name "*completion*" -or -path "*completion*" \) )
                 else
                     INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not -name "*.${INSTALLER_ARCHIVE_EXT}" -not -name "*.[[:digit:]]")
+                        -not \( -name "*.${INSTALLER_ARCHIVE_EXT}" -or -name "*.[[:digit:]]" -or -name "*completion*" -or -path "*completion*" \) )
                 fi
             else
                 if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
                     INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not -name "*.[[:digit:]]" -not -name "${INSTALLER_ZSH_COMP_FILE}")
+                        -not \( -name "${INSTALLER_ZSH_COMP_FILE}" -or -name "*.[[:digit:]]" -or -name "*completion*" -or -path "*completion*" \) )
                 else
                     INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not -name "*.[[:digit:]]")
+                        -not \( -name "*.[[:digit:]]" -or -name "*completion*" -or -path "*completion*" \) )
                 fi
             fi
 
