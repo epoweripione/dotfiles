@@ -308,17 +308,12 @@ done
 
 unset IS_UPDATE_ONLY
 
-if [[ -x "$(command -v conda)" ]]; then
-    # colorEcho "${BLUE}Updating ${FUCHSIA}conda${BLUE}..."
-    # conda update -y conda
-
-    colorEcho "${BLUE}Updating ${FUCHSIA}all installed conda packages${BLUE}..."
-    conda update -y --all
-fi
-
 if [[ -x "$(command -v mamba)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}all installed miniforge packages${BLUE}..."
     mamba update -y --all
+elif [[ -x "$(command -v conda)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}all installed conda packages${BLUE}..."
+    conda update -y --all
 fi
 
 if [[ -d "$HOME/.nvm" && -s "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_updater.sh" ]]; then
