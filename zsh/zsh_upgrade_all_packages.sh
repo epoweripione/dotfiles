@@ -173,6 +173,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "lnav"
         "magic-wormhole"
         # "nano"
+        "fastfetch#fastfetch-cli/fastfetch#tar.gz#fastfetch*"
         "nnn"
         # "skim"
         "tailspin"

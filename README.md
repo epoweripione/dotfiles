@@ -39,7 +39,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * [pacaptr](https://github.com/rami3l/pacaptr)
   * [pacapt](https://github.com/icy/pacapt)
 - [Unix commands](/zsh/zsh_upgrade_all_packages.sh)
-  * [neofetch](https://github.com/dylanaraps/neofetch)
+  * [fastfetch](https://github.com/fastfetch-cli/fastfetch)
   * [jq](https://jqlang.github.io/jq/)
   * [fzf](https://github.com/junegunn/fzf)
   * [Modern Unix](https://github.com/ibraheemdev/modern-unix)

@@ -146,31 +146,31 @@ if [[ -x "$(command -v tmux)" ]]; then
 fi
 
 
-# neofetch
-if [[ ! -x "$(command -v neofetch)" ]] && [[ -x "$(command -v pacman)" ]]; then
-    if pacman -Si neofetch >/dev/null 2>&1; then
-        colorEcho "${BLUE}Installing ${FUCHSIA}neofetch${BLUE}..."
-        sudo pacman --noconfirm -S neofetch
-    fi
-fi
+## neofetch
+# if [[ ! -x "$(command -v neofetch)" ]] && [[ -x "$(command -v pacman)" ]]; then
+#     if pacman -Si neofetch >/dev/null 2>&1; then
+#         colorEcho "${BLUE}Installing ${FUCHSIA}neofetch${BLUE}..."
+#         sudo pacman --noconfirm -S neofetch
+#     fi
+# fi
 
-if [[ ! -x "$(command -v neofetch)" ]]; then
-    Git_Clone_Update_Branch "dylanaraps/neofetch" "$HOME/neofetch"
+# if [[ ! -x "$(command -v neofetch)" ]]; then
+#     Git_Clone_Update_Branch "dylanaraps/neofetch" "$HOME/neofetch"
 
-    if [[ "${OS_INFO_TYPE}" == "darwin" ]]; then
-        cd "$HOME/neofetch" && sudo make PREFIX=/usr/local install
-    elif [[ "${OS_INFO_TYPE}" == "windows" ]]; then
-        cd "$HOME/neofetch" && sudo make -i install
-    else
-        cd "$HOME/neofetch" && sudo make install
-    fi
-fi
+#     if [[ "${OS_INFO_TYPE}" == "darwin" ]]; then
+#         cd "$HOME/neofetch" && sudo make PREFIX=/usr/local install
+#     elif [[ "${OS_INFO_TYPE}" == "windows" ]]; then
+#         cd "$HOME/neofetch" && sudo make -i install
+#     else
+#         cd "$HOME/neofetch" && sudo make install
+#     fi
+# fi
 
-if [[ -x "$(command -v neofetch)" ]]; then
-    mkdir -p "$HOME/.config/neofetch" && \
-        cp "$HOME/.dotfiles/zsh/neofetch_config.conf" \
-            "$HOME/.config/neofetch/config.conf"
-fi
+# if [[ -x "$(command -v neofetch)" ]]; then
+#     mkdir -p "$HOME/.config/neofetch" && \
+#         cp "$HOME/.dotfiles/zsh/neofetch_config.conf" \
+#             "$HOME/.config/neofetch/config.conf"
+# fi
 
 
 ## fzf
