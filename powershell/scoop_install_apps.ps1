@@ -243,6 +243,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "screentogif"
         "aida64extreme"
         "cpu-z"
+        "fastfetch"
         "quickcpu"
         "as-ssd"
         "crystaldiskinfo"
