@@ -66,8 +66,13 @@ if ($?) {
     Expand-Archive -Path ".\dotfiles.zip" -DestinationPath .
     Rename-Item -Path ".\dotfiles-main" -NewName ".\dotfiles"
 
-    Copy-Item -Path ".\conf\condarc" -Destination "~\.condarc"
-    Copy-Item -Path ".\conf\pip" -Destination "~\.pip"
+    if (-Not (Test-Path "~\.condarc")) {
+        Copy-Item -Path ".\dotfiles\conf\condarc" -Destination "~\.condarc"
+    }
+
+    if (-Not (Test-Path "~\.pip")) {
+        Copy-Item -Path ".\dotfiles\conf\pip" -Destination "~\.pip"
+    }
 
     $PWSH_DIR = "~\Documents\PowerShell\Scripts"
     if (-Not (Test-Path "$PWSH_DIR")) {New-Item -path "$PWSH_DIR" -type Directory | Out-Null}
