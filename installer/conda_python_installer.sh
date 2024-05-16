@@ -27,7 +27,7 @@ colorEcho "${BLUE}Installing ${FUCHSIA}Miniconda3${BLUE}..."
 
 # mirror channels
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    [[ -z "${MIRROR_PYTHON_CONDA}" ]] && MIRROR_PYTHON_CONDA="https://mirrors.bfsu.edu.cn"
+    [[ -z "${MIRROR_PYTHON_CONDA}" ]] && MIRROR_PYTHON_CONDA="https://mirror.sjtu.edu.cn"
 fi
 
 if [[ ! -d "$HOME/miniconda3" ]]; then

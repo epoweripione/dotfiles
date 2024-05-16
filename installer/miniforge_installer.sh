@@ -28,7 +28,7 @@ colorEcho "${BLUE}Installing ${FUCHSIA}Miniforge${BLUE}..."
 MINIFORGE_FILENAME="Miniforge3-$(uname)-$(uname -m).sh"
 
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    [[ -z "${MIRROR_PYTHON_CONDA}" ]] && MIRROR_PYTHON_CONDA="https://mirrors.bfsu.edu.cn"
+    [[ -z "${MIRROR_PYTHON_CONDA}" ]] && MIRROR_PYTHON_CONDA="https://mirror.sjtu.edu.cn"
     [[ -z "${MIRROR_PYTHON_MINIFORGE}" ]] && MIRROR_PYTHON_MINIFORGE="${MIRROR_PYTHON_CONDA}/github-release/conda-forge/miniforge/LatestRelease/"
 fi
 

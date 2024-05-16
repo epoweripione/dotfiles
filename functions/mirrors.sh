@@ -117,11 +117,11 @@ function setMirrorPip() {
 # conda
 function setMirrorConda() {
     if [[ "$(command -v conda)" ]]; then
-        export MIRROR_PYTHON_CONDA=${MIRROR_PYTHON_CONDA:-"https://mirrors.bfsu.edu.cn"}
+        export MIRROR_PYTHON_CONDA=${MIRROR_PYTHON_CONDA:-"https://mirror.sjtu.edu.cn"}
 
         if [[ ! -s "$HOME/.condarc" ]]; then
             cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/condarc" "$HOME/.condarc"
-            sed -i -e "s|https://mirrors.bfsu.edu.cn|${MIRROR_PYTHON_CONDA}|g" "$HOME/.condarc"
+            sed -i -e "s|https://mirror.sjtu.edu.cn|${MIRROR_PYTHON_CONDA}|g" "$HOME/.condarc"
         fi
     fi
 }

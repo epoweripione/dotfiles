@@ -101,7 +101,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
     + [Python/pip](/installer/python_pip_config.sh)
       - [https://mirrors.aliyun.com/pypi/simple/](https://mirrors.aliyun.com/pypi/simple/)
     + [Anaconda](/installer/conda_python_installer.sh)
-      - [https://mirrors.bfsu.edu.cn/anaconda/](https://mirrors.bfsu.edu.cn/anaconda/)
+      - [https://mirror.sjtu.edu.cn/anaconda/](https://mirror.sjtu.edu.cn/anaconda/)
     + [Flutter](/installer/flutter_installer.sh)
       - [https://pub.flutter-io.cn](https://pub.flutter-io.cn)
       - [https://storage.flutter-io.cn](https://storage.flutter-io.cn)
@@ -251,7 +251,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
     MIRROR_PYTHON_PIP_HOST="mirrors.aliyun.com"
 
     # anaconda
-    MIRROR_PYTHON_CONDA="https://mirrors.bfsu.edu.cn"
+    MIRROR_PYTHON_CONDA="https://mirror.sjtu.edu.cn"
     # MIRROR_PYTHON_CONDA="https://mirror.sjtu.edu.cn"
     # MIRROR_PYTHON_CONDA="https://mirrors.tuna.tsinghua.edu.cn"
 
