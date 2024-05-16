@@ -306,6 +306,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "optimizer"
         "procs"
         "smartmontools"
+        "smartsystemmenu"
         "usql"
         "wget"
         "win32yank"
