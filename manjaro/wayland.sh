@@ -18,8 +18,28 @@ else
 fi
 
 # [KWin/Wayland](https://community.kde.org/KWin/Wayland)
-colorEcho "${BLUE}Installing ${FUCHSIA}plasma-wayland-session${BLUE}..."
-sudo pacman --noconfirm --needed -S plasma-wayland-session
+# [Wayland](https://wiki.archlinux.org/title/Wayland)
+InstallList=(
+    "plasma-wayland-session"
+    "xorg-xwayland"
+)
+
+AppsToInstall=()
+for TargetApp in "${InstallList[@]}"; do
+    if checkPackageNeedInstall "${TargetApp}"; then
+        AppsToInstall+=("${TargetApp}")
+    fi
+done
+
+if [[ -n "${AppsToInstall[*]}" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}${AppsToInstall[*]}${BLUE}..."
+    yay --noconfirm --needed -S "${AppsToInstall[@]}"
+fi
+
+## [Plasma (Wayland) session stuck on a black screen](https://discuss.kde.org/t/solved-plasma-wayland-session-stuck-on-a-black-screen/6691)
+# if ! grep -q "^KWIN_DRM_NO_AMS=" "/etc/environment"; then
+#     echo "KWIN_DRM_NO_AMS=1" || sudo tee -a "/etc/environment" >/dev/null
+# fi
 
 ## Switch to Wayland
 ## Log out, click user-name and use the bottom drop-down box to select `Plasma (Wayland)` desktop session
@@ -33,6 +53,29 @@ sudo pacman --noconfirm --needed -S plasma-wayland-session
 ## Edit the app shortcut file under ‘/usr/share/applications‘ (or copy to .local/share/applications), and add the variable to ‘Exec‘.
 ## So you can start the app via Wayland protocol even from start menu.
 
+## [Chromium](https://wiki.archlinux.org/title/chromium)
+# %U --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4
+if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/google-chrome.desktop"; then
+    sudo sed -i -e 's|/usr/bin/google-chrome-stable|/usr/bin/google-chrome-stable --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4|g' "/usr/share/applications/google-chrome.desktop"
+fi
+
+if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/google-chrome-beta.desktop"; then
+    sudo sed -i -e 's|/usr/bin/google-chrome-beta|/usr/bin/google-chrome-beta --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4|g' "/usr/share/applications/google-chrome-beta.desktop"
+fi
+
+if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/google-chrome-unstable.desktop"; then
+    sudo sed -i -e 's|/usr/bin/google-chrome-unstable|/usr/bin/google-chrome-unstable --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4|g' "/usr/share/applications/google-chrome-unstable.desktop"
+fi
+
+## vscode
+# --ozone-platform-hint=auto --enable-wayland-ime
+if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/code.desktop"; then
+    sudo sed -i -e 's|/usr/bin/code|/usr/bin/code --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4|g' "/usr/share/applications/code.desktop"
+fi
+
+if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/code-url-handler.desktop"; then
+    sudo sed -i -e 's|/usr/bin/code|/usr/bin/code --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4|g' "/usr/share/applications/code-url-handler.desktop"
+fi
 
 # [Waydroid](https://wiki.archlinux.org/title/Waydroid)
 # [在 Archlinux KDE下使用 Waydroid](https://zhuanlan.zhihu.com/p/643889264)
