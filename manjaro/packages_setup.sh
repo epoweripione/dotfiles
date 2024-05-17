@@ -67,14 +67,14 @@ sudo sed -i -e 's|^#EnableAUR|EnableAUR|' \
 #     echo "Include = /etc/pacman.d/chaotic-mirrorlist" | sudo tee -a /etc/pacman.conf >/dev/null
 # fi
 
-# Arch Linux Chinese Community Repository
-# https://github.com/archlinuxcn/mirrorlist-repo
+# [Arch Linux Chinese Community Repository](https://github.com/archlinuxcn/mirrorlist-repo)
 if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
     if ! grep -q "archlinuxcn" /etc/pacman.conf 2>/dev/null; then
         colorEcho "${BLUE}Installing${FUCHSIA} archlinuxcn ${BLUE} repo..."
         echo -e "\n[archlinuxcn]" | sudo tee -a /etc/pacman.conf >/dev/null
         # echo "Server = https://repo.archlinuxcn.org/\$arch" | sudo tee -a /etc/pacman.conf >/dev/null
-        echo "Server = https://mirrors.sjtug.sjtu.edu.cn/archlinux-cn/\$arch" | sudo tee -a /etc/pacman.conf >/dev/null
+        export MIRROR_ARCHLINUX_CN=${MIRROR_ARCHLINUX_CN:-"https://mirrors.sjtug.sjtu.edu.cn"}
+        echo "Server = ${MIRROR_ARCHLINUX_CN}/archlinux-cn/\$arch" | sudo tee -a /etc/pacman.conf >/dev/null
 
         ## archlinuxcn-keyring 安装时出现可能是因为时空扭曲或系统时钟，密钥生成于未来的N秒后的问题
         # sudo pacman --noconfirm --needed -S haveged && \

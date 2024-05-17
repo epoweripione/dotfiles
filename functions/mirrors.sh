@@ -150,12 +150,17 @@ function setMirrorGem() {
     fi
 }
 
+# [Arch Linux Chinese Community Repository](https://github.com/archlinuxcn/mirrorlist-repo)
+function setMirrorArchLinuxCN() {
+    export MIRROR_ARCHLINUX_CN=${MIRROR_ARCHLINUX_CN:-"https://mirrors.sjtug.sjtu.edu.cn"}
+}
+
 # [Rockylinux mirror](https://rockylinux.cn/download)
-function setMirrorRockylinux() {
+function setMirrorRockyLinux() {
     local resetMirror=$1
 
-    MIRROR_ROCKYLINUX=${MIRROR_ROCKYLINUX:-"https://mirrors.aliyun.com/rockylinux"}
-    MIRROR_EPEL_RELEASE=${MIRROR_EPEL_RELEASE:-"https://mirrors.aliyun.com"}
+    export MIRROR_ROCKYLINUX=${MIRROR_ROCKYLINUX:-"https://mirrors.aliyun.com/rockylinux"}
+    export MIRROR_EPEL_RELEASE=${MIRROR_EPEL_RELEASE:-"https://mirrors.aliyun.com"}
 
     if [[ "${resetMirror}" == "reset" ]]; then
         # for i in /etc/yum.repos.d/Rocky*.bak; do sudo mv "$i" "${i%.bak}"; done

@@ -182,11 +182,16 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 
     # Debian
     MIRROR_PACKAGE_MANAGER_APT="mirror.sjtu.edu.cn"
-    # MIRROR_PACKAGE_MANAGER_APT="mirrors.ustc.edu.cn"
-    # MIRROR_PACKAGE_MANAGER_APT="mirrors.tuna.tsinghua.edu.cn"
+    
+    # Archlinux
+    MIRROR_ARCHLINUX_CN="https://mirrors.sjtug.sjtu.edu.cn"
 
     # CentOS Stream
     MIRROR_CENTOS_STREAM="https://mirrors.aliyun.com/centos-stream"
+
+    # Rockylinux
+    MIRROR_ROCKYLINUX="https://mirrors.aliyun.com/rockylinux"
+    MIRROR_EPEL_RELEASE="https://mirrors.aliyun.com"
 
     # docker
     MIRROR_DOCKER_REGISTRY='"https://docker.mirrors.sjtug.sjtu.edu.cn","https://docker.nju.edu.cn/","https://hub-mirror.c.163.com"'
