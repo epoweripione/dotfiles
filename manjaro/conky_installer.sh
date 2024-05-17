@@ -338,7 +338,7 @@ fi
 # EOF
 
 # auto start conky
-cat > "$HOME/.conky/autostart.sh" <<-'EOF'
+cat > "$HOME/.conky/conky_autostart.sh" <<-'EOF'
 #!/usr/bin/env bash
 
 killall conky conky
@@ -371,11 +371,22 @@ fi
 # conky -c "$HOME/.conky/conky-weather/conkyrc_mini" --daemonize --quiet
 EOF
 
-chmod +x "$HOME/.conky/autostart.sh"
+chmod +x "$HOME/.conky/conky_autostart.sh"
 
-if ! grep -q "autostart.sh" "$HOME/.xprofile" 2>/dev/null; then
-    echo -e "\n# conky" >> "$HOME/.xprofile"
-    echo "$HOME/.conky/autostart.sh >/dev/null 2>&1 & disown" >> "$HOME/.xprofile"
-fi
+# if ! grep -q "conky_autostart.sh" "$HOME/.xprofile" 2>/dev/null; then
+#     echo -e "\n# conky" >> "$HOME/.xprofile"
+#     echo "$HOME/.conky/conky_autostart.sh >/dev/null 2>&1 & disown" >> "$HOME/.xprofile"
+# fi
+
+tee "$HOME/.config/autostart/conky_autostart.sh.desktop" >/dev/null <<-EOF
+[Desktop Entry]
+Exec=$HOME/.conky/conky_autostart.sh
+Icon=application-x-shellscript
+Name=conky_autostart.sh
+Type=Application
+X-KDE-AutostartScript=true
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=5
+EOF
 
 cd "${CURRENT_DIR}" || exit
