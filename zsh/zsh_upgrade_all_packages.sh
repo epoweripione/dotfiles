@@ -291,7 +291,7 @@ if [[ -z "${AppUpdateOnlyList[*]}" ]]; then
         "v2ray"
         "xray"
         "flutter"
-        "tabby"
+        # "tabby"
     )
 fi
 for Target in "${AppUpdateOnlyList[@]}"; do
