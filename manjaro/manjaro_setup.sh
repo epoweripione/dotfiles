@@ -292,7 +292,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "aur/frps-bin"
         "aur/frpc-bin"
         ## Screenshot
-        "deepin-screenshot"
+        # "deepin-screenshot"
         "flameshot"
         #"xfce4-screenshooter"
         ## Quick search
