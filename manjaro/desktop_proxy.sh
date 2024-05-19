@@ -70,7 +70,7 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
 
     # Hiddify-Next
     colorEcho "${BLUE}Installing ${FUCHSIA}Hiddify-Next${BLUE}..."
-    yay --noconfirm --needed -S aur/hiddify-next-bin
+    yay --noconfirm --needed -S aur/hiddify-next-appimage
 
     # Fix `start tun interface error: operation not permitted`
     # [setcap 详解](https://www.cnblogs.com/nf01/articles/10418141.html)
