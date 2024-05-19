@@ -252,15 +252,24 @@ sudo snapper -c home set-config NUMBER_LIMIT=6 NUMBER_LIMIT_IMPORTANT=4
 #         | sudo tee -a /etc/fstab >/dev/null
 # fi
 
+## manual delete all `@homesnaps` snapshots
+# ROOT_DEV=$(mount | grep ' on / ' | cut -d' ' -f1)
+# sudo mount -o subvolid=0 "${ROOT_DEV}" /mnt
+# sudo btrfs subvolume list -apt /mnt
+# SNAPS_TO_DELETE=$(sudo btrfs subvolume list -apt / | grep 'homesnaps' | grep '<FS_TREE>' | awk '{print $NF}')
+# SNAPS_LIST=()
+# while read -r opts; do SNAPS_LIST+=("${opts}"); done < <(tr ' ' '\n'<<<"${SNAPS_TO_DELETE}")
+# for Target in "${SNAPS_LIST[@]}"; do sudo btrfs subvolume delete "${Target/<FS_TREE>\///mnt/}"; done
+
 sudo btrfs subvolume delete /.snapshots
 sudo mkdir -p /.snapshots && sudo mount /.snapshots
 
 sudo btrfs subvolume delete /home/.snapshots
 sudo mkdir -p /home/.snapshots && sudo mount /home/.snapshots
 
-# sudo chmod a+rx /.snapshots && sudo chown :"$(id -ng)" /.snapshots
-sudo chmod 750 /.snapshots && sudo chown :wheel /.snapshots
-sudo chmod 750 /home/.snapshots && sudo chown :wheel /home/.snapshots
+## sudo chmod a+rx /.snapshots && sudo chown :"$(id -ng)" /.snapshots
+# sudo chmod 750 /.snapshots && sudo chown :wheel /.snapshots
+# sudo chmod 750 /home/.snapshots && sudo chown :wheel /home/.snapshots
 
 # [Some BTRFS subvolumes not mounted at boot](https://bbs.archlinux.org/viewtopic.php?id=273161)
 # [Adjust Mount Options](https://www.jwillikers.com/adjust-mount-options)
