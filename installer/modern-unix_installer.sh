@@ -21,6 +21,7 @@ fi
 # https://github.com/ibraheemdev/modern-unix
 AppList=(
     "bat"
+    "bfs"
     # "exa"
     "eza"
     "lsd"
@@ -53,7 +54,11 @@ AppList=(
 )
 for Target in "${AppList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
-    [[ -s "${AppInstaller}" ]] && source "${AppInstaller}"
+    if [[ -f "${AppInstaller}" ]]; then
+        source "${AppInstaller}"
+    else
+        PackagesList=("${Target}") && InstallSystemPackages "" "${PackagesList[@]}"
+    fi
 done
 
 
