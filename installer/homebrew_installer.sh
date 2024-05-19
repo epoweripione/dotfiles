@@ -32,7 +32,7 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
 
     # cask
     [[ -z "${MIRROR_HOMEBREW_CASK}" ]] && MIRROR_HOMEBREW_CASK="https://mirrors.ustc.edu.cn/homebrew-cask.git"
-    [[ -z "${MIRROR_HOMEBREW_CASK_VERSIONS}" ]] && MIRROR_HOMEBREW_CASK_VERSIONS="https://mirrors.ustc.edu.cn/homebrew-cask-versions.git"
+    # [[ -z "${MIRROR_HOMEBREW_CASK_VERSIONS}" ]] && MIRROR_HOMEBREW_CASK_VERSIONS="https://mirrors.ustc.edu.cn/homebrew-cask-versions.git"
 fi
 
 ## [Brew installation fails due to Ruby versioning?](https://unix.stackexchange.com/questions/694020/brew-installation-fails-due-to-ruby-versioning)
@@ -91,7 +91,7 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -x "$(command -v brew)" ]]; then
 
         brew tap --custom-remote --force-auto-update homebrew/core "${HOMEBREW_CORE_GIT_REMOTE}"
         brew tap --custom-remote --force-auto-update homebrew/cask "${MIRROR_HOMEBREW_CASK}"
-        brew tap --custom-remote --force-auto-update homebrew/cask-versions "${MIRROR_HOMEBREW_CASK_VERSIONS}"
+        # brew tap --custom-remote --force-auto-update homebrew/cask-versions "${MIRROR_HOMEBREW_CASK_VERSIONS}"
     fi
 fi
 
