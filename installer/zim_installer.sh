@@ -33,12 +33,28 @@ fi
 
 DEFALUT_SHELL=$(basename "$SHELL")
 if [[ "${DEFALUT_SHELL}" != "zsh" ]]; then
-    colorEcho "Not running in shell ${PURPLE}zsh${RED}!"
+    colorEcho "${RED}Not running in shell ${PURPLE}zsh${RED}!"
     exit
 fi
 
 if [[ ! "$(command -v zimfw)" ]]; then
     curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | zsh
+fi
+
+if [[ ! "$(command -v zimfw)" ]]; then
+    colorEcho "${RED}Zim install failed!"
+    exit
+fi
+
+sed -i -e "s/^autoload -U compinit/# &/g" -e "s/^compinit/# &/g" "$HOME/.zshrc"
+
+if [[ ! -x "$(command -v fzf)" ]]; then
+    Git_Clone_Update_Branch "junegunn/fzf" "$HOME/.fzf"
+    [[ -s "$HOME/.fzf/install" ]] && "$HOME/.fzf/install"
+fi
+
+if ! grep -q "zsh_custom_conf.sh" "$HOME/.zshrc" 2>/dev/null; then
+    echo -e "\n# Custom configuration\nsource ~/.dotfiles/zsh/zsh_custom_conf.sh" >> "$HOME/.zshrc"
 fi
 
 ## [Themes](https://zimfw.sh/docs/themes/)
