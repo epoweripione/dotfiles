@@ -113,6 +113,7 @@ FILEOPTION=()
 
 GLOBAL_FILTER=$(grep '^# global' "${SUB_URL_LIST}" | cut -d' ' -f3)
 CONVERTER_SERVICE=$(grep '^# converter' "${SUB_URL_LIST}" | cut -d' ' -f3)
+USER_AGENT=$(grep '^# useragent' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 while read -r READLINE || [[ "${READLINE}" ]]; do
     [[ -z "${READLINE}" ]] && continue
 
@@ -136,8 +137,20 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         [[ "${TARGET_OPTION}" =~ "scrap" && "${TARGET_OPTION}" != *"→"* ]] && DOWNLOAD_FROM_URL="no"
 
         if [[ "${DOWNLOAD_FROM_URL}" == "yes" ]]; then
-            colorEcho "${BLUE}  Getting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
-            curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+            if [[ "${TARGET_OPTION}" =~ "converter" ]]; then
+                CONVERTER_URL="${TARGET_URL}"
+                colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${CONVERTER_URL}${BLUE}..."
+                CONVERTER_URL=$(printf %s "${CONVERTER_URL}" | jq -sRr @uri) # encode URL
+                CONVERTER_URL=$(sed "s|\[URL\]|${CONVERTER_URL}|" <<<"${CONVERTER_SERVICE}")
+                curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${CONVERTER_URL}"
+            else
+                colorEcho "${BLUE}  Getting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
+                if [[ "${TARGET_OPTION}" =~ "useragent" ]]; then
+                    curl -fsL -A "${USER_AGENT}" --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+                else
+                    curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+                fi
+            fi
 
             curl_download_status=$?
             if [[ ${curl_download_status} != 0 ]]; then
