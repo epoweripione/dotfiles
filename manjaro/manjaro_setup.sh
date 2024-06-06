@@ -317,12 +317,12 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "wps-office-fonts"
         "ttf-wps-fonts"
         "wps-office-all-dicts-win-languages"
-        ## [LibreOffice](https://wiki.archlinux.org/title/LibreOffice)
-        # "extra/libreoffice-fresh"
-        # "extra/libreoffice-fresh-zh-cn"
-        # "extra/libreoffice-extension-writer2latex"
-        # "extra/libreoffice-extension-texmaths"
-        # "archlinuxcn/libreoffice-extension-languagetool"
+        # [LibreOffice](https://wiki.archlinux.org/title/LibreOffice)
+        "extra/libreoffice-fresh"
+        "extra/libreoffice-fresh-zh-cn"
+        "extra/libreoffice-extension-writer2latex"
+        "extra/libreoffice-extension-texmaths"
+        "archlinuxcn/libreoffice-extension-languagetool"
         ## [TeX Live](https://wiki.archlinux.org/title/TeX_Live)
         "texlive"
         "texlive-langchinese"
