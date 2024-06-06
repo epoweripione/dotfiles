@@ -170,11 +170,21 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             sed -i -e 's/\s*\&amp;/\&/g' -e 's/\&amp;/\&/g' -e 's/\&\&/\&/g' "${DOWNLOAD_FILE}"
 
             MATCH_URL=$(grep -o -P "${TargetPattern}" "${DOWNLOAD_FILE}" | uniq)
+            if ! grep -q "^http" <<<"${MATCH_URL}"; then
+                URL_PROTOCOL=$(awk -F/ '{print $1}' <<<"${TARGET_URL}")
+                URL_DOMAIN=$(awk -F/ '{print $3}' <<<"${TARGET_URL}")
+                if grep -q "^/" <<<"${MATCH_URL}"; then
+                    MATCH_URL=$(sed -e "s|^/|${URL_PROTOCOL}//${URL_DOMAIN}/|g" <<<"${MATCH_URL}")
+                else
+                    MATCH_URL=$(sed -e "s|^|${TARGET_URL%\/}/|g" <<<"${MATCH_URL}")
+                fi
+            fi
+
             SCRAP_ACTION="scrap"
             while read -r TARGET_URL; do
                 [[ -z "${TARGET_URL}" ]] && continue
 
-                TARGET_URL=$(echo "${TARGET_URL}" | grep -o -P "(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?")
+                TARGET_URL=$(grep -o -P "(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" <<<"${TARGET_URL}")
                 [[ -z "${TARGET_URL}" ]] && continue
 
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
