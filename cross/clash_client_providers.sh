@@ -273,6 +273,11 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             sed -i "s/\(${TARGET_WORD_REPLACE}\)//g" "${DOWNLOAD_FILE}"
         fi
 
+        # Global filter
+        if [[ -n "${GLOBAL_FILTER}" ]]; then
+            sed -ri "/(${GLOBAL_FILTER})/d" "${DOWNLOAD_FILE}"
+        fi
+
         # Compact proxies
         sed -i '/^\s*#/d' "${DOWNLOAD_FILE}"
         sed -i 's/^\s*-/-/g' "${DOWNLOAD_FILE}"
