@@ -132,6 +132,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
     DOWNLOAD_FILE="${WORKDIR}/${TARGET_FILE}.yml"
 
+    colorEcho "${BLUE}  Getting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
     if grep -q "^http" <<<"${TARGET_URL}"; then
         DOWNLOAD_FROM_URL="yes"
         [[ "${TARGET_OPTION}" =~ "scrap" && "${TARGET_OPTION}" != *"→"* ]] && DOWNLOAD_FROM_URL="no"
@@ -144,7 +145,6 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 CONVERTER_URL=$(sed "s|\[URL\]|${CONVERTER_URL}|" <<<"${CONVERTER_SERVICE}")
                 curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${CONVERTER_URL}"
             else
-                colorEcho "${BLUE}  Getting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
                 if [[ "${TARGET_OPTION}" =~ "useragent" ]]; then
                     curl -fsL -A "${USER_AGENT}" --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
                 else
@@ -159,7 +159,6 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             fi
         fi
     else
-        colorEcho "${BLUE}  Getting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
         if [[ -s "/etc/clash/${TARGET_URL}" ]]; then
             cp "/etc/clash/${TARGET_URL}" "${DOWNLOAD_FILE}"
         elif [[ -s "${TARGET_URL}" ]]; then
