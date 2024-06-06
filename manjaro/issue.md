@@ -139,3 +139,11 @@ yay -aS --sudoloop --noredownload --norebuild --noconfirm --noeditmenu snap-pac-
 
 "${MY_SHELL_SCRIPTS}/manjaro/grub-tweaks.sh"
 ```
+
+## [Error: failed to commit transaction (invalid or corrupted package (PGP signature))](https://forum.manjaro.org/t/error-failed-to-commit-transaction-invalid-or-corrupted-package-pgp-signature/150830/5)
+```bash
+sudo rm -r /etc/pacman.d/gnupg && sudo pacman-key --init && sudo pacman-key --refresh-keys && sudo pacman-key --populate
+# sudo pacman-key --populate archlinux manjaro archlinuxcn
+sudo pacman -Sy archlinux-keyring manjaro-keyring archlinuxcn-keyring
+sudo pacman -Scc && sudo pacman -Syyu
+```
