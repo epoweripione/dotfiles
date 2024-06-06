@@ -22,21 +22,30 @@ App_Installer_Reset
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
-# Flutter Version Management: A simple CLI to manage Flutter SDK versions
-# https://github.com/fluttertools/fvm
+# [Easy, powerful and flexible tool to manage multiple Flutter SDK versions](https://fvm.app/)
 INSTALLER_APP_NAME="fvm"
+INSTALLER_GITHUB_REPO="leoafarias/fvm"
 
-if [[ ! -x "$(command -v brew)" ]]; then
-    [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/homebrew_installer.sh" ]] && \
-        source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/homebrew_installer.sh"
+if [[ ! "$(command -v fvm)" ]]; then
+    App_Installer_Get_Remote_Version
+    App_Installer_Get_Installed_Version "${INSTALLER_APP_NAME}"
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        curl -fsSL https://fvm.app/install.sh | bash
+    fi
 fi
 
-if [[ -x "$(command -v brew)" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
-    brew tap leoafarias/fvm
-    brew install fvm
-fi
+if [[ ! "$(command -v fvm)" ]]; then
+    if [[ ! -x "$(command -v brew)" ]]; then
+        [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/homebrew_installer.sh" ]] && \
+            source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/homebrew_installer.sh"
+    fi
 
+    if [[ -x "$(command -v brew)" ]]; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+        brew tap leoafarias/fvm
+        brew install fvm
+    fi
+fi
 
 ## Basic Commands
 ## https://fvm.app/docs/guides/basic_commands
