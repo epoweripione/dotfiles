@@ -168,46 +168,64 @@ colorEcho "${BLUE}Updating ${FUCHSIA}fontconfig cache${BLUE}..."
 sudo fc-cache -fv
 
 # Fcitx5 input methods for Chinese Pinyin
-# https://github.com/fcitx/fcitx5
-# https://blog.rasphino.cn/archive/a-taste-of-fcitx5-in-arch.html
+# [Fcitx5](https://wiki.archlinux.org/title/Fcitx5)
+# [Using Fcitx 5 on Wayland](https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland)
 colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 input methods${BLUE}..."
 sudo pacman --noconfirm -Rs "$(pacman -Qsq fcitx)"
 sudo pacman --noconfirm --needed -S fcitx5-im && \
     sudo pacman --noconfirm --needed -S fcitx5-material-color fcitx5-chinese-addons && \
     sudo pacman --noconfirm --needed -S fcitx5-pinyin-zhwiki fcitx5-pinyin-moegirl
 
-# fcitx5-chinese-addons: 简体中文 | Simplified Chinese
-# fcitx5-rime: 繁體中文 | Traditional Chinese
-# fcitx5-mozc: 日本語 | Japanese
-# fcitx5-anthy: 日本語 | Japanese
-# fcitx5-hangul: 한국어 | Korean
-# fcitx5-unikey: Tiếng Việt | Vietnamese
-# fcitx5-m17n: other languages provided by M17n(http://www.nongnu.org/m17n/)
-sudo pacman --noconfirm --needed -S fcitx5-m17n 
-
-if ! grep -q "^GTK_IM_MODULE" "$HOME/.pam_environment" 2>/dev/null; then
-    tee -a "$HOME/.pam_environment" >/dev/null <<-'EOF'
-# fcitx5
-INPUT_METHOD DEFAULT=fcitx5
-GTK_IM_MODULE DEFAULT=fcitx5
-QT_IM_MODULE  DEFAULT=fcitx5
-XMODIFIERS    DEFAULT=\@im=fcitx5
-SDL_IM_MODULE DEFAULT=fcitx5
+# Wayland
+if ! grep -q "XMODIFIERS" "/etc/environment" 2>/dev/null; then
+    sudo tee -a "/etc/environment" >/dev/null <<-'EOF'
+# Fcitx5
+# GTK_IM_MODULE=fcitx
+# QT_IM_MODULE=fcitx
+# SDL_IM_MODULE=fcitx
+XMODIFIERS=@im=fcitx
 EOF
 fi
 
-if ! grep -q "^export GTK_IM_MODULE" "$HOME/.xprofile" 2>/dev/null; then
+# X11
+if ! grep -q "XMODIFIERS" "$HOME/.xprofile" 2>/dev/null; then
     tee -a "$HOME/.xprofile" >/dev/null <<-'EOF'
-# fcitx5
-export INPUT_METHOD DEFAULT=fcitx5
-export GTK_IM_MODULE=fcitx5
-export QT_IM_MODULE=fcitx5
-export XMODIFIERS="@im=fcitx5"
-export SDL_IM_MODULE=fcitx5
+# Fcitx5
+# export INPUT_METHOD DEFAULT=fcitx
+# export XMODIFIERS="@im=fcitx
 
-# auto start fcitx5
+case "${XMODIFIERS}" in 
+    *@im=fcitx*)
+        export QT_IM_MODULE=fcitx
+        export GTK_IM_MODULE=fcitx
+        export SDL_IM_MODULE=fcitx
+        ;;
+    *@im=ibus*)
+        export QT_IM_MODULE=ibus
+        export GTK_IM_MODULE=ibus
+        export SDL_IM_MODULE=ibus
+        export IBUS_USE_PORTAL=1
+        ;;
+esac
+
+# auto start Fcitx5
 fcitx5 &
 EOF
+fi
+
+# Gtk2
+if ! grep -q "^gtk-im-module=" "$HOME/.gtkrc-2.0" 2>/dev/null; then
+    echo 'gtk-im-module="fcitx"' >> "$HOME/.gtkrc-2.0"
+fi
+
+# Gtk 3
+if ! grep -q "^gtk-im-module=" "$HOME/.config/gtk-3.0/settings.ini" 2>/dev/null; then
+    echo 'gtk-im-module=fcitx' >> "$HOME/.config/gtk-3.0/settings.ini"
+fi
+
+# Gtk 4
+if ! grep -q "^gtk-im-module=" "$HOME/.config/gtk-4.0/settings.ini" 2>/dev/null; then
+    echo 'gtk-im-module=fcitx' >> "$HOME/.config/gtk-4.0/settings.ini"
 fi
 
 # Rime

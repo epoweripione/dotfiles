@@ -90,19 +90,19 @@ fi
 # WPS
     if [[ -f "/usr/bin/wps" ]]; then
     if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wps"; then
-        sudo sed -i -e '2a export QT_IM_MODULE="fcitx5"' -e '2a export XMODIFIERS="@im=fcitx5"' "/usr/bin/wps"
+        sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wps"
     fi
 fi
 
 if [[ -f "/usr/bin/wpp" ]]; then
     if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wpp"; then
-        sudo sed -i -e '2a export QT_IM_MODULE="fcitx5"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wpp"
+        sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wpp"
     fi
 fi
 
 if [[ -f "/usr/bin/et" ]]; then
     if ! grep -q "export QT_IM_MODULE=" "/usr/bin/et"; then
-        sudo sed -i -e '2a export QT_IM_MODULE="fcitx5"' -e '2a export XMODIFIERS="@im=fcitx5"' "/usr/bin/et"
+        sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/et"
     fi
 fi
 
