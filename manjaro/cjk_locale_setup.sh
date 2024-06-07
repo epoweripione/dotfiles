@@ -170,30 +170,25 @@ sudo fc-cache -fv
 # Fcitx5 input methods for Chinese Pinyin
 # [Fcitx5](https://wiki.archlinux.org/title/Fcitx5)
 # [Using Fcitx 5 on Wayland](https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland)
+# KDE Plasma: Start fcitx5 by go to "System settings"->"Virtual keyboard"->Select "Fcitx 5"
 colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 input methods${BLUE}..."
 sudo pacman --noconfirm -Rs "$(pacman -Qsq fcitx)"
 sudo pacman --noconfirm --needed -S fcitx5-im && \
     sudo pacman --noconfirm --needed -S fcitx5-material-color fcitx5-chinese-addons && \
     sudo pacman --noconfirm --needed -S fcitx5-pinyin-zhwiki fcitx5-pinyin-moegirl
 
-# Wayland
 if ! grep -q "XMODIFIERS" "/etc/environment" 2>/dev/null; then
     sudo tee -a "/etc/environment" >/dev/null <<-'EOF'
+
 # Fcitx5
-# GTK_IM_MODULE=fcitx
-# QT_IM_MODULE=fcitx
-# SDL_IM_MODULE=fcitx
 XMODIFIERS=@im=fcitx
 EOF
 fi
 
-# X11
 if ! grep -q "XMODIFIERS" "$HOME/.xprofile" 2>/dev/null; then
     tee -a "$HOME/.xprofile" >/dev/null <<-'EOF'
-# Fcitx5
-# export INPUT_METHOD DEFAULT=fcitx
-# export XMODIFIERS="@im=fcitx
 
+# Fcitx5
 case "${XMODIFIERS}" in 
     *@im=fcitx*)
         export QT_IM_MODULE=fcitx
@@ -207,9 +202,6 @@ case "${XMODIFIERS}" in
         export IBUS_USE_PORTAL=1
         ;;
 esac
-
-# auto start Fcitx5
-fcitx5 &
 EOF
 fi
 
@@ -226,6 +218,10 @@ fi
 # Gtk 4
 if ! grep -q "^gtk-im-module=" "$HOME/.config/gtk-4.0/settings.ini" 2>/dev/null; then
     echo 'gtk-im-module=fcitx' >> "$HOME/.config/gtk-4.0/settings.ini"
+fi
+
+if [[ "${OS_INFO_DESKTOP}" == "GNOME" ]]; then
+    gsettings set org.gnome.settings-daemon.plugins.xsettings overrides "{'Gtk/IMModule':<'fcitx'>}"
 fi
 
 # Rime
