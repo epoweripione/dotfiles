@@ -112,6 +112,7 @@ FILELIST=()
 FILEOPTION=()
 
 GLOBAL_FILTER=$(grep '^# global' "${SUB_URL_LIST}" | cut -d' ' -f3)
+GLOBAL_WORD_REPLACE=$(grep '^# word' "${SUB_URL_LIST}" | cut -d' ' -f3)
 CONVERTER_SERVICE=$(grep '^# converter' "${SUB_URL_LIST}" | cut -d' ' -f3)
 USER_AGENT=$(grep '^# useragent' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 while read -r READLINE || [[ "${READLINE}" ]]; do
@@ -125,6 +126,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     TARGET_FILTER=$(echo "${READLINE}" | cut -d' ' -f4)
     TARGET_TYPE_FILTER=$(echo "${READLINE}" | cut -d' ' -f5)
     TARGET_WORD_REPLACE=$(echo "${READLINE}" | cut -d' ' -f6)
+    [[ -z "${TARGET_WORD_REPLACE}" ]] && TARGET_WORD_REPLACE="${GLOBAL_WORD_REPLACE}"
 
     # private,subscription
     [[ "${TARGET_OPTION}" =~ "private" && "${OUTPUT_OPTIONS}" != *"private"* ]] && continue
@@ -182,7 +184,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             sed -i -e 's/\s*\&amp;/\&/g' -e 's/\&amp;/\&/g' -e 's/\&\&/\&/g' "${DOWNLOAD_FILE}"
 
             MATCH_URL=$(grep -o -P "${TargetPattern}" "${DOWNLOAD_FILE}" | uniq)
-            if ! grep -q "^http" <<<"${MATCH_URL}"; then
+            if ! grep -E -q '(http:|https:|ftp:)' <<<"${MATCH_URL}"; then
                 URL_PROTOCOL=$(awk -F/ '{print $1}' <<<"${TARGET_URL}")
                 URL_DOMAIN=$(awk -F/ '{print $3}' <<<"${TARGET_URL}")
                 if grep -q "^/" <<<"${MATCH_URL}"; then
