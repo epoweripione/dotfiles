@@ -1,27 +1,26 @@
 #!/usr/bin/env bash
 
-## termux: required storage access permission
+## [Termux is an Android terminal emulator and Linux environment app](https://termux.dev/en/)
 
-## install git & openssh
-# pkg up -y && pkg i -y git openssh
+## init
+# termux-setup-storage
+# pkg upgrade -y && pkg install -y git openssh termux-services
 
-## init termux
-# source <(curl -fsSL https://git.io/JPSue) && ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/termux_init.sh
+## start openssh service at 8022
+# sv-enable sshd
+# cat $PREFIX/var/log/sv/sshd/current
 
-## start openssh service
-# sshd
-## ssh port: 8022
-# netstat -an | grep 8022
+## change ssh port
+# echo 'Port 20022' >> $PREFIX/etc/ssh/sshd_config
 
 ## local computer:
 ## gen ssh key
 # ssh-keygen -o -a 100 -t ed25519 -f ~/.ssh/id_ed25519 -C "username@mail.com"
 ## run a simple http server using python3
-# cd ~./ssh; python -m http.server 8080
+# cd ~/.ssh && python -m http.server 8080
 
 ## termux:
-# curl -fsSL -o ~/.ssh/id_ed25519.pub "http://<local computer ip>:8080/id_ed25519.pub"
-# cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+# curl -fsSL "http://<local computer ip>:8080/id_ed25519.pub" >> ~/.ssh/authorized_keys
 
 ## local computer:
 # cat >> ~/.ssh/config <<-EOF
@@ -31,11 +30,16 @@
 #   IdentityFile ~/.ssh/id_ed25519
 #   User root
 # EOF
-# scp -Cp .ssh/* <phone>:~/.ssh/
+
+## send all ssh config & certs in local computer
+# rsync -avhz --progress .ssh/* <phone>:~/.ssh/
 
 ## connect to phone using ssh:
 # ssh <phone>
 # rm -f .ssh/known_hosts && chmod 600 ~/.ssh/*
+
+## init termux
+# source <(curl -fsSL https://git.io/JPSue) && ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/termux_init.sh
 
 [[ -z "${CURRENT_DIR}" || ! -d "${CURRENT_DIR}" ]] && CURRENT_DIR=$(pwd)
 
@@ -55,7 +59,6 @@ fi
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
-# https://termux.com/
 if [[ -z "$PREFIX" ]]; then
     colorEcho "${RED}This script only for Termux!"
     exit 0
@@ -65,10 +68,11 @@ fi
 colorEcho "${BLUE}Setting ${FUCHSIA}termux.properties${BLUE}..."
 mkdir -p "$HOME/.termux"
 tee "$HOME/.termux/termux.properties" >/dev/null <<-'EOF'
-extra-keys = [ \
-        ['ESC','/','BACKSLASH','|','HOME','UP','END','PGUP','DEL'], \
-        ['CTRL','ALT','TAB','ENTER','LEFT','DOWN','RIGHT','PGDN','BKSP'] \
-    ]
+extra-keys-style=default
+extra-keys=[ \
+    ['ESC','/','BACKSLASH','|','HOME','UP','END','PGUP','DEL'], \
+    ['CTRL','ALT','TAB','ENTER','LEFT','DOWN','RIGHT','PGDN','BKSP'] \
+]
 EOF
 
 # file editor
@@ -88,19 +92,41 @@ nano "$1"
 EOF
 fi
 
-## apt mirror
-# apt edit-sources
-termux-change-repo
-
-# colorEcho "${BLUE}Setting ${FUCHSIA}apt mirror${BLUE}..."
-# sed -i 's/^deb /# deb /g' "$PREFIX/etc/apt/sources.list"
-# echo "deb https://mirrors.tuna.tsinghua.edu.cn/termux stable main" >> "$PREFIX/etc/apt/sources.list"
-
 # install packages
 colorEcho "${BLUE}Installing ${FUCHSIA}packages${BLUE}..."
-pkg upgrade -y && \
-    pkg install -y binutils axel curl wget git nano openssh unzip unrar htop nmap rsync \
-        bat eza fd fzf lsd lsof nnn screenfetch starship tree zoxide
+pkg upgrade -y
+
+AppsToInstall=(
+    "termux-api"
+    "termux-services"
+    "axel"
+    "bat"
+    "binutils"
+    "curl"
+    "duf"
+    "dust"
+    "eza"
+    "fastfetch"
+    "fd"
+    "fzf"
+    "git"
+    "htop"
+    "lsd"
+    "lsof"
+    "nano"
+    "nmap"
+    "nnn"
+    "openssh"
+    "rsync"
+    "screenfetch"
+    "starship"
+    "tree"
+    "unrar"
+    "unzip"
+    "wget"
+    "zoxide"
+)
+InstallSystemPackages "" "${AppsToInstall[@]}"
 
 # installPrebuiltBinary 'naiveproxy#klzgrad/naiveproxy#tar.xz#naive*'
 # installPrebuiltBinary 'mihomo#MetaCubeX/mihomo#gz#mihomo*'
@@ -127,10 +153,6 @@ fi
 ## reload termux settings
 # termux-reload-settings
 
-# https://wiki.termux.com/wiki/Termux:API
-colorEcho "${BLUE}Installing ${FUCHSIA}termux-api${BLUE}..."
-pkg i -y termux-api
-
 # nanorc
 if [[ ! -d "$HOME/.local/share/nanorc" ]]; then
     colorEcho "${BLUE}Setting nanorc..."
@@ -155,7 +177,7 @@ mv "$PREFIX/etc/motd" "$PREFIX/etc/motd.bak" && echo -e "\nWelcome to Termux!" >
 # zsh & oh-my-zsh
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}zsh & oh-my-zsh${BLUE}..."
-    sh -c "$(curl -fsSL https://github.com/Cabbagec/termux-ohmyzsh/raw/master/install.sh)"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 fi
 
 if [[ -s "$HOME/.zshrc" ]]; then
@@ -234,11 +256,11 @@ if [[ -s "$HOME/.zshrc" ]]; then
         echo -e "\n# Custom configuration\nsource ~/.dotfiles/zsh/zsh_custom_conf.sh" >> "$HOME/.zshrc"
     fi
 
-    # sshd auto start
-    if ! grep -q "sshd" "$HOME/.zshrc" 2>/dev/null; then
-        colorEcho "${BLUE}Setting sshd start with zsh..."
-        echo "sshd" >> "$HOME/.zshrc"
-    fi
+    ## sshd auto start
+    # if ! grep -q "sshd" "$HOME/.zshrc" 2>/dev/null; then
+    #     colorEcho "${BLUE}Setting sshd start with zsh..."
+    #     echo "sshd" >> "$HOME/.zshrc"
+    # fi
 fi
 
 # font: Fira Code Regular Nerd Font Complete Mono
@@ -289,8 +311,19 @@ fi
 
 ## webui-aria2
 # colorEcho "${BLUE}Installing ${FUCHSIA}webui-aria2${BLUE}..."
-# pkg i -y aria2 nodejs
+# pkg install -y aria2 nodejs
 # Git_Clone_Update_Branch "ziahamza/webui-aria2" "$HOME/webui-aria2"
 # [[ -d "$HOME/webui-aria2" ]] && cd "$HOME/webui-aria2" && node node-server.js
+
+# Launch ZSH by default
+if ! grep -q "exec zsh" "$HOME/.bashrc" 2>/dev/null; then
+    tee -a "$HOME/.bashrc" >/dev/null <<-'EOF'
+# Launch ZSH
+if [[ "${ZSH_VERSION:-unset}" = "unset" ]]; then
+    export SHELL=$(which zsh)
+    exec zsh
+fi
+EOF
+fi
 
 cd "${CURRENT_DIR}" || exit
