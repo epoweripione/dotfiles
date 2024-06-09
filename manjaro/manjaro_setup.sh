@@ -155,9 +155,12 @@ if [[ -x "$(command -v xfce4-terminal)" ]]; then
 fi
 
 # Install apps
+sudo pacman --noconfirm -R p7zip 2>/dev/null # replace `p7zip` with `7-zip-full`
+
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppManjaroInstallList[*]}" ]]; then
     AppManjaroInstallList=(
+        "archlinuxcn/7-zip-full"
         ## RDP Server
         # "xrdp"
         ## RDP Client
@@ -219,6 +222,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "hub"
         # "jdk-openjdk"
         # "jre-openjdk"
+        "dbgate-bin"
         "dbeaver"
         "dbeaver-plugin-apache-poi"
         "dbeaver-plugin-batik"
