@@ -106,6 +106,8 @@ function dockerRemoveUnuseMirrors() {
 
 # docker proxy
 function dockerSetProxy() {
+    [[ -f "/etc/systemd/system/docker.service.d/99-proxy.conf" ]] && return 0
+
     if [[ -n "${HTTP_PROXY}" && -n "${HTTPS_PROXY}" && -n "${NO_PROXY}" ]]; then
         sudo mkdir -p "/etc/systemd/system/docker.service.d"
         sudo tee "/etc/systemd/system/docker.service.d/99-proxy.conf" >/dev/null <<-EOF
@@ -115,12 +117,14 @@ Environment="HTTPS_PROXY=${HTTPS_PROXY}"
 Environment="NO_PROXY=${NO_PROXY}"
 EOF
         sudo systemctl daemon-reload && sudo systemctl restart docker
-        sudo systemctl show --property=Environment docker
+        # sudo systemctl show --property=Environment docker
     fi
 }
 
 # container runtime proxy
 function dockerSetContainerProxy() {
+    [[ -f "$HOME/.docker/config.json" ]] && return 0
+
     if [[ -n "${HTTP_PROXY}" && -n "${HTTPS_PROXY}" && -n "${NO_PROXY}" ]]; then
         mkdir -p "$HOME/.docker"
         tee "$HOME/.docker/config.json" >/dev/null <<-EOF

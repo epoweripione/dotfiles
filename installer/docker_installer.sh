@@ -291,13 +291,11 @@ fi
 
 # docker mirrors
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    # colorEchoN "${ORANGE}Setting docker registry-mirrors?[y/${CYAN}N${ORANGE}]: "
-    # read -r -t 5 SET_REGISTRY_MIRROR
-    # echo ""
-    dockerSetMirrors
-fi
+    dockerClearMirrors
+    # dockerSetMirrors
 
-# remove unuse mirrors
-dockerRemoveUnuseMirrors
+    dockerSetProxy
+    # dockerSetContainerProxy
+fi
 
 cd "${CURRENT_DIR}" || exit
