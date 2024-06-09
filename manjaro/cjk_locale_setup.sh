@@ -172,7 +172,7 @@ sudo fc-cache -fv
 # [Using Fcitx 5 on Wayland](https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland)
 # KDE Plasma: Start fcitx5 by go to "System settings"->"Virtual keyboard"->Select "Fcitx 5"
 colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 input methods${BLUE}..."
-sudo pacman --noconfirm -Rs "$(pacman -Qsq fcitx)"
+sudo pacman --noconfirm -Rs "$(pacman -Qsq fcitx)" 2>/dev/null
 sudo pacman --noconfirm --needed -S fcitx5-im && \
     sudo pacman --noconfirm --needed -S fcitx5-material-color fcitx5-chinese-addons && \
     sudo pacman --noconfirm --needed -S fcitx5-pinyin-zhwiki fcitx5-pinyin-moegirl
