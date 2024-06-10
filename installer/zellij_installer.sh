@@ -38,10 +38,7 @@ fi
 
 if App_Installer_Install; then
     mkdir -p "$HOME/.config/zellij"
-    # zellij setup --dump-config > "$HOME/.config/zellij/config.yaml"
-
-    # mkdir -p "$HOME/.config/zellij/layouts"
-    # zellij setup --dump-layout default > "$HOME/.config/zellij/layouts/default.yaml"
+    # zellij setup --dump-config > "$HOME/.config/zellij/config.kdl"
 
     ## Autostart on shell creation
     ## bash
