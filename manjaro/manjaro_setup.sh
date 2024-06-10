@@ -157,6 +157,10 @@ fi
 # Install apps
 sudo pacman --noconfirm -R p7zip 2>/dev/null # replace `p7zip` with `7-zip-full`
 
+## [Konsole: Support OSC 52 (copy to clipboard)](https://bugs.kde.org/show_bug.cgi?id=372116)
+# sudo pacman --noconfirm -R konsole 2>/dev/null
+# sudo pacman --noconfirm --needed -S "konsole-osc52"
+
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppManjaroInstallList[*]}" ]]; then
     AppManjaroInstallList=(
