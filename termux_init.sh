@@ -4,7 +4,8 @@
 
 ## init
 # termux-setup-storage
-# pkg upgrade -y && pkg install -y git openssh termux-services
+# pkg upgrade -y && pkg install -y git openssh rsync termux-services
+# source $PREFIX/etc/profile.d/start-services.sh
 
 ## start openssh service at 8022
 # sv-enable sshd
@@ -95,6 +96,7 @@ fi
 # install packages
 colorEcho "${BLUE}Installing ${FUCHSIA}packages${BLUE}..."
 pkg upgrade -y
+pkg install -y which zsh
 
 AppsToInstall=(
     "termux-api"
