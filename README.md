@@ -193,9 +193,6 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
     MIRROR_ROCKYLINUX="https://mirrors.aliyun.com/rockylinux"
     MIRROR_EPEL_RELEASE="https://mirrors.aliyun.com"
 
-    # docker
-    MIRROR_DOCKER_REGISTRY='"https://docker.mirrors.sjtug.sjtu.edu.cn","https://docker.nju.edu.cn/","https://hub-mirror.c.163.com"'
-
     # homebrew
     HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
     HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
