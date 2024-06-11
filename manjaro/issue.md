@@ -147,3 +147,12 @@ sudo rm -r /etc/pacman.d/gnupg && sudo pacman-key --init && sudo pacman-key --re
 sudo pacman -Sy archlinux-keyring manjaro-keyring archlinuxcn-keyring
 sudo pacman -Scc && sudo pacman -Syyu
 ```
+
+## Fix aur package `ERROR: One or more files did not pass the validity check!`
+```bash
+yay -G <package_name>
+cd "$HOME/.cache/yay/<package_name>"
+updpkgsums
+# makepkg -g
+makepkg -si
+```
