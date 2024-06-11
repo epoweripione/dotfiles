@@ -266,7 +266,10 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "bleachbit"
         ## IM
         "telegram-desktop"
-        "aur/linuxqq"
+        # "aur/linuxqq"
+        "slirp4netns"
+        "socat"
+        "aur/linuxqq-nt-bwrap"
         # "aur/deepin-wine-qq"
         "aur/deepin-wine-tim"
         "aur/wechat-universal-bwrap"
