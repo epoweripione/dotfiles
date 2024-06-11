@@ -93,6 +93,8 @@ nano "$1"
 EOF
 fi
 
+termux-change-repo
+
 # install packages
 colorEcho "${BLUE}Installing ${FUCHSIA}packages${BLUE}..."
 pkg upgrade -y
