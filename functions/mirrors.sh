@@ -67,10 +67,10 @@ function setMirrorRust() {
 
     # cargo
     MIRROR_RUST_CARGO=${MIRROR_RUST_CARGO:-"rsproxy-sparse"}
-    if [[ ! -s "$HOME/.cargo/config" ]]; then
+    if [[ ! -s "$HOME/.cargo/config.toml" ]]; then
         mkdir -p "$HOME/.cargo"
-        cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/cargo.toml" "$HOME/.cargo/config"
-        sed -i -e "s|'crates-io-sparse'|'${MIRROR_RUST_CARGO}'|g" -e "s|# replace-with|replace-with|g" "$HOME/.cargo/config"
+        cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/cargo.toml" "$HOME/.cargo/config.toml"
+        sed -i -e "s|'crates-io-sparse'|'${MIRROR_RUST_CARGO}'|g" -e "s|# replace-with|replace-with|g" "$HOME/.cargo/config.toml"
     fi
 }
 
@@ -222,6 +222,7 @@ function unsetMirrorAll() {
     unset RUSTUP_UPDATE_ROOT
     unset MIRROR_RUST_CARGO
     [[ -s "$HOME/.cargo/config" ]] && rm -f "$HOME/.cargo/config"
+    [[ -s "$HOME/.cargo/config.toml" ]] && rm -f "$HOME/.cargo/config.toml"
     # python
     unset PYTHON_PIP_CONFIG
     unset MIRROR_PYTHON_PIP_URL
