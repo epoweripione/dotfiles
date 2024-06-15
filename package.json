@@ -2,7 +2,7 @@
   "dependencies": {
     "html-to-text": "^9.0.5",
     "minimist": "^1.2.8",
-    "puppeteer": "^22.10.0",
+    "puppeteer": "^22.11.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
@@ -11,7 +11,7 @@
     "@babel/preset-env": "^7.24.7",
     "@commitlint/cli": "^18.6.1",
     "@commitlint/config-conventional": "^18.6.3",
-    "@types/lodash": "^4.17.4",
+    "@types/lodash": "^4.17.5",
     "babel-loader": "^9.1.3",
     "commitizen": "^4.3.0",
     "commitlint-config-gitmoji": "^2.3.1",
@@ -19,15 +19,15 @@
     "conventional-changelog-cz-emoji-config": "^1.0.1",
     "cz-conventional-changelog": "^3.3.0",
     "cz-emoji": "^1.3.1",
-    "cz-git": "^1.9.2",
+    "cz-git": "^1.9.3",
     "cz-relax": "^0.2.1",
     "eslint": "^8.57.0",
     "husky": "^9.0.11",
     "lodash": "^4.17.21",
-    "memfs": "^4.9.2",
+    "memfs": "^4.9.3",
     "ts-loader": "^9.5.1",
     "typescript": "^5.4.5",
-    "webpack": "^5.91.0"
+    "webpack": "^5.92.0"
   },
   "scripts": {
     "prepare": "husky"
