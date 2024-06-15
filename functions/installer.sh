@@ -1187,6 +1187,68 @@ function installPrebuiltBinary() {
     fi
 }
 
+# Install app using brew, cargo, go...
+function installBuildBinary() {
+    # installBuildBinary sd sd cargo
+    # installBuildBinary fvm fvm brew
+    # installBuildBinary protoc-gen-go protoc-gen-go go "google.golang.org/protobuf/cmd/protoc-gen-go@latest"
+    local app_name=$1
+    local binary_name=$2
+    local install_method=$3
+    local install_url=$4
+    local update_binary="no"
+    local binary_full binary_go
+
+    [[ -z "${binary_name}" ]] && binary_name="${app_name}"
+
+    if [[ -x "$(command -v "${binary_name}")" ]]; then
+        update_binary="yes"
+        binary_full=$(readlink -f "$(which "${binary_name}")")
+
+        # GOPATH
+        [[ -x "$(command -v go)" ]] && binary_go=$(go env GOPATH 2>/dev/null)
+        [[ -z "${binary_go}" && -n "${GOPATH}" ]] && binary_go="${GOPATH}"
+        [[ -z "${binary_go}" ]] && binary_go="/go/"
+
+        case "${binary_full}" in
+            *cargo*)
+                [[ -x "$(command -v cargo)" ]] && install_method="cargo"
+                ;;
+            *brew*)
+                [[ -x "$(command -v brew)" ]] && install_method="brew"
+                ;;
+            *${binary_go}*)
+                [[ -x "$(command -v go)" ]] && install_method="go"
+                ;;
+        esac
+    else
+        if [[ -z "${install_method}" ]]; then
+            [[ -x "$(command -v brew)" ]] && install_method="brew"
+            [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && install_method="cargo"
+            [[ -n "${install_url}" && -x "$(command -v go)" ]] && install_method="go"
+        fi
+    fi
+
+    case "${install_method}" in
+        cargo)
+            # Install via rust cargo from source on crates.io
+            cargo install "${app_name}"
+            ;;
+        brew)
+            # Install via Homebrew
+            if [[ "${update_binary}" == "yes" ]]; then
+                brew upgrade "${app_name}"
+            else
+                brew install "${app_name}"
+            fi
+            ;;
+        go)
+            # Install via go
+            go install "${install_url}"
+            ;;
+    esac
+}
+
 ## Download and decrypt file that encrypt with OpenSSL
 ## Using the AES-256-CBC algorithm with key file
 ## Create a key-file
