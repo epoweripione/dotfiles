@@ -310,6 +310,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "usql"
         "wget"
         "win32yank"
+        "windhawk"
         "winsw"
         "winmtr"
         "zoxide"
