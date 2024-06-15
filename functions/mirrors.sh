@@ -150,6 +150,22 @@ function setMirrorGem() {
     fi
 }
 
+# [Nix channels](https://mirrors.tuna.tsinghua.edu.cn/help/nix-channels/)
+function setMirrorNix() {
+    if [[ -x "$(command -v nix)" ]]; then
+        export MIRROR_NIX_STORE=${MIRROR_NIX_STORE:-"https://mirrors.tuna.tsinghua.edu.cn"}
+        mkdir -p "$HOME/.config/nix"
+        if ! grep -q "^substituters =" "$HOME/.config/nix/nix.conf"; then
+            echo "substituters = ${MIRROR_NIX_STORE}/nix-channels/store https://cache.nixos.org" >> "$HOME/.config/nix/nix.conf"
+        fi
+
+        if ! nix-channel --list | grep "${MIRROR_NIX_STORE}" >/dev/null 2>&1; then
+            nix-channel --add "${MIRROR_NIX_STORE}/nix-channels/nixpkgs-unstable" nixpkgs
+            nix-channel --update
+        fi
+    fi
+}
+
 # [Arch Linux Chinese Community Repository](https://github.com/archlinuxcn/mirrorlist-repo)
 function setMirrorArchLinuxCN() {
     export MIRROR_ARCHLINUX_CN=${MIRROR_ARCHLINUX_CN:-"https://mirrors.sjtug.sjtu.edu.cn"}
@@ -251,4 +267,6 @@ function unsetMirrorAll() {
     if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]]; then
         "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" RESET
     fi
+    # Nix
+    unset MIRROR_NIX_STORE
 }
