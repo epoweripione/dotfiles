@@ -113,6 +113,8 @@ if [[ -x "$(command -v docker)" ]]; then
     # https://github.com/soulteary/certs-maker
     # usage: docker-certs-maker "--CERT_DNS=lab.com,*.lab.com,*.data.lab.com"
     alias docker-certs-maker='docker run --rm -it --name certs-maker -v $PWD:/ssl soulteary/certs-maker'
+    # https://nix.dev/
+    alias docker-nix='docker run --rm -it -name nix ghcr.io/nixos/nix'
 fi
 
 
