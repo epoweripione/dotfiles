@@ -57,19 +57,19 @@ fi
 # %U --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4
 if [[ -f "/usr/share/applications/google-chrome.desktop" ]]; then
     if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/google-chrome.desktop"; then
-        sudo sed -i -e 's|/usr/bin/google-chrome-stable|/usr/bin/google-chrome-stable --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4|g' "/usr/share/applications/google-chrome.desktop"
+        sudo sed -i -e 's|/usr/bin/google-chrome-stable|/usr/bin/google-chrome-stable --ozone-platform-hint=auto --enable-wayland-ime|g' "/usr/share/applications/google-chrome.desktop"
     fi
 fi
 
 if [[ -f "/usr/share/applications/google-chrome-beta.desktop" ]]; then
     if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/google-chrome-beta.desktop"; then
-        sudo sed -i -e 's|/usr/bin/google-chrome-beta|/usr/bin/google-chrome-beta --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4|g' "/usr/share/applications/google-chrome-beta.desktop"
+        sudo sed -i -e 's|/usr/bin/google-chrome-beta|/usr/bin/google-chrome-beta --ozone-platform-hint=auto --enable-wayland-ime|g' "/usr/share/applications/google-chrome-beta.desktop"
     fi
 fi
 
 if [[ -f "/usr/share/applications/google-chrome-unstable.desktop" ]]; then
     if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/google-chrome-unstable.desktop"; then
-        sudo sed -i -e 's|/usr/bin/google-chrome-unstable|/usr/bin/google-chrome-unstable --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4|g' "/usr/share/applications/google-chrome-unstable.desktop"
+        sudo sed -i -e 's|/usr/bin/google-chrome-unstable|/usr/bin/google-chrome-unstable --ozone-platform-hint=auto --enable-wayland-ime|g' "/usr/share/applications/google-chrome-unstable.desktop"
     fi
 fi
 
@@ -77,13 +77,13 @@ fi
 # --ozone-platform-hint=auto --enable-wayland-ime
 if [[ -f "/usr/share/applications/code.desktop" ]]; then
     if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/code.desktop"; then
-        sudo sed -i -e 's|/usr/bin/code|/usr/bin/code --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4|g' "/usr/share/applications/code.desktop"
+        sudo sed -i -e 's|/usr/bin/code|/usr/bin/code --ozone-platform-hint=auto --enable-wayland-ime|g' "/usr/share/applications/code.desktop"
     fi
 fi
 
 if [[ -f "/usr/share/applications/code-url-handler.desktop" ]]; then
     if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/code-url-handler.desktop"; then
-        sudo sed -i -e 's|/usr/bin/code|/usr/bin/code --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4|g' "/usr/share/applications/code-url-handler.desktop"
+        sudo sed -i -e 's|/usr/bin/code|/usr/bin/code --ozone-platform-hint=auto --enable-wayland-ime|g' "/usr/share/applications/code-url-handler.desktop"
     fi
 fi
 
