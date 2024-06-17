@@ -140,7 +140,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         [[ "${TARGET_OPTION}" =~ "scrap" && "${TARGET_OPTION}" != *"→"* ]] && DOWNLOAD_FROM_URL="no"
 
         if [[ "${DOWNLOAD_FROM_URL}" == "yes" ]]; then
-            if [[ "${TARGET_OPTION}" =~ "converter" ]]; then
+            if [[ "${TARGET_OPTION}" =~ "converter" && ! "${TARGET_OPTION}" =~ "scrap" ]]; then
                 CONVERTER_URL="${TARGET_URL}"
                 colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${CONVERTER_URL}${BLUE}..."
                 CONVERTER_URL=$(printf %s "${CONVERTER_URL}" | jq -sRr @uri) # encode URL
