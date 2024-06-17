@@ -347,19 +347,19 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             [[ -z "${line}" ]] && continue
 
             TargetName=$(echo "${line}" \
-                | sed -rn "s/.*[\s\{\,]+name:([^,{}]+).*/\1/ip" \
+                | sed -rn "s/.*[,{ ]+name:([^,{}]+).*/\1/ip" \
                 | sed -e "s/^\s//" -e "s/\s$//" \
                 | sed -e "s/^\"//" -e "s/\"$//")
 
             TargetServer=$(echo "${line}" \
-                | sed -rn "s/.*server:([^,{}]+).*/\1/ip" \
+                | sed -rn "s/.*[,{ ]+server:([^,{}]+).*/\1/ip" \
                 | sed -e "s/^\s//" -e "s/\s$//" \
                 | sed -e "s/^\"//" -e "s/\"$//")
 
             [[ -z "${TargetName}" || -z "${TargetServer}" ]] && continue
 
             TargetUUID=$(echo "${line}" \
-                | sed -rn "s/.*uuid:([^,{}]+).*/\1/ip" \
+                | sed -rn "s/.*[,{ ]+uuid:([^,{}]+).*/\1/ip" \
                 | sed -e "s/^\s//" -e "s/\s$//" \
                 | sed -e "s/^\"//" -e "s/\"$//")
 
@@ -528,7 +528,7 @@ for TargetName in "${PROXY_LIST_ALL[@]}"; do
     TargetLine=$(echo "${PROXIES_USE_ALL}" | grep -Ea "name: ${TargetName_Escape_GREP},")
 
     TargetType=$(echo "${TargetLine}" \
-        | sed -rn "s/.*type:([^,{}]+).*/\1/ip" \
+        | sed -rn "s/.*[,{ ]+type:([^,{}]+).*/\1/ip" \
         | sed -e "s/^\s//" -e "s/\s$//" \
         | sed -e "s/^\"//" -e "s/\"$//")
 
