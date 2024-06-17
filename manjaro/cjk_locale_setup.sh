@@ -511,6 +511,62 @@ if [[ -s "/etc/sddm.conf" ]]; then
     sudo sed -i 's|^InputMethod=.*|InputMethod=qtvirtualkeyboard|' "/etc/sddm.conf"
 fi
 
+## [雾凇拼音 | 长期维护的简体词库](https://github.com/iDvel/rime-ice)
+## [Rime auto deploy](https://github.com/Mark24Code/rime-auto-deploy)
+## Fix: rime-ice-git: /usr/share/rime-data/opencc/emoji.json exists in filesystem (owned by rime-emoji)
+# if [[ -f "/usr/share/rime-data/opencc/emoji.json" ]]; then
+#     sudo mv "/usr/share/rime-data/opencc/emoji.json" "/usr/share/rime-data/opencc/emoji.json.rime"
+# fi
+# yay --noconfirm --needed -S archlinuxcn/rime-ice-git
+# if ! grep -q "patch:" "$HOME/.local/share/fcitx5/rime/default.custom.yaml" 2>/dev/null; then
+#     echo 'patch:' >> "$HOME/.local/share/fcitx5/rime/default.custom.yaml"
+# fi
+# if ! grep -q "rime_ice" "$HOME/.local/share/fcitx5/rime/default.custom.yaml" 2>/dev/null; then
+#     tee "$HOME/.local/share/fcitx5/rime/default.custom.yaml" >/dev/null <<-'EOF'
+
+#   __include: rime_ice_suggestion:/
+#   __patch:
+#     key_binder/bindings/+:
+#       - { when: paging, accept: comma, send: Page_Up }
+#       - { when: has_menu, accept: period, send: Page_Down }
+# EOF
+# fi
+
+if [[ -d "$HOME/.local/share/fcitx5/rime" && ! -d "$HOME/.local/share/fcitx5/rime.clover" ]]; then
+    mv "$HOME/.local/share/fcitx5/rime" "$HOME/.local/share/fcitx5/rime.clover"
+fi
+
+Git_Clone_Update_Branch "iDvel/rime-ice" "$HOME/.local/share/fcitx5/rime"
+
+if [[ -d "$HOME/.local/share/fcitx5/rime" ]]; then
+    # add clover
+    cp -f "$HOME/.local/share/fcitx5/rime.clover/build/clover"* "$HOME/.local/share/fcitx5/rime/build"
+    cp -rf "$HOME/.local/share/fcitx5/rime.clover/clover"* "$HOME/.local/share/fcitx5/rime"
+
+    if ! grep -q "patch:" "$HOME/.local/share/fcitx5/rime/default.custom.yaml" 2>/dev/null; then
+        echo 'patch:' >> "$HOME/.local/share/fcitx5/rime/default.custom.yaml"
+    fi
+
+    if ! grep -q "menu/schema_list" "$HOME/.local/share/fcitx5/rime/default.custom.yaml" 2>/dev/null; then
+        tee "$HOME/.local/share/fcitx5/rime/default.custom.yaml" >/dev/null <<-'EOF'
+  menu/page_size: 9
+  key_binder/bindings/+:
+    - { when: paging, accept: comma, send: Page_Up }
+    - { when: has_menu, accept: period, send: Page_Down }
+  schema_list:
+    - schema: rime_ice
+    - schema: clover
+    - schema: t9
+    - schema: double_pinyin
+    - schema: double_pinyin_abc
+    - schema: double_pinyin_mspy
+    - schema: double_pinyin_sogou
+    - schema: double_pinyin_flypy
+    - schema: double_pinyin_ziguang
+EOF
+    fi
+fi
+
 ## Pinyin shortcut
 # Ctrl+Alt+Shift+u: Unicode encoding & emoji & special characters
 # Ctrl+.: switch between symbols ASCII Punctuation and Chinese Punctuation Marks
@@ -525,6 +581,11 @@ fi
 
 ## 快速输入带声调的汉语拼音
 # 切换至 拼音符号(M17N) 输入法，然后用 拼音 + 数字1234
+
+## 选择拼音方案：ctrl+~
+
+## Restart Fcitx5
+# kill `ps -A | grep fcitx5 | awk '{print $1}'` && fcitx5&
 
 
 cd "${CURRENT_DIR}" || exit
