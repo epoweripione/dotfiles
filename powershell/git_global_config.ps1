@@ -24,6 +24,11 @@ if ($Proxy) {
     }
 }
 
+## Fix: schannel: next InitializeSecurityContext failed: CRYPT_E_REVOCATION_OFFLINE (0x80092013)
+# git config --system http.schannelCheckRevoke false
+git config --system http.sslbackend openssl
+# git config --system --list
+
 if (Get-Command "git" -ErrorAction SilentlyContinue) {
     git config --global init.defaultBranch "main"
 
