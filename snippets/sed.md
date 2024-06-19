@@ -77,3 +77,38 @@ echo -n "😊" |              # -n ignore trailing newline                     \
 
 # [How to trim whitespace from a Bash variable?](https://stackoverflow.com/questions/369758/how-to-trim-whitespace-from-a-bash-variable)
 `echo ' test test ' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'`
+
+# control characters
+```bash
+printf '123\nabc\n\001foo\002\u0080\u0084中文\n汉语888\u0084\n中OK' | tee input.txt
+
+NOT_VALID_LINE=$(grep -n -P "[\x80-\xFF]" input.txt | cut -d: -f1 | sort -nr)
+while read -r line; do
+    [[ ${line} -gt 0 ]] && sed -i "${line}d" input.txt
+done <<< "${NOT_VALID_LINE}"
+```
+
+## check which control character in `yaml` file using python
+- save following script to file `check_control_characters.py`
+```python
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+# pip install pyyaml
+import yaml
+
+try:
+    with open('input.yml', 'r') as file:
+        data = yaml.safe_load(file)
+except yaml.YAMLError as e:
+    print("Parsing YAML string failed")
+    print("Reason:", e.reason)
+    print("At position: {0} with encoding {1}".format(e.position, e.encoding))
+    print("Invalid char code: ", e.character, hex(e.character))
+```
+
+- run `python check_control_characters.py` to check invalid control characters
+```bash
+# >> Invalid char code:  132 0x84
+grep -n -P "[\x84]" input.yml
+```
