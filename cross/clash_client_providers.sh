@@ -320,6 +320,12 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             sed -ri "/(${GLOBAL_FILTER})/d" "${DOWNLOAD_FILE}"
         fi
 
+        # delete lines contain control characters
+        NOT_VALID_LINE=$(grep -n -P "[\x80-\xFF]" "${DOWNLOAD_FILE}" | cut -d: -f1 | sort -nr)
+        while read -r line; do
+            [[ ${line} -gt 0 ]] && sed -i "${line}d" "${DOWNLOAD_FILE}"
+        done <<< "${NOT_VALID_LINE}"
+
         # Merge proxies
         TARGET_PROXIES=""
         if [[ "${TARGET_OPTION}" == *"full"* ]]; then
