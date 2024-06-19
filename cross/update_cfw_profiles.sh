@@ -25,7 +25,7 @@ RSYNC_REMOTE="$1" # root@10.0.0.2:/srv/web/www/public
 # WSL
 WSL_USERPROFILE=""
 if check_os_wsl; then
-    WSL_USERPROFILE=$(wslpath "$(wslvar USERPROFILE)")
+    WSL_USERPROFILE=$(wslpath "$(wslvar USERPROFILE 2>/dev/null)")
 fi
 
 

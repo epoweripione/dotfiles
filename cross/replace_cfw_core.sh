@@ -23,7 +23,7 @@ fi
 # WSL
 WSL_USERPROFILE=""
 if check_os_wsl; then
-    WSL_USERPROFILE=$(wslpath "$(wslvar USERPROFILE)")
+    WSL_USERPROFILE=$(wslpath "$(wslvar USERPROFILE 2>/dev/null)")
 fi
 
 # Replace `clash` with `clash-meta`
