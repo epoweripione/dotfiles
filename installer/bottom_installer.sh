@@ -59,7 +59,7 @@ fi
 
 if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-    installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_INSTALL_NAME})"
+    installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_INSTALL_NAME}"
 elif [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
     if ! App_Installer_Install; then
         colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
