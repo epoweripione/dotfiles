@@ -333,6 +333,14 @@ if [[ "$(command -v mise)" ]]; then
     mise_App_Update
 fi
 
+if [[ "$(command -v vfox)" ]]; then
+    vfox update --all
+fi
+
+if [[ "$(command -v vmr-update)" ]]; then
+    vmr-update
+fi
+
 if [[ -x "$(command -v navi)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}navi featured cheatsheets${BLUE}..."
     Git_Update_Repo_in_SubDir "$(navi info cheats-path)"
