@@ -81,12 +81,17 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   installPrebuiltBinary earthly "earthly/earthly" "earthly-*" # github releases
   installPrebuiltBinary "https://dev.yorhel.nl/ncdu" "/download/ncdu-[^<>:;,?\"*|/]+\.tar\.gz" "ncdu-.*\.tar\.gz" # full URL
   ```
+  * Install app using brew, cargo, go...
+  ```bash
+  installBuildBinary sd sd cargo
+  installBuildBinary fvm fvm brew
+  installBuildBinary protoc-gen-go protoc-gen-go go "google.golang.org/protobuf/cmd/protoc-gen-go@latest"
+  ```
   * Install apps using installer will set mirrors if the world blocked, you can override them in `~/.dotfiles.env.local`
     + [Homebrew](/installer/homebrew_installer.sh)
       - [https://mirrors.ustc.edu.cn/homebrew-bottles](https://mirrors.ustc.edu.cn/homebrew-bottles)
       - [https://mirrors.ustc.edu.cn/homebrew-core.git](https://mirrors.ustc.edu.cn/homebrew-core.git)
       - [https://mirrors.ustc.edu.cn/homebrew-cask.git](https://mirrors.ustc.edu.cn/homebrew-cask.git)
-      - [https://mirrors.ustc.edu.cn/homebrew-cask-versions.git](https://mirrors.ustc.edu.cn/homebrew-cask-versions.git)
     + [Docker Registry](/installer/docker_installer.sh)
       - [https://docker.mirrors.sjtug.sjtu.edu.cn](https://docker.mirrors.sjtug.sjtu.edu.cn)
       - [https://docker.nju.edu.cn/](https://docker.nju.edu.cn/)
@@ -120,6 +125,8 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
   * [asdf](https://asdf-vm.com/)
   * [mise](https://mise.jdx.dev/)
   * [jabba](https://github.com/shyiko/jabba)
+  * [version-fox](https://github.com/version-fox/vfox)
+  * [version-manager(vmr)](https://github.com/gvcgo/version-manager)
   * ...
 - alias for docker: `alias | grep '^docker'`
 - [Auto setting environment variables for apps](/functions/env.sh)
@@ -293,6 +300,15 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 - `SmartDNS`
 - `CJK` fonts
 - `Fcitx5` input methods
+- `Rime` 中州韻輸入法引擎
+  * [雾凇拼音](https://github.com/iDvel/rime-ice)
+  * [朙月拼音](https://github.com/rime/rime-luna-pinyin)
+  * [粵語拼音](https://github.com/rime/rime-cantonese)
+  * [五筆字型 86 版](https://github.com/rime/rime-wubi)
+  * [注音](https://github.com/rime/rime-bopomofo)
+  * [倉頡](https://github.com/rime/rime-cangjie)
+  * 双拼（自然码、智能 ABC、小鹤、微软、搜狗、紫光）
+  * ...
 - `Emoji` keyboard
 - `CUPS`: Printers, Scanner
 - `KVM` & `QEMU` Emulator
