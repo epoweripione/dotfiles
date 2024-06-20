@@ -1,0 +1,56 @@
+patch:
+  "key_binder/bindings/+":
+    # , . 翻页
+    - { when: paging, accept: comma, send: Page_Up }
+    - { when: has_menu, accept: period, send: Page_Down }
+    # 左右 Shift 选择第 2、3 候选字
+    - { when: has_menu, accept: "Shift+Shift_L", send: 2 }
+    - { when: has_menu, accept: "Shift+Shift_R", send: 3 }
+  # 候选词个数
+  "menu/page_size": 9
+  # 输入方案列表
+  schema_list:
+    - schema: rime_ice
+    - schema: t9
+    - schema: radical_pinyin
+    - schema: jyut6ping3
+    - schema: wubi86
+    - schema: melt_eng
+    - schema: luna_pinyin
+    - schema: luna_pinyin_simp
+    # 第二页
+    - schema: luna_pinyin_tw
+    - schema: luna_pinyin_fluency
+    - schema: cangjie5
+    - schema: cangjie5_express
+    - schema: bopomofo
+    - schema: bopomofo_tw
+    - schema: bopomofo_express
+    - schema: wubi_pinyin
+    - schema: wubi_trad
+    # 第三页
+    - schema: clover
+    - schema: luna_quanpin
+    - schema: terra_pinyin
+    - schema: double_pinyin
+    - schema: double_pinyin_abc
+    - schema: double_pinyin_flypy
+    - schema: double_pinyin_mspy
+    - schema: double_pinyin_sogou
+    - schema: double_pinyin_ziguang
+    # 第四页
+    - schema: stroke
+    - schema: sampheng
+    - schema: zyenpheng
+    - schema: jyut6ping3_ipa
+    - schema: ipa_xsampa
+    - schema: ipa_yunlong
+  # "switches/@0/reset": 1
+  # 从方案选单（而非快捷键）切换时会记住的选项
+  "switcher/save_options":
+    - ascii_mode          # 中、英
+    - ascii_punct         # 中、英标点
+    - traditionalization  # 简、繁
+    - emoji               # 输入拼音时是否列表表情，如输入 xiao 可选择 笑容表情
+    - full_shape          # 半角、全角
+    - search_single_char  # 辅码查词时是否单字优先

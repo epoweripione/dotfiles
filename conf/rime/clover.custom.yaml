@@ -1,0 +1,110 @@
+# https://github.com/fkxxyz/rime-cloverpinyin/wiki/issues
+patch:
+  speller/algebra:
+    # 模糊音定义
+    # 需要哪组就删去行首的 # 号，单双向任选
+    #- derive/^([zcs])h/$1/             # zh, ch, sh => z, c, s
+    - derive/^([zcs])([^h])/$1h$2/     # z, c, s => zh, ch, sh
+
+    #- derive/^n/l/                     # n => l
+    #- derive/^l/n/                     # l => n
+
+    # 这两组一般是单向的
+    #- derive/^r/l/                     # r => l
+
+    #- derive/^ren/yin/                 # ren => yin, reng => ying
+    #- derive/^r/y/                     # r => y
+
+    # 下面 hu <=> f 这组写法复杂一些，分情况讨论
+    #- derive/^hu$/fu/                  # hu => fu
+    #- derive/^hong$/feng/              # hong => feng
+    #- derive/^hu([in])$/fe$1/          # hui => fei, hun => fen
+    #- derive/^hu([ao])/f$1/            # hua => fa, ...
+
+    #- derive/^fu$/hu/                  # fu => hu
+    #- derive/^feng$/hong/              # feng => hong
+    #- derive/^fe([in])$/hu$1/          # fei => hui, fen => hun
+    #- derive/^f([ao])/hu$1/            # fa => hua, ...
+
+    # 韵母部份
+    #- derive/^([bpmf])eng$/$1ong/      # meng = mong, ...
+    #- derive/([ei])n$/$1ng/            # en => eng, in => ing
+    #- derive/([ei])ng$/$1n/            # eng => en, ing => in
+
+    # 反模糊音？
+    # 谁说方言没有普通话精确、有模糊音，就能有反模糊音。
+    # 示例为分尖团的中原官话：
+    #- derive/^ji$/zii/   # 在设计者安排下鸠占鹊巢，尖音 i 只好双写了
+    #- derive/^qi$/cii/
+    #- derive/^xi$/sii/
+    #- derive/^ji/zi/
+    #- derive/^qi/ci/
+    #- derive/^xi/si/
+    #- derive/^ju/zv/
+    #- derive/^qu/cv/
+    #- derive/^xu/sv/
+
+    # 韵母部份，只能从大面上覆盖
+    #- derive/^([bpm])o$/$1eh/          # bo => beh, ...
+    #- derive/(^|[dtnlgkhzcs]h?)e$/$1eh/  # ge => geh, se => sheh, ...
+    #- derive/^([gkh])uo$/$1ue/         # guo => gue, ...
+    #- derive/^([gkh])e$/$1uo/          # he => huo, ...
+    #- derive/([uv])e$/$1o/             # jue => juo, lve => lvo, ...
+    #- derive/^fei$/fi/                 # fei => fi
+    #- derive/^wei$/vi/                 # wei => vi
+    #- derive/^([nl])ei$/$1ui/          # nei => nui, lei => lui
+    #- derive/^([nlzcs])un$/$1vn/       # lun => lvn, zun => zvn, ... 
+    #- derive/^([nlzcs])ong$/$1iong/    # long => liong, song => siong, ...
+    # 这个办法虽从拼写上做出了区分，然而受词典制约，候选字仍是混的。
+    # 只有真正的方音输入方案才能做到！但「反模糊音」这个玩法快速而有效！
+
+    # 模糊音定义先于简拼定义，方可令简拼支持以上模糊音
+    - abbrev/^([a-z]).+$/$1/           # 簡拼（首字母）
+    - abbrev/^([zcs]h).+$/$1/          # 簡拼（zh, ch, sh）
+
+    # 以下是一组容错拼写，《汉语拼音》方案以前者为正
+    - derive/^([nl])ve$/$1ue/          # nve = nue, lve = lue
+    - derive/^([jqxy])u/$1v/           # ju = jv,
+    - derive/un$/uen/                  # gun = guen,
+    - derive/ui$/uei/                  # gui = guei,
+    - derive/iu$/iou/                  # jiu = jiou,
+
+    # 自动纠正一些常见的按键错误
+    - derive/([aeiou])ng$/$1gn/        # dagn => dang 
+    - derive/([dtngkhrzcs])o(u|ng)$/$1o/  # zho => zhong|zhou
+    - derive/ong$/on/                  # zhonguo => zhong guo
+    - derive/ao$/oa/                   # hoa => hao
+    - derive/([iu])a(o|ng?)$/a$1$2/    # tain => tian
+
+#   switches:
+#     - name: zh_simp_s2t
+#       reset: 0
+#       states: [ 简, 繁 ]
+#     - name: emoji_suggestion
+#       reset: 1
+#       states: [ "🈚️️\uFE0E", "🈶️️\uFE0F" ]
+#     - name: symbol_support
+#       reset: 1
+#       states: [ "无符", "符" ]
+#     - name: ascii_punct
+#       reset: 0
+#       states: [ 。，, ．， ]
+#     - name: full_shape
+#       reset: 0
+#       states: [ 半, 全 ]
+#     - name: ascii_mode
+#       reset: 0
+#       states: [ 中, 英 ]
+#     - name: show_es
+#       reset: 1
+#       states: [ 😔, 😀 ]
+
+#   engine:
+#     filters:
+#       - simplifier@es_conversion
+
+#   es_conversion:
+#     opencc_config: es.json
+#     option_name: show_es
+
+#   "switches/@5/reset": 1
