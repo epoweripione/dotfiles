@@ -1232,10 +1232,20 @@ function installBuildBinary() {
     case "${install_method}" in
         cargo)
             # Install via rust cargo from source on crates.io
+            if [[ ! -x "$(command -v cargo)" ]]; then
+                colorEcho "${FUCHSIA}${install_method}${RED} is not installed!"
+                return 1
+            fi
+
             cargo install "${app_name}"
             ;;
         brew)
             # Install via Homebrew
+            if [[ ! -x "$(command -v brew)" ]]; then
+                colorEcho "${FUCHSIA}${install_method}${RED} is not installed!"
+                return 1
+            fi
+
             if [[ "${update_binary}" == "yes" ]]; then
                 brew upgrade "${app_name}"
             else
@@ -1244,6 +1254,11 @@ function installBuildBinary() {
             ;;
         go)
             # Install via go
+            if [[ ! -x "$(command -v go)" ]]; then
+                colorEcho "${FUCHSIA}${install_method}${RED} is not installed!"
+                return 1
+            fi
+
             go install "${install_url}"
             ;;
     esac
