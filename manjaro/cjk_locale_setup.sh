@@ -224,190 +224,7 @@ if [[ "${OS_INFO_DESKTOP}" == "GNOME" ]]; then
     gsettings set org.gnome.settings-daemon.plugins.xsettings overrides "{'Gtk/IMModule':<'fcitx'>}"
 fi
 
-# Rime
-# https://github.com/rime/home/wiki/UserGuide
-# rime-cloverpinyin
-# https://github.com/fkxxyz/rime-cloverpinyin
-# ~/.local/share/fcitx5/rime/
-colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 Rime support${BLUE}..."
-sudo pacman --noconfirm --needed -S fcitx5-rime rime-cloverpinyin
-
-# Rime Emoji & Symbols
-yay --noconfirm --needed -S rime-opencc-emoji-symbols-git
-
-# merge emoji & symbol
-# /usr/share/rime-data/opencc/symbol_category.txt
-if  [[ -s "/usr/share/rime-data/opencc/symbol_category.txt" && -s "/usr/share/rime-data/opencc/emoji_category.txt" ]]; then
-    awk '{print $1}' \
-            "/usr/share/rime-data/opencc/emoji_category.txt" \
-            "/usr/share/rime-data/opencc/emoji_word.txt" \
-        | uniq > "${WORKDIR}/wordlist.txt"
-
-    grep -wvf "${WORKDIR}/wordlist.txt" "/usr/share/rime-data/opencc/symbol_category.txt" \
-        | grep -Ev '^\s' \
-        | sudo tee -a "/usr/share/rime-data/opencc/emoji_category.txt" >/dev/null
-fi
-
-# /usr/share/rime-data/opencc/symbol_word.txt
-if  [[ -s "/usr/share/rime-data/opencc/symbol_word.txt" && -s "/usr/share/rime-data/opencc/emoji_word.txt" ]]; then
-    awk '{print $1}' \
-            "/usr/share/rime-data/opencc/emoji_category.txt" \
-            "/usr/share/rime-data/opencc/emoji_word.txt" \
-        | uniq > "${WORKDIR}/wordlist.txt"
-    
-    DUPLICATE_ENTRY=$(awk '{print $1}' "/usr/share/rime-data/opencc/symbol_word.txt" | sort | uniq -cd | awk '{print $2}')
-    while read -r DUPLICATE_WORD; do
-        [[ -z "${DUPLICATE_WORD}" ]] && continue
-        sudo sed -i "0,/${DUPLICATE_WORD}/b; /${DUPLICATE_WORD}/d" "/usr/share/rime-data/opencc/symbol_word.txt"
-    done <<<"${DUPLICATE_ENTRY}"
-
-    grep -wvf "${WORKDIR}/wordlist.txt" "/usr/share/rime-data/opencc/symbol_word.txt" \
-        | grep -Ev '^\s' \
-        | sudo tee -a "/usr/share/rime-data/opencc/emoji_word.txt" >/dev/null
-fi
-
-# /usr/share/rime-data/opencc/es.txt
-if  [[ -s "/usr/share/rime-data/opencc/es.txt" && -s "/usr/share/rime-data/opencc/emoji_word.txt" ]]; then
-    awk '{print $1}' \
-            "/usr/share/rime-data/opencc/emoji_category.txt" \
-            "/usr/share/rime-data/opencc/emoji_word.txt" \
-        | uniq > "${WORKDIR}/wordlist.txt"
-    
-    DUPLICATE_ENTRY=$(awk '{print $1}' "/usr/share/rime-data/opencc/es.txt" | sort | uniq -cd | awk '{print $2}')
-    while read -r DUPLICATE_WORD; do
-        [[ -z "${DUPLICATE_WORD}" ]] && continue
-        sudo sed -i "0,/${DUPLICATE_WORD}/b; /${DUPLICATE_WORD}/d" "/usr/share/rime-data/opencc/es.txt"
-    done <<<"${DUPLICATE_ENTRY}"
-
-    grep -wvf "${WORKDIR}/wordlist.txt" "/usr/share/rime-data/opencc/es.txt" \
-        | grep -Ev '^\s' \
-        | sudo tee -a "/usr/share/rime-data/opencc/emoji_word.txt" >/dev/null
-fi
-
-mkdir -p "$HOME/.local/share/fcitx5/rime/"
-# setting rime-cloverpinyin
-tee "$HOME/.local/share/fcitx5/rime/default.custom.yaml" >/dev/null <<-'EOF'
-patch:
-  "menu/page_size": 9
-  schema_list:
-    - schema: clover
-EOF
-
-# https://github.com/fkxxyz/rime-cloverpinyin/wiki/issues
-tee "$HOME/.local/share/fcitx5/rime/clover.custom.yaml" >/dev/null <<-'EOF'
-patch:
-  speller/algebra:
-    # 模糊音定义
-    # 需要哪组就删去行首的 # 号，单双向任选
-    #- derive/^([zcs])h/$1/             # zh, ch, sh => z, c, s
-    - derive/^([zcs])([^h])/$1h$2/     # z, c, s => zh, ch, sh
-
-    #- derive/^n/l/                     # n => l
-    #- derive/^l/n/                     # l => n
-
-    # 这两组一般是单向的
-    #- derive/^r/l/                     # r => l
-
-    #- derive/^ren/yin/                 # ren => yin, reng => ying
-    #- derive/^r/y/                     # r => y
-
-    # 下面 hu <=> f 这组写法复杂一些，分情况讨论
-    #- derive/^hu$/fu/                  # hu => fu
-    #- derive/^hong$/feng/              # hong => feng
-    #- derive/^hu([in])$/fe$1/          # hui => fei, hun => fen
-    #- derive/^hu([ao])/f$1/            # hua => fa, ...
-
-    #- derive/^fu$/hu/                  # fu => hu
-    #- derive/^feng$/hong/              # feng => hong
-    #- derive/^fe([in])$/hu$1/          # fei => hui, fen => hun
-    #- derive/^f([ao])/hu$1/            # fa => hua, ...
-
-    # 韵母部份
-    #- derive/^([bpmf])eng$/$1ong/      # meng = mong, ...
-    #- derive/([ei])n$/$1ng/            # en => eng, in => ing
-    #- derive/([ei])ng$/$1n/            # eng => en, ing => in
-
-    # 反模糊音？
-    # 谁说方言没有普通话精确、有模糊音，就能有反模糊音。
-    # 示例为分尖团的中原官话：
-    #- derive/^ji$/zii/   # 在设计者安排下鸠占鹊巢，尖音 i 只好双写了
-    #- derive/^qi$/cii/
-    #- derive/^xi$/sii/
-    #- derive/^ji/zi/
-    #- derive/^qi/ci/
-    #- derive/^xi/si/
-    #- derive/^ju/zv/
-    #- derive/^qu/cv/
-    #- derive/^xu/sv/
-
-    # 韵母部份，只能从大面上覆盖
-    #- derive/^([bpm])o$/$1eh/          # bo => beh, ...
-    #- derive/(^|[dtnlgkhzcs]h?)e$/$1eh/  # ge => geh, se => sheh, ...
-    #- derive/^([gkh])uo$/$1ue/         # guo => gue, ...
-    #- derive/^([gkh])e$/$1uo/          # he => huo, ...
-    #- derive/([uv])e$/$1o/             # jue => juo, lve => lvo, ...
-    #- derive/^fei$/fi/                 # fei => fi
-    #- derive/^wei$/vi/                 # wei => vi
-    #- derive/^([nl])ei$/$1ui/          # nei => nui, lei => lui
-    #- derive/^([nlzcs])un$/$1vn/       # lun => lvn, zun => zvn, ... 
-    #- derive/^([nlzcs])ong$/$1iong/    # long => liong, song => siong, ...
-    # 这个办法虽从拼写上做出了区分，然而受词典制约，候选字仍是混的。
-    # 只有真正的方音输入方案才能做到！但「反模糊音」这个玩法快速而有效！
-
-    # 模糊音定义先于简拼定义，方可令简拼支持以上模糊音
-    - abbrev/^([a-z]).+$/$1/           # 簡拼（首字母）
-    - abbrev/^([zcs]h).+$/$1/          # 簡拼（zh, ch, sh）
-
-    # 以下是一组容错拼写，《汉语拼音》方案以前者为正
-    - derive/^([nl])ve$/$1ue/          # nve = nue, lve = lue
-    - derive/^([jqxy])u/$1v/           # ju = jv,
-    - derive/un$/uen/                  # gun = guen,
-    - derive/ui$/uei/                  # gui = guei,
-    - derive/iu$/iou/                  # jiu = jiou,
-
-    # 自动纠正一些常见的按键错误
-    - derive/([aeiou])ng$/$1gn/        # dagn => dang 
-    - derive/([dtngkhrzcs])o(u|ng)$/$1o/  # zho => zhong|zhou
-    - derive/ong$/on/                  # zhonguo => zhong guo
-    - derive/ao$/oa/                   # hoa => hao
-    - derive/([iu])a(o|ng?)$/a$1$2/    # tain => tian
-
-#   switches:
-#     - name: zh_simp_s2t
-#       reset: 0
-#       states: [ 简, 繁 ]
-#     - name: emoji_suggestion
-#       reset: 1
-#       states: [ "🈚️️\uFE0E", "🈶️️\uFE0F" ]
-#     - name: symbol_support
-#       reset: 1
-#       states: [ "无符", "符" ]
-#     - name: ascii_punct
-#       reset: 0
-#       states: [ 。，, ．， ]
-#     - name: full_shape
-#       reset: 0
-#       states: [ 半, 全 ]
-#     - name: ascii_mode
-#       reset: 0
-#       states: [ 中, 英 ]
-#     - name: show_es
-#       reset: 1
-#       states: [ 😔, 😀 ]
-
-#   engine:
-#     filters:
-#       - simplifier@es_conversion
-
-#   es_conversion:
-#     opencc_config: es.json
-#     option_name: show_es
-
-#   "switches/@5/reset": 1
-EOF
-
-
-# fcitx5 theme
+# Fcitx5 theme
 # https://github.com/hosxy/Fcitx5-Material-Color
 mkdir -p "$HOME/.config/fcitx5/conf"
 if ! grep -q "^Vertical Candidate List" "$HOME/.config/fcitx5/conf/classicui.conf" 2>/dev/null; then
@@ -419,14 +236,6 @@ Font="更纱黑体 SC Medium 13"
 Theme=Material-Color-Blue
 EOF
 fi
-
-# emoji emoticons
-# https://github.com/levinit/fcitx-emoji
-if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/QuickPhrase.mb" ]]; then
-    mkdir -p "$HOME/.local/share/fcitx5/data/"
-    cat "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/QuickPhrase.mb" >> "$HOME/.local/share/fcitx5/data/QuickPhrase.mb"
-fi
-
 
 ## How to Insert Emojis & Special Characters
 ## [Unicode Character Code Charts](http://unicode.org/charts/)
@@ -511,81 +320,15 @@ if [[ -s "/etc/sddm.conf" ]]; then
     sudo sed -i 's|^InputMethod=.*|InputMethod=qtvirtualkeyboard|' "/etc/sddm.conf"
 fi
 
-## [雾凇拼音 | 长期维护的简体词库](https://github.com/iDvel/rime-ice)
-## [Rime auto deploy](https://github.com/Mark24Code/rime-auto-deploy)
-## Fix: rime-ice-git: /usr/share/rime-data/opencc/emoji.json exists in filesystem (owned by rime-emoji)
-# if [[ -f "/usr/share/rime-data/opencc/emoji.json" ]]; then
-#     sudo mv "/usr/share/rime-data/opencc/emoji.json" "/usr/share/rime-data/opencc/emoji.json.rime"
-# fi
-# yay --noconfirm --needed -S archlinuxcn/rime-ice-git
-# if ! grep -q "patch:" "$HOME/.local/share/fcitx5/rime/default.custom.yaml" 2>/dev/null; then
-#     echo 'patch:' >> "$HOME/.local/share/fcitx5/rime/default.custom.yaml"
-# fi
-# if ! grep -q "rime_ice" "$HOME/.local/share/fcitx5/rime/default.custom.yaml" 2>/dev/null; then
-#     tee "$HOME/.local/share/fcitx5/rime/default.custom.yaml" >/dev/null <<-'EOF'
+# [RIME - 中州韻輸入法引擎](https://rime.im/)
+colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 Rime support${BLUE}..."
+sudo pacman --noconfirm --needed -S fcitx5-rime
 
-#   __include: rime_ice_suggestion:/
-#   __patch:
-#     key_binder/bindings/+:
-#       - { when: paging, accept: comma, send: Page_Up }
-#       - { when: has_menu, accept: period, send: Page_Down }
-# EOF
-# fi
-
-if [[ -d "$HOME/.local/share/fcitx5/rime" && ! -d "$HOME/.local/share/fcitx5/rime.clover" ]]; then
-    mv "$HOME/.local/share/fcitx5/rime" "$HOME/.local/share/fcitx5/rime.clover"
+# 以 [雾凇拼音](https://github.com/iDvel/rime-ice) 为基础，合并粵語拼音、四叶草等输入法方案
+mkdir -p "$HOME/.local/share/fcitx5/rime/"
+if [[ ! -f "$HOME/.local/share/fcitx5/rime/default.custom.yaml" ]]; then
+    # source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/cjk_rime_symbols.sh"
+    source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/cjk_rime_schema.sh"
 fi
-
-Git_Clone_Update_Branch "iDvel/rime-ice" "$HOME/.local/share/fcitx5/rime"
-
-if [[ -d "$HOME/.local/share/fcitx5/rime" ]]; then
-    # add clover
-    cp -f "$HOME/.local/share/fcitx5/rime.clover/build/clover"* "$HOME/.local/share/fcitx5/rime/build"
-    cp -rf "$HOME/.local/share/fcitx5/rime.clover/clover"* "$HOME/.local/share/fcitx5/rime"
-
-    if ! grep -q "patch:" "$HOME/.local/share/fcitx5/rime/default.custom.yaml" 2>/dev/null; then
-        echo 'patch:' >> "$HOME/.local/share/fcitx5/rime/default.custom.yaml"
-    fi
-
-    if ! grep -q "menu/schema_list" "$HOME/.local/share/fcitx5/rime/default.custom.yaml" 2>/dev/null; then
-        tee "$HOME/.local/share/fcitx5/rime/default.custom.yaml" >/dev/null <<-'EOF'
-  menu/page_size: 9
-  key_binder/bindings/+:
-    - { when: paging, accept: comma, send: Page_Up }
-    - { when: has_menu, accept: period, send: Page_Down }
-  schema_list:
-    - schema: rime_ice
-    - schema: clover
-    - schema: t9
-    - schema: double_pinyin
-    - schema: double_pinyin_abc
-    - schema: double_pinyin_mspy
-    - schema: double_pinyin_sogou
-    - schema: double_pinyin_flypy
-    - schema: double_pinyin_ziguang
-EOF
-    fi
-fi
-
-## Pinyin shortcut
-# Ctrl+Alt+Shift+u: Unicode encoding & emoji & special characters
-# Ctrl+.: switch between symbols ASCII Punctuation and Chinese Punctuation Marks
-# ; v: QuickPhrase
-
-## rime-cloverpinyin shortcut
-# Ctrl+Shift+2 Ctrl+Shift+f: switch between Traditional Chinese and Simplified Chinese
-# Ctrl+Shift+3: emoji
-# Ctrl+Shift+4: special characters
-# Ctrl+Shift+5 Ctrl+, Ctrl+.: switch between symbols ASCII Punctuation and Chinese Punctuation Marks
-# Ctrl+Shift+6 Shift+Space: switch between halfwidth and fullwidth punctuation
-
-## 快速输入带声调的汉语拼音
-# 切换至 拼音符号(M17N) 输入法，然后用 拼音 + 数字1234
-
-## 选择拼音方案：ctrl+~
-
-## Restart Fcitx5
-# kill `ps -A | grep fcitx5 | awk '{print $1}'` && fcitx5&
-
 
 cd "${CURRENT_DIR}" || exit
