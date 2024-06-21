@@ -101,10 +101,7 @@ if [[ -z "${FontManjaroInstallList[*]}" ]]; then
         # "ttf-ubuntu-font-family"
     )
 fi
-for TargetFont in "${FontManjaroInstallList[@]}"; do
-    colorEcho "${BLUE}Installing ${FUCHSIA}${TargetFont}${BLUE}..."
-    yay --noconfirm --needed -S "${TargetFont}"
-done
+InstallSystemPackages "" "${FontManjaroInstallList[@]}"
 
 # emoji
 # If you have other emoji fonts installed but want twemoji to always be used, make a symlink for twemojis font config:
@@ -173,9 +170,30 @@ sudo fc-cache -fv
 # KDE Plasma: Start fcitx5 by go to "System settings"->"Virtual keyboard"->Select "Fcitx 5"
 colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 input methods${BLUE}..."
 sudo pacman --noconfirm -Rs "$(pacman -Qsq fcitx)" 2>/dev/null
-sudo pacman --noconfirm --needed -S fcitx5-im && \
-    sudo pacman --noconfirm --needed -S fcitx5-material-color fcitx5-chinese-addons && \
-    sudo pacman --noconfirm --needed -S fcitx5-pinyin-zhwiki fcitx5-pinyin-moegirl
+
+CJKInstallList=(
+    "fcitx5-im"
+    "fcitx5-lua"
+    "fcitx5-m17n"
+    # [RIME - 中州韻輸入法引擎](https://rime.im/)
+    "fcitx5-rime"
+    # addons
+    "fcitx5-chinese-addons"
+    "fcitx5-pinyin-zhwiki"
+    "fcitx5-pinyin-moegirl"
+    # themes
+    "fcitx5-material-color"
+    "fcitx5-skin-materia-yanli"
+    "fcitx5-skin-fluentdark-git"
+    "fcitx5-skin-fluentlight-git"
+    "fcitx5-nord"
+    "fcitx5-breeze"
+    # emoji & screen keyboard
+    "aur/emoji-keyboard-bin" # [Emoji keyboard](https://github.com/OzymandiasTheGreat/emoji-keyboard)
+    "aur/emote" # [Emote](https://github.com/tom-james-watson/Emote)
+    "onboard" # [Onboard Onscreen Keyboard](https://launchpad.net/onboard)
+)
+InstallSystemPackages "" "${CJKInstallList[@]}"
 
 if ! grep -q "XMODIFIERS" "/etc/environment" 2>/dev/null; then
     sudo tee -a "/etc/environment" >/dev/null <<-'EOF'
@@ -224,16 +242,12 @@ if [[ "${OS_INFO_DESKTOP}" == "GNOME" ]]; then
     gsettings set org.gnome.settings-daemon.plugins.xsettings overrides "{'Gtk/IMModule':<'fcitx'>}"
 fi
 
-# Fcitx5 theme
-# https://github.com/hosxy/Fcitx5-Material-Color
+# Fcitx5 configuration
 mkdir -p "$HOME/.config/fcitx5/conf"
-if ! grep -q "^Vertical Candidate List" "$HOME/.config/fcitx5/conf/classicui.conf" 2>/dev/null; then
-    tee -a "$HOME/.config/fcitx5/conf/classicui.conf" >/dev/null <<-'EOF'
-Vertical Candidate List=False
-PerScreenDPI=True
-Font="更纱黑体 SC Medium 13"
-
-Theme=Material-Color-Blue
+if [[ ! -f "$HOME/.config/fcitx5/conf/classicui.conf" ]]; then
+    if [[ -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/fcitx/classicui.conf" ]]; then
+        cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/ssh/classicui.conf" "$HOME/.config/fcitx5/conf/classicui.conf"
+    fi
 EOF
 fi
 
@@ -273,8 +287,7 @@ if [[ "${OS_INFO_DESKTOP}" == "GNOME" ]]; then
     fi
 fi
 
-## Emoji keyboard
-## https://github.com/OzymandiasTheGreat/emoji-keyboard
+## [Emoji keyboard](https://github.com/OzymandiasTheGreat/emoji-keyboard)
 # INSTALLER_GITHUB_REPO="OzymandiasTheGreat/emoji-keyboard"
 # INSTALLER_DOWNLOAD_FILE="$HOME/Applications/emoji-keyboard.AppImage"
 # INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
@@ -283,16 +296,12 @@ fi
 # colorEcho "${BLUE}Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 # colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
 # curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-colorEcho "${BLUE}Installing ${FUCHSIA}Emoji keyboard${BLUE}..."
-yay --noconfirm --needed -S aur/emoji-keyboard-bin
 
 # [Emote](https://github.com/tom-james-watson/Emote): Modern popup emoji picker
 # Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E` 
 # and select one or more emojis to paste them into the currently focussed app.
-colorEcho "${BLUE}Installing ${FUCHSIA}emote${BLUE}..."
-yay --noconfirm --needed -S aur/emote
-
 if [[ -x "$(command -v snap)" && ! -x "$(command -v emote)" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}emote${BLUE}..."
     sudo snap install emote
 fi
 
@@ -312,23 +321,23 @@ Hidden=false
 EOF
 fi
 
-# [Onboard Onscreen Keyboard](https://launchpad.net/onboard)
-sudo pacman --noconfirm --needed -S onboard
-
 # SDDM: Virtual Keyboard on Login screen
 if [[ -s "/etc/sddm.conf" ]]; then
     sudo sed -i 's|^InputMethod=.*|InputMethod=qtvirtualkeyboard|' "/etc/sddm.conf"
 fi
 
-# [RIME - 中州韻輸入法引擎](https://rime.im/)
-colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 Rime support${BLUE}..."
-sudo pacman --noconfirm --needed -S fcitx5-rime
-
 # 以 [雾凇拼音](https://github.com/iDvel/rime-ice) 为基础，合并粵語拼音、四叶草等输入法方案
 mkdir -p "$HOME/.local/share/fcitx5/rime/"
 if [[ ! -f "$HOME/.local/share/fcitx5/rime/default.custom.yaml" ]]; then
     # source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/cjk_rime_symbols.sh"
+    source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/cjk_fcitx_themes.sh"
     source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/cjk_rime_schema.sh"
 fi
+
+colorEcho "${BLUE}Fcitx5 安装完成！"
+colorEcho "${ORANGE}KDE Plasma 桌面："
+colorEcho "  ${BLUE}设置虚拟键盘：${FUCHSIA}系统设置→键盘→虚拟键盘→Fcitx 5→应用"
+colorEcho "  ${BLUE}添加输入法：${FUCHSIA}系统设置→输入法→+添加输入法...→中州韻→添加"
+colorEcho "  ${BLUE}设置主题：${FUCHSIA}系统设置→输入法→配置附加组件...→经典用户界面→设置→主题"
 
 cd "${CURRENT_DIR}" || exit
