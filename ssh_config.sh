@@ -22,14 +22,7 @@ fi
 ## You will need to logout and back in for changes to take effect
 # sudo usermod -aG sudo <username>
 
-# Disable Password Authentication
-sudo sed -i 's/[#]*[ ]*PasswordAuthentication.*/PasswordAuthentication no/g' "/etc/ssh/sshd_config"
-sudo sed -i 's/[#]*[ ]*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/g' "/etc/ssh/sshd_config"
-
-# Disable Forwarding
-sudo sed -i 's/[#]*[ ]*AllowAgentForwarding.*/AllowAgentForwarding no/g' "/etc/ssh/sshd_config"
-sudo sed -i 's/[#]*[ ]*AllowTcpForwarding.*/AllowTcpForwarding no/g' "/etc/ssh/sshd_config"
-sudo sed -i 's/[#]*[ ]*X11Forwarding.*/X11Forwarding no/g' "/etc/ssh/sshd_config"
+# grep -Ei 'Forward|Authentication' "/etc/ssh/sshd_config"
 
 # /etc/ssh/ssh_config.d/
 SUB_CONFIG_FILE=""
@@ -41,24 +34,19 @@ if systemctl is-enabled sshd >/dev/null 2>&1; then
     [[ -d "/etc/ssh/sshd_config.d" ]] && SUB_CONFIG_FILE="/etc/ssh/sshd_config.d/00-only-ssh-login.conf"
 fi
 
-if [[ -n "${SUB_CONFIG_FILE}" ]]; then
-    sudo tee "${SUB_CONFIG_FILE}" >/dev/null <<-'EOF'
-# Disable Password Authentication
-PasswordAuthentication no
-ChallengeResponseAuthentication no
-# UsePAM no
+if [[ -n "${SUB_CONFIG_FILE}" && ! -f "${SUB_CONFIG_FILE}" ]]; then
+    if [[ -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/ssh/00-only-ssh-login.conf" ]]; then
+        cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/ssh/00-only-ssh-login.conf" "${SUB_CONFIG_FILE}"
+    fi
+else
+    # Disable Password Authentication
+    sudo sed -i 's/[#]*[ ]*PasswordAuthentication.*/PasswordAuthentication no/g' "/etc/ssh/sshd_config"
+    sudo sed -i 's/[#]*[ ]*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/g' "/etc/ssh/sshd_config"
 
-# Disable Forwarding
-ForwardX11 no
-ForwardAgent no
-# AllowAgentForwarding no
-# AllowTcpForwarding no
-# X11Forwarding no
-
-## Disable root login
-# PermitRootLogin no
-# PermitRootLogin prohibit-password
-EOF
+    # Disable Forwarding
+    sudo sed -i 's/[#]*[ ]*AllowAgentForwarding.*/AllowAgentForwarding no/g' "/etc/ssh/sshd_config"
+    sudo sed -i 's/[#]*[ ]*AllowTcpForwarding.*/AllowTcpForwarding no/g' "/etc/ssh/sshd_config"
+    sudo sed -i 's/[#]*[ ]*X11Forwarding.*/X11Forwarding no/g' "/etc/ssh/sshd_config"
 fi
 
 # Restart ssh service
