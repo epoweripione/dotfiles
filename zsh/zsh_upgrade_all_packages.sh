@@ -334,10 +334,12 @@ if [[ "$(command -v mise)" ]]; then
 fi
 
 if [[ "$(command -v vfox)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}all version-fox packages${BLUE}..."
     vfox update --all
 fi
 
 if [[ "$(command -v vmr-update)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}version-manager(vmr)${BLUE}..."
     vmr-update
 fi
 
