@@ -51,6 +51,12 @@ patch:
     - ascii_mode          # 中、英
     - ascii_punct         # 中、英标点
     - traditionalization  # 简、繁
-    - emoji               # 输入拼音时是否列表表情，如输入 xiao 可选择 笑容表情
+    - emoji               # 输入拼音时是否列表表情，如输入 xiao 可选择 😄😊 表情
     - full_shape          # 半角、全角
     - search_single_char  # 辅码查词时是否单字优先
+  # 输入方案切换快捷键 Ctrl+~ Ctrl+Shift+~
+  "switcher/hotkeys":
+    # - F4
+    - Control+grave
+    - Control+Shift+grave
+    # - Alt+grave
