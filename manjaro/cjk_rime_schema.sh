@@ -125,4 +125,4 @@ for Target in "${REPLACE_TARGET[@]}"; do
     fi
 done
 
-colorEcho "${BLUE}}输入方案合并完成！请 ${FUCHSIA}重新部署${BLUE} ${ORANGE}中州韻輸入法引擎${BLUE}。"
+colorEcho "${BLUE}输入方案合并完成！请 ${FUCHSIA}重新部署${BLUE} ${ORANGE}中州韻輸入法引擎${BLUE}。"
