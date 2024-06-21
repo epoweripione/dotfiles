@@ -165,7 +165,11 @@ function InstallSystemPackages() {
 
     if [[ -n "${PackagesToInstall[*]}" ]]; then
         colorEcho "${BLUE}  Installing ${FUCHSIA}${PackagesToInstall[*]}${BLUE}..."
-        sudo pacman --noconfirm -S "${PackagesToInstall[@]}"
+        if [[ "$(command -v yay)" ]]; then
+            yay --noconfirm --needed -S "${PackagesToInstall[@]}"
+        else
+            sudo pacman --noconfirm -S "${PackagesToInstall[@]}"
+        fi
     fi
 }
 
