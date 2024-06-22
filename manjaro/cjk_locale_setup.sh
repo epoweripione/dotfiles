@@ -171,8 +171,16 @@ sudo fc-cache -fv
 colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 input methods${BLUE}..."
 sudo pacman --noconfirm -Rs "$(pacman -Qsq fcitx)" 2>/dev/null
 
+## list of packages that belongs to the package group `fcitx5-im`
+# pacman -Sp --print-format '%n' fcitx5-im
+# yay --noconfirm --needed -S fcitx5-im
+
 CJKInstallList=(
-    "fcitx5-im"
+    # pacman -Sp --print-format '%n' "fcitx5-im"
+    "fcitx5"
+    "fcitx5-qt"
+    "fcitx5-configtool"
+    "fcitx5-gtk"
     "fcitx5-lua"
     "fcitx5-m17n"
     # [RIME - 中州韻輸入法引擎](https://rime.im/)
