@@ -293,6 +293,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         ## PDF Reader
         "evince"
         #"foxitreader"
+        ## PDF editor
+        "scribus" # Open Source Desktop Publishing
         ## Player
         "netease-cloud-music"
         #"qqmusic-bin"
