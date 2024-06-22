@@ -250,7 +250,7 @@ function SnapperDeleteSnapshots() {
         start_id=$(sudo snapper -c "${current_config}" list | awk '{print $1}' | grep -E '[[:digit:]]+' | grep -wv '0' | head -n1)
         end_id=$(sudo snapper -c "${current_config}" list | awk '{print $1}' | grep -E '[[:digit:]]+'| grep -wv '0' | tail -n "${keep_snapshot}" | head -n1)
         if [[ -n "${start_id}" && -n "${end_id}" ]]; then
-            [[ start_id -lt end_id ]] && sudo snapper -c "${current_config}" delete "${start_id}-${end_id}"
+            [[ start_id -lt end_id ]] && sudo snapper -c "${current_config}" delete --sync "${start_id}-${end_id}"
         fi
     done <<<"${snapper_configs}"
 
