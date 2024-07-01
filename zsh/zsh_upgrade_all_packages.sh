@@ -221,6 +221,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
     AppWSLDesktopList=(
         "bottom"
         "btop"
+        "bandwhich#imsnif/bandwhich#tar.gz#bandwhich*"
         "choose"
         "cpufetch#Dr-Noob/cpufetch##cpufetch_*"
         "curlie"
@@ -240,6 +241,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "nu"
         "onefetch"
         "ohmyposh"
+        "pgenv"
         # "pistol"
         "poetry"
         "procs"
@@ -406,6 +408,12 @@ fi
 #     pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 \
 #         | xargs --no-run-if-empty -n1 pip install --user -U
 # fi
+
+# fastfetch -c "$HOME/fastfetch_all.jsonc"
+if [[ ! -f "$HOME/fastfetch_all.jsonc" ]]; then
+    curl -fsSL -o "$HOME/fastfetch_all.jsonc" \
+        "https://raw.githubusercontent.com/fastfetch-cli/fastfetch/dev/presets/all.jsonc"
+fi
 
 if [[ -n "$ZSH" ]]; then
     if [[ -s "${MY_SHELL_SCRIPTS}/zsh/zsh_update.sh" ]]; then
