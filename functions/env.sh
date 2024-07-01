@@ -318,6 +318,11 @@ if [[ -d "$HOME/.local/share/mise/shims" ]]; then
     [[ ":$PATH:" != *":$HOME/.local/share/mise/shims:"* ]] && export PATH=$PATH:$HOME/.local/share/mise/shims
 fi
 
+# pgenv
+if [[ -d "$HOME/.pgenv" ]]; then
+    [[ ":$PATH:" != *":$HOME/.pgenv/bin:"* ]] && export PATH=$PATH:$HOME/.pgenv/bin:$HOME/.pgenv/pgsql/bin
+fi
+
 # WSL1
 if check_os_wsl1; then
     # Docker
