@@ -104,6 +104,9 @@ function dockerRemoveUnuseMirrors() {
     fi
 }
 
+# [Configure Docker to use a proxy server](https://docs.docker.com/network/proxy/)
+# docker build --build-arg HTTP_PROXY="http://localhost.localdomain:7890" .
+# docker run --env HTTP_PROXY="http://localhost.localdomain:7890" redis
 # docker proxy
 function dockerSetProxy() {
     [[ -f "/etc/systemd/system/docker.service.d/99-proxy.conf" ]] && return 0
@@ -121,7 +124,13 @@ EOF
     fi
 }
 
-# container runtime proxy
+## container runtime proxy
+## Linux
+# curl -fSL --proxy "http://localhost.localdomain:7890" --connect-timeout 3 --max-time 5 -I "www.google.com"
+# export http_proxy="http://localhost.localdomain:7890" && export https_proxy=${http_proxy} && export HTTP_PROXY=${http_proxy} && export HTTPS_PROXY=${http_proxy}
+## Docker for Windows
+# curl -fsL -I --connect-timeout 3 --max-time 5 --proxy "http://host.docker.internal:7890" "www.google.com"
+# export http_proxy="http://host.docker.internal:7890" && export https_proxy=${http_proxy} && export HTTP_PROXY=${http_proxy} && export HTTPS_PROXY=${http_proxy}
 function dockerSetContainerProxy() {
     [[ -f "$HOME/.docker/config.json" ]] && return 0
 
@@ -133,8 +142,8 @@ function dockerSetContainerProxy() {
     {
         "default":
         {
-            "httpProxy": "${HTTP_PROXY}",
-            "httpsProxy": "${HTTPS_PROXY}",
+            "httpProxy": "${HTTP_PROXY/127.0.0.1/localhost.localdomain}",
+            "httpsProxy": "${HTTPS_PROXY/127.0.0.1/localhost.localdomain}",
             "noProxy": "${NO_PROXY}"
         }
     }
