@@ -51,7 +51,7 @@ read -r ADD_WTG_MENUENTRY
 [[ "${ADD_WTG_MENUENTRY^^}" != "Y" ]] && exit 1
 
 sudo tee -a "/etc/grub.d/40_custom" >/dev/null <<-EOF
-menuentry "Microsoft Windows WTG" --class windows {
+menuentry 'Microsoft Windows WTG' --class windows {
     insmod part_gpt
     insmod fat
     insmod search_fs_uuid

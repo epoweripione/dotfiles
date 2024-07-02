@@ -57,6 +57,14 @@ sudo sed -i -e 's/^GRUB_SAVEDEFAULT=true/#GRUB_SAVEDEFAULT=true/g' \
     -e 's/^#GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/g' \
     -e 's/^GRUB_DISABLE_OS_PROBER=true/GRUB_DISABLE_OS_PROBER=false/g' /etc/default/grub
 
+# if ! grep -q '^GRUB_DEFAULT=saved' /etc/default/grub; then
+#     echo "GRUB_DEFAULT=saved" | sudo tee -a /etc/default/grub >/dev/null
+# fi
+
+# if ! grep -q '^GRUB_SAVEDEFAULT=true' /etc/default/grub; then
+#     echo "GRUB_SAVEDEFAULT=true" | sudo tee -a /etc/default/grub >/dev/null
+# fi
+
 if ! grep -q '^GRUB_TIMEOUT_STYLE=menu' /etc/default/grub; then
     echo "GRUB_TIMEOUT_STYLE=menu" | sudo tee -a /etc/default/grub >/dev/null
 fi
@@ -139,6 +147,17 @@ fi
 # Memory Tester
 [[ -f "/etc/grub.d/60_memtest86+" ]] && sudo sed -i -e 's/--class memtest86/--class memtest/' "/etc/grub.d/60_memtest86+"
 [[ -f "/etc/grub.d/60_memtest86+-efi" ]] && sudo sed -i -e 's/--class memtest86/--class memtest/' "/etc/grub.d/60_memtest86+-efi"
+
+# Replace double quotes menuentry with single quotes
+MenuEntry=$(sed -rn 's/.*menuentry "([^"]+).*/\1/ip' "/etc/grub.d/60_memtest86+" 2>/dev/null)
+if [[ -n "${MenuEntry}" ]]; then
+    sudo sed -i -e "s/\"${MenuEntry}\"/'${MenuEntry}'/g" "/etc/grub.d/60_memtest86+"
+fi
+
+MenuEntry=$(sed -rn 's/.*menuentry "([^"]+).*/\1/ip' "/etc/grub.d/60_memtest86+-efi" 2>/dev/null)
+if [[ -n "${MenuEntry}" ]]; then
+    sudo sed -i -e "s/\"${MenuEntry}\"/'${MenuEntry}'/g" "/etc/grub.d/60_memtest86+-efi"
+fi
 
 colorEcho "${BLUE}Regenerate ${FUCHSIA}GRUB2 configuration${BLUE}..."
 sudo mkinitcpio -P
