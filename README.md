@@ -256,8 +256,8 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 
     # python/pip
     PYTHON_PIP_CONFIG="$HOME/.pip/pip.conf"
-    MIRROR_PYTHON_PIP_URL="https://mirrors.aliyun.com/pypi/simple/"
-    MIRROR_PYTHON_PIP_HOST="mirrors.aliyun.com"
+    MIRROR_PYTHON_PIP_URL="https://mirrors.sustech.edu.cn/pypi/web/simple"
+    MIRROR_PYTHON_PIP_EXTRA=""
 
     # anaconda
     MIRROR_PYTHON_CONDA="https://mirror.sjtu.edu.cn"
