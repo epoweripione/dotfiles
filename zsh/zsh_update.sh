@@ -380,6 +380,26 @@ fi
 
 sed -i "${LineBegin}a\\${Plugins}" "$HOME/.zshrc"
 
+## [zsh-autocomplete - configured to automatically show matching history items](https://github.com/marlonrichert/zsh-autocomplete)
+## Like [Az.Tools.Predictor](https://aka.ms/azpredictordocs)
+## Press `Ctrl+R` to toggle between `history` and `completions`
+# if ! grep -q "zsh-autocomplete.plugin.zsh" "$HOME/.zshrc" 2>/dev/null; then
+#     {
+#         echo ''
+#         echo '# zsh-autocomplete'
+#         echo 'source "${ZSH_CUSTOM}/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh"'
+#         echo "zstyle ':autocomplete:*' default-context history-incremental-search-backward"
+#     } >> "$HOME/.zshrc"
+# fi
+
+## [HSTR - Easily view, navigate and search your command history with shell history suggest box](https://github.com/dvorka/hstr)
+# if [[ ! -x "$(command -v hstr)" ]]; then
+#     Git_Clone_Update_Branch "dvorka/hstr" "${ZSH_CUSTOM}/plugins/hstr" && \
+#         cd "${ZSH_CUSTOM}/plugins/hstr" && \
+#         cd ./build/tarball && ./tarball-automake.sh && cd ../.. && \
+#         ./configure && make && sudo make install && \
+#         hstr --show-zsh-configuration >> "$HOME/.zshrc"
+# fi
 
 # nano
 colorEcho "${BLUE}Setting ${FUCHSIA}nano${BLUE}..."
