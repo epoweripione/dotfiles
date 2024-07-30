@@ -301,6 +301,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "smplayer"
         "smplayer-skins"
         "smplayer-themes"
+        # Video & Audio
+        "kdenlive"
         ## Proxy
         "aur/frps-bin"
         "aur/frpc-bin"
@@ -346,6 +348,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "beamerpresenter"
         # "beamer-theme-metropolis"
         # "bed-latex"
+        "zed"
     )
 fi
 InstallSystemPackages "" "${AppManjaroInstallList[@]}"
@@ -392,6 +395,41 @@ if [[ -x "$(command -v NotePad--)" ]]; then
             -e 's/Icon=NotePad--/Icon=notepad--/' \
             "$HOME/.local/share/applications/io.gitee.cxasm.notepad--.desktop"
     fi
+fi
+
+# WPS Office
+sudo chmod -x "/usr/lib/office6/wpscloudsvr"
+if [[ "${XDG_SESSION_TYPE}" == "wayland" ]]; then
+    if [[ -f "/usr/bin/wps" ]]; then
+        if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wps"; then
+            sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wps"
+        fi
+    fi
+
+    if [[ -f "/usr/bin/wpp" ]]; then
+        if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wpp"; then
+            sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wpp"
+        fi
+    fi
+
+    if [[ -f "/usr/bin/et" ]]; then
+        if ! grep -q "export QT_IM_MODULE=" "/usr/bin/et"; then
+            sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/et"
+        fi
+    fi
+fi
+
+# wechat-universal-bwrap
+if [[ ! -f "$HOME/.config/wechat-universal/binds.list" ]]; then
+    mkdir -p "$HOME/.config/wechat-universal"
+    tee "$HOME/.config/wechat-universal/binds.list" >/dev/null <<-'EOF'
+Desktop/
+Documents/
+Downloads/
+Music/
+Pictures/
+Videos/
+EOF
 fi
 
 ## Linux Advanced Power Management
