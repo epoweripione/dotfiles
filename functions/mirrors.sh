@@ -109,9 +109,36 @@ function setMirrorNpm() {
 function setMirrorPip() {
     if [[ -x "$(command -v pip)" ]]; then
         export PYTHON_PIP_CONFIG=${PYTHON_PIP_CONFIG:-"$HOME/.pip/pip.conf"}
-        export MIRROR_PYTHON_PIP_URL=${MIRROR_PYTHON_PIP_URL:-"https://mirrors.aliyun.com/pypi/simple/"}
-        export MIRROR_PYTHON_PIP_HOST=${MIRROR_PYTHON_PIP_HOST:-"mirrors.aliyun.com"}
+        export MIRROR_PYTHON_PIP_URL=${MIRROR_PYTHON_PIP_URL:-"https://mirrors.sustech.edu.cn/pypi/web/simple"}
+        export MIRROR_PYTHON_PIP_EXTRA=${MIRROR_PYTHON_PIP_EXTRA}
+
+        MIRROR_PYTHON_PIP_HOST=$(cut -d/ -f3 <<<"${MIRROR_PYTHON_PIP_URL}")
+        export MIRROR_PYTHON_PIP_HOST
     fi
+}
+
+function setMirrorPipGlobal() {
+    [[ ! -x "$(command -v pip)" ]] && return 0
+
+    setMirrorPip
+
+    if [[ -z "${MIRROR_PYTHON_PIP_URL}" ]]; then
+        sudo pip config --global unset global.index-url
+    else
+        sudo pip config --global set global.index-url "${MIRROR_PYTHON_PIP_URL}"
+    fi
+
+    if [[ -z "${MIRROR_PYTHON_PIP_EXTRA}" ]]; then
+        sudo pip config --global unset global.extra-index-url
+    else
+        sudo pip config --global set global.extra-index-url "${MIRROR_PYTHON_PIP_EXTRA}"
+    fi
+
+    # poetry source add --priority=primary mirrors "${MIRROR_PYTHON_PIP_URL}"
+    # poetry source add --priority=supplemental mirrors "${MIRROR_PYTHON_PIP_EXTRA}"
+    # pdm config pypi.url "${MIRROR_PYTHON_PIP_URL}"
+
+    pip config --global list
 }
 
 # conda
@@ -242,6 +269,7 @@ function unsetMirrorAll() {
     # python
     unset PYTHON_PIP_CONFIG
     unset MIRROR_PYTHON_PIP_URL
+    unset MIRROR_PYTHON_PIP_EXTRA
     unset MIRROR_PYTHON_PIP_HOST
     # conda
     unset MIRROR_PYTHON_CONDA
