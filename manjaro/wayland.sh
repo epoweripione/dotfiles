@@ -19,22 +19,12 @@ fi
 
 # [KWin/Wayland](https://community.kde.org/KWin/Wayland)
 # [Wayland](https://wiki.archlinux.org/title/Wayland)
+# XDG_SESSION_TYPE=wayland
 InstallList=(
     "plasma-wayland-session"
     "xorg-xwayland"
 )
-
-AppsToInstall=()
-for TargetApp in "${InstallList[@]}"; do
-    if checkPackageNeedInstall "${TargetApp}"; then
-        AppsToInstall+=("${TargetApp}")
-    fi
-done
-
-if [[ -n "${AppsToInstall[*]}" ]]; then
-    colorEcho "${BLUE}Installing ${FUCHSIA}${AppsToInstall[*]}${BLUE}..."
-    yay --noconfirm --needed -S "${AppsToInstall[@]}"
-fi
+InstallSystemPackages "" "${InstallList[@]}"
 
 ## [Plasma (Wayland) session stuck on a black screen](https://discuss.kde.org/t/solved-plasma-wayland-session-stuck-on-a-black-screen/6691)
 # if ! grep -q "^KWIN_DRM_NO_AMS=" "/etc/environment"; then
@@ -88,7 +78,7 @@ if [[ -f "/usr/share/applications/code-url-handler.desktop" ]]; then
 fi
 
 # WPS
-    if [[ -f "/usr/bin/wps" ]]; then
+if [[ -f "/usr/bin/wps" ]]; then
     if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wps"; then
         sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wps"
     fi
