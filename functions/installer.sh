@@ -1227,8 +1227,12 @@ function installBuildBinary() {
         esac
     else
         if [[ -z "${install_method}" ]]; then
-            [[ -x "$(command -v brew)" ]] && install_method="brew"
-            [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && install_method="cargo"
+            if [[ -x "$(command -v cargo)" ]]; then
+                install_method="cargo"
+            elif [[ -x "$(command -v brew)" ]]; then
+                install_method="brew"
+            fi
+
             [[ -n "${install_url}" && -x "$(command -v go)" ]] && install_method="go"
         fi
     fi
