@@ -112,6 +112,7 @@ FILELIST=()
 FILEOPTION=()
 
 GLOBAL_FILTER=$(grep '^# global' "${SUB_URL_LIST}" | cut -d' ' -f3)
+GLOBAL_TYPE_FILTER=$(grep '^# type' "${SUB_URL_LIST}" | cut -d' ' -f3)
 GLOBAL_WORD_REPLACE=$(grep '^# word' "${SUB_URL_LIST}" | cut -d' ' -f3)
 CONVERTER_SERVICE=$(grep '^# converter' "${SUB_URL_LIST}" | cut -d' ' -f3)
 USER_AGENT=$(grep '^# useragent' "${SUB_URL_LIST}" | cut -d' ' -f3-)
@@ -124,7 +125,10 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     TARGET_URL=$(echo "${READLINE}" | cut -d' ' -f2)
     TARGET_OPTION=$(echo "${READLINE}" | cut -d' ' -f3)
     TARGET_FILTER=$(echo "${READLINE}" | cut -d' ' -f4)
+
     TARGET_TYPE_FILTER=$(echo "${READLINE}" | cut -d' ' -f5)
+    [[ -z "${TARGET_TYPE_FILTER}" ]] && TARGET_TYPE_FILTER="${GLOBAL_TYPE_FILTER}"
+
     TARGET_WORD_REPLACE=$(echo "${READLINE}" | cut -d' ' -f6)
     [[ -z "${TARGET_WORD_REPLACE}" ]] && TARGET_WORD_REPLACE="${GLOBAL_WORD_REPLACE}"
 
@@ -292,14 +296,15 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
         TARGET_LIST_FILE="${WORKDIR}/${TARGET_FILE}.list"
 
-        if [[ -n "${TARGET_WORD_REPLACE}" ]]; then
-            TARGET_WORD_REPLACE="${TARGET_WORD_REPLACE//|/\\|}"
-            sed -i "s/\(${TARGET_WORD_REPLACE}\)//g" "${DOWNLOAD_FILE}"
-        fi
-
         # Global filter
         if [[ -n "${GLOBAL_FILTER}" ]]; then
             sed -ri "/(${GLOBAL_FILTER})/d" "${DOWNLOAD_FILE}"
+        fi
+
+        # Remove certain characters
+        if [[ -n "${TARGET_WORD_REPLACE}" ]]; then
+            TARGET_WORD_REPLACE="${TARGET_WORD_REPLACE//|/\\|}"
+            sed -i "s/\(${TARGET_WORD_REPLACE}\)//g" "${DOWNLOAD_FILE}"
         fi
 
         # Compact proxies
@@ -343,7 +348,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         fi
 
         if [[ -n "${TARGET_TYPE_FILTER}" ]]; then
-            TARGET_PROXIES=$(echo "${TARGET_PROXIES}" | grep -Ea "type:\s*(${TARGET_TYPE_FILTER}),")
+            TARGET_PROXIES=$(grep -Eva "type:\s*(${TARGET_TYPE_FILTER})," <<<"${TARGET_PROXIES}")
         fi
 
         PROXY_NAME=()
