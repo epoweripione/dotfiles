@@ -153,37 +153,31 @@ fi
 
 ## pip mirror
 # pip config list
-# alias pip="pip --proxy 127.0.0.1:8080"
-# alias pipinstall='pip install -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com'
-[[ -z "${MIRROR_PYTHON_PIP_URL}" ]] && MIRROR_PYTHON_PIP_URL="https://mirrors.aliyun.com/pypi/simple/"
-[[ -z "${MIRROR_PYTHON_PIP_HOST}" ]] && MIRROR_PYTHON_PIP_HOST="mirrors.aliyun.com"
-if [[ "${THE_WORLD_BLOCKED}" == "true" ]] && ! grep -q "${MIRROR_PYTHON_PIP_HOST}" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
-    if grep -q "index-url" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
-        sed -i "s|index-url.*|index-url=${MIRROR_PYTHON_PIP_URL}|" "${PYTHON_PIP_CONFIG}"
-    else
-        sed -i "/^\[global\]/a\index-url=${MIRROR_PYTHON_PIP_URL}" "${PYTHON_PIP_CONFIG}"
-    fi
-
-    if grep -q "trusted-host" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
-        sed -i "s|trusted-host.*|trusted-host=${MIRROR_PYTHON_PIP_HOST}|" "${PYTHON_PIP_CONFIG}"
-    else
-        if ! grep -q "\[install\]" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
-            echo -e "\n[install]" | tee -a "${PYTHON_PIP_CONFIG}" >/dev/null
-        fi
-        sed -i "/^\[install\]/a\trusted-host=${MIRROR_PYTHON_PIP_HOST}" "${PYTHON_PIP_CONFIG}"
-    fi
+if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+    # alias pip="pip --proxy 127.0.0.1:8080"
+    [[ -z "${MIRROR_PYTHON_PIP_URL}" ]] && export MIRROR_PYTHON_PIP_URL="https://mirrors.sustech.edu.cn/pypi/web/simple"
+    setMirrorPipGlobal
 fi
 
-cat "${PYTHON_PIP_CONFIG}"
+# if [[ "${THE_WORLD_BLOCKED}" == "true" ]] && ! grep -q "${MIRROR_PYTHON_PIP_HOST}" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
+#     if grep -q "index-url" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
+#         sed -i "s|index-url.*|index-url=${MIRROR_PYTHON_PIP_URL}|" "${PYTHON_PIP_CONFIG}"
+#     else
+#         sed -i "/^\[global\]/a\index-url=${MIRROR_PYTHON_PIP_URL}" "${PYTHON_PIP_CONFIG}"
+#     fi
 
-: '
-[global]
-index-url=https://mirrors.aliyun.com/pypi/simple/
-format=columns
+#     if grep -q "trusted-host" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
+#         sed -i "s|trusted-host.*|trusted-host=${MIRROR_PYTHON_PIP_HOST}|" "${PYTHON_PIP_CONFIG}"
+#     else
+#         if ! grep -q "\[install\]" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
+#             echo -e "\n[install]" | tee -a "${PYTHON_PIP_CONFIG}" >/dev/null
+#         fi
+#         sed -i "/^\[install\]/a\trusted-host=${MIRROR_PYTHON_PIP_HOST}" "${PYTHON_PIP_CONFIG}"
+#     fi
+# fi
 
-[install]
-trusted-host=mirrors.aliyun.com
-# '
+# cat "${PYTHON_PIP_CONFIG}"
+
 
 
 if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
