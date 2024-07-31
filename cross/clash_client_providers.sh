@@ -307,6 +307,8 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             sed -i "s/\(${TARGET_WORD_REPLACE}\)//g" "${DOWNLOAD_FILE}"
         fi
 
+        # Replace \r\n with \n
+        sed -i 's/\r$//g' "${DOWNLOAD_FILE}"
         # Compact proxies
         sed -i '/^\s*#/d' "${DOWNLOAD_FILE}"
         sed -i 's/^\s*-/-/g' "${DOWNLOAD_FILE}"
@@ -347,9 +349,16 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             TARGET_PROXIES=$(sed '1d' "${DOWNLOAD_FILE}")
         fi
 
+        # Remove specified type proxies
         if [[ -n "${TARGET_TYPE_FILTER}" ]]; then
             TARGET_PROXIES=$(grep -Eva "type:\s*(${TARGET_TYPE_FILTER})," <<<"${TARGET_PROXIES}")
         fi
+
+        # Remove proxies not start with '- {'
+        TARGET_PROXIES=$(grep -a '^\s*-\s*{' <<<"${TARGET_PROXIES}")
+
+        # Remove proxies not end with '}'
+        TARGET_PROXIES=$(grep -a '}$' <<<"${TARGET_PROXIES}")
 
         PROXY_NAME=()
         PROXY_NEW_NAME=()
