@@ -4,8 +4,8 @@ patch:
     - { when: paging, accept: comma, send: Page_Up }
     - { when: has_menu, accept: period, send: Page_Down }
     # 左右 Shift 选择第 2、3 候选字
-    - { when: has_menu, accept: "Shift+Shift_L", send: 2 }
-    - { when: has_menu, accept: "Shift+Shift_R", send: 3 }
+    # - { when: has_menu, accept: "Shift+Shift_L", send: 2 }
+    # - { when: has_menu, accept: "Shift+Shift_R", send: 3 }
   # 候选词个数
   "menu/page_size": 9
   # 输入方案列表
