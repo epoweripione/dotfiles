@@ -245,7 +245,6 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "goldendict-git"
         ## Download & Upload
         "aria2"
-        "you-get"
         "filezilla"
         "archlinuxcn/qbittorrent-enhanced-git"
         ## Docker
