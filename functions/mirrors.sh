@@ -122,16 +122,18 @@ function setMirrorPipGlobal() {
 
     setMirrorPip
 
+    [[ -f "${PYTHON_PIP_CONFIG}" ]] && rm "${PYTHON_PIP_CONFIG}"
+
     if [[ -z "${MIRROR_PYTHON_PIP_URL}" ]]; then
-        sudo pip config --global unset global.index-url
+        sudo pip config --global unset global.index-url >/dev/null 2>&1
     else
-        sudo pip config --global set global.index-url "${MIRROR_PYTHON_PIP_URL}"
+        sudo pip config --global set global.index-url "${MIRROR_PYTHON_PIP_URL}" >/dev/null 2>&1
     fi
 
     if [[ -z "${MIRROR_PYTHON_PIP_EXTRA}" ]]; then
-        sudo pip config --global unset global.extra-index-url
+        sudo pip config --global unset global.extra-index-url  >/dev/null 2>&1
     else
-        sudo pip config --global set global.extra-index-url "${MIRROR_PYTHON_PIP_EXTRA}"
+        sudo pip config --global set global.extra-index-url "${MIRROR_PYTHON_PIP_EXTRA}" >/dev/null 2>&1
     fi
 
     # poetry source add --priority=primary mirrors "${MIRROR_PYTHON_PIP_URL}"

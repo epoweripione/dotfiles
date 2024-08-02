@@ -28,7 +28,7 @@ mkdir -p "$HOME/.local/bin"
 # sudo pacman -S build-essential pkg-config python3-dev python3-distutils
 # sudo pacman -S libssl-dev libcurl4-openssl-dev libcairo2-dev libjpeg-dev libgif-dev libgirepository1.0-dev
 
-## https://pip.pypa.io/en/stable/installing/
+## https://pip.pypa.io/en/stable/installation/
 # curl "https://bootstrap.pypa.io/get-pip.py" -o get-pip.py && python3 get-pip.py && rm get-pip.py
 
 ## fix: ERROR: Could not install packages due to an OSError: Missing dependencies for SOCKS support.
@@ -138,18 +138,6 @@ fi
 #     sudo sed -i 's/self._regex.search(version)/self._regex.search(str(version))/' "/usr/lib/python3.10/site-packages/packaging/version.py"
 #     sudo ${PYTHON_CMD} -m pip install -U pip --use-deprecated=legacy-resolver
 # fi
-
-# pip.conf
-mkdir -p "$HOME/.pip"
-[[ -z "${PYTHON_PIP_CONFIG}" ]] && PYTHON_PIP_CONFIG="$HOME/.pip/pip.conf"
-
-# fix `pip list` warning
-if ! grep -q "format=columns" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
-    if ! grep -q "^\[global\]" "${PYTHON_PIP_CONFIG}" 2>/dev/null; then
-        echo "[global]" >> "${PYTHON_PIP_CONFIG}"
-    fi
-    sed -i "/^\[global\]/a\format=columns" "${PYTHON_PIP_CONFIG}"
-fi
 
 ## pip mirror
 # pip config list
