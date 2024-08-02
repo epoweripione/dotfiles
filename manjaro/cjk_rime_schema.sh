@@ -117,7 +117,8 @@ for Target in "${REPLACE_TARGET[@]}"; do
     if [[ -d "${Target}" ]]; then
         colorEcho "${BLUE}Copying ${FUCHSIA}${SCHEMA_DIR}${BLUE} to ${ORANGE}${Target}${BLUE}..."
         # rm -rf "${Target}/"*
-        cp -rf "${SCHEMA_DIR}/"* "${Target}"
+        # cp -rf "${SCHEMA_DIR}/"* "${Target}"
+        rsync -azq "${SCHEMA_DIR}/" "${Target}"
 
         if [[ -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/rime" ]]; then
             cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/rime/"*.custom.yaml "${Target}"
