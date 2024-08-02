@@ -62,7 +62,7 @@ if [[ -s "${PROFILE}" ]]; then
         else
             REMOTE_FILENAME=$(echo "${DOWNLOAD_URL}" | awk -F'/' '{print $NF}' | cut -d'?' -f1)
             colorEcho "${BLUE}Downloading ${FUCHSIA}${RSYNC_REMOTE}/${REMOTE_FILENAME}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
-            rsync -avz --progress "${RSYNC_REMOTE}/${REMOTE_FILENAME}" "${DOWNLOAD_FILENAME}"
+            rsync -avzP "${RSYNC_REMOTE}/${REMOTE_FILENAME}" "${DOWNLOAD_FILENAME}"
         fi
 
         curl_download_status=$?
@@ -129,7 +129,7 @@ if [[ -s "${PROFILE}" ]]; then
         else
             REMOTE_FILENAME=$(echo "${DOWNLOAD_URL}" | awk -F'/' '{print $NF}' | cut -d'?' -f1)
             colorEcho "${BLUE}Downloading ${FUCHSIA}${RSYNC_REMOTE}/${REMOTE_FILENAME}${BLUE} to ${ORANGE}${PROFILE_DIR}/${PROFILE_FILE}${BLUE}..."
-            rsync -avz --progress "${RSYNC_REMOTE}/${REMOTE_FILENAME}" "${DOWNLOAD_FILENAME}"
+            rsync -avzP "${RSYNC_REMOTE}/${REMOTE_FILENAME}" "${DOWNLOAD_FILENAME}"
         fi
 
         curl_download_status=$?

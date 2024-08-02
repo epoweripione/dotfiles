@@ -266,10 +266,10 @@ sudo cp -fv "/.snapshots/home-${SNAPSHOT_TIME}"/<filename> /home/<filename>
 
 # Recovering all files/directories from Snapshots
 sudo rm -rfv /home/*
-sudo rsync -avz --progress "/.snapshots/home-${SNAPSHOT_TIME}/" /home
+sudo rsync -avzP "/.snapshots/home-${SNAPSHOT_TIME}/" /home
 
 # Recover files/directories from the snapshot in mirror mode
-sudo rsync -avz --progress --delete "/.snapshots/home-${SNAPSHOT_TIME}/" /home
+sudo rsync -avzP --delete "/.snapshots/home-${SNAPSHOT_TIME}/" /home
 
 # Updating a Snapshot
 sudo cp -fv /home/<filename> "/.snapshots/home-${SNAPSHOT_TIME}"/<filename>

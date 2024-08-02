@@ -70,7 +70,7 @@ umask go= && \
     ls "${BACKUP_FILE}"
 ## Download backup
 # scp root@openwrt:${BACKUP_FILE} .
-# rsync -avz --progress root@openwrt:${BACKUP_FILE} .
+# rsync -avzP root@openwrt:${BACKUP_FILE} .
 
 
 ## Upgrading OpenWrt firmware using LuCI and CLI

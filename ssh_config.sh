@@ -70,7 +70,7 @@ sudo sshd -T | grep -Ei 'Forward|Authentication'
 ## Install public key in remote machine's authorized_keys
 # ssh-copy-id -i ~/.ssh/id_ed25519.pub username@remote-server.org
 ## or
-# rsync -avz --progress ~/.ssh/id_ed25519.pub username@remote-server.org:
+# rsync -avzP ~/.ssh/id_ed25519.pub username@remote-server.org:
 # ssh username@remote-server.org
 # mkdir ~/.ssh && \
 #     cat ~/id_ed25519.pub >> ~/.ssh/authorized_keys && \
