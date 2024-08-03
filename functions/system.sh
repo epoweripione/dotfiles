@@ -297,23 +297,21 @@ EOF
 function setWaylandIMEWPSOffice() {
     [[ -f "/usr/lib/office6/wpscloudsvr" ]] && sudo chmod -x "/usr/lib/office6/wpscloudsvr"
 
-    if [[ "${XDG_SESSION_TYPE}" == "wayland" ]]; then
-        if [[ -f "/usr/bin/wps" ]]; then
-            if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wps"; then
-                sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wps"
-            fi
+    if [[ -f "/usr/bin/wps" ]]; then
+        if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wps"; then
+            sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wps"
         fi
+    fi
 
-        if [[ -f "/usr/bin/wpp" ]]; then
-            if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wpp"; then
-                sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wpp"
-            fi
+    if [[ -f "/usr/bin/wpp" ]]; then
+        if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wpp"; then
+            sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wpp"
         fi
+    fi
 
-        if [[ -f "/usr/bin/et" ]]; then
-            if ! grep -q "export QT_IM_MODULE=" "/usr/bin/et"; then
-                sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/et"
-            fi
+    if [[ -f "/usr/bin/et" ]]; then
+        if ! grep -q "export QT_IM_MODULE=" "/usr/bin/et"; then
+            sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/et"
         fi
     fi
 }
