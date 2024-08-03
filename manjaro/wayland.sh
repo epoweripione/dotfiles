@@ -43,58 +43,10 @@ InstallSystemPackages "" "${InstallList[@]}"
 ## Edit the app shortcut file under ‘/usr/share/applications‘ (or copy to .local/share/applications), and add the variable to ‘Exec‘.
 ## So you can start the app via Wayland protocol even from start menu.
 
-## [Chromium](https://wiki.archlinux.org/title/chromium)
-# %U --ozone-platform-hint=auto --enable-wayland-ime --gtk-version=4
-if [[ -f "/usr/share/applications/google-chrome.desktop" ]]; then
-    if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/google-chrome.desktop"; then
-        sudo sed -i -e 's|/usr/bin/google-chrome-stable|/usr/bin/google-chrome-stable --ozone-platform-hint=auto --enable-wayland-ime|g' "/usr/share/applications/google-chrome.desktop"
-    fi
-fi
-
-if [[ -f "/usr/share/applications/google-chrome-beta.desktop" ]]; then
-    if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/google-chrome-beta.desktop"; then
-        sudo sed -i -e 's|/usr/bin/google-chrome-beta|/usr/bin/google-chrome-beta --ozone-platform-hint=auto --enable-wayland-ime|g' "/usr/share/applications/google-chrome-beta.desktop"
-    fi
-fi
-
-if [[ -f "/usr/share/applications/google-chrome-unstable.desktop" ]]; then
-    if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/google-chrome-unstable.desktop"; then
-        sudo sed -i -e 's|/usr/bin/google-chrome-unstable|/usr/bin/google-chrome-unstable --ozone-platform-hint=auto --enable-wayland-ime|g' "/usr/share/applications/google-chrome-unstable.desktop"
-    fi
-fi
-
-## vscode
-# --ozone-platform-hint=auto --enable-wayland-ime
-if [[ -f "/usr/share/applications/code.desktop" ]]; then
-    if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/code.desktop"; then
-        sudo sed -i -e 's|/usr/bin/code|/usr/bin/code --ozone-platform-hint=auto --enable-wayland-ime|g' "/usr/share/applications/code.desktop"
-    fi
-fi
-
-if [[ -f "/usr/share/applications/code-url-handler.desktop" ]]; then
-    if ! grep -q "\--ozone-platform-hint=auto" "/usr/share/applications/code-url-handler.desktop"; then
-        sudo sed -i -e 's|/usr/bin/code|/usr/bin/code --ozone-platform-hint=auto --enable-wayland-ime|g' "/usr/share/applications/code-url-handler.desktop"
-    fi
-fi
-
-# WPS
-if [[ -f "/usr/bin/wps" ]]; then
-    if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wps"; then
-        sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wps"
-    fi
-fi
-
-if [[ -f "/usr/bin/wpp" ]]; then
-    if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wpp"; then
-        sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wpp"
-    fi
-fi
-
-if [[ -f "/usr/bin/et" ]]; then
-    if ! grep -q "export QT_IM_MODULE=" "/usr/bin/et"; then
-        sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/et"
-    fi
-fi
+## Wayland IME Support
+# setWaylandIMEChrome
+# setWaylandIMEVSCode
+setWaylandIMEWPSOffice
 
 # [Waydroid](https://wiki.archlinux.org/title/Waydroid)
 # [在 Archlinux KDE下使用 Waydroid](https://zhuanlan.zhihu.com/p/643889264)
