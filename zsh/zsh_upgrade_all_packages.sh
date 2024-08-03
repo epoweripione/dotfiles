@@ -415,6 +415,13 @@ if [[ ! -f "$HOME/fastfetch_all.jsonc" ]]; then
         "https://raw.githubusercontent.com/fastfetch-cli/fastfetch/dev/presets/all.jsonc"
 fi
 
+# Wayland IME Support
+if [[ "${XDG_SESSION_TYPE}" == "wayland" ]]; then
+    # setWaylandIMEChrome
+    # setWaylandIMEVSCode
+    setWaylandIMEWPSOffice
+fi
+
 if [[ -n "$ZSH" ]]; then
     if [[ -s "${MY_SHELL_SCRIPTS}/zsh/zsh_update.sh" ]]; then
         colorEcho "${BLUE}Updating ${FUCHSIA}oh-my-zsh & custom stuff${BLUE}..."

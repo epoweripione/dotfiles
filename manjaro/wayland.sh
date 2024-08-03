@@ -43,10 +43,12 @@ InstallSystemPackages "" "${InstallList[@]}"
 ## Edit the app shortcut file under ‘/usr/share/applications‘ (or copy to .local/share/applications), and add the variable to ‘Exec‘.
 ## So you can start the app via Wayland protocol even from start menu.
 
-## Wayland IME Support
-# setWaylandIMEChrome
-# setWaylandIMEVSCode
-setWaylandIMEWPSOffice
+# Wayland IME Support
+if [[ "${XDG_SESSION_TYPE}" == "wayland" ]]; then
+    # setWaylandIMEChrome
+    # setWaylandIMEVSCode
+    setWaylandIMEWPSOffice
+fi
 
 # [Waydroid](https://wiki.archlinux.org/title/Waydroid)
 # [在 Archlinux KDE下使用 Waydroid](https://zhuanlan.zhihu.com/p/643889264)
