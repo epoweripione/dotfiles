@@ -11,7 +11,9 @@ function goupInstallLatest() {
 
     [[ "${THE_WORLD_BLOCKED}" == "true" && -z "${GOUP_GO_HOST}" ]] && export GOUP_GO_HOST="golang.google.cn"
 
-    GO_VER_LATEST=$(curl "${CURL_CHECK_OPTS[@]}" "https://${GOUP_GO_HOST:-"go.dev"}/VERSION?m=text" | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    GO_VER_LATEST=$(curl "${CURL_CHECK_OPTS[@]}" "https://${GOUP_GO_HOST:-"go.dev"}/VERSION?m=text" 2>/dev/null | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    [[ -z "${GO_VER_LATEST}" ]] && colorEcho "${RED}Can't get ${FUCHSIA}golang${RED} latest version!" && return 1
+
     GO_VER_INSTALLED=$(goup list 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}')
 
     if grep -q "${GO_VER_LATEST//go/}" <<<"${GO_VER_INSTALLED}"; then
@@ -43,7 +45,9 @@ function goupUpgrade() {
 
     [[ "${THE_WORLD_BLOCKED}" == "true" && -z "${GOUP_GO_HOST}" ]] && export GOUP_GO_HOST="golang.google.cn"
 
-    GO_VER_LATEST=$(curl "${CURL_CHECK_OPTS[@]}" "https://${GOUP_GO_HOST:-"go.dev"}/VERSION?m=text" | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    GO_VER_LATEST=$(curl "${CURL_CHECK_OPTS[@]}" "https://${GOUP_GO_HOST:-"go.dev"}/VERSION?m=text" 2>/dev/null | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    [[ -z "${GO_VER_LATEST}" ]] && colorEcho "${RED}Can't get ${FUCHSIA}golang${RED} latest version!" && return 1
+
     GO_VER_INSTALLED=$(goup list 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}')
 
     if ! grep -q "${GO_VER_LATEST//go/}" <<<"${GO_VER_INSTALLED}"; then
@@ -66,7 +70,8 @@ function goupRemoveUnuse() {
 
     [[ "${THE_WORLD_BLOCKED}" == "true" && -z "${GOUP_GO_HOST}" ]] && export GOUP_GO_HOST="golang.google.cn"
 
-    GO_VER_LATEST=$(curl "${CURL_CHECK_OPTS[@]}" "https://${GOUP_GO_HOST:-"go.dev"}/VERSION?m=text" | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    GO_VER_LATEST=$(curl "${CURL_CHECK_OPTS[@]}" "https://${GOUP_GO_HOST:-"go.dev"}/VERSION?m=text" 2>/dev/null | grep -Eo -m1 'go([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    [[ -z "${GO_VER_LATEST}" ]] && colorEcho "${RED}Can't get ${FUCHSIA}golang${RED} latest version!" && return 1
 
     GO_VER_UNUSE=$(goup list 2>&1 | grep -v '\*' | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | sort -rV)
 
