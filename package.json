@@ -2,13 +2,13 @@
   "dependencies": {
     "html-to-text": "^9.0.5",
     "minimist": "^1.2.8",
-    "puppeteer": "^22.14.0",
+    "puppeteer": "^22.15.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
-    "@babel/preset-env": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
     "@commitlint/cli": "^18.6.1",
     "@commitlint/config-conventional": "^18.6.3",
     "@types/lodash": "^4.17.7",
@@ -24,7 +24,7 @@
     "eslint": "^8.57.0",
     "husky": "^9.1.4",
     "lodash": "^4.17.21",
-    "memfs": "^4.11.0",
+    "memfs": "^4.11.1",
     "ts-loader": "^9.5.1",
     "typescript": "^5.5.4",
     "webpack": "^5.93.0"
