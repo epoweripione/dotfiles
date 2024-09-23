@@ -341,6 +341,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "openlens"
         ## images & videos
         "darktable"
+        "kiwix"
         ## epower
         "chromium-justclueless-dev-avx2"
         # "chromium-robrich-dev-avx2"
@@ -363,7 +364,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
     )
 
     $sudoApps = @(
-        "file-converter-np"
+        # "file-converter-np"
         # "nmap"
         "tesseract"
         "tesseract-languages"
