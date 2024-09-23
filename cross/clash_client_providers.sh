@@ -111,10 +111,10 @@ PROXY_EMPTY_GROUP=()
 FILELIST=()
 FILEOPTION=()
 
-GLOBAL_FILTER=$(grep '^# global' "${SUB_URL_LIST}" | cut -d' ' -f3)
-GLOBAL_TYPE_FILTER=$(grep '^# type' "${SUB_URL_LIST}" | cut -d' ' -f3)
-GLOBAL_WORD_REPLACE=$(grep '^# word' "${SUB_URL_LIST}" | cut -d' ' -f3)
-CONVERTER_SERVICE=$(grep '^# converter' "${SUB_URL_LIST}" | cut -d' ' -f3)
+GLOBAL_FILTER=$(grep '^# global' "${SUB_URL_LIST}" | cut -d' ' -f3-)
+GLOBAL_TYPE_FILTER=$(grep '^# type' "${SUB_URL_LIST}" | cut -d' ' -f3-)
+GLOBAL_WORD_REPLACE=$(grep '^# word' "${SUB_URL_LIST}" | cut -d' ' -f3-)
+CONVERTER_SERVICE=$(grep '^# converter' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 USER_AGENT=$(grep '^# useragent' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 while read -r READLINE || [[ "${READLINE}" ]]; do
     [[ -z "${READLINE}" ]] && continue
