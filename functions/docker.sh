@@ -1,16 +1,6 @@
 #!/usr/bin/env bash
 
 # docker mirrors
-## https://github.com/docker-practice/docker-registry-cn-mirror-test/actions
-#     sudo tee /etc/docker/daemon.json >/dev/null <<-'EOF'
-# {
-#     "registry-mirrors": [
-#         "https://dockerproxy.com",
-#         "https://docker.mirrors.sjtug.sjtu.edu.cn",
-#         "https://hub-mirror.c.163.com"
-#     ]
-# }
-# EOF
 
 ## fix
 ## curl: (35) error:1414D172:SSL routines:tls12_check_peer_sigalg:wrong signature type
@@ -20,11 +10,12 @@
 ## testing
 # https GET "https://mirror.baidubce.com/v2/library/nginx/tags/list"
 # ht GET "https://hub-mirror.c.163.com/v2/library/nginx/tags/list"
-# curl -ikL -X GET "https://docker.mirrors.sjtug.sjtu.edu.cn/v2/library/nginx/tags/list"
-# curl -ikL -X GET "https://docker.mirrors.sjtug.sjtu.edu.cn/v2/library/nginx/manifests/latest"
+# curl -ikL --noproxy "*" --connect-timeout 5 -X GET "https://docker.mirrors.sjtug.sjtu.edu.cn/v2/library/nginx/tags/list"
+# curl -ikL --noproxy "*" --connect-timeout 5 -X GET "https://docker.mirrors.sjtug.sjtu.edu.cn/v2/library/nginx/manifests/latest"
 
-# jq -r '."registry-mirrors"=."registry-mirrors" + ["https://hub-mirror.c.163.com"]' "/etc/docker/daemon.json" | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
+# jq -r '."registry-mirrors"=."registry-mirrors" + ["https://dockerpull.com"]' "/etc/docker/daemon.json" | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
 # jq -r 'del(."registry-mirrors")' "/etc/docker/daemon.json" | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
+# dockerSetMirrors '"https://dockerproxy.cn","https://docker.chenby.cn","https://dockerpull.com","https://docker.1panel.live"'
 function dockerSetMirrors() {
     local REGISTRY_MIRRORS=$1
 
@@ -51,7 +42,7 @@ function dockerSetMirrors() {
     colorEcho "${BLUE}Setting docker registry-mirrors to:"
     colorEcho "${FUCHSIA}  ${REGISTRY_MIRRORS}"
 
-    [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
+    [[ ! -f "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
     jq -r ".\"registry-mirrors\"=[${REGISTRY_MIRRORS}]" "/etc/docker/daemon.json" \
         | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
@@ -64,7 +55,7 @@ function dockerSetMirrors() {
 
 # clear mirrors
 function dockerClearMirrors() {
-    if [[ -s "/etc/docker/daemon.json" ]]; then
+    if [[ -f "/etc/docker/daemon.json" ]]; then
         jq -r 'del(."registry-mirrors")' "/etc/docker/daemon.json" | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
 
         [[ -f "/etc/docker/daemon_temp.json" ]] && sudo mv -f "/etc/docker/daemon_temp.json" "/etc/docker/daemon.json"
@@ -76,7 +67,7 @@ function dockerClearMirrors() {
 function dockerRemoveUnuseMirrors() {
     local UNUSE_MIRRORS REMOVE_MIRRORS Target
 
-    [[ ! -s "/etc/docker/daemon.json" ]] && return 0
+    [[ ! -f "/etc/docker/daemon.json" ]] && return 0
 
     if [[ -z "${UNUSE_MIRRORS[*]}" ]]; then
         UNUSE_MIRRORS=(
@@ -124,6 +115,15 @@ EOF
     fi
 }
 
+function dockerClearProxy() {
+    [[ ! -f "/etc/systemd/system/docker.service.d/99-proxy.conf" ]] && return 0
+
+    sudo rm "/etc/systemd/system/docker.service.d/99-proxy.conf"
+
+    sudo systemctl daemon-reload && sudo systemctl restart docker
+    # sudo systemctl show --property=Environment docker
+}
+
 ## container runtime proxy
 ## Linux
 # curl -fSL --proxy "http://localhost.localdomain:7890" --connect-timeout 3 --max-time 5 -I "www.google.com"
@@ -150,6 +150,13 @@ function dockerSetContainerProxy() {
 }
 EOF
     fi
+}
+
+function dockerClearContainerProxy() {
+    [[ ! -f "$HOME/.docker/config.json" ]] && return 0
+
+    jq -r 'del(."proxies")' "$HOME/.docker/config.json" | tee "$HOME/.docker/config_temp.json" >/dev/null
+    [[ -f "$HOME/.docker/config_temp.json" ]] && mv -f "$HOME/.docker/config_temp.json" "$HOME/.docker/config.json"
 }
 
 ## docker build proxy
@@ -228,7 +235,7 @@ function dockerRelocateRoot() {
     [[ -z "${DATA_ROOT}" ]] && DATA_ROOT="/data/docker"
     sudo mkdir -p "${DATA_ROOT}"
     
-    [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
+    [[ ! -f "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
     jq -r ".\"data-root\"=[${DATA_ROOT}]" "/etc/docker/daemon.json" \
         | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
@@ -247,7 +254,7 @@ function dockerSetFirewalld() {
         return 1
     fi
 
-    [[ ! -s "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
+    [[ ! -f "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
     jq -r ".\"iptables\"=false" "/etc/docker/daemon.json" | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
     [[ -f "/etc/docker/daemon_temp.json" ]] && sudo mv -f "/etc/docker/daemon_temp.json" "/etc/docker/daemon.json"

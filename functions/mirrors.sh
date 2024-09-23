@@ -4,7 +4,7 @@
 function setMirrorDocker() {
     if [[ -x "$(command -v docker)" ]]; then
         if [[ -z "${MIRROR_DOCKER_REGISTRY}" ]]; then
-            MIRROR_DOCKER_REGISTRY='"docker.kubesre.xyz","https://dockerhub.icu"'
+            MIRROR_DOCKER_REGISTRY='"https://dockerproxy.cn","https://docker.chenby.cn","https://dockerpull.com","https://docker.1panel.live"'
         fi
     fi
 }
