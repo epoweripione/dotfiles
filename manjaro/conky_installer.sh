@@ -349,6 +349,8 @@ sleep 10
 ## the main conky
 ## /usr/share/conkycolors/bin/conkyStart
 
+# kill `ps aux | grep conky | grep pause | awk '{print $2}'`
+
 # conky -c "$HOME/.conkycolors/conkyrc" --daemonize --quiet
 conky -c "$HOME/.config/conky/hybrid/hybrid.conf" --daemonize --quiet
 
