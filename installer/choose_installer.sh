@@ -48,17 +48,23 @@ fi
 # Install Latest Version
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-    # Install via Homebrew
-    if [[ -x "$(command -v brew)" ]]; then
-        if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
-            brew upgrade "choose-rust"
-        else
-            brew install "choose-rust"
-        fi
-    fi
+    if [[ -x "$(command -v "${INSTALLER_INSTALL_NAME}")" ]]; then
+        binary_full=$(readlink -f "$(which "${INSTALLER_INSTALL_NAME}")")
+        case "${binary_full}" in
+            *cargo*)
+                [[ -x "$(command -v cargo)" ]] && cargo install "${INSTALLER_APP_NAME}"
+                ;;
+            *brew*)
+                [[ -x "$(command -v brew)" ]] && brew upgrade "choose-rust"
+                ;;
+        esac
+    else
+        # From source on crates.io
+        [[ -x "$(command -v cargo)" ]] && cargo install "${INSTALLER_APP_NAME}"
 
-    # From source on crates.io
-    [[ ! -x "$(command -v brew)" && -x "$(command -v cargo)" ]] && cargo install "${INSTALLER_APP_NAME}"
+        # Install via Homebrew
+        [[ ! -x "$(command -v cargo)" && -x "$(command -v brew)" ]] && brew install "choose-rust"
+    fi
 fi
 
 
