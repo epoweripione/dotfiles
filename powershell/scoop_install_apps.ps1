@@ -129,7 +129,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "jetbrains"
         # "php"
         # "games"
-        "he3-app"
+        # "he3-app"
     )
 
     $BucketsURL = @(
@@ -145,7 +145,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "" # jetbrains
         # "" # php
         # "" # games
-        "https://github.com/he3-app/he3-scoop"
+        # "https://github.com/he3-app/he3-scoop"
     )
 
     $AddedBuckets = scoop bucket list 6>&1 | Out-String
@@ -173,7 +173,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "oh-my-posh"
         "starship"
         "tssh"
-        "wingetui"
+        # "wingetui"
         # "googlechrome-dev"
         # "chromium"
         # "tor-browser-zh-cn"
@@ -191,8 +191,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "zulu11-jdk"
         # "zulu11-jre"
         "python"
-        # "miniconda3"
-        "miniforge"
+        "miniconda3"
+        # "miniforge"
         "php"
         "composer"
         "cacert"
@@ -279,8 +279,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "cdburnerxp"
         # "wincdemu"
         "isocreator"
-        "ultraiso"
-        "windowsupdateshistoryviewer"
+        # "ultraiso"
+        "winupdatesview"
         "ventoy"
         "cht"
         "fzf"
@@ -321,7 +321,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "treesize-free"
         # "windterm"
         ## OCR
-        "umi-ocr"
+        # "umi-ocr"
+        "umi-ocr-paddle"
         ## Diagram
         "graphviz"
         "plantuml"
@@ -360,7 +361,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         ## https://github.com/lukesampson/scoop/wiki/Theming-Powershell
         # "concfg"
         ## he3-app
-        "he3"
+        # "he3"
     )
 
     $sudoApps = @(
