@@ -19,7 +19,7 @@ if ($Proxy) {
         $Proxy = "socks5://$Proxy"
     } elseif (check_http_proxy_up $Proxy) {
         $Proxy = "http://$Proxy"
-    else
+    } else {
         $Proxy = ""
     }
 }
