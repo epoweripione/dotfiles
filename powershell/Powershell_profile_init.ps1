@@ -32,9 +32,18 @@ if (Test-Path $PROFILE) {
 }
 
 @'
-$PS_CUSTOM_FUNCTION = "$HOME\Documents\PowerShell\Scripts\ps_custom_function.ps1"
+$PS_CUSTOM_FUNCTION = "$env:USERPROFILE\Documents\PowerShell\Scripts\ps_custom_function.ps1"
 if ((Test-Path "$PS_CUSTOM_FUNCTION") -and ((Get-Item "$PS_CUSTOM_FUNCTION").length -gt 0)) {
     . "$PS_CUSTOM_FUNCTION"
+}
+
+$PS_CUSTOM_ENV = "$env:USERPROFILE\.powershell.env.ps1"
+if (-Not (Test-Path "$PS_CUSTOM_ENV")) {
+    $PS_CUSTOM_ENV = "$env:SystemDrive\Tools\.powershell.env.ps1"
+}
+
+if ((Test-Path "$PS_CUSTOM_ENV") -and ((Get-Item "$PS_CUSTOM_ENV").length -gt 0)) {
+    . "$PS_CUSTOM_ENV"
 }
 
 '@ | Tee-Object $PROFILE -Append | Out-Null
@@ -87,6 +96,7 @@ $EnableModules = @(
     "Posh-git"
     "Terminal-Icons"
     "PSEverything"
+    "WozTools"
 )
 
 foreach ($TargetModule in $EnableModules) {
