@@ -236,10 +236,7 @@ sudo chmod u+s /bin/ping
 # Parallel SSH Tools
 # https://github.com/lilydjwg/pssh
 # https://www.escapelife.site/posts/8c0f83d.html
-if [[ -x "$(command -v pip)" ]]; then
-    colorEcho "${BLUE}Installing ${FUCHSIA}pssh${BLUE}..."
-    python3 -m pip install --user git+https://github.com/lilydjwg/pssh
-fi
+pip_Package_Install git+https://github.com/lilydjwg/pssh
 
 # colorEcho "${BLUE}Installing ${FUCHSIA}.NET Core SDK${BLUE}..."
 ## sudo apt install -y dotnet-sdk-5.0
