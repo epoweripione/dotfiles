@@ -8,7 +8,7 @@ function setMirrorDocker() {
     #     "https://dockerpull.com"
     #     "https://dockerproxy.cn"
     # )
-    [[ -z "${DOCKER_MIRROR_LIST[*]}" ]] && retrun 0
+    [[ -z "${DOCKER_MIRROR_LIST[*]}" ]] && return 0
 
     if [[ -x "$(command -v docker)" && -z "${MIRROR_DOCKER_REGISTRY}" ]]; then
         for mirror in "${DOCKER_MIRROR_LIST[@]}"; do
