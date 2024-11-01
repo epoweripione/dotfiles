@@ -256,11 +256,15 @@ function dockerSetFirewalld() {
 
     [[ ! -f "/etc/docker/daemon.json" ]] && echo '{}' | sudo tee "/etc/docker/daemon.json" >/dev/null
 
+    # jq -r ".\"iptables\"=false" "/etc/docker/daemon.json" | jq -r ".\"ipv6\"=false" | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
     jq -r ".\"iptables\"=false" "/etc/docker/daemon.json" | sudo tee "/etc/docker/daemon_temp.json" >/dev/null
+
     [[ -f "/etc/docker/daemon_temp.json" ]] && sudo mv -f "/etc/docker/daemon_temp.json" "/etc/docker/daemon.json"
 
     # Masquerading allows for docker ingress and egress (this is the juicy bit)
     sudo firewall-cmd --zone=public --add-masquerade --permanent
+    # sudo firewall-cmd --zone=docker --add-masquerade --permanent
+    # sudo firewall-cmd --zone=trusted --add-masquerade --permanent
 
     # Show interfaces to find out docker interface name
     # Show interfaces to find out network interface name with your public IP
@@ -294,4 +298,20 @@ function dockerSetFirewalld() {
 
     echo ""
     sudo firewall-cmd --list-all
+
+    ## docker bridge network
+    # docker network create "frontend" -d bridge -o com.docker.network.bridge.name="br-frontend" --label="permanent=true"
+    # docker network create "backend" -d bridge -o com.docker.network.bridge.name="br-backend" --label="permanent=true"
+    # sudo firewall-cmd --permanent --zone=docker --add-interface="br-frontend"
+    # sudo firewall-cmd --permanent --zone=docker --add-interface="br-backend"
+    # sudo firewall-cmd --reload
+
+    # ip -br a
+    # docker network ls
+    # docker network inspect frontend
+    # sudo firewall-cmd --info-zone docker
+    # sudo firewall-cmd --zone=docker --list-all
+    # sudo firewall-cmd --info-zone trusted
+    # sudo firewall-cmd --zone=trusted --list-all
+    # sudo firewall-cmd --list-all-zones
 }

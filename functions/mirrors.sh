@@ -2,10 +2,22 @@
 
 # docker
 function setMirrorDocker() {
-    if [[ -x "$(command -v docker)" ]]; then
-        if [[ -z "${MIRROR_DOCKER_REGISTRY}" ]]; then
-            MIRROR_DOCKER_REGISTRY='"https://dockerproxy.cn","https://docker.chenby.cn","https://dockerpull.com","https://docker.1panel.live"'
-        fi
+    local mirror
+
+    # DOCKER_MIRROR_LIST=(
+    #     "https://dockerpull.com"
+    #     "https://dockerproxy.cn"
+    # )
+    [[ -z "${DOCKER_MIRROR_LIST[*]}" ]] && retrun 0
+
+    if [[ -x "$(command -v docker)" && -z "${MIRROR_DOCKER_REGISTRY}" ]]; then
+        for mirror in "${DOCKER_MIRROR_LIST[@]}"; do
+            if [[ -z "${MIRROR_DOCKER_REGISTRY}" ]]; then
+                MIRROR_DOCKER_REGISTRY="\"${mirror}\""
+            else
+                MIRROR_DOCKER_REGISTRY="${MIRROR_DOCKER_REGISTRY},\"${mirror}\""
+            fi
+        done
     fi
 }
 
