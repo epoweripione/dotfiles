@@ -208,6 +208,7 @@ fi
 
 # pip configurations for root user
 if [[ ! -s "/root/.pip/pip.conf" ]]; then
+    PYTHON_PIP_CONFIG=${PYTHON_PIP_CONFIG:-"$HOME/.pip/pip.conf"}
     sudo mkdir -p "/root/.pip" && sudo cp -f "${PYTHON_PIP_CONFIG}" "/root/.pip"
 fi
 
