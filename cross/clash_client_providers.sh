@@ -309,6 +309,28 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
         # Replace \r\n with \n
         sed -i 's/\r$//g' "${DOWNLOAD_FILE}"
+
+        # minify yaml file
+        if ! grep -q '{' "${DOWNLOAD_FILE}"; then
+            colorEcho "${BLUE}    minifying ${FUCHSIA}${TARGET_FILE}${BLUE}..."
+            PROXY_START_LINE=$(grep -Ean "^proxies:" "${DOWNLOAD_FILE}" | cut -d: -f1)
+            GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${DOWNLOAD_FILE}" | cut -d: -f1)
+            if [[ ${PROXY_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt ${PROXY_START_LINE} ]]; then
+                PROXY_START_LINE=$((PROXY_START_LINE + 0))
+                PROXY_END_LINE=$((GROUP_START_LINE - 1))
+                sed -n "${PROXY_START_LINE},${PROXY_END_LINE} p" "${DOWNLOAD_FILE}" > "${DOWNLOAD_FILE}.yml"
+            fi
+
+            yq  '.. style="flow"' "${DOWNLOAD_FILE}.yml" \
+                | sed -e 's|^{||' -e 's|]}||' \
+                | sed 's|\s\[|\n  - |' \
+                | sed 's|}, {|}\n  - {|g' \
+                > "${DOWNLOAD_FILE}.new"
+            
+            [[ -f "${DOWNLOAD_FILE}.new" ]] && echo 'proxy-groups:' >> "${DOWNLOAD_FILE}.new"
+            [[ -f "${DOWNLOAD_FILE}.new" ]] && rm "${DOWNLOAD_FILE}" && mv "${DOWNLOAD_FILE}.new" "${DOWNLOAD_FILE}"
+        fi
+
         # Compact proxies
         sed -i '/^\s*#/d' "${DOWNLOAD_FILE}"
         sed -i 's/^\s*-/-/g' "${DOWNLOAD_FILE}"
