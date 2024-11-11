@@ -210,6 +210,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "pulsar"
         # "vscode"
         # "wechatdevtools"
+        "insomnia"
         "fiddler"
         "wireshark"
         # "babelmap"
