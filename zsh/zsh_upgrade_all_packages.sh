@@ -310,7 +310,11 @@ done
 
 unset IS_UPDATE_ONLY
 
-if [[ -x "$(command -v mamba)" ]]; then
+if [[ "$(command -v micromamba)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}all installed miniforge packages${BLUE}..."
+    micromamba self-update
+    micromamba update -y --all
+elif [[ "$(command -v mamba)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}all installed miniforge packages${BLUE}..."
     mamba update -y --all
 elif [[ -x "$(command -v conda)" ]]; then

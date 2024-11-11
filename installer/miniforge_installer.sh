@@ -96,3 +96,6 @@ EOF
     # mamba activate py12
     # mamba deactivate
 fi
+
+# [Micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)
+"${SHELL}" <(curl -L micro.mamba.pm/install.sh)
