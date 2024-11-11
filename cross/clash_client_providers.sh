@@ -310,9 +310,9 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         # Replace \r\n with \n
         sed -i 's/\r$//g' "${DOWNLOAD_FILE}"
 
-        # minify yaml file
+        # Minify yaml file
         if ! grep -q '{' "${DOWNLOAD_FILE}"; then
-            colorEcho "${BLUE}    minifying ${FUCHSIA}${TARGET_FILE}${BLUE}..."
+            colorEcho "${BLUE}    Minifying ${FUCHSIA}${TARGET_FILE}${BLUE}..."
             PROXY_START_LINE=$(grep -Ean "^proxies:" "${DOWNLOAD_FILE}" | cut -d: -f1)
             GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${DOWNLOAD_FILE}" | cut -d: -f1)
             if [[ ${PROXY_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt ${PROXY_START_LINE} ]]; then
@@ -321,14 +321,22 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 sed -n "${PROXY_START_LINE},${PROXY_END_LINE} p" "${DOWNLOAD_FILE}" > "${DOWNLOAD_FILE}.yml"
             fi
 
-            yq  '.. style="flow"' "${DOWNLOAD_FILE}.yml" \
-                | sed -e 's|^{||' -e 's|]}||' \
-                | sed 's|\s\[|\n  - |' \
-                | sed 's|}, {|}\n  - {|g' \
-                > "${DOWNLOAD_FILE}.new"
-            
-            [[ -f "${DOWNLOAD_FILE}.new" ]] && echo 'proxy-groups:' >> "${DOWNLOAD_FILE}.new"
-            [[ -f "${DOWNLOAD_FILE}.new" ]] && rm "${DOWNLOAD_FILE}" && mv "${DOWNLOAD_FILE}.new" "${DOWNLOAD_FILE}"
+            if [[ -f "${DOWNLOAD_FILE}.yml" ]]; then
+                # Minify to new file
+                yq '.. style="flow"' "${DOWNLOAD_FILE}.yml" \
+                    | sed -e 's|^{||' -e 's|]}||' \
+                    | sed 's|\s\[|\n  - |' \
+                    | sed 's|}, {|}\n  - {|g' \
+                    > "${DOWNLOAD_FILE}.new"
+
+                # Convert unicode codepoints '\uXXXX' in file
+                echo -e "$(cat "${DOWNLOAD_FILE}.new")" > "${DOWNLOAD_FILE}.yml"
+            fi
+
+            if [[ -f "${DOWNLOAD_FILE}.yml" ]]; then
+                echo 'proxy-groups:' >> "${DOWNLOAD_FILE}.yml"
+                rm "${DOWNLOAD_FILE}" && mv "${DOWNLOAD_FILE}.yml" "${DOWNLOAD_FILE}"
+            fi
         fi
 
         # Compact proxies
