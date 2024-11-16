@@ -18,9 +18,6 @@ else
 fi
 
 colorEcho "${BLUE}Installing ${FUCHSIA}Conky${BLUE}..."
-sudo pacman --noconfirm --needed -S conky-manager jq
-sudo pacman --noconfirm --needed -S aur/conky-lua-nv
-
 ## System info
 # lspci
 # lscpu
@@ -34,7 +31,13 @@ sudo pacman --noconfirm --needed -S aur/conky-lua-nv
 # https://github.com/helmuthdu/conky_colors
 # http://forum.ubuntu.org.cn/viewtopic.php?f=94&t=313031
 # http://www.manongzj.com/blog/4-lhjnjqtantllpnj.html
-yay --noconfirm --needed -S aur/conky-colors-git
+AppConkyInstallList=(
+    "jq"
+    "aur/conky-lua-nv"
+    "aur/conky-colors-git"
+    "aur/conky-manager2-git"
+)
+InstallSystemPackages "" "${AppConkyInstallList[@]}"
 
 curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$HOME/conky-convert.lua" \
     "https://raw.githubusercontent.com/brndnmtthws/conky/master/extras/convert.lua"
@@ -349,8 +352,6 @@ sleep 10
 ## the main conky
 ## /usr/share/conkycolors/bin/conkyStart
 
-# kill `ps aux | grep conky | grep pause | awk '{print $2}'`
-
 # conky -c "$HOME/.conkycolors/conkyrc" --daemonize --quiet
 conky -c "$HOME/.config/conky/hybrid/hybrid.conf" --daemonize --quiet
 
@@ -371,6 +372,9 @@ if [[ -s "$HOME/.config/conky/hybrid/weather_mini.png" ]]; then
 fi
 
 # conky -c "$HOME/.conky/conky-weather/conkyrc_mini" --daemonize --quiet
+
+# stop default conky widget
+kill `ps aux | grep conky | grep pause | awk '{print $2}'`
 EOF
 
 chmod +x "$HOME/.conky/conky_autostart.sh"
