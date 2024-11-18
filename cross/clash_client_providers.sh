@@ -114,6 +114,7 @@ FILEOPTION=()
 GLOBAL_FILTER=$(grep '^# global' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 GLOBAL_TYPE_FILTER=$(grep '^# type' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 GLOBAL_WORD_REPLACE=$(grep '^# word' "${SUB_URL_LIST}" | cut -d' ' -f3-)
+GLOBAL_PERL_FILTER=$(grep '^# perl' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 CONVERTER_SERVICE=$(grep '^# converter' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 USER_AGENT=$(grep '^# useragent' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 while read -r READLINE || [[ "${READLINE}" ]]; do
@@ -301,6 +302,10 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             sed -ri "/(${GLOBAL_FILTER})/d" "${DOWNLOAD_FILE}"
         fi
 
+        if [[ -n "${GLOBAL_PERL_FILTER}" ]]; then
+            perl -i -ne "/${GLOBAL_PERL_FILTER}/ or print" "${DOWNLOAD_FILE}"
+        fi
+
         # Remove certain characters
         if [[ -n "${TARGET_WORD_REPLACE}" ]]; then
             TARGET_WORD_REPLACE="${TARGET_WORD_REPLACE//|/\\|}"
@@ -355,6 +360,10 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         # Global filter
         if [[ -n "${GLOBAL_FILTER}" ]]; then
             sed -ri "/(${GLOBAL_FILTER})/d" "${DOWNLOAD_FILE}"
+        fi
+
+        if [[ -n "${GLOBAL_PERL_FILTER}" ]]; then
+            perl -i -ne "/${GLOBAL_PERL_FILTER}/ or print" "${DOWNLOAD_FILE}"
         fi
 
         # delete lines contain control characters
