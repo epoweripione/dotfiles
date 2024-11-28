@@ -22,11 +22,11 @@
     "cz-git": "^1.11.0",
     "cz-relax": "^0.2.1",
     "eslint": "^8.57.1",
-    "husky": "^9.1.6",
+    "husky": "^9.1.7",
     "lodash": "^4.17.21",
     "memfs": "^4.14.0",
     "ts-loader": "^9.5.1",
-    "typescript": "^5.6.3",
+    "typescript": "^5.7.2",
     "webpack": "^5.96.1"
   },
   "scripts": {
