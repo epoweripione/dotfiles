@@ -588,9 +588,13 @@ function check_set_global_proxy() {
         IP_LIST=$(cd "${CMD_DIR}" && ipconfig.exe | grep -a "IPv4" \
                     | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
                     | grep -Ev "^0\.|^127\.|^172\.")
-        IP_WSL=$(grep -m1 nameserver /etc/resolv.conf | awk '{print $2}')
-        IP_LIST=$(echo -e "${IP_LIST}\n${IP_WSL}" | uniq)
-        # IP_LIST=$(echo -e "${IP_WSL}\n${IP_LIST}" | uniq)
+        ## [Accessing network applications with WSL](https://learn.microsoft.com/en-us/windows/wsl/networking)
+        ## [Advanced settings configuration in WSL](https://learn.microsoft.com/en-us/windows/wsl/wsl-config)
+        ## networkingMode=NAT using `host IP`
+        # IP_WSL=$(grep -m1 nameserver /etc/resolv.conf | awk '{print $2}')
+        IP_WSL=$(ip route show | grep -i default | awk '{ print $3}')
+        ## networkingMode=Mirrored using `127.0.0.1` or `host.docker.internal` with Docker Desktop
+        IP_LIST=$(echo -e "127.0.0.1\n${IP_WSL}\nhost.docker.internal\n${IP_LIST}" | uniq)
     fi
 
     # unset GLOBAL_PROXY_IP
