@@ -278,6 +278,9 @@ if (-Not (Get-Command -Name "check_webservice_up" 2>$null)) {
 [System.Environment]::SetEnvironmentVariable("GOOGLE_DEFAULT_CLIENT_ID", "no", "User")
 [System.Environment]::SetEnvironmentVariable("GOOGLE_DEFAULT_CLIENT_SECRET", "no", "User")
 
+# rustup & cargo
+[System.Environment]::SetEnvironmentVariable("RUSTUP_DIST_SERVER", "https://rsproxy.cn", "User")
+[System.Environment]::SetEnvironmentVariable("RUSTUP_UPDATE_ROOT", "https://rsproxy.cn/rustup", "User")
 
 # https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-executionpolicy
 # Get-ExecutionPolicy -List

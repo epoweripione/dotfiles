@@ -74,6 +74,15 @@ if ($?) {
         Copy-Item -Path ".\dotfiles\conf\pip" -Destination "~\.pip"
     }
 
+    if (-Not (Test-Path "~\.cargo")) {
+        New-Item -path "~\.cargo" -type Directory | Out-Null
+    }
+    if (-Not (Test-Path "~\.cargo\config.toml")) {
+        Copy-Item -Path ".\dotfiles\conf\cargo.toml" -Destination "~\.cargo\config.toml"
+
+        (Get-Content "~\.cargo\config.toml").Replace("crates-io-sparse","rsproxy-sparse").Replace("# replace-with","replace-with") | Set-Content "~\.cargo\config.toml"
+    }
+
     $PWSH_DIR = "~\Documents\PowerShell\Scripts"
     if (-Not (Test-Path "$PWSH_DIR")) {New-Item -path "$PWSH_DIR" -type Directory | Out-Null}
     # Copy-Item -Path ".\dotfiles\powershell\*" -Destination "$PWSH_DIR" -Recurse -Force -Confirm:$false
