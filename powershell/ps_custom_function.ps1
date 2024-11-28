@@ -817,3 +817,81 @@ function findIllegalCharsInFilename() {
         Write-Host "No invalid file characters in: $fileToCheck" -ForegroundColor Blue
     }
 }
+
+## List firewall rules by description
+# Get-FirewallRulesByDescription -FirewallRuleDescription "Clash Verge"
+function Get-FirewallRulesByDescription {
+    param (
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string] $FirewallRuleDescription
+    )
+
+    Get-NetFirewallRule -Description "$FirewallRuleDescription" | `
+        Format-Table -Property Name,DisplayName,`
+            @{Name='Protocol';Expression={($PSItem | Get-NetFirewallPortFilter).Protocol}},`
+            @{Name='LocalPort';Expression={($PSItem | Get-NetFirewallPortFilter).LocalPort}},`
+            @{Name='RemotePort';Expression={($PSItem | Get-NetFirewallPortFilter).RemotePort}},`
+            @{Name='RemoteAddress';Expression={($PSItem | Get-NetFirewallAddressFilter).RemoteAddress}},`
+            Enabled,Profile,Direction,Action `
+    -ErrorAction SilentlyContinue
+}
+
+## Add TCP/UDP firewall rules for executables (needs admin rights)
+# Add-ExecutableTcpUdpFirewallRules -ExecutableFullPath "$env:ProgramFiles\Clash Verge\clash-verge.exe" -FirewallRuleDescription "Clash Verge" -FirewallRuleDisplayName "clash-verge"
+# Add-ExecutableTcpUdpFirewallRules -ExecutableFullPath "$env:ProgramFiles\Clash Verge\verge-mihomo.exe" -FirewallRuleDescription "Clash Verge" -FirewallRuleDisplayName "clash-verge-mihomo"
+function Add-ExecutableTcpUdpFirewallRules {
+    param (
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string] $ExecutableFullPath,
+
+        [Parameter(Mandatory = $true, Position = 1)]
+        [string] $FirewallRuleDescription,
+
+        [Parameter(Mandatory = $false)]
+        [string] $FirewallRuleDisplayName
+    )
+
+    if (-Not (isadmin)) {
+        Write-Warning "This script needs to be run As Admin!"
+        return
+    }
+
+    if (-Not (Test-Path $ExecutableFullPath)) {
+        Write-Warning "$ExecutableFullPath Not found. No Firewall rules have been created."
+        Read-Host "Press Enter to continue..."
+        return
+    }
+
+	if (-Not $FirewallRuleDescription) {
+		$FirewallRuleDescription = Read-Host "Enter firewall rule description"
+	}
+
+    if (-Not $FirewallRuleDescription) {
+        Write-Warning "Firewall rule description can't empty. No Firewall rules have been created."
+        Read-Host "Press Enter to continue..."
+        return
+    }
+
+    $ExecutableFilename = Get-ChildItem "$ExecutableFullPath"
+    if (-Not $FirewallRuleDisplayName) {
+        $FirewallRuleDisplayName = $ExecutableFilename.Name
+    }
+
+    # Add TCP/UDP rules
+    'TCP', 'UDP' | ForEach-Object {
+        New-NetFirewallRule -DisplayName "$FirewallRuleDisplayName" `
+            -Description "$FirewallRuleDescription" `
+            -Profile "Private, Public" `
+            -Direction Inbound `
+            -Protocol $_ `
+            -Action Allow `
+            -Program "$ExecutableFilename" `
+            -EdgeTraversalPolicy DeferToUser `
+        | Out-Null
+    }
+
+    # List added rules
+    Get-FirewallRulesByDescription -FirewallRuleDescription "$FirewallRuleDescription"
+
+    # Remove-NetFirewallRule -Description "$FirewallRuleDescription" -ErrorAction SilentlyContinue
+}
