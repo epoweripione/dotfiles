@@ -150,9 +150,30 @@ sudo pacman -Scc && sudo pacman -Syyu
 
 ## Fix aur package `ERROR: One or more files did not pass the validity check!`
 ```bash
-yay -G <package_name>
-cd "$HOME/.cache/yay/<package_name>"
-updpkgsums
-# makepkg -g
-makepkg -si
+yay --mflags "--skipchecksums --skippgpcheck"
+yay --mflags "--skipinteg"
+# makepkg -si --skipinteg
+# makepkg -si --skipchecksums --skippgpcheck
+
+# or update checksums
+AppInstallList=("package_name")
+for TargetApp in "${AppInstallList[@]}"; do
+    if checkPackageNeedInstall "${TargetApp}"; then
+        TargetApp=${TargetApp##*/}
+        if [[ -d "$HOME/.cache/yay/${TargetApp}" ]]; then
+            colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
+            yay -G "${TargetApp}" && cd "$HOME/.cache/yay/${TargetApp}" && updpkgsums && makepkg -si
+            # makepkg -g
+        fi
+    fi
+done
+```
+
+## [How to Encrypt and Decrypt Files and Directories Using Tar and OpenSSL](https://www.tecmint.com/encrypt-decrypt-files-tar-openssl-linux/)
+```bash
+# Encrypt Files
+tar -czf - * | openssl enc -e -aes256 -out secured.tar.gz
+
+# Decrypt Files
+openssl enc -d -aes256 -in secured.tar.gz | tar xz -C test
 ```
