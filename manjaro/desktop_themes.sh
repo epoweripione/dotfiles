@@ -55,79 +55,58 @@ fi
 if [[ "${OS_INFO_DESKTOP}" == "XFCE" ]]; then
     # [Vala Panel Application Menu](https://github.com/rilian-la-te/vala-panel-appmenu)
     colorEcho "${BLUE}Installing ${FUCHSIA}Vala Panel Application Menu${BLUE}..."
-    yay --noconfirm --needed -S extra/appmenu-gtk-module \
-        chaotic-aur/vala-panel-appmenu-common chaotic-aur/vala-panel-appmenu-registrar chaotic-aur/vala-panel-appmenu-xfce \
-        archlinuxcn/thunderbird-appmenu archlinuxcn/firefox-appmenu
+    AppInstallList=(
+        "extra/appmenu-gtk-module"
+        "aur/vala-panel-appmenu-common-git"
+        "aur/vala-panel-appmenu-registrar"
+        "aur/vala-panel-appmenu-xfce"
+        "aur/vala-panel-appmenu-locale"
+        "aur/thunderbird-globalmenu"
+        "aur/firefox-esr-globalmenu"
+        "aur/rclone-appmenu"
+        "aur/syncthing-appmenu"
+        ""
+    )
+    InstallSystemPackages "" "${AppInstallList[@]}"
 
     xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true
     xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true
 fi
 
 if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
-    # [Kvantum](https://github.com/tsujan/Kvantum)
-    colorEcho "${BLUE}Installing ${FUCHSIA}Kvantum${BLUE}..."
-    sudo pacman --noconfirm --needed -S extra/kvantum extra/kvantum-manjaro \
-        extra/kvantum-theme-materia extra/kvantum-theme-matcha \
-        archlinuxcn/kvantum-theme-catppuccin-git
-
-    # [Lightly: A modern style for qt applications](https://github.com/Luwx/Lightly)
-    colorEcho "${BLUE}Installing ${FUCHSIA}Lightly${BLUE}..."
-    yay --noconfirm --needed -S chaotic-aur/lightly-qt
-
-    # [Latte-Dock](https://github.com/KDE/latte-dock)
-    colorEcho "${BLUE}Installing ${FUCHSIA}Latte-Dock${BLUE}..."
-    sudo pacman --noconfirm --needed -S latte-dock
-
-    # [Materia KDE](https://github.com/PapirusDevelopmentTeam/materia-kde)
-    colorEcho "${BLUE}Installing ${FUCHSIA}Materia KDE Theme${BLUE}..."
-    sudo pacman --noconfirm --needed -S materia-kde kvantum-theme-materia
-
-    # [Aritim-Light Theme](https://github.com/Mrcuve0/Aritim-Light)
-    # [Aritim-Dark Theme](https://github.com/Mrcuve0/Aritim-Dark)
-    colorEcho "${BLUE}Installing ${FUCHSIA}Aritim Theme${BLUE}..."
-    yay --noconfirm --needed -S aur/aritim-light-kde-git aur/aritim-dark-kde-git
-
-    # [Canta KDE Theme](https://github.com/vinceliuice/Canta-kde)
-    colorEcho "${BLUE}Installing ${FUCHSIA}Canta KDE Theme${BLUE}..."
-    Git_Clone_Update_Branch "vinceliuice/Canta-kde" "${THEMES_DIR}/Canta-kde" && \
-        cd "${THEMES_DIR}/Canta-kde" && \
-        ./install.sh
-
-    # [WhiteSur KDE Theme](https://github.com/vinceliuice/WhiteSur-kde)
-    colorEcho "${BLUE}Installing ${FUCHSIA}WhiteSur KDE Theme${BLUE}..."
-    Git_Clone_Update_Branch "vinceliuice/WhiteSur-kde" "${THEMES_DIR}/WhiteSur-kde" && \
-        cd "${THEMES_DIR}/WhiteSur-kde" && \
-        ./install.sh
+    colorEcho "${BLUE}Installing ${FUCHSIA}Kvantum, Lightly, ${BLUE}..."
+    AppInstallList=(
+        # [Kvantum](https://github.com/tsujan/Kvantum)
+        # [Materia KDE](https://github.com/PapirusDevelopmentTeam/materia-kde)
+        "extra/kvantum"
+        "extra/kvantum-manjaro"
+        "extra/materia-kde"
+        "extra/kvantum-theme-materia"
+        "extra/kvantum-theme-matcha"
+        "aur/kvantum-theme-catppuccin-git"
+        "aur/kvantum-theme-whitesur-git"
+        # [Lightly: A modern style for qt applications](https://github.com/Bali10050/lightly)
+        # "aur/lightly-qt6"
+        # [Latte-Dock](https://github.com/KDE/latte-dock)
+        "aur/latte-dock"
+    )
+    InstallSystemPackages "" "${AppInstallList[@]}"
 else
-    # [Aritim-Light Theme](https://github.com/Mrcuve0/Aritim-Light)
-    # [Aritim-Dark Theme](https://github.com/Mrcuve0/Aritim-Dark)
-    colorEcho "${BLUE}Installing ${FUCHSIA}Aritim Theme${BLUE}..."
-    yay --noconfirm --needed -S aur/aritim-light-gtk-git aur/aritim-dark-gtk-git
-
-    # [Canta-gtk-theme](https://github.com/vinceliuice/Canta-theme)
-    colorEcho "${BLUE}Installing ${FUCHSIA}Canta Theme${BLUE}..."
-    Git_Clone_Update_Branch "vinceliuice/Canta-theme" "${THEMES_DIR}/Canta-theme" && \
-        cd "${THEMES_DIR}/Canta-theme" && \
-        ./install.sh
-
     # [WhiteSur GTK Theme](https://github.com/vinceliuice/WhiteSur-gtk-theme)
-    colorEcho "${BLUE}Installing ${FUCHSIA}WhiteSur GTK Theme${BLUE}..."
-    Git_Clone_Update_Branch "vinceliuice/WhiteSur-gtk-theme" "${THEMES_DIR}/WhiteSur-gtk-theme" && \
-        cd "${THEMES_DIR}/WhiteSur-gtk-theme" && \
-        ./install.sh -c Dark -c Light
+    AppInstallList=(
+        "aur/whitesur-gtk-theme"
+    )
+    InstallSystemPackages "" "${AppInstallList[@]}"
 fi
 
-# [WhiteSur Icon Theme](https://github.com/vinceliuice/WhiteSur-icon-theme)
-colorEcho "${BLUE}Installing ${FUCHSIA}WhiteSur Icon Theme${BLUE}..."
-Git_Clone_Update_Branch "vinceliuice/WhiteSur-icon-theme" "${THEMES_DIR}/WhiteSur-icon-theme" && \
-    cd "${THEMES_DIR}/WhiteSur-icon-theme" && \
-    ./install.sh
+AppInstallList=(
+    "archlinuxcn/tela-icon-theme-git"
+    "aur/whitesur-icon-theme"
+    "aur/whitesur-cursor-theme-git"
+    # "aur/plasma6-applets-panel-colorizer"
+)
+InstallSystemPackages "" "${AppInstallList[@]}"
 
-# [Whitesur cursors](https://github.com/vinceliuice/WhiteSur-cursors)
-colorEcho "${BLUE}Installing ${FUCHSIA}Whitesur cursors${BLUE}..."
-Git_Clone_Update_Branch "vinceliuice/WhiteSur-cursors" "${THEMES_DIR}/WhiteSur-cursors" && \
-    cd "${THEMES_DIR}/WhiteSur-cursors" && \
-    ./install.sh
 
 # if [[ "${OS_INFO_DESKTOP}" == "GNOME" ]]; then
 #     # https://extensions.gnome.org/extension/19/user-themes/
