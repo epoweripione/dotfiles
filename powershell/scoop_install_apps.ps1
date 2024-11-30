@@ -317,6 +317,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "windhawk"
         "winsw"
         "winmtr"
+        "zeal"
         "zoxide"
         "jq"
         "yq"
