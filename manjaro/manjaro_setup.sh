@@ -511,6 +511,12 @@ echo -e "\n# Disable PC speaker\nblacklist pcspkr" | sudo tee "/etc/modprobe.d/n
 #     echo 'vm.swappiness=0' | sudo tee /etc/sysctl.d/99-swappiness.conf >/dev/null
 # fi
 
+# [Using the KDE Wallet to store ssh key passphrases](https://wiki.archlinux.org/title/KDE_Wallet)
+if [[ -x "$(command -v ksshaskpass)" ]]; then
+    mkdir -p "$HOME/.config/environment.d"
+    echo -e "SSH_ASKPASS=/usr/bin/ksshaskpass\nSH_ASKPASS_REQUIRE=prefer" > "$HOME/.config/environment.d/ssh_askpass.conf"
+fi
+
 # Clean jobs
 # sudo pacman -Rns $(pacman -Qtdq)
 colorEcho "${BLUE}Cleaning pacman cache..."
