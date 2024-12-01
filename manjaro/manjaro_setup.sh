@@ -313,7 +313,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "synapse"
         "utools"
         ## Linux Advanced Power Management
-        "power-profiles-daemon"
+        # "power-profiles-daemon"
         "tlp"
         "tlp-rdw"
         "tlpui"
