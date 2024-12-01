@@ -66,7 +66,8 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
 
     # Clash Verge
     colorEcho "${BLUE}Installing ${FUCHSIA}Clash Verge${BLUE}..."
-    yay --noconfirm --needed -S aur/clash-verge-rev-bin
+    # yay --noconfirm --needed -S aur/clash-verge-rev-bin
+    yay --noconfirm --needed -S archlinuxcn/clash-verge-rev
 
     # Hiddify-Next
     colorEcho "${BLUE}Installing ${FUCHSIA}Hiddify-Next${BLUE}..."
@@ -159,6 +160,73 @@ fi
 echo 'Defaults env_keep += "http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY"' \
     | sudo tee "/etc/sudoers.d/keep_env_proxy" >/dev/null
 
+## Add clash-verge to policykit actions
+## [Polkit](https://wiki.archlinux.org/title/Polkit)
+## [Polkit](https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html)
+# PolicyAppName="clash-verge"
+# PolicyAppIcon="clash-verge"
+# PolicyAppPath="$(which ${PolicyAppName})"
+# PolicyFile="/usr/share/polkit-1/actions/org.${PolicyAppName}.policy"
+# if [[ -f "${PolicyAppPath}" ]]; then
+#     colorEcho "${BLUE}Installing {FUCHSIA}sh${BLUE} PolicyKit policy to ${FUCHSIA}${PolicyFile}${BLUE}..."
+#     sudo tee "${PolicyFile}" >/dev/null <<-EOF
+# <?xml version="1.0" encoding="UTF-8"?>
+# <!DOCTYPE policyconfig PUBLIC
+#  "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+#  "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+# <policyconfig>
+
+#   <action id="org.${PolicyAppName}">
+#     <message>Authentication is required to run ${PolicyAppName}</message>
+#     <icon_name>${PolicyAppIcon}</icon_name>
+#     <defaults>
+#       <allow_any>auth_admin</allow_any>
+#       <allow_inactive>auth_admin</allow_inactive>
+#       <allow_active>auth_admin_keep</allow_active>
+#     </defaults>
+#     <annotate key="org.freedesktop.policykit.exec.path">${PolicyAppPath}</annotate>
+#     <annotate key="org.freedesktop.policykit.exec.allow_gui">true</annotate>
+#   </action>
+
+# </policyconfig>
+# EOF
+# fi
+
+## install & uninstall clash-verge service rules
+# /usr/sbin/sh -c /usr/bin/install-service
+# /usr/sbin/sh -c /usr/bin/uninstall-service
+POLKIT_DIR="/etc/polkit-1/rules.d"
+POLKIT_USR_DIR="/usr/share/polkit-1/rules.d"
+
+RULE_FILE=""
+if [ -d "${POLKIT_USR_DIR}" ]; then
+    RULE_FILE="${POLKIT_USR_DIR}/clash-verge-install-uninstall-service.rules"
+elif [ -d "${POLKIT_DIR}" ]; then
+    RULE_FILE="${POLKIT_DIR}/clash-verge-install-uninstall-service.rules"
+fi
+
+# journalctl -xb | grep -i 'polkit'
+# journalctl -b SYSLOG_FACILITY=10
+if [[ -n "${RULE_FILE}" ]]; then
+    colorEcho "${BLUE}Installing {FUCHSIA}clash-verge${BLUE} PolicyKit Rules to ${FUCHSIA}${RULE_FILE}${BLUE}..."
+    sudo tee "${RULE_FILE}" >/dev/null <<-EOF
+polkit.addRule(function(action, subject) {
+    if ( ( action.id == "org.freedesktop.policykit.exec" ) && 
+        ( action.lookup("program") == "/usr/sbin/sh" ) ) {
+        polkit.log("action=" + action);
+        polkit.log("subject=" + subject);
+        var regex = "(/usr/bin/install-service|/usr/bin/uninstall-service)";
+        var cmdline = action.command_line;
+        try {
+            polkit.spawn(["grep", "-Po", regex, cmdline]);
+            return polkit.Result.YES;
+        } catch (error) {
+            return polkit.Result.NOT_HANDLED;
+        }
+    }
+});
+EOF
+fi
 
 # Increase the number of connections per proxy to 99
 # 99 is the maximum value for MaxConnectionsPerProxy
