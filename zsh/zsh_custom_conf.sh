@@ -9,7 +9,7 @@ OS_TYPE=$(uname)
 # export PS2="> "
 
 # fix duplicate environment variables "SHELL=/usr/bin/zsh"
-if (( $(env | grep SHELL | wc -l) > 1 )); then
+if (( $(env | grep -E '^SHELL=' | wc -l) > 1 )); then
     unset SHELL
     SHELL=$(which zsh)
     export SHELL
