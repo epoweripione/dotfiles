@@ -54,6 +54,7 @@ if [[ -z "${FontManjaroInstallList[*]}" ]]; then
     FontManjaroInstallList=(
         "powerline-fonts"
         "ttf-fira-code"
+        "ttf-firacode-nerd"
         # "ttf-font-awesome"
         "ttf-sarasa-gothic"
         "ttf-hannom"
@@ -64,9 +65,27 @@ if [[ -z "${FontManjaroInstallList[*]}" ]]; then
         "ttf-iosevka-term"
         "ttf-jetbrains-mono"
         "nerd-fonts-jetbrains-mono"
-        "ttf-lxgw-wenkai"
         "ttf-lato"
         "ttf-lora-cyrillic"
+        "ttf-lxgw-neo-xihei-screen"
+        "ttf-lxgw-neo-xihei"
+        "ttf-lxgw-wenkai-screen"
+        "ttf-lxgw-wenkai-tc"
+        "ttf-lxgw-neo-xihei-screen-full"
+        "ttf-lxgw-wenkai"
+        "ttf-lxgw-zhisong"
+        "ttf-lxgw-xihei"
+        "ttf-lxgw-wenkai-lite"
+        "ttf-lxgw-wenkai-mono-lite"
+        "ttf-lxgw-wenkai-gb"
+        "ttf-lxgw-neo-zhisong"
+        "ttf-lxgw-marker-gothic"
+        "ttf-lxgw-bright-git"
+        "ttf-lxgw-bright-tc-git"
+        "ttf-lxgw-bright-gb-git"
+        "ttf-lxgw-bright-code-git"
+        "ttf-lxgw-bright-code-tc-git"
+        "ttf-lxgw-bright-code-gb-git"
         "ttf-playfair-display"
         ## math
         "otf-latin-modern"
@@ -127,17 +146,46 @@ if [[ ! -d "/usr/share/fonts/WindowsFonts" ]]; then
         sudo chmod -R 744 "/usr/share/fonts/WindowsFonts"
 fi
 
-# FiraCode Nerd Font Complete Mono
-colorEcho "${BLUE}Installing ${FUCHSIA}FiraCode Nerd Font Complete Mono${BLUE}..."
-if [[ ! -d "/usr/share/fonts/FiraCode-Mono" ]]; then
-    FontDownloadURL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.2.0.zip"
-    mkdir -p "${WORKDIR}/FiraCode-Mono" && \
-        curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/FiraCode-Mono.zip" "${FontDownloadURL}" && \
-        unzip -q "${WORKDIR}/FiraCode-Mono.zip" -d "${WORKDIR}/FiraCode-Mono" && \
-        sudo mv -f "${WORKDIR}/FiraCode-Mono/" "/usr/share/fonts/" && \
-        sudo chmod -R 744 "/usr/share/fonts/FiraCode-Mono"
-fi
+## FiraCode Nerd Font Mono
+[[ -d "/usr/share/fonts/FiraCode-Mono" ]] && sudo rm "/usr/share/fonts/FiraCode-Mono"
+# colorEcho "${BLUE}Installing ${FUCHSIA}FiraCode Nerd Font Mono${BLUE}..."
+# if [[ ! -d "/usr/share/fonts/FiraCode-Mono" ]]; then
+#     App_Installer_Reset
+#     INSTALLER_CHECK_URL="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+#     App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+
+#     # FontDownloadURL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.2.0.zip"
+#     if [[ -n "${INSTALLER_VER_REMOTE}" ]]; then
+#         FontDownloadURL="https://github.com/ryanoasis/nerd-fonts/releases/download/v${INSTALLER_VER_REMOTE}/FiraCode.zip"
+#         mkdir -p "${WORKDIR}/FiraCode-Mono" && \
+#             curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/FiraCode-Mono.zip" "${FontDownloadURL}" && \
+#             unzip -q "${WORKDIR}/FiraCode-Mono.zip" -d "${WORKDIR}/FiraCode-Mono" && \
+#             sudo mv -f "${WORKDIR}/FiraCode-Mono/" "/usr/share/fonts/" && \
+#             sudo chmod -R 744 "/usr/share/fonts/FiraCode-Mono"
+#     fi
+# fi
 # fc-list | grep "FiraCode" | column -t -s ":"
+
+# DreamHanCJK, Pinyin & other fonts
+FontInstallList=(
+    "AlibabaHealthDesign"
+    "DreamHanCJK"
+    "MengshenPinyin"
+    "ToneOZPinyinKai"
+    "ToneOZPinyinWenkai"
+    "ToneOZRadicalZ"
+    "ToneOZTsuipita"
+    "LXGWKose"
+    "LXGWNeoFusion"
+    "LXGWNeoScreen"
+    "LXGWNeoXiHeiCode"
+    "LXGWYozai"
+)
+for Target in "${FontInstallList[@]}"; do
+    FontInstaller="${MY_SHELL_SCRIPTS}/fonts/${Target}_installer.sh"
+    [[ ! -s "${FontInstaller}" ]] && FontInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
+    [[ -s "${FontInstaller}" ]] && source "${FontInstaller}"
+done
 
 # CJK fontconfig & colour emoji
 # https://wiki.archlinux.org/title/Localization_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)/Simplified_Chinese_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)
