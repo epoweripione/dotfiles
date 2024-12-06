@@ -138,7 +138,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "" # nerd-fonts
         "" # java
         "" # nirsoft
-        "https://github.com/h404bi/dorado"
+        "https://github.com/chawyehsu/dorado"
         # "https://github.com/dodorz/scoop-bucket"
         "https://github.com/epoweripione/scoop-bucket"
         "" # nonportable
@@ -378,11 +378,22 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
 
     $sudoFonts = @(
         "Cascadia-Code"
+        "FiraCode-NF-Mono"
         ## epower
         "NotoSans-CJK"
         "NotoSans-Mono-CJK"
         "NotoSerif-CJK"
-        "FiraCode-Mono-NF"
+        "DreamHanSans-CJK"
+        "DreamHanSerif-CJK"
+        "AlibabaHealthDesign"
+        "MengshenPinyin"
+        "ToneOZPinyinWenkai"
+        "LXGWKose"
+        "LXGWNeoFusion"
+        "LXGWNeoScreen"
+        "LXGWNeoXiHeiCode"
+        "LXGWYozai"
+        # "FiraCode-Mono-NF"
         "Sarasa-Gothic"
         # "NotoColorEmoji"
         # "OpenMoji"
@@ -393,8 +404,19 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "JetBrainsMono-NF"
         "CascadiaCode-NF"
         # "Noto-NF"
+        "LXGW-Bright-GB"
+        "LXGW-Bright-TC"
+        "LXGW-Bright"
+        "LXGWNeoXiHei"
+        "LXGWNeoZhiSong"
         "LXGWWenKai"
+        "LXGWWenKaiGB"
         "LXGWWenKaiMono"
+        "LXGWWenKaiMonoGB"
+        "LXGWWenKaiMonoTC"
+        "LXGWWenKaiScreen"
+        "LXGWWenKaiScreenR"
+        "LXGWWenKaiTC"
     )
 
     # Use list file if exists
@@ -558,5 +580,10 @@ if (-Not (check_webservice_up)) {
     }
 }
 
+## Fix `fatal: index file corrupt`
+# Set-Location "$HOME\scoop\apps\scoop\current"; Remove-Item -Path .\.git\index -Recurse; git reset; git reset --hard; git pull
+# Remove-Item -Path "$HOME\scoop\buckets\main" -Recurse; git clone -c core.autocrlf=false -c core.filemode=false "https://github.com/ScoopInstaller/Main" "$HOME\scoop\buckets\main"
+# scoop bucket rm dorado; scoop bucket add dorado https://github.com/chawyehsu/dorado
+# scoop bucket rm java; scoop bucket add java
 
 # Write-Host "Done." -ForegroundColor Blue
