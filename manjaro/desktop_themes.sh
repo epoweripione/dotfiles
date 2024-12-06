@@ -78,6 +78,7 @@ if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
     AppInstallList=(
         # [Kvantum](https://github.com/tsujan/Kvantum)
         # [Materia KDE](https://github.com/PapirusDevelopmentTeam/materia-kde)
+        "extra/plasma6-themes-breath-extra"
         "extra/kvantum"
         "extra/kvantum-manjaro"
         "extra/materia-kde"
@@ -85,6 +86,10 @@ if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
         "extra/kvantum-theme-matcha"
         "aur/kvantum-theme-catppuccin-git"
         "aur/kvantum-theme-whitesur-git"
+        "aur/plasma6-themes-otto-git"
+        "aur/plasma6-themes-layan-git"
+        # [ChromeOS theme for kde plasma](https://github.com/vinceliuice/ChromeOS-kde)
+        "aur/plasma6-themes-chromeos-kde-git"
         # [Lightly: A modern style for qt applications](https://github.com/Bali10050/lightly)
         # "aur/lightly-qt6"
         # [Latte-Dock](https://github.com/KDE/latte-dock)
@@ -114,6 +119,10 @@ InstallSystemPackages "" "${AppInstallList[@]}"
 #     # https://extensions.gnome.org/extension/3193/blur-my-shell
 # fi
 
+# fix theme `ChromeOS` SDDM `virtualkeyboard` not show
+if [[ -f "/usr/share/sddm/themes/ChromeOS/Main.qml" ]]; then
+    sudo sed -i 's|isible: false|visible: inputPanel.status == Loader.Ready|' "/usr/share/sddm/themes/ChromeOS/Main.qml"
+fi
 
 # Kvantum Manager
 # Select Kvantum from `System Settings → Appearance → Global Theme → Application Style → Widget Style` and apply it.
