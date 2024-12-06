@@ -117,17 +117,25 @@ mkdir -p ~/patched-fonts
 #   unzip -q ~/patched-fonts/Iosevka.zip -d ~/patched-fonts/Iosevka && \
 #   rm -f ~/patched-fonts/Iosevka.zip
 
-colorEcho "${BLUE}Downloading ${FUCHSIA}FiraCode Nerd Font Complete Mono${BLUE}..."
+colorEcho "${BLUE}Downloading ${FUCHSIA}FiraCode Nerd Font Mono${BLUE}..."
 # https://github.com/tonsky/FiraCode
 ## Patch fonts
 # cd ~/nerd-fonts && for font in /c/DevWorkSpaces/nerd-fonts/Fira_Code_v6.1/ttf/*.ttf; do fontforge -script font-patcher -out /c/DevWorkSpaces/nerd-fonts/patched --quiet --careful --complete --mono --adjust-line-height "$font"; done
 # docker run -v /c/DevWorkSpaces/nerd-fonts/Fira_Code_v6.1/ttf/:/in -v /c/DevWorkSpaces/nerd-fonts/patched/:/out nerdfonts/patcher --quiet --careful --complete --mono --adjust-line-height
 # cd /c/DevWorkSpaces/nerd-fonts/patched && zip -r /c/DevWorkSpaces/nerd-fonts/FiraCode-Mono.zip . -i "Fira Code*.ttf"
-curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$HOME/patched-fonts/FiraCode-Mono.zip" \
-		"https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.2.0.zip" &&\
-	mkdir -p ~/patched-fonts/FiraCode-Mono && \
-	unzip -q ~/patched-fonts/FiraCode-Mono.zip -d ~/patched-fonts/FiraCode-Mono && \
-	rm -f ~/patched-fonts/FiraCode-Mono.zip
+
+App_Installer_Reset
+INSTALLER_CHECK_URL="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+
+# NerdFont_URL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.2.0.zip"
+if [[ -n "${INSTALLER_VER_REMOTE}" ]]; then
+	NerdFont_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v${INSTALLER_VER_REMOTE}/FiraCode.zip"
+	curl "${CURL_DOWNLOAD_OPTS[@]}" "${NerdFont_URL}" -o "$HOME/patched-fonts/FiraCode-Mono.zip" &&\
+		mkdir -p ~/patched-fonts/FiraCode-Mono && \
+		unzip -q ~/patched-fonts/FiraCode-Mono.zip -d ~/patched-fonts/FiraCode-Mono && \
+		rm -f ~/patched-fonts/FiraCode-Mono.zip
+fi
 
 # colorEcho "${BLUE}Downloading ${FUCHSIA}Iosevka Term SS05 Nerd Font Complete Mono${BLUE}..."
 ## https://github.com/be5invis/Iosevka

@@ -268,20 +268,26 @@ if [[ -s "$HOME/.zshrc" ]]; then
 fi
 
 # font: Fira Code Regular Nerd Font Complete Mono
-colorEcho "${BLUE}Installing ${FUCHSIA}FiraCode-Mono${BLUE}..."
-if [[ ! -s "$HOME/FiraCode-Mono/Fira Code Regular Nerd Font Complete Mono.ttf" ]]; then
-    NerdFont_URL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/FiraCode-Mono-6.2.0.zip"
-    curl "${CURL_DOWNLOAD_OPTS[@]}" "${NerdFont_URL}" -o "$HOME/FiraCode-Mono.zip" && \
-        mkdir -p "$HOME/FiraCode-Mono" && \
-        unzip -q "$HOME/FiraCode-Mono.zip" -d "$HOME/FiraCode-Mono" && \
-        rm -f "$HOME/FiraCode-Mono.zip"
+colorEcho "${BLUE}Installing ${FUCHSIA}FiraCode Nerd Font Mono${BLUE}..."
+App_Installer_Reset
+if [[ ! -s "$HOME/FiraCodeNerdFontMono-Regular.ttf" ]]; then
+    INSTALLER_CHECK_URL="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+
+    if [[ -n "${INSTALLER_VER_REMOTE}" ]]; then
+        NerdFont_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v${INSTALLER_VER_REMOTE}/FiraCode.zip"
+        curl "${CURL_DOWNLOAD_OPTS[@]}" "${NerdFont_URL}" -o "$HOME/FiraCode-Mono.zip" && \
+            mkdir -p "$HOME/FiraCode-Mono" && \
+            unzip -q "$HOME/FiraCode-Mono.zip" -d "$HOME/FiraCode-Mono" && \
+            rm -f "$HOME/FiraCode-Mono.zip"
+    fi
 fi
 
-if [[ -s "$HOME/FiraCode-Mono/Fira Code Regular Nerd Font Complete Mono.ttf" ]]; then
+if [[ -s "$HOME/FiraCodeNerdFontMono-Regular.ttf" ]]; then
     [[ -s "$HOME/.termux/font.ttf" && ! -s "$HOME/.termux/font.ttf.bak" ]] && \
         mv "$HOME/.termux/font.ttf" "$HOME/.termux/font.ttf.bak"
 
-    cp -f "$HOME/FiraCode-Mono/Fira Code Regular Nerd Font Complete Mono.ttf" "$HOME/.termux/font.ttf"
+    cp -f "$HOME/FiraCodeNerdFontMono-Regular.ttf" "$HOME/.termux/font.ttf"
 fi
 
 # nnn
@@ -296,6 +302,7 @@ if [[ -x "$(command -v nnn)" ]]; then
 fi
 
 # frp
+App_Installer_Reset
 if [[ ! -d "$HOME/frp" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}frp${BLUE}..."
     INSTALLER_CHECK_URL="https://api.github.com/repos/fatedier/frp/releases/latest"
