@@ -57,6 +57,16 @@ if (Get-Command "git" -ErrorAction SilentlyContinue) {
     git config --global alias.br branch
     git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 
+    ## [Always pull using HTTPS, push using SSH](https://stackoverflow.com/questions/43800726/always-pull-using-https-push-using-ssh-using-insteadof)
+    # Github
+    git config --global url."https://github.com/".insteadOf "git@github.com:"
+    git config --global url."git@github.com:".pushInsteadOf "https://github.com/"
+    git config --global url."git@github.com:".pushInsteadOf "git@github.com:" --append
+    # Gitlab
+    git config --global url."https://gitlab.com/".insteadOf "git@gitlab.com:"
+    git config --global url."git@gitlab.com:".pushInsteadOf "https://gitlab.com/"
+    git config --global url."git@gitlab.com:".pushInsteadOf "git@gitlab.com:" --append
+
     if ($Proxy) {
         git config --global http.proxy "$Proxy"
         git config --global https.proxy "$Proxy"
