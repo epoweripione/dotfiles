@@ -160,9 +160,9 @@ fi
 echo 'Defaults env_keep += "http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PROXY NO_PROXY"' \
     | sudo tee "/etc/sudoers.d/keep_env_proxy" >/dev/null
 
-## Add clash-verge to policykit actions
 ## [Polkit](https://wiki.archlinux.org/title/Polkit)
 ## [Polkit](https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html)
+## Polkit: action for `clash-verge`
 # PolicyAppName="clash-verge"
 # PolicyAppIcon="clash-verge"
 # PolicyAppPath="$(which ${PolicyAppName})"
@@ -192,7 +192,7 @@ echo 'Defaults env_keep += "http_proxy https_proxy no_proxy HTTP_PROXY HTTPS_PRO
 # EOF
 # fi
 
-## install & uninstall clash-verge service rules
+## Polkit rules: install & uninstall clash-verge service
 # /usr/sbin/sh -c /usr/bin/install-service
 # /usr/sbin/sh -c /usr/bin/uninstall-service
 POLKIT_DIR="/etc/polkit-1/rules.d"
@@ -205,22 +205,29 @@ elif [ -d "${POLKIT_DIR}" ]; then
     RULE_FILE="${POLKIT_DIR}/clash-verge-install-uninstall-service.rules"
 fi
 
-# journalctl -xb | grep -i 'polkit'
+## Enable polkit logs
+# sudo sed -i '|--no-debug||' /usr/lib/systemd/system/polkit.service
+# sudo reboot
+## Test polkit
+# pkcheck -u -p $$ --enable-internal-agent -a <action>
+# pkexec -u root /usr/sbin/sh -c /usr/bin/install-service
+## View polkit logs
+# journalctl -xab | grep -E '(polkit|pkexec)'
 # journalctl -b SYSLOG_FACILITY=10
 if [[ -n "${RULE_FILE}" ]]; then
     colorEcho "${BLUE}Installing {FUCHSIA}clash-verge${BLUE} PolicyKit Rules to ${FUCHSIA}${RULE_FILE}${BLUE}..."
     sudo tee "${RULE_FILE}" >/dev/null <<-EOF
 polkit.addRule(function(action, subject) {
-    if ( ( action.id == "org.freedesktop.policykit.exec" ) && 
-        ( action.lookup("program") == "/usr/sbin/sh" ) ) {
+    if ( ( action.id == "org.freedesktop.policykit.exec" ) &&
+        ( action.lookup("program") == "/usr/sbin/sh" ) &&
+        ( subject.isInGroup("wheel") ) ) {
         polkit.log("action=" + action);
         polkit.log("subject=" + subject);
-        var regex = "(/usr/bin/install-service|/usr/bin/uninstall-service)";
-        var cmdline = action.command_line;
-        try {
-            polkit.spawn(["grep", "-Po", regex, cmdline]);
+        var cmdline = action.lookup("command_line");
+        if ( ( cmdline.indexOf("/usr/bin/install-service") > 0 ) ||
+            ( cmdline.indexOf("/usr/bin/uninstall-service") > 0 ) ) {
             return polkit.Result.YES;
-        } catch (error) {
+        } else {
             return polkit.Result.NOT_HANDLED;
         }
     }
