@@ -69,7 +69,7 @@ if [[ -d "$HOME/.conky/hybrid" ]]; then
     cd "$HOME/.conky/hybrid" && "./install.sh"
 
     cp -f "$HOME/.conky/hybrid/fonts/"* "$HOME/.local/share/fonts/"
-    sudo fc-cache -fv
+    sudo fc-cache -fv >/dev/null 2>&1
 fi
 
 # if [[ ! -x "$(command -v inix)" ]]; then
