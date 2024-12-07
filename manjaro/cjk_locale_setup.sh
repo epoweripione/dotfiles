@@ -80,12 +80,12 @@ if [[ -z "${FontManjaroInstallList[*]}" ]]; then
         "ttf-lxgw-wenkai-gb"
         "ttf-lxgw-neo-zhisong"
         "ttf-lxgw-marker-gothic"
-        "ttf-lxgw-bright-git"
-        "ttf-lxgw-bright-tc-git"
-        "ttf-lxgw-bright-gb-git"
-        "ttf-lxgw-bright-code-git"
-        "ttf-lxgw-bright-code-tc-git"
-        "ttf-lxgw-bright-code-gb-git"
+        # "ttf-lxgw-bright-git"
+        # "ttf-lxgw-bright-tc-git"
+        # "ttf-lxgw-bright-gb-git"
+        # "ttf-lxgw-bright-code-git"
+        # "ttf-lxgw-bright-code-tc-git"
+        # "ttf-lxgw-bright-code-gb-git"
         "ttf-playfair-display"
         ## math
         "otf-latin-modern"
@@ -175,6 +175,8 @@ FontInstallList=(
     "ToneOZPinyinWenkai"
     "ToneOZRadicalZ"
     "ToneOZTsuipita"
+    "LXGWBright"
+    "LXGWBrightCode"
     "LXGWKose"
     "LXGWNeoFusion"
     "LXGWNeoScreen"
@@ -210,7 +212,7 @@ fi
 
 # update font cache
 colorEcho "${BLUE}Updating ${FUCHSIA}fontconfig cache${BLUE}..."
-sudo fc-cache -fv
+sudo fc-cache -fv >/dev/null 2>&1
 
 # Fcitx5 input methods for Chinese Pinyin
 # [Fcitx5](https://wiki.archlinux.org/title/Fcitx5)
