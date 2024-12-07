@@ -29,7 +29,8 @@ INSTALLER_VER_FILE="${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}.version"
 
 if [[ -d "${INSTALLER_INSTALL_PATH}" ]]; then
     INSTALLER_IS_UPDATE="yes"
-    [[ -f "${INSTALLER_VER_FILE}" ]] && INSTALLER_VER_CURRENT=$(sudo head -n1 "${INSTALLER_VER_FILE}")
+    INSTALLER_VER_CURRENT=$(sudo head -n1 "${INSTALLER_VER_FILE}" 2>/dev/null)
+    [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT="0.0.0"
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
@@ -74,7 +75,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
         # update font cache
         colorEcho "${BLUE}  Updating ${FUCHSIA}fontconfig cache${BLUE}..."
-        sudo fc-cache -fv
+        sudo fc-cache -fv >/dev/null 2>&1
     else
         colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
     fi
