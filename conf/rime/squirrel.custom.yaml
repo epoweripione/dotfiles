@@ -1,0 +1,129 @@
+patch:
+  # 配色
+  preset_color_schemes/ms_sogou:
+    author: Mark24Code
+    back_color: 0xFFFFFF
+    border_color: 0xFFFFFF
+    candidate_text_color: 0xD67F42
+    comment_text_color: 0xFFFFFF
+    hilited_back_color: 0xFFFFFF
+    hilited_candidate_back_color: 0xFFFFFF
+    hilited_candidate_text_color: 0x0D4FE9
+    hilited_text_color: 0xD9884F
+    name: "搜狗／Sogou"
+    text_color: 0xD9884F
+  preset_color_schemes/ms_wechat_dark:
+    author: Mark24Code
+    back_color: 0x000000
+    border_color: 0x000000
+    candidate_text_color: 0x69AD2E
+    comment_text_color: 0xFFFFFF
+    hilited_back_color: 0x69AD2E
+    hilited_candidate_back_color: 0x69AD2E
+    hilited_candidate_text_color: 0xD8D8D8
+    hilited_text_color: 0xD8D8D8
+    name: "微信 Dark／Wechat Dark"
+    text_color: 0x69AD2E
+  preset_color_schemes/ms_wechat_light:
+    author: Mark24Code
+    back_color: 0xFFFFFF
+    border_color: 0xFFFFFF
+    candidate_text_color: 0x69AD2E
+    comment_text_color: 0xFFFFFF
+    hilited_back_color: 0x69AD2E
+    hilited_candidate_back_color: 0x69AD2E
+    hilited_candidate_text_color: 0xFFFFFF
+    hilited_text_color: 0xFFFFFF
+    name: "微信 Light／Wechat Light"
+    text_color: 0x69AD2E
+  # 界面风格
+  style:
+    antialias_mode: default
+    ascii_tip_follow_cursor: false
+    candidate_abbreviate_length: 0
+    click_to_capture: false
+    color_scheme: lost_temple
+    comment_font_face: "微软雅黑"
+    comment_font_point: 14
+    display_tray_icon: false
+    font_face: "微软雅黑"
+    font_point: 14
+    fullscreen: false
+    horizontal: false
+    hover_type: none
+    inline_preedit: false
+    label_font_face: "微软雅黑"
+    label_font_point: 14
+    label_format: "%s."
+    layout:
+      align_type: center
+      baseline: 0
+      border_width: 3
+      candidate_spacing: 5
+      corner_radius: 4
+      hilite_padding: 2
+      hilite_spacing: 4
+      linespacing: 0
+      margin_x: 12
+      margin_y: 12
+      max_height: 0
+      max_width: 0
+      min_height: 0
+      min_width: 160
+      round_corner: 4
+      shadow_offset_x: 4
+      shadow_offset_y: 4
+      shadow_radius: 0
+      spacing: 10
+    mark_text: ""
+    paging_on_scroll: false
+    preedit_type: composition
+    vertical_auto_reverse: false
+    vertical_text: false
+    vertical_text_left_to_right: false
+    vertical_text_with_wrap: false
+  # 默认英文模式的应用
+  app_options:
+    com.apple.Spotlight:
+      ascii_mode: true
+    com.alfredapp.Alfred:
+      ascii_mode: true
+    com.runningwithcrayons.Alfred-2:
+      ascii_mode: true
+    com.blacktree.Quicksilver:
+      ascii_mode: true
+    com.apple.Terminal:
+      ascii_mode: true
+      no_inline: true
+    com.googlecode.iterm2:
+      ascii_mode: true
+      no_inline: true
+    org.vim.MacVim:
+      ascii_mode: true  # 初始爲西文模式
+      no_inline: true   # 不使用行內編輯
+      vim_mode: true    # 退出VIM插入模式自動切換輸入法狀態
+    com.apple.dt.Xcode:
+      ascii_mode: true
+    com.barebones.textwrangler:
+      ascii_mode: true
+    com.macromates.TextMate.preview:
+      ascii_mode: true
+    com.github.atom:
+      ascii_mode: true
+    com.microsoft.VSCode:
+      ascii_mode: true
+    com.sublimetext.2:
+      ascii_mode: true
+    org.gnu.Aquamacs:
+      ascii_mode: true
+    org.gnu.Emacs:
+      ascii_mode: true
+      no_inline: true
+    co.zeit.hyper:
+      ascii_mode: true
+    com.google.Chrome:
+      # 規避 https://github.com/rime/squirrel/issues/435
+      inline: true
+    ru.keepcoder.Telegram:
+      # 規避 https://github.com/rime/squirrel/issues/475
+      inline: true

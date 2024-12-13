@@ -10,15 +10,17 @@ patch:
   "menu/page_size": 9
   # 输入方案列表
   schema_list:
-    - schema: rime_ice
+    - schema: rime_frost
+    - schema: numbers
     - schema: t9
     - schema: radical_pinyin
     - schema: jyut6ping3
     - schema: wubi86
     - schema: melt_eng
+    - schema: stroke
+    # 第二页
     - schema: luna_pinyin
     - schema: luna_pinyin_simp
-    # 第二页
     - schema: luna_pinyin_tw
     - schema: luna_pinyin_fluency
     - schema: cangjie5
@@ -26,26 +28,48 @@ patch:
     - schema: bopomofo
     - schema: bopomofo_tw
     - schema: bopomofo_express
+    # 第三页
+    - schema: qq86wubi
     - schema: wubi_pinyin
     - schema: wubi_trad
-    # 第三页
+    - schema: wubi86_jidian
+    - schema: wubi86_jidian_pinyin
+    - schema: rime_ice
     - schema: clover
-    - schema: luna_quanpin
-    - schema: terra_pinyin
-    - schema: double_pinyin
-    - schema: double_pinyin_abc
-    - schema: double_pinyin_flypy
-    - schema: double_pinyin_mspy
-    - schema: double_pinyin_sogou
-    - schema: double_pinyin_ziguang
+    - schema: clover_jiugong
+    - schema: clover_terra
     # 第四页
-    - schema: stroke
+    - schema: flypy
+    - schema: flypy_jiugong
+    - schema: terra_pinyin
+    - schema: rime_frost_double_pinyin
+    - schema: rime_frost_double_pinyin_abc
+    - schema: rime_frost_double_pinyin_flypy
+    - schema: rime_frost_double_pinyin_mspy
+    - schema: rime_frost_double_pinyin_sogou
+    - schema: rime_frost_double_pinyin_ziguang
+    # - schema: double
+    # - schema: double_pinyin
+    # - schema: double_pinyin_abc
+    # - schema: double_pinyin_flypy
+    # - schema: double_pinyin_mspy
+    # - schema: double_pinyin_sogou
+    # - schema: double_pinyin_ziguang
+    # 第五页
+    - schema: luna_quanpin
+    - schema: jyut6ping3_ipa
+    - schema: xuma_52p_long
+    - schema: xuma_52p_qshare
+    - schema: xuma_52p_reverse
+    - schema: xuma_qshare
+    - schema: xuma_qshare_type1
+    - schema: xuma_spelling_pseudo
+    - schema: zhengma
+    # 第六页
     - schema: sampheng
     - schema: zyenpheng
-    - schema: jyut6ping3_ipa
     - schema: ipa_xsampa
     - schema: ipa_yunlong
-  # "switches/@0/reset": 1
   # 从方案选单（而非快捷键）切换时会记住的选项
   "switcher/save_options":
     - ascii_mode          # 中、英

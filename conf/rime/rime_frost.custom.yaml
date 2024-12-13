@@ -1,0 +1,18 @@
+patch:
+  # 默认英文状态
+  "switches/@0/reset": 1
+  # symbols
+  # 'punctuator/symbols/__include': symbols_v:/symbols # symbols_v.yaml
+  # 处理符合特定规则的输入码，如网址、反查
+  # 'recognizer/patterns/punct': "^v([a-z]+|[0-9])$" # 响应 symbols_v.yaml 的 symbols，用 'v' 替换 '/'
+  # 'recognizer/patterns/calculator': "^cC.+" #计算器功能引导
+  # 自定义短语
+  'custom_phrase/user_dict': custom_phrase.custom # custom_phrase.custom.txt
+  # 模糊音
+  # 'speller/algebra/+':
+  #   - derive/^([zcs])h/$1/          # zh* ch* sh* 派生出 z* c* s*
+  #   - derive/^([zcs])([^h])/$1h$2/  # z* c* s*    派生出 zh* ch* sh*
+  # 置顶候选项
+  # 'pin_cand_filter/__include': pin_cand_filter:/list # pin_cand_filter.yaml
+  'pin_cand_filter/+':
+    - key	可以
