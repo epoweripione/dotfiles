@@ -21,11 +21,15 @@ fi
 ## Run `spice-vdagent` to copy-and-paste functionality between host and guest vm
 
 # Editing Calamares
-colorEcho "${BLUE}Setting default filesystem type to BTRFS..."
+colorEcho "${BLUE}Setting default filesystem type to ${FUCHSIA}BTRFS${BLUE}..."
 sudo sed -i 's/^defaultFileSystemType:.*/defaultFileSystemType:  "btrfs"/' "/usr/share/calamares/modules/partition.conf"
 
-colorEcho "${BLUE}Setting LUKS generation to LUKS2..."
+colorEcho "${BLUE}Setting LUKS generation to ${FUCHSIA}LUKS2${BLUE}..."
 sudo sed -i 's/^luksGeneration:.*/luksGeneration: luks2/' "/usr/share/calamares/modules/partition.conf"
+
+# Resize the size of the EFI system partition to store System Rescue ISOs
+colorEcho "${BLUE}Setting the size of the EFI system partition to ${FUCHSIA}10240MiB{BLUE}..."
+sudo sed -i 's/recommendedSize:.*/recommendedSize:    10240MiB/' "/usr/share/calamares/modules/partition.conf"
 
 # Btrfs mount options
 colorEcho "${BLUE}Setting Btrfs mount options..."
