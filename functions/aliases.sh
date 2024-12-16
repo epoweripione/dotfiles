@@ -33,6 +33,10 @@ alias service-enabled='systemctl list-unit-files --type=service --state=enabled'
 alias service-running='systemctl --type=service --state=running'
 alias service-failed='systemctl --type=service --state=failed'
 
+# fcitx5
+alias rime-reconfig='qdbus org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1.SetConfig "fcitx://config/addon/rime/deploy" ""'
+alias rime-sync='qdbus org.fcitx.Fcitx5 /controller org.fcitx.Fcitx.Controller1.SetConfig "fcitx://config/addon/rime/sync" ""'
+
 # proxy for ssh, git
 if [[ -x "$(command -v nc)" && -n "${GLOBAL_PROXY_IP}" ]]; then
     if [[ -n "${GLOBAL_PROXY_MIXED_PORT}" ]]; then
