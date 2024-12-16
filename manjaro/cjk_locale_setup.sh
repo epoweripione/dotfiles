@@ -258,6 +258,9 @@ if ! grep -q "XMODIFIERS" "/etc/environment" 2>/dev/null; then
 
 # Fcitx5
 XMODIFIERS=@im=fcitx
+QT_IM_MODULE=fcitx
+GTK_IM_MODULE=fcitx
+SDL_IM_MODULE=fcitx
 EOF
 fi
 
@@ -391,6 +394,10 @@ if [[ ! -f "$HOME/.local/share/fcitx5/rime/default.custom.yaml" ]]; then
     source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/cjk_fcitx_themes.sh"
     source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/cjk_rime_schema.sh"
 fi
+
+## Debug fcitx5
+# fcitx5 --verbose="*=5" > fictx5_debug_log.txt 2>&1
+# fcitx5-diagnose
 
 colorEcho "${BLUE}Fcitx5 安装完成！"
 colorEcho "${ORANGE}KDE Plasma 桌面："
