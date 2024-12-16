@@ -159,6 +159,14 @@ if [[ -n "${MenuEntry}" ]]; then
     sudo sed -i -e "s/\"${MenuEntry}\"/'${MenuEntry}'/g" "/etc/grub.d/60_memtest86+-efi"
 fi
 
+## [GRUB_OS_PROBER_SKIP_LIST](https://www.gnu.org/software/grub/manual/grub/html_node/Simple-configuration.html)
+## List of space-separated FS UUIDs of filesystems to be ignored from os-prober output. For efi chainloaders it’s <UUID>@<EFI FILE>
+## grep 'efi' /etc/fstab
+## sudo ls -la /boot/efi/EFI
+# sudo tee -a /etc/default/grub >/dev/null <<-EOF
+# GRUB_OS_PROBER_SKIP_LIST="d32ccad4-bedd-40d3-9e40-b62a4c8a09ec@/dev/sda2 58EE-F18B@/efi/Microsoft/Boot/bootmgfw.efi"
+# EOF
+
 colorEcho "${BLUE}Regenerate ${FUCHSIA}GRUB2 configuration${BLUE}..."
 sudo mkinitcpio -P
 # sudo update-grub
