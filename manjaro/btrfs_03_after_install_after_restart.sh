@@ -312,8 +312,8 @@ sudo systemctl daemon-reload
 
 # install btrfs stuff
 # https://github.com/Antynea/grub-btrfs
-colorEcho "${BLUE}Installing ${FUCHSIA}snap-pac, grub-btrfs, snapper-gui${BLUE}..."
-sudo pacman --noconfirm --needed -S snap-pac grub-btrfs snapper-gui
+colorEcho "${BLUE}Installing ${FUCHSIA}snap-pac, grub-btrfs, snapper-gui, btrfs-assistant${BLUE}..."
+sudo pacman --noconfirm --needed -S snap-pac grub-btrfs snapper-gui btrfs-assistant
 sudo sed -i -e 's/#GRUB_BTRFS_SUBMENUNAME="Arch Linux snapshots"/GRUB_BTRFS_SUBMENUNAME="Select snapshot"/g' /etc/default/grub-btrfs/config
 
 ## rollback to a previous state
