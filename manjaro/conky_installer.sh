@@ -352,11 +352,14 @@ sleep 10
 ## the main conky
 ## /usr/share/conkycolors/bin/conkyStart
 
+# stop default conky widget
+kill `ps aux | grep conky | grep pause | awk '{print $2}'`
+
 # conky -c "$HOME/.conkycolors/conkyrc" --daemonize --quiet
 conky -c "$HOME/.config/conky/hybrid/hybrid.conf" --daemonize --quiet
 
 # time for the main conky to start
-# needed so that the smaller ones draw above not below 
+# needed so that the smaller ones draw above not below
 # probably can be lower, but we still have to wait 5s for the rings to avoid segfaults
 sleep 5
 
@@ -372,9 +375,6 @@ if [[ -s "$HOME/.config/conky/hybrid/weather_mini.png" ]]; then
 fi
 
 # conky -c "$HOME/.conky/conky-weather/conkyrc_mini" --daemonize --quiet
-
-# stop default conky widget
-kill `ps aux | grep conky | grep pause | awk '{print $2}'`
 EOF
 
 chmod +x "$HOME/.conky/conky_autostart.sh"
