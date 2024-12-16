@@ -10,66 +10,64 @@ patch:
   "menu/page_size": 9
   # 输入方案列表
   schema_list:
-    - schema: rime_frost
-    - schema: numbers
-    - schema: t9
-    - schema: radical_pinyin
-    - schema: jyut6ping3
-    - schema: wubi86
-    - schema: melt_eng
-    - schema: stroke
+    - schema: rime_frost # 白霜拼音
+    - schema: numbers # 大写数字
+    - schema: t9 # 仓·九宫格
+    - schema: radical_pinyin # 部件拆字 | 全拼双拼
+    - schema: jyut6ping3 # 粵語拼音
+    - schema: wubi86 # 五笔86
+    - schema: melt_eng # Easy English Nano
+    - schema: stroke # 五筆畫
     # 第二页
-    - schema: luna_pinyin
-    - schema: luna_pinyin_simp
-    - schema: luna_pinyin_tw
-    - schema: luna_pinyin_fluency
-    - schema: cangjie5
-    - schema: cangjie5_express
-    - schema: bopomofo
-    - schema: bopomofo_tw
-    - schema: bopomofo_express
+    - schema: luna_pinyin # 朙月拼音
+    - schema: luna_pinyin_simp # 朙月拼音·简化字
+    - schema: luna_pinyin_tw # 朙月拼音·臺灣正體
+    - schema: luna_pinyin_fluency # 朙月拼音·語句流
+    - schema: cangjie5 # 倉頡五代
+    - schema: cangjie5_express # 倉頡五代·快打模式
+    - schema: bopomofo # 注音
+    - schema: bopomofo_tw # 注音·臺灣正體
+    - schema: bopomofo_express # 注音·快打模式
     # 第三页
-    - schema: qq86wubi
-    - schema: wubi_pinyin
-    - schema: wubi_trad
-    - schema: wubi86_jidian
-    - schema: wubi86_jidian_pinyin
-    - schema: rime_ice
-    - schema: clover
-    - schema: clover_jiugong
-    - schema: clover_terra
-    # 第四页
-    - schema: flypy
-    - schema: flypy_jiugong
-    - schema: terra_pinyin
-    - schema: rime_frost_double_pinyin
-    - schema: rime_frost_double_pinyin_abc
-    - schema: rime_frost_double_pinyin_flypy
-    - schema: rime_frost_double_pinyin_mspy
-    - schema: rime_frost_double_pinyin_sogou
-    - schema: rime_frost_double_pinyin_ziguang
-    # - schema: double
-    # - schema: double_pinyin
-    # - schema: double_pinyin_abc
-    # - schema: double_pinyin_flypy
-    # - schema: double_pinyin_mspy
-    # - schema: double_pinyin_sogou
-    # - schema: double_pinyin_ziguang
-    # 第五页
-    - schema: luna_quanpin
-    - schema: jyut6ping3_ipa
-    - schema: xuma_52p_long
-    - schema: xuma_52p_qshare
-    - schema: xuma_52p_reverse
-    - schema: xuma_qshare
-    - schema: xuma_qshare_type1
-    - schema: xuma_spelling_pseudo
-    - schema: zhengma
-    # 第六页
-    - schema: sampheng
-    - schema: zyenpheng
-    - schema: ipa_xsampa
-    - schema: ipa_yunlong
+    - schema: qq86wubi # QQ 86五笔
+    - schema: wubi_pinyin # 五笔·拼音
+    - schema: wubi_trad # 五筆·簡入繁出
+    - schema: wubi86_jidian # 极点五笔86
+    - schema: wubi86_jidian_pinyin # 极点五笔拼音混输
+    - schema: rime_ice # 雾凇拼音
+    - schema: luna_quanpin # 全拼
+    - schema: flypy # 小鹤双拼
+    - schema: flypy_jiugong # 小鹤九宫双拼
+    # 第四页 & more
+    - schema: sampheng # 中古三拼
+    - schema: zyenpheng # 中古全拼
+    - schema: ipa_xsampa # X-SAMPA
+    - schema: ipa_yunlong # 雲龍國際音標
+    # - schema: jyut6ping3_ipa # 粵語拼音（IPA版）
+    # - schema: terra_pinyin # 地球拼音
+    # - schema: clover # 🍀️四叶草简体拼音
+    # - schema: clover_jiugong # 🍀️四叶草九宫格
+    # - schema: clover_terra # 🍀️四叶草地球拼音
+    # - schema: rime_frost_double_pinyin # 自然码双拼
+    # - schema: rime_frost_double_pinyin_abc # 智能 ABC 双拼
+    # - schema: rime_frost_double_pinyin_flypy # 小鹤双拼
+    # - schema: rime_frost_double_pinyin_mspy # 微软双拼
+    # - schema: rime_frost_double_pinyin_sogou # 搜狗双拼
+    # - schema: rime_frost_double_pinyin_ziguang # 紫光双拼
+    # - schema: double # 自然码双拼
+    # - schema: double_pinyin # 自然码双拼
+    # - schema: double_pinyin_abc # 智能 ABC 双拼
+    # - schema: double_pinyin_flypy # 小鹤双拼
+    # - schema: double_pinyin_mspy # 微软双拼
+    # - schema: double_pinyin_sogou # 搜狗双拼
+    # - schema: double_pinyin_ziguang # 紫光双拼
+    - schema: xuma_52p_qshare # 徐码五二
+    - schema: xuma_52p_long # 徐码五二辅案
+    - schema: xuma_qshare # 徐码·QS
+    - schema: xuma_qshare_type1 # 徐码·QS·一型
+    # - schema: xuma_52p_reverse # 徐码五二反·伪方案·勿用勿改
+    # - schema: xuma_spelling_pseudo # 徐码·伪方案·勿用勿改
+    - schema: zhengma # 郑码
   # 从方案选单（而非快捷键）切换时会记住的选项
   "switcher/save_options":
     - ascii_mode          # 中、英
