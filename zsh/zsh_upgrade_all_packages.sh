@@ -33,11 +33,11 @@ fi
 ## Setting by pass gfw proxy
 [[ -s "${MY_SHELL_SCRIPTS}/cross/cross_gfw_config.sh" ]] && source "${MY_SHELL_SCRIPTS}/cross/cross_gfw_config.sh"
 
-# WSL2: map host ip to localhost
-if check_os_wsl2; then
-    [[ -s "$HOME/.dotfiles/wsl/wsl2-map-win-localhost.sh" ]] && \
-        source "$HOME/.dotfiles/wsl/wsl2-map-win-localhost.sh"
-fi
+## WSL2: map host ip to localhost
+# if check_os_wsl2; then
+#     [[ -s "$HOME/.dotfiles/wsl/wsl2-map-win-localhost.sh" ]] && \
+#         source "$HOME/.dotfiles/wsl/wsl2-map-win-localhost.sh"
+# fi
 
 
 # Package managers with pacman-style command syntax
