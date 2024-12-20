@@ -52,6 +52,7 @@ SCHEMA_LIST=(
     "rime-ipa#git#https://github.com/rime/rime-ipa" # 國際音標
     # "clover.zip#curl#https://github.com/fkxxyz/rime-cloverpinyin/releases/download/1.1.4/clover.schema-1.1.4.zip" # 四叶草拼音
     "rime-pure#git#https://github.com/SivanLaai/rime-pure#schemes/*" # rime-pure
+    "rime-shuangpin-fuzhuma#git#https://github.com/gaboolic/rime-shuangpin-fuzhuma" # 墨奇音形
 )
 for Target in "${SCHEMA_LIST[@]}"; do
     [[ -z "${Target}" ]] && continue
@@ -140,6 +141,9 @@ if [[ -f "${SCHEMA_ROOT_DIR}/rime-ice/symbols_v.yaml" ]]; then
     cp -f "${SCHEMA_ROOT_DIR}/rime-ice/symbols_v.yaml" "${SCHEMA_DIR}/symbols_v_ice.yaml"
 fi
 
+# Schema list
+yq '"    - schema: " + .schema.schema_id + " # " + .schema.name' "${SCHEMA_DIR}"/*.schema.yaml > "${SCHEMA_DIR}/_schema_list.txt"
+
 # Repalce rime schema
 REPLACE_TARGET=(
     "${WSL_APPDATA}/Rime" # Windows
@@ -147,18 +151,17 @@ REPLACE_TARGET=(
     "$HOME/.local/share/fcitx5/rime" # Fcitx5
     "$HOME/.var/app/org.fcitx.Fcitx5/data/fcitx5/rime" # fcitx5 flatpak
     "$HOME/Library/Rime" # macOS
-    "/storage/emulated/0/Android/data/org.fcitx.fcitx5.android/files/data/rime/" # fcitx5-android
-    "/storage/sdcard0/Android/data/org.fcitx.fcitx5.android/files/data/rime/" # fcitx5-android
-    "/sdcard/Android/data/org.fcitx.fcitx5.android/files/data/rime/" # fcitx5-android
-    "/storage/emulated/0/rime" # 同文
-    "/storage/sdcard0/rime" # 同文
-    "/sdcard/rime" # 同文
+    # "/storage/emulated/0/Android/data/org.fcitx.fcitx5.android/files/data/rime/" # fcitx5-android
+    # "/storage/sdcard0/Android/data/org.fcitx.fcitx5.android/files/data/rime/" # fcitx5-android
+    # "/sdcard/Android/data/org.fcitx.fcitx5.android/files/data/rime/" # fcitx5-android
+    # "/storage/emulated/0/rime" # 同文
+    # "/storage/sdcard0/rime" # 同文
+    # "/sdcard/rime" # 同文
 )
 for Target in "${REPLACE_TARGET[@]}"; do
     if [[ -d "${Target}" ]]; then
         colorEcho "${BLUE}Copying ${FUCHSIA}${SCHEMA_DIR}${BLUE} to ${ORANGE}${Target}${BLUE}..."
-        # rm -rf "${Target}/"*
-        # cp -rf "${SCHEMA_DIR}/"* "${Target}"
+        # rsync -avzP "${SCHEMA_DIR}/" "${Target}"
         rsync -azq "${SCHEMA_DIR}/" "${Target}"
 
         if [[ -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/rime" ]]; then
