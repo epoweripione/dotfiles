@@ -1,6 +1,9 @@
 patch:
   # 默认英文状态
   # "switches/@0/reset": 1
+  # [降低英文单词权重](https://github.com/gaboolic/rime-frost/issues/113)
+  # [优化 Rime 英文输入体验](https://dvel.me/posts/make-rime-en-better/)
+  "melt_eng/initial_quality": 0.7
   # symbols
   # 'punctuator/symbols/__include': symbols_v:/symbols # symbols_v.yaml
   # 处理符合特定规则的输入码，如网址、反查
@@ -16,3 +19,4 @@ patch:
   # 'pin_cand_filter/__include': pin_cand_filter:/list # pin_cand_filter.yaml
   'pin_cand_filter/+':
     - key	可以
+    - day	打印
