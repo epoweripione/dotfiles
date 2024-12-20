@@ -301,13 +301,20 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 - `CJK` fonts
 - `Fcitx5` input methods
 - `Rime` 中州韻輸入法引擎
+  * [白霜拼音](https://github.com/gaboolic/rime-frost)
   * [雾凇拼音](https://github.com/iDvel/rime-ice)
   * [朙月拼音](https://github.com/rime/rime-luna-pinyin)
   * [粵語拼音](https://github.com/rime/rime-cantonese)
   * [五筆字型 86 版](https://github.com/rime/rime-wubi)
   * [注音](https://github.com/rime/rime-bopomofo)
   * [倉頡](https://github.com/rime/rime-cangjie)
-  * 双拼（自然码、智能 ABC、小鹤、微软、搜狗、紫光）
+  * [墨奇音形](https://github.com/gaboolic/rime-shuangpin-fuzhuma)
+  * 全拼
+  * 双拼（小鹤双拼、小鹤九宫双拼、墨奇音形+小鹤双拼、墨奇音形+自然码双拼、墨奇音形+微软双拼、墨奇音形+搜狗双拼、墨奇音形大字集）
+  * 五笔（QQ 86五笔、五笔·拼音、五筆·簡入繁出、极点五笔86、极点五笔拼音混输）
+  * 粵語拼音
+  * Emoji
+  * 其他（五筆畫、中古三拼、中古全拼、X-SAMPA、雲龍國際音標、徐码、郑码）
   * ...
 - `Emoji` keyboard
 - `CUPS`: Printers, Scanner

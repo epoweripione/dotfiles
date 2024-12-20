@@ -56,9 +56,58 @@ curl -fSL -o clover.schema-1.1.4.zip https://github.com/fkxxyz/rime-cloverpinyin
 kill `ps -A | grep fcitx5 | awk '{print $1}'` && fcitx5&
 ```
 
-## 雾凇拼音
+## [白霜拼音](https://github.com/iDvel/rime-ice)
 - 默认英文模式：`Ctrl+~`→2→2
-- 特殊符号：`v`模式，全拼 `v` 开头、双拼大写 `V` 开头，见 `$HOME\AppData\Roaming\Rime\symbols_v.yaml`
+- 特殊符号：`/`模式，见 `$HOME\AppData\Roaming\Rime\symbols_v.yaml`
+  + 符号 `/fh`
+  + 电脑 `/dn`
+  + 天气 `/tq`
+  + 星号 `/xh`
+  + 方块 `/fk`
+  + 几何 `/jh`
+  + 箭头 `/jt`
+  + 数学 `/sx`
+  + 数字+圈/弧/点 `/szq、/szh、/szd`
+  + 字母+圈/弧 `/zmq、/zmh`
+  + 汉字+圈/弧 `/hzq、/hzh`
+  + 数字 `/0.../9`
+  + 分数 `/fs`
+  + 罗马数字 `/lm、/lmd`
+  + 拉丁 `/a...z、/A...Z、/aa.../ww`
+  + 希腊 `/xl、/xld`
+  + 上标、下标 `/sb、/xb`
+  + 月份、日期、曜日等 `/yf、/rq、/yr`
+  + 时间 `/sj`
+  + 天干、地支、干支 `/tg、/dz、/gz`
+  + 节气 `/jq`
+  + 单位 `/dw`
+  + 货币 `/hb`
+  + 结构、偏旁、康熙（部首）、笔画、标点 `/jg、/pp、/kx、/bh、/bd、/bdz`
+  + 中文标点符号：点号、非夹、夹注、行间 `/dh、/fj、/jz、/hj`
+  + 中英标点 `/bdzy`
+  + 拼音、注音、声调 `/py、/zy、/sd`
+  + 带调韵母：`/a、/e、/u...`
+  + 音乐 `/yy`
+  + 两性 `/lx`
+  + 八卦、八卦名、六十四卦、六十四卦名、太玄经 `/bg、/bgm、/lssg、/lssgm、/txj`
+  + 天体、星座、星座名、十二宫 `/tt、/xz、/xzm、/xzg`
+  + ...
+- 自定义短语：`custom_phrase.custom.txt`
+- 以词定字：默认快捷键为左右中括号 `[ ]`，分别取第一个和最后一个字
+- 日期时间：全拼的触发编码为 `rq sj xq dt ts`，双拼为 `date time week datetime timestamp`
+- 部件拆字的反查：`uU`开头，如 `uUkoukou`得到`回、吕`等字
+- 部件拆字的辅码：` 触发
+- Unicode：大写 `U` 开头，如 `U62fc`得到`拼`
+- 数字、金额大写：大写 `R` 开头，如 `R1234` 得到 `一千二百三十四、壹仟贰佰叁拾肆元整`
+- 农历：`nl`
+- 农历（指定日期）：大写 `N` 开头，如 `N20240210` 得到 `二〇二四年正月初一`
+- 简易计算器：大写`V`开头，如`V10*10`，得到`100`
+- 删除不想要的自造词：使用方向键选中要删除的候选词，再按下 `Fn+Shift+Delete` 即可删除
+- 使用 Tab 键在拼音之间切换光标：拼音打错了或者想单独修改前面的某个字，按 `Tab` 键或 `Shift + Tab` 在拼音中前后切换光标到对应的拼音
+
+## [雾凇拼音](https://github.com/iDvel/rime-ice)
+- 默认英文模式：`Ctrl+~`→2→2
+- 特殊符号：`v`模式，全拼 `v` 开头、双拼大写 `V` 开头，见 `$HOME\AppData\Roaming\Rime\symbols_v_ice.yaml`
   + 符号 `vfh`
   + 电脑 `vdn`
   + 天气 `vtq`
@@ -86,20 +135,22 @@ kill `ps -A | grep fcitx5 | awk '{print $1}'` && fcitx5&
   + 中文标点符号：点号、非夹、夹注、行间 `vdh/vfj/vjz/vhj`
   + 中英标点 `vbdzy`
   + 拼音、注音、声调 `vpy/vzy/vsd`
+  + 带调韵母：`va/ve/vu...`
   + 音乐 `vyy`
   + 两性 `vlx`
   + 八卦、八卦名、六十四卦、六十四卦名、太玄经 `vbg/vbgm/vlssg/vlssgm/vtxj`
   + 天体、星座、星座名、十二宫 `vtt/vxz/vxzm/vxzg`
   + ...
-- 自定义短语：全拼为 `custom_phrase.txt`，双拼为 `custom_phrase_double.txt`
+- 自定义短语： `custom_phrase.custom.txt`
 - 以词定字：默认快捷键为左右中括号 `[ ]`，分别取第一个和最后一个字
 - 日期时间：全拼的触发编码为 `rq sj xq dt ts`，双拼为 `date time week datetime timestamp`
-- 农历：全拼 `nl`，双拼 `lunar`
 - 部件拆字的反查：`uU`
-- 部件拆字的辅码：` 触发
+- 辅助码：`\``，[墨奇辅助码拆分说明](https://moqiyinxing.chunqiujinjing.com/index/mo-qi-yin-xing-shuo-ming/fu-zhu-ma-shuo-ming/mo-qi-ma-chai-fen-shuo-ming)
 - Unicode：大写 `U` 开头，如 `U62fc`得到`拼`
 - 数字、金额大写：大写 `R` 开头，如 `R1234` 得到 `一千二百三十四、壹仟贰佰叁拾肆元整`
-- 农历指定日期：大写 `N` 开头，如 `N20240210` 得到 `二〇二四年正月初一`
+- 农历：`nl`
+- 农历（指定日期）：大写 `N` 开头，如 `N20240210` 得到 `二〇二四年正月初一`
+- 简易计算器：`cC`开头，如`cC10*10`，得到`100`
 - 删除不想要的自造词：使用方向键选中要删除的候选词，再按下 `Fn+Shift+Delete` 即可删除
 - 使用 Tab 键在拼音之间切换光标：拼音打错了或者想单独修改前面的某个字，按 `Tab` 键或 `Shift + Tab` 在拼音中前后切换光标到对应的拼音
 
