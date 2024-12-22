@@ -75,12 +75,17 @@ ISO_PARTITION_TYPE=$(tr '[:upper:]' '[:lower:]' <<<"${ISO_PARTITION_TYPE}")
 for isofile in "${ISO_STORING_DIR}"/*.iso ; do
     ISO_NAME=$(basename "${isofile}")
     echo "Found ISO image: ${ISO_NAME}" >&2
+
+    # ISO_MENUENTRY_PARTITION=$(cut -c 1-18 <<<"${ISO_PARTITION_UUID}")
+    ISO_MENUENTRY_PARTITION=$(sudo lsblk -o PATH,UUID | grep "${ISO_PARTITION_UUID}" | awk '{print $1}')
+    ISO_MENUENTRY_NAME="[ISO@${ISO_MENUENTRY_PARTITION}] ${ISO_NAME%.*}"
+
     case "${ISO_PARTITION_TYPE}" in
         btrfs)
             colorEcho "${FUCHSIA}BTRFS ${RED}Not supported."
             exit 1
 #             sudo tee -a "${ISO_MENUENTRY_FILE}" >/dev/null <<-EOF
-# menuentry "[ISO] ${ISO_NAME}" --class SystemRescueCD {
+# menuentry "${ISO_MENUENTRY_NAME}" --class SystemRescueCD {
 #     insmod btrfs
 
 #     set isofile="${ISO_FS_DIR}/${ISO_NAME}"
@@ -90,25 +95,24 @@ for isofile in "${ISO_STORING_DIR}"/*.iso ; do
 #     set imgdevpath="/dev/disk/by-uuid/\${iso_partition_uuid}"
 #     loopback loop0 (\${iso_partition})\${isofile}
 
-#     linux (loop0)/boot/vmlinuz-x86_64 img_dev=\${imgdevpath} img_loop=\${isofile} earlymodules=loop driver=free tz=Asia/Shanghai lang=zh_CN keytable=en copytoram
+#     linux (loop0)/boot/vmlinuz-x86_64 img_dev=\${imgdevpath} img_loop=\${isofile} earlymodules=loop copytoram
 #     initrd (loop0)/boot/intel_ucode.img (loop0)/boot/amd_ucode.img (loop0)/boot/initramfs-x86_64.img
 # }
 
 # EOF
             ;;
-		ntfs)
+		ntfs | *fat*)
             sudo tee -a "${ISO_MENUENTRY_FILE}" >/dev/null <<-EOF
-menuentry "[ISO] ${ISO_NAME}" --class SystemRescueCD {
+menuentry "${ISO_MENUENTRY_NAME}" --class SystemRescueCD {
     insmod ntfs
 
     set isofile="${ISO_FS_DIR}/${ISO_NAME}"
 
-    search --no-floppy -f --set=iso_partition \${isofile}
-    probe -u \${iso_partition} --set=iso_partition_uuid
-    set imgdevpath="/dev/disk/by-uuid/\${iso_partition_uuid}"
+    search --no-floppy --set=iso_partition --fs-uuid ${ISO_PARTITION_UUID}
+    set imgdevpath="/dev/disk/by-uuid/${ISO_PARTITION_UUID}"
     loopback loop0 (\${iso_partition})\${isofile}
 
-    linux (loop0)/boot/vmlinuz-x86_64 img_dev=\${imgdevpath} img_loop=\${isofile} earlymodules=loop driver=free tz=Asia/Shanghai lang=zh_CN keytable=en copytoram
+    linux (loop0)/boot/vmlinuz-x86_64 img_dev=\${imgdevpath} img_loop=\${isofile} earlymodules=loop copytoram
     initrd (loop0)/boot/intel_ucode.img (loop0)/boot/amd_ucode.img (loop0)/boot/initramfs-x86_64.img
 }
 
@@ -116,14 +120,13 @@ EOF
             ;;
 		*)
             sudo tee -a "${ISO_MENUENTRY_FILE}" >/dev/null <<-EOF
-menuentry "[ISO] ${ISO_NAME}" --class SystemRescueCD {
+menuentry "${ISO_MENUENTRY_NAME}" --class SystemRescueCD {
     insmod ext2
 
     set isofile="${ISO_FS_DIR}/${ISO_NAME}"
 
-    search --no-floppy -f --set=iso_partition \${isofile}
-    probe -u \${iso_partition} --set=iso_partition_uuid
-    set imgdevpath="/dev/disk/by-uuid/\${iso_partition_uuid}"
+    search --no-floppy --set=iso_partition --fs-uuid ${ISO_PARTITION_UUID}
+    set imgdevpath="/dev/disk/by-uuid/${ISO_PARTITION_UUID}"
     loopback loop0 (\${iso_partition})\${isofile}
 
     linux (loop0)/boot/vmlinuz-x86_64 img_dev=\${imgdevpath} img_loop=\${isofile} earlymodules=loop driver=free tz=Asia/Shanghai lang=zh_CN keytable=en copytoram
