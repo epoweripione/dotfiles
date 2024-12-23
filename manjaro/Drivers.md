@@ -11,6 +11,10 @@ inxi -Nazy
 
 sudo rfkill list all
 sudo rfkill unblock wifi # soft block
+
+# disable broken wifi device, Intel wireless cards for example
+echo "blacklist iwlwifi" | sudo tee /etc/modprobe.d/iwlwifi.conf
+reboot
 ```
 
 ## USB WiFi chipset
@@ -49,7 +53,7 @@ sudo mhwd-kernel --install linux61
 # →Select the newly installed kernel
 ```
 
-### aic8800-dkms
+### ~~aic8800-dkms~~
 ```bash
 yay --noconfirm --needed -S dkms usb_modeswitch
 
@@ -139,6 +143,7 @@ lspci -knn | grep -i net -A2
 sudo journalctl -u systemd-networkd -f
 sudo journalctl -u NetworkManager -f
 sudo journalctl --dmesg -f
+sudo dmesg | grep 'usbcore'
 sudo dmesg | grep -E '(cfg80211|iwl3945|aic)'
 ```
 
