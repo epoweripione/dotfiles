@@ -1,0 +1,130 @@
+diff --git a/dist/jquery.fontpicker.css b/dist/jquery.fontpicker.css
+index 6305060..d260294 100644
+--- a/dist/jquery.fontpicker.css
++++ b/dist/jquery.fontpicker.css
+@@ -272,6 +272,8 @@
+ }
+ 
+ .font-picker .fp-variants {
++	display: flex;
++	flex-wrap: wrap;
+ 	margin-top: 3px;
+ 	font-size: 12px;
+ 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+diff --git a/dist/jquery.fontpicker.js b/dist/jquery.fontpicker.js
+index 4b2817b..bf0426c 100644
+--- a/dist/jquery.fontpicker.js
++++ b/dist/jquery.fontpicker.js
+@@ -8821,6 +8821,7 @@
+ 				'favFonts': 'Favorite fonts',
+ 				'localFonts': 'Local fonts',
+ 				'googleFonts': 'Google fonts',
++				'systemFonts': 'System fonts',
+ 				'select': 'Select',
+ 				'styles': 'styles',
+ 				'sampleText': 'The quick brown fox jumps over the lazy dog.',
+@@ -8833,6 +8834,7 @@
+ 				'favFonts': 'Favoriete lettertypen',
+ 				'localFonts': 'Lokale lettertypen',
+ 				'googleFonts': 'Google lettertypen',
++				'systemFonts': 'systeem lettertypen',
+ 				'select': 'Kies',
+ 				'styles': 'stijlen',
+ 				'sampleText': 'Wazig tv-filmpje rond chique skybox.',
+@@ -8845,6 +8847,7 @@
+ 				'favFonts': 'Favorisierte Schriftarten',
+ 				'localFonts': 'Lokale Schriftarten',
+ 				'googleFonts': 'Google Schriftarten',
++				'systemFonts': 'System Schriftarten',
+ 				'select': 'Wählen',
+ 				'styles': 'stile',
+ 				'sampleText': 'Vogel Quax zwickt Johnys Pferd Bim.',
+@@ -8857,6 +8860,7 @@
+ 				'favFonts': 'Fuentes favoritas',
+ 				'localFonts': 'Fuentes locales',
+ 				'googleFonts': 'Fuentes de Google',
++				'systemFonts': 'Fuentes de sistema',
+ 				'select': 'Seleccionar',
+ 				'styles': 'estilos',
+ 				'sampleText': 'La cigüeña tocaba cada vez mejor el saxofón y el búho pedía kiwi y queso',
+@@ -8869,6 +8873,7 @@
+ 				'favFonts': 'Polices favorites',
+ 				'localFonts': 'Polices locales',
+ 				'googleFonts': 'Polices Google',
++				'systemFonts': 'Polices système',
+ 				'select': 'Selectionner',
+ 				'styles': 'Styles',
+ 				'sampleText': 'Le vif renard brun saute par-dessus le chien paresseux.',
+@@ -8885,6 +8890,7 @@
+ 			localFontsUrl: '/fonts/', // Where .woff/.ttf files (for local fonts) reside
+ 			localFontsType: 'woff', // Either 'ttf', 'woff', 'woff2' or 'otf'
+ 			parentElement: 'body', // What element to attach the Fontpicker to
++			systemFonts: false, // Whether or not to load system installed fonts
+ 
+ 			localFonts: {// Default: web safe fonts available on all platforms
+ 				"Arial": {
+@@ -8939,13 +8945,17 @@
+ 					options.localFonts = [];
+ 				}
+ 
++				if (!options.systemFonts) {
++					options.systemFonts = [];
++				}
++
+ 				if (!dictionaries[options.lang]) {
+ 					options.lang = 'en';
+ 				}
+ 
+ 				this.dictionary = dictionaries[options.lang];
+ 
+-				this.allFonts = {'google':options.googleFonts, 'local':options.localFonts};
++				this.allFonts = {'google':options.googleFonts, 'local':options.localFonts, 'system':options.systemFonts};
+ 				this.options = options;
+ 				this.$original = $(original);
+ 				this.setupHtml();
+@@ -8955,9 +8965,9 @@
+ 			Fontpicker.prototype = {
+ 
+ 				/**
+-				 * Load font, either from Google or from local url.
++				 * Load font, either from Google or from local url or from OS system.
+ 				 *
+-				 * @param {string} type Font type, either 'google' or 'local'.
++				 * @param {string} type Font type, either 'google' or 'local' or 'system'.
+ 				 * @param {string} font Font family name. F.e: 'Chakra', 'Zilla Slab'.
+ 				 */
+ 				loadFont: function(type, font) {
+@@ -8985,6 +8995,9 @@
+ 								$('head').append("<style> @font-face { font-family:'" + font + "'; src:local('" + font + "'), url('" + this.options.localFontsUrl + font + "." + this.options.localFontType + "') format('" + map[this.options.localFontType] + "'); } </style>");
+ 							}
+ 							break;
++
++						case 'system':
++							break;
+ 					}
+ 				},
+ 
+@@ -9482,6 +9495,7 @@
+ 					$('<div class="hr">').appendTo(this.$filter);
+ 
+ 					var gFontCats = googleFontCats.slice(0); // Clone
++					gFontCats.push('system');
+ 					gFontCats.push('other');
+ 					for (var g = 0; g < gFontCats.length; g++) {
+ 						$('<span class="fp-category fp-pill checked">')
+@@ -9535,6 +9549,15 @@
+ 						}
+ 					}
+ 
++					//System fonts
++					if (objLength(this.options.systemFonts) > 0) {
++						$li = $('<li class="fp-divider">' + this.dictionary['systemFonts'] + '</li>');
++						$frag.append($li[0]);
++						for (fontFamily in this.options.systemFonts) {
++							append('system', fontFamily);
++						}
++					}
++
+ 					// Google fonts
+ 					if (objLength(this.options.googleFonts) > 0) {
+ 						$li = $('<li class="fp-divider">' + this.dictionary['googleFonts'] + '</li>');

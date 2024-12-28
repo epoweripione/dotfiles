@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<title>字体查看器</title>
+		<!-- https://github.com/av01d/fontpicker-jquery-plugin -->
+		<!-- https://developer.mozilla.org/en-US/docs/Web/API/Local_Font_Access_API -->
+		<!-- https://github.com/Monotype/variableFont.js -->
+		<!-- https://github.com/zenozeng/fonts.css -->
+		<!-- [HTML Escape Characters: Complete List of HTML Entities](https://mateam.net/html-escape-characters/) -->
+		<!-- [HTML CSS JS 特殊字符(转义)表](https://www.cnblogs.com/weixupeng/p/9259366.html) -->
+		<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/opentype.js/dist/opentype.min.js"></script>
+		<script src="fontpicker.js"></script>
+
+		<!-- <link rel="stylesheet" href="https://av01d.github.io/fontpicker-jquery-plugin/dist/jquery.fontpicker.css" />
+		<script src="https://av01d.github.io/fontpicker-jquery-plugin/dist/jquery.fontpicker.js"></script> -->
+
+		<!-- # --Fontpicker jQuery Plugin--
+		chmod +x fontpicker-jquery-plugin.sh
+		./fontpicker-jquery-plugin.sh
+		# --Fontpicker jQuery Plugin-- -->
+		<link rel="stylesheet" href="dist/jquery.fontpicker.css">
+		<script src="dist/jquery.fontpicker.js"></script>
+
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pure-css-loader/dist/css-loader.css" />
+
+		<!-- [Country Flag Fixer](https://chromewebstore.google.com/detail/country-flag-fixer/jhcpefjbhmbkgjgipkhndplfbhdecijh) -->
+		<!-- [Country Flag Emoji Polyfill](https://github.com/talkjs/country-flag-emoji-polyfill) -->
+		<script type="module" defer>
+			import { polyfillCountryFlagEmojis } from "https://cdn.skypack.dev/country-flag-emoji-polyfill";
+			polyfillCountryFlagEmojis();
+		</script>
+
+		<!-- [HTML CSS Color Online color library_ development, web-design, photoshop, art](https://www.htmlcsscolor.com/) -->
+		<style>
+			html {
+				font-size: 16px;
+				line-height: 1.5;
+			}
+
+			.sampletext-grid {
+				display: grid;
+				grid-template-columns: 1fr;
+				/* grid-template-rows: repeat(8, 60px); */
+				align-content: start;
+				row-gap: 2px;
+			}
+
+			.btn-flex {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.item-flex {
+				display: flex;
+				width: 100%;
+				height: auto;
+				position: relative;
+				align-items: stretch;
+				/* align-items: center; */
+				flex-direction: row;
+				align-content: center;
+				justify-content: center;
+				text-align: center;
+			}
+
+			.item-flex-left, .item-flex-middle, .item-flex-right {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-direction: column;
+				min-height: 60px;
+			}
+
+			.item-flex-left {
+				width: 300px;
+				background: SkyBlue;
+			}
+
+			.item-flex-middle {
+				flex: 1;
+				margin: 0 10px;
+				background: palegreen;
+			}
+
+			.item-flex-right {
+				width: 200px;
+				background:palevioletred;
+			}
+
+			.wrap-control {
+				display: flex;
+				width: 100%;
+				height: auto;
+				position: relative;
+				align-items: stretch;
+				/* align-items: center; */
+				flex-direction: row;
+				align-content: center;
+				justify-content: center;
+				text-align: center;
+			}
+
+			.wrap-textarea-left, .wrap-textarea-right {
+				display: flex;
+				flex: 1;
+				align-items: center;
+				justify-content: center;
+				min-height: 60px;
+			}
+
+			.wrap-textarea-left {
+				margin-right: 10px;
+			}
+
+			.sample-textarea-display {
+				font-size: 1rem;
+				width: 100%;
+				resize: horizontal;
+				min-width: 20%;
+				height: 70vh;
+				/* text-align: center; */
+			}
+
+			.wrap-text-left, .wrap-text-right {
+				display: flex;
+				flex: 1;
+				align-items: center;
+				justify-content: center;
+				min-height: 60px;
+				background:palevioletred;
+			}
+
+			.wrap-text-left {
+				margin-right: 10px;
+			}
+
+			.wrap-input-left, .wrap-input-right {
+				display: flex;
+				flex: 1;
+				align-items: center;
+				justify-content: center;
+				min-height: 60px;
+				background:SkyBlue;
+			}
+
+			.wrap-input-left {
+				margin-right: 10px;
+			}
+
+			.wrap-file-left, .wrap-file-right {
+				display: flex;
+				flex: 1;
+				align-items: center;
+				justify-content: center;
+				min-height: 60px;
+				background: MediumPurple;
+			}
+
+			.wrap-file-left {
+				margin-right: 10px;
+			}
+
+			#wrap {
+				display: flex;
+				justify-content: space-between;
+				margin: 8px;
+			}
+
+			#sample-textarea .textarea-display {
+				font-size: 1rem;
+				width: 48%;
+				resize: horizontal;
+				min-width: 20%;
+				height: 70vh;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="sampletext" class="sampletext-grid">
+			<div class="btn-flex">
+				<input type="checkbox" id="systemfonts" name="systemfonts" checked="checked">system fonts&nbsp;&nbsp;
+				<input type="checkbox" id="googlefonts" name="googlefonts" checked="checked">google fonts&nbsp;&nbsp;
+				<button id="loadfonts" onclick="loadFonts()">Load fonts...</button>
+				&nbsp;&nbsp;Choose font size:&nbsp;
+				<select id="select-fontsize">
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+					<option value="11">11</option>
+					<option value="12">12</option>
+					<option value="13">13</option>
+					<option value="14">14</option>
+					<option value="15">15</option>
+					<option value="16" selected="selected">16</option>
+					<option value="17">17</option>
+					<option value="18">18</option>
+					<option value="19">19</option>
+					<option value="20">20</option>
+					<option value="22">22</option>
+					<option value="24">24</option>
+					<option value="26">26</option>
+					<option value="28">28</option>
+					<option value="30">30</option>
+					<option value="35">35</option>
+					<option value="40">40</option>
+					<option value="45">45</option>
+					<option value="50">50</option>
+					<option value="60">60</option>
+				</select>
+			</div>
+
+			<div class="item-flex">
+				<div class="item-flex-left">
+					<input id="sampletext-basic-font">
+				</div>
+				<div id="sampletext-basic" contenteditable="true" class="item-flex-middle">
+					<p>0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</p>
+				</div>
+				<div class="item-flex-right">
+					<p id="sampletext-basic-detect"></p>
+				</div>
+			</div>
+
+			<div class="item-flex">
+				<div class="item-flex-left">
+					<input id="sampletext-mono-font" type="text">
+				</div>
+				<div id="sampletext-mono" contenteditable="true" class="item-flex-middle">
+					<p>0 1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</p>
+				</div>
+				<div class="item-flex-right">
+					<p id="sampletext-mono-detect"></p>
+				</div>
+			</div>
+
+			<div class="item-flex">
+				<div class="item-flex-left">
+					<input id="sampletext-confuse-font" type="text">
+				</div>
+				<div id="sampletext-confuse" contenteditable="true" class="item-flex-middle">
+					<p>0 o O 1 i j l I J L</p>
+				</div>
+				<div class="item-flex-right">
+					<p id="sampletext-confuse-detect"></p>
+				</div>
+			</div>
+
+			<div class="item-flex">
+				<div class="item-flex-left">
+					<input id="sampletext-punctuation-font" type="text">
+				</div>
+				<div id="sampletext-punctuation" contenteditable="true" class="item-flex-middle">
+					<p>. , ' " : ; ? ( ) &lt; &gt; [ ] { } &#47; &#92; ` ~ ! @ # $ % ^ & * - _ = +</p>
+				</div>
+				<div class="item-flex-right">
+					<p id="sampletext-punctuation-detect"></p>
+				</div>
+			</div>
+
+			<div class="item-flex">
+				<div class="item-flex-left">
+					<input id="sampletext-cjk-punctuation-font" type="text">
+				</div>
+				<div id="sampletext-cjk-punctuation" contenteditable="true" class="item-flex-middle">
+					<p>。 ， ‘ ’ “ ” ： ； ？ （ ） 《 》 【 】 「 」 ÷ 、  ！ ¥ % × ——</p>
+				</div>
+				<div class="item-flex-right">
+					<p id="sampletext-cjk-punctuation-detect"></p>
+				</div>
+			</div>
+
+			<div class="item-flex">
+				<div class="item-flex-left">
+					<input id="sampletext-symbols-font" type="text">
+				</div>
+				<div id="sampletext-symbols" contenteditable="true" class="item-flex-middle">
+					<p>® © ♠ ♣ ♧ ♡ ♥ ❤ ❥ ❣ ♂ ♀ ✲ ☀ ☼ ☾ ☽ ◐ ◑ ☺ ☻</p>
+					<p>☎ ☏ ✿ ❀ № ↑ ↓ ← → √ × ÷ ★ ℃ ℉ ° ◆ ◇ ⊙ ■ □ △ ▽</p>
+					<p>¿ ½ ☯ ✡ ㍿ 卍 卐 ♂ ♀ ✚ 〓 ㎡ ♪ ♫ ♩ ♬ ㊚ ㊛ 囍 ㊒ ㊖</p>
+					<p>Φ ♀ ♂ ‖ $ @ * & # ※ 卍 卐 Ψ ♫ ♬ ♭ ♩ ♪ ♯ ♮ ⌒ ¶ ∮ ‖ € ￡ ¥ $</p>
+				</div>
+				<div class="item-flex-right">
+					<p id="sampletext-symbols-detect"></p>
+				</div>
+			</div>
+
+			<div class="item-flex">
+				<div class="item-flex-left">
+					<input id="sampletext-emoji-font" type="text">
+				</div>
+				<div id="sampletext-emoji" contenteditable="true" class="item-flex-middle">
+					<p>😀😃😄😁😆😅🤣😂🥰😍😭😱😫🥱💀🤡👻👽🤖💘💞💋💯💢💥💫💦</p>
+				</div>
+				<div class="item-flex-right">
+					<p id="sampletext-emoji-detect"></p>
+				</div>
+			</div>
+
+			<div class="item-flex">
+				<div class="item-flex-left">
+					<input id="sampletext-flags-font" type="text">
+				</div>
+				<div id="sampletext-flags" contenteditable="true" class="item-flex-middle">
+					<p>🇺🇸 🇦🇺 🇨🇳 🇭🇰 🇲🇴 🇹🇼 🇩🇪 🇬🇧 🇫🇷 🇮🇹 🇯🇵 🇰🇷 🇸🇬 🇳🇿</p>
+				</div>
+				<div class="item-flex-right">
+					<p id="sampletext-flags-detect"></p>
+				</div>
+			</div>
+
+			<div class="item-flex">
+				<div class="item-flex-left">
+					<input id="sampletext-cjk-font" type="text">
+				</div>
+				<div id="sampletext-cjk" contenteditable="true" class="item-flex-middle">
+					<p>永和九年，岁在癸丑，暮春之初，会于会稽山阴之兰亭，修禊事也。</p>
+				</div>
+				<div class="item-flex-right">
+					<p id="sampletext-cjk-detect"></p>
+				</div>
+			</div>
+		</div>
+
+		<div id="sample-textarea" data-field-wrapper="sample-textarea" class="sampletext-grid">
+			<div>&nbsp;</div>
+			<!-- <div id="wrap" style="background: palegreen;">
+				<textarea id="sample-textarea-left" class="textarea-display"></textarea>
+				<textarea id="sample-textarea-right" class="textarea-display"></textarea>
+			</div> -->
+			<div class="wrap-control">
+				<div class="wrap-textarea-left"><textarea id="sample-textarea-left" class="sample-textarea-display"></textarea></div>
+				<div class="wrap-textarea-right"><textarea id="sample-textarea-right" class="sample-textarea-display"></textarea></div>
+			</div>
+			<div class="wrap-control">
+				<div class="wrap-text-left"><p id="sample-textarea-left-detect"></p></div>
+				<div class="wrap-text-right"><p id="sample-textarea-right-detect"></p></div>
+			</div>
+			<div class="wrap-control">
+				<div class="wrap-input-left"><input id="sample-textarea-left-font" type="text"></div>
+				<div class="wrap-input-right"><input id="sample-textarea-right-font" type="text"></div>
+			</div>
+			<div class="wrap-control">
+				<div class="wrap-file-left"><input type="file" id="sample-textarea-left-file"></div>
+				<div class="wrap-file-right"><input type="file" id="sample-textarea-right-file"></div>
+			</div>
+			<div>&nbsp;</div>
+		</div>
+
+		<script type="text/javascript">
+			const sampleText = `Enter or paste sample text here
+我能吞下玻璃而不伤身体，The quick brown fox jumps over the lazy dog.
+0 1 2 3 4 5 6 7 8 9
+a b c d e f g h i j k l m n o p q r s t u v w x y z
+A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+. , ' " : ; ? ( ) < > [ ] { } / \ \` ~ ! @ # $ % ^ & * - _ = +
+。 ， ‘ ’ “ ” ： ； ？ （ ） 《 》 【 】 「 」 ÷ 、 \` ~ ！ @ # ¥ % ^ & * - —— = +
+® © ♠ ♣ ♧ ♡ ♥ ❤ ❥ ❣ ♂ ♀ ✲ ☀ ☼ ☾ ☽ ◐ ◑ ☺ ☻ ☎ ☏ ✿ ❀ № ↑ ↓ ← → √ × ÷ ★
+℃ ℉ ° ◆ ◇ ⊙ ■ □ △ ▽ ¿ ½ ☯ ✡ ㍿ 卍 卐 ♂ ♀ ✚ 〓 ㎡ ♪ ♫ ♩ ♬ ㊚ ㊛ 囍 ㊒ ㊖
+Φ ♀ ♂ ‖ $ @ * & # ※ 卍 卐 Ψ ♫ ♬ ♭ ♩ ♪ ♯ ♮ ⌒ ¶ ∮ ‖ € ￡ ¥ $
+😀😃😄😁😆😅🤣😂🥰😍😭😱😫🥱💀🤡👻👽🤖💘💞💋💯💢💥💫💦
+永和九年，岁在癸丑，暮春之初，会于会稽山阴之兰亭，修禊事也。
+`;
+
+			// Load sysmbols from `symbols.txt`
+			window.onload = () => {
+				// $.ajax({
+				// 	url : "symbols.txt",
+				// 	dataType: "text",
+				// 	success : function (data) {
+				// 		$(".sample-textarea-left").html(data);
+				// 		$(".sample-textarea-right").html(data);
+				// 	}
+				// });
+			}
+
+			// Default text in textarea
+			// document.getElementById('sample-textarea-left').value = sampleText;
+			// document.getElementById('sample-textarea-right').value = sampleText;
+			$("#sample-textarea-left").text(sampleText);
+			$("#sample-textarea-right").text(sampleText);
+
+			// Country Flags
+			$('#sampletext-flags').css({
+				fontFamily: "'Twemoji Country Flags'",
+				fontWeight: 400,
+				fontStyle: 'normal',
+				fontSize: '16px',
+			});
+
+			// Defualt fontsize
+			const defaultFontSize = window.getComputedStyle(document.body).getPropertyValue('font-size').match(/\d+/)[0];
+			const selectFontSize = document.getElementById('select-fontsize');
+			for(let i, j = 0; i = selectFontSize.options[j]; j++) {
+				if(i.value == defaultFontSize) {
+					selectFontSize.selectedIndex = j;
+					break;
+				}
+			}
+
+			// Detect using fonts
+			// $('#' + ele + '-detect').text(window.getComputedStyle(document.getElementById(ele), null).getPropertyValue("font-family"));
+			sampleTextElement.forEach(function(ele) {
+				getElementFonts(ele);
+			});
+
+			// Change fontsize
+			selectFontSize.addEventListener("change", function selectedFontSizeChanged() {
+				changeSampleTextFontSize(selectFontSize.value);
+			});
+
+			// Load text to textarea
+			document.getElementById('sample-textarea-left-file').addEventListener('change', function selectedFileChanged() {
+				if (this.files.length === 0) {
+					console.log('No file selected.');
+					return;
+				}
+
+				const reader = new FileReader();
+				reader.onload = function fileReadCompleted() {
+					// console.log(reader.result);
+					$("#sample-textarea-left").text(reader.result);
+				};
+				reader.readAsText(this.files[0]);
+			});
+
+			document.getElementById('sample-textarea-right-file').addEventListener('change', function selectedFileChanged() {
+				if (this.files.length === 0) {
+					console.log('No file selected.');
+					return;
+				}
+
+				const reader = new FileReader();
+				reader.onload = function fileReadCompleted() {
+					// console.log(reader.result);
+					$("#sample-textarea-right").text(reader.result);
+				};
+				reader.readAsText(this.files[0]);
+			});
+		</script>
+	</body>
+</html>
