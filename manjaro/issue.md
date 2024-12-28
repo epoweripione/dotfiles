@@ -177,3 +177,15 @@ tar -czf - * | openssl enc -e -aes256 -out secured.tar.gz
 # Decrypt Files
 openssl enc -d -aes256 -in secured.tar.gz | tar xz -C test
 ```
+
+## [How to create and apply a Git patch file with git diff and git apply commands](https://everythingdevops.dev/how-to-create-and-apply-a-git-patch-with-git-diff-and-git-apply-commands/)
+```bash
+# Creating a Git patch file
+git diff > patch_file.diff
+git diff filename > patch_file.diff
+git diff commit_id1 commit_id2 > patch_file.diff
+git diff branch_1_name branch_2_name > patch_file.diff
+
+# Applying a Git patch file
+git apply patch_file.diff
+```

@@ -112,3 +112,10 @@ except yaml.YAMLError as e:
 # >> Invalid char code:  132 0x84
 grep -n -P "[\x84]" input.yml
 ```
+
+## [How to insert a new line character after a fixed number of characters in a file](https://stackoverflow.com/questions/1187078/how-to-insert-a-new-line-character-after-a-fixed-number-of-characters-in-a-file)
+```bash
+#  remove duplicate lines before rearrange lines
+# 80 characters perline
+awk '!seen[$0]++' input.txt | tr -d '\n' | sed -e "s/.\{80\}/&\n/g" > output.txt
+```
