@@ -115,6 +115,7 @@ AppsToInstall=(
     "fzf"
     "git"
     "htop"
+    "jq"
     "lsd"
     "lsof"
     "nano"
@@ -128,6 +129,7 @@ AppsToInstall=(
     "unrar"
     "unzip"
     "wget"
+    "yq"
     "zoxide"
 )
 InstallSystemPackages "" "${AppsToInstall[@]}"
