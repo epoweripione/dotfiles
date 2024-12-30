@@ -103,15 +103,17 @@ function applyFont(element, fontSpec, fontSize) {
 function changeSampleTextFontSize(fontSize) {
     sampleTextElement.forEach(function(ele) {
         document.getElementById(ele).style.fontSize = fontSize + "px";
+        getElementFonts(ele);
     });
 }
 
 // Determine font weight
 function getFontWeight(fontName, fontVariant) {
-    let fontStyle, fontWeight;
+    let fontStyle, fontWeight, compareName;
     let calcRound, calcFactor, calcTotal;
 
     fontWeight = "400";
+    compareName = fontName.toLowerCase();
 
     fontStyle = fontVariant.toLowerCase();
     if (fontStyle.includes("normal") || fontStyle.includes("regular")) {
@@ -135,13 +137,17 @@ function getFontWeight(fontName, fontVariant) {
     }
 
     // [梦源字体](https://github.com/Pal3love/dream-han-cjk)
-    if (fontName.toLowerCase().includes("dream han serif")) {
+    if (compareName.includes("dream han serif") ||
+        compareName.includes("梦源宋体") ||
+        compareName.includes("夢源明體")) {
         calcRound = parseInt(fontVariant.match(/\d+/)[0]);
         calcTotal = (calcRound - 1) * 25;
         fontWeight = (250 + calcTotal).toString();
     }
 
-    if (fontName.toLowerCase().includes("dream han sans")) {
+    if (compareName.includes("dream han sans") ||
+        compareName.includes("梦源黑体") ||
+        compareName.includes("夢源黑體")) {
         calcRound = parseInt(fontVariant.match(/\d+/)[0]);
         calcTotal = 0;
         for (let step = 1; step < calcRound; step++) {
@@ -176,6 +182,7 @@ async function getSystemFonts(useFullName) {
         addLoadingIndicator('curtain', 'Loading system fonts...', 'data-colorful');
 
         const availableFonts = await window.queryLocalFonts();
+        // console.log(availableFonts);
         for (const fontData of availableFonts) {
             // console.log(`"${fontData.postscriptName}" "${fontData.fullName}" "${fontData.family}" "${fontData.style}"`);
             systemFontInfo = {};
@@ -254,6 +261,23 @@ function getElementFonts(elementName) {
     outText.push(window.getComputedStyle(ele, null).getPropertyValue("font-weight"));
 
     $("#" + elementName + "-detect").text(outText.join(" "));
+}
+
+// [FontFaceSet: check() method](https://developer.mozilla.org/en-US/docs/Web/API/FontFaceSet/check)
+// [How to get the rendered font in JavaScript?](https://stackoverflow.com/questions/57853292/how-to-get-the-rendered-font-in-javascript)
+// getRenderedFontFamilyName(document.querySelector('body'));
+function getRenderedFontFamilyName(elementName) {
+    let ele = document.getElementById(elementName);
+
+    // Font families set in CSS for the element
+    const fontFamilies = window.getComputedStyle( ele, null ).getPropertyValue( "font-family" );
+    // const hardcodedFamilies = '-apple-system, BlinkMacSystemFont, "Segoe UI Adjusted", "Segoe UI", "Liberation Sans", sans-serif';
+    
+    // Remove the " sign from names (font families with spaces in their names) and split names to the array
+    const fontFamiliesArr = fontFamilies.replaceAll('"', "").split(", ");
+
+    // Find the first loaded font from the array
+    return fontFamiliesArr.find( e => document.fonts.check( `12px ${e}`) );
 }
 
 // Loading Spinner/Indicator
