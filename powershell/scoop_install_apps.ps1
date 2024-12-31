@@ -233,7 +233,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "bulk-crap-uninstaller"
         "bulk-rename-utility"
         "fastcopy"
-        "snipaste-beta"
+        "snipaste"
         "ffmpeg"
         # "listen1desktop"
         "thorium-reader"
@@ -265,6 +265,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "qtscrcpy"
         "motrix"
         "nomeiryoui"
+        "nilesoft-shell"
         # "powertoys"
         "pot"
         "q-dir"
@@ -418,7 +419,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "LXGWWenKaiMonoGB"
         "LXGWWenKaiMonoTC"
         "LXGWWenKaiScreen"
-        "LXGWWenKaiScreenR"
+        # "LXGWWenKaiScreenR"
         "LXGWWenKaiTC"
     )
 
