@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 	<head>
-		<meta charset="UTF-8" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>字体查看器</title>
 		<!-- https://github.com/av01d/fontpicker-jquery-plugin -->
 		<!-- https://developer.mozilla.org/en-US/docs/Web/API/Local_Font_Access_API -->
@@ -38,6 +39,53 @@
 				font-size: 16px;
 				line-height: 1.5;
 			}
+
+			/* [Stylus - Userstyles Manager](https://github.com/openstyles/stylus) */
+			/* [Use Hiragino Font Family for websites](https://github.com/SDLMoe/user.css) */
+			/* [字体渲染（自用脚本）](https://greasyfork.org/zh-CN/scripts/416688-%E5%AD%97%E4%BD%93%E6%B8%B2%E6%9F%93-%E8%87%AA%E7%94%A8%E8%84%9A%E6%9C%AC) */
+			/* [font-family 的一点总结和思考](https://juejin.cn/post/7195823084887719991) */
+			/* body,
+			html:lang(en) body,
+			html:lang(zh) body,
+			html:lang(zh-CN) body,
+			html:lang(zh-SG) body,
+			html:lang(cmn-Hans) body,
+			html:lang(zh-cmn-Hans) body,
+			html:lang(zh-Hans) body {
+				font-family: system-ui,
+					-apple-system,
+					BlinkMacSystemFont,
+					"Noto Sans",
+					"Helvetica Neue",
+					"Segoe UI",
+					Helvetica,
+					"Nimbus Sans L",
+					Arial,
+					"Liberation Sans",
+					"PingFang SC",
+					"Hiragino Sans GB",
+					"LXGW WenKai Screen",
+					"LXGW WenKai",
+					"Dream Han Sans SC",
+					"Sarasa UI SC",
+					"Sarasa Gothic SC",
+					"Noto Sans CJK SC",
+					"Source Han Sans SC",
+					"Source Han Sans CN",
+					"Microsoft YaHei UI",
+					"Microsoft YaHei",
+					"Wenquanyi Micro Hei",
+					"WenQuanYi Zen Hei",
+					"ST Heiti",
+					SimHei,
+					"WenQuanYi Zen Hei Sharp",
+					"Dream Han Serif SC",
+					"Noto Serif CJK SC",
+					"Source Han Serif SC",
+					"Source Han Serif CN",
+					sans-serif;
+				quotes: "「""」";
+			} */
 
 			.sampletext-grid {
 				display: grid;
@@ -399,6 +447,9 @@ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
 					break;
 				}
 			}
+
+			// Get sample text default fonts
+			getSampleTextDefaultFonts();
 
 			// Detect using fonts
 			// $('#' + ele + '-detect').text(window.getComputedStyle(document.getElementById(ele), null).getPropertyValue("font-family"));

@@ -1,3 +1,18 @@
+// [Fix CJK fonts/punctuations for Chrome and Firefox (Windows AND Linux!)](https://github.com/stecue/fixcjk)
+// [字体字重测试 · Font Weight Test](https://zonovo.sinaapp.com/design/robotosc.html)
+
+// CSS fonts
+// - ttf to ttc: [Transfonter - Unpack TTC](https://transfonter.org/ttc-unpack)
+// - ttf to woff2: if ttf filesize > 15MB: [Baidu EFE - FontEditor](https://kekee000.github.io/fonteditor/index.html)
+// - ttf/woff2 to CSS: [Transfonter - Webfont generator](https://transfonter.org/)
+//   * Disable `Family support` if display wrong font style
+//   * Enable `Base64 encode`
+//   * Formats: `WOFF2` only
+//   * Demo page language：Without demo page
+//   * Font display：auto
+// - Convert
+// - stylesheet.css: `@font-face`
+
 const sampleTextElement = [
     "sampletext-basic",
     "sampletext-mono",
@@ -11,6 +26,8 @@ const sampleTextElement = [
     "sample-textarea-left",
     "sample-textarea-right",
 ];
+
+let elementDefaultFonts = {};
 
 let localFontsType = 'woff2';
 let localFontsUrl = 'fonts/';
@@ -248,14 +265,35 @@ async function getSystemFonts(useFullName) {
     return systemInstalledFonts;
 }
 
+// Get sample text element default fonts
+function getSampleTextDefaultFonts() {
+    sampleTextElement.forEach(function(ele) {
+        getElementDefaultFonts(ele);
+    });
+}
+
+// Get element default fonts
+function getElementDefaultFonts(elementName) {
+    let ele = document.getElementById(elementName);
+
+    elementDefaultFonts[elementName] ={"fonts": window.getComputedStyle(ele, null).getPropertyValue("font-family")};
+}
+
 // Detect & setting element fonts
 function getElementFonts(elementName) {
     let outText = [];
+    let fontFamilies, renderedFont;
 
     let ele = document.getElementById(elementName);
 
     // [css-properties](https://gist.github.com/jericepon/421600fd143efa45c801f9d88a2d8ccd#file-css-properties-txt)
-    outText.push(window.getComputedStyle(ele, null).getPropertyValue("font-family"));
+    fontFamilies = window.getComputedStyle(ele, null).getPropertyValue("font-family");
+    renderedFont = getRenderedFontFamilyName(elementName) || 'unknown';
+    if (!fontFamilies.replaceAll('"', "") === renderedFont.replaceAll('"', "")) {
+        fontFamilies = elementDefaultFonts[elementName]["fonts"];
+    }
+
+    outText.push(fontFamilies);
     outText.push(window.getComputedStyle(ele, null).getPropertyValue("font-style"));
     outText.push(window.getComputedStyle(ele, null).getPropertyValue("font-size"));
     outText.push(window.getComputedStyle(ele, null).getPropertyValue("font-weight"));
@@ -272,13 +310,65 @@ function getRenderedFontFamilyName(elementName) {
     // Font families set in CSS for the element
     const fontFamilies = window.getComputedStyle( ele, null ).getPropertyValue( "font-family" );
     // const hardcodedFamilies = '-apple-system, BlinkMacSystemFont, "Segoe UI Adjusted", "Segoe UI", "Liberation Sans", sans-serif';
-    
+
     // Remove the " sign from names (font families with spaces in their names) and split names to the array
     const fontFamiliesArr = fontFamilies.replaceAll('"', "").split(", ");
 
     // Find the first loaded font from the array
-    return fontFamiliesArr.find( e => document.fonts.check( `12px ${e}`) );
+    const d = new FontDetector();
+    return fontFamiliesArr.find( e => d.detect(e) );
+    // return fontFamiliesArr.find( e => document.fonts.check( `12px "${e}"`) );
 }
+
+// [Detect available fonts with JS](https://gist.github.com/fijiwebdesign/3b0bf8e88ceef7518844)
+// [list every font a user's browser can display](https://stackoverflow.com/questions/3368837/list-every-font-a-users-browser-can-display)
+/**
+ * Usage: d = new FontDetector();
+ *        d.detect('font name');
+ */
+var FontDetector = function() {
+    // a font will be compared against all the three default fonts.
+    // and if it doesn't match all 3 then that font is not available.
+    var baseFonts = ['monospace', 'sans-serif', 'serif'];
+
+    //we use m or w because these two characters take up the maximum width.
+    // And we use a LLi so that the same matching fonts can get separated
+    var testString = "mmmmmmmmmmlli";
+
+    //we test using 72px font size, we may use any size. I guess larger the better.
+    var testSize = '72px';
+
+    var h = document.getElementsByTagName("body")[0];
+
+    // create a SPAN in the document to get the width of the text we use to test
+    var s = document.createElement("span");
+    s.style.fontSize = testSize;
+    s.innerHTML = testString;
+    var defaultWidth = {};
+    var defaultHeight = {};
+    for (var index in baseFonts) {
+        //get the default width for the three base fonts
+        s.style.fontFamily = baseFonts[index];
+        h.appendChild(s);
+        defaultWidth[baseFonts[index]] = s.offsetWidth; //width for the default font
+        defaultHeight[baseFonts[index]] = s.offsetHeight; //height for the defualt font
+        h.removeChild(s);
+    }
+
+    function detect(font) {
+        var detected = false;
+        for (var index in baseFonts) {
+            s.style.fontFamily = '"' + font + '"' + ',' + baseFonts[index]; // name of the font along with the base font for fallback.
+            h.appendChild(s);
+            var matched = (s.offsetWidth != defaultWidth[baseFonts[index]] || s.offsetHeight != defaultHeight[baseFonts[index]]);
+            h.removeChild(s);
+            detected = detected || matched;
+        }
+        return detected;
+    }
+
+    this.detect = detect;
+};
 
 // Loading Spinner/Indicator
 // [80+ Best Pure CSS Loading Spinners For Front-end Developers](https://365webresources.com/best-pure-css-loading-spinners/)
