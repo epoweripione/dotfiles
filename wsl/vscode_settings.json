@@ -17,7 +17,7 @@
 	"editor.minimap.enabled": true,
 	"editor.renderControlCharacters": true,
 	"editor.renderWhitespace": "selection",
-	"editor.fontFamily": "'FiraCode Nerd Font Mono', 'Fira Code', 'Sarasa Term SC', '等距更纱黑体 SC'",
+	"editor.fontFamily": "'JetBrainsMono Nerd Font', 'FiraCode Nerd Font Mono', 'Sarasa Mono SC', '等距更纱黑体 SC', 'Noto Sans Mono CJK SC'",
 	"editor.fontLigatures": true,
 	"editor.formatOnPaste": false,
 	"editor.linkedEditing": true,
@@ -90,11 +90,11 @@
 			"editor.defaultFormatter": "vscode.json-language-features"
 	},
 
-	"dart.flutterSdkPath": "C:\\Users\\username\\scoop\\apps\\flutter\\current",
+	"dart.flutterSdkPath": "~\\scoop\\apps\\flutter\\current",
 
 	"vs-kubernetes": {
-		"vscode-kubernetes.minikube-path.windows": "C:\\Users\\username\\.vs-kubernetes\\tools\\minikube\\windows-amd64\\minikube.exe",
-		"vscode-kubernetes.kubectl-path.windows": "C:\\Users\\username\\.vs-kubernetes\\tools\\kubectl\\kubectl.exe"
+		"vscode-kubernetes.minikube-path.windows": "~\\.vs-kubernetes\\tools\\minikube\\windows-amd64\\minikube.exe",
+		"vscode-kubernetes.kubectl-path.windows": "~\\.vs-kubernetes\\tools\\kubectl\\kubectl.exe"
 	},
 
 	//go install -v golang.org/x/tools/cmd/goimports@latest
