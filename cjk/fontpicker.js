@@ -1,5 +1,12 @@
 // [Fix CJK fonts/punctuations for Chrome and Firefox (Windows AND Linux!)](https://github.com/stecue/fixcjk)
 // [字体字重测试 · Font Weight Test](https://zonovo.sinaapp.com/design/robotosc.html)
+// [中文网字计划 (Chinese Webfont Project)](https://github.com/KonghaYao/chinese-free-web-font-storage)
+// [动态加载字体](https://tate-young.github.io/2020/08/26/css-font-face.html)
+// [字体加载最佳实践](https://xiaoiver.github.io/coding/2018/03/22/%E5%AD%97%E4%BD%93%E5%8A%A0%E8%BD%BD%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5.html)
+// [JS FontFace API 字体加载失败或完毕的检测](https://www.zhangxinxu.com/wordpress/2022/04/js-font-face-load/)
+// [如何校验某个字符是否存在于字体文件？](https://juejin.cn/post/7430681137830133801)
+// [CSS 自定义字体实践](https://juejin.cn/post/7328621062727680000)
+// [检测浏览器是否支持某种字体的方法](https://juejin.cn/post/7319903396542578715)
 
 // CSS fonts
 // - ttf to ttc: [Transfonter - Unpack TTC](https://transfonter.org/ttc-unpack)
@@ -183,10 +190,44 @@ function getFontWeight(fontName, fontVariant) {
     return fontWeight
 }
 
+// Determine font stretch
+function getFontStretch(fontName, fontVariant) {
+    let fontStyle, fontStretch, compareName;
+
+    fontStretch = "normal";
+    compareName = fontName.toLowerCase();
+
+    fontStyle = fontVariant.toLowerCase();
+    if (fontStyle.includes("ultra-condensed") || fontStyle.includes("ultracondensed")) {
+        fontStretch = "ultra-condensed";
+    } else if (fontStyle.includes("extra-condensed") || fontStyle.includes("extracondensed")) {
+        fontStretch = "extra-condensed";
+    } else if (fontStyle.includes("semi-condensed") || fontStyle.includes("semicondensed")) {
+        fontStretch = "semi-condensed";
+    } else if (fontStyle.includes("ultra-expanded") || fontStyle.includes("ultra-expanded")) {
+        fontStretch = "ultra-expanded";
+    } else if (fontStyle.includes("extra-expanded") || fontStyle.includes("extra-expanded")) {
+        fontStretch = "extra-expanded";
+    } else if (fontStyle.includes("semi-expanded") || fontStyle.includes("semi-expanded")) {
+        fontStretch = "ultra-expanded";
+    } else if (fontStyle.includes("condensed")) {
+        fontStretch = "condensed";
+    } else if (fontStyle.includes("expanded")) {
+        fontStretch = "expanded";
+    }
+
+    if (!fontStretch) {
+        fontStretch = "normal";
+    }
+
+    return fontStretch
+}
+
 // [Local Font Access API](https://developer.mozilla.org/en-US/docs/Web/API/Local_Font_Access_API)
 async function getSystemFonts(useFullName) {
     let systemInstalledFonts = {};
-    let systemFontInfo, fontName, fontCategory, fontVariant, fontStyle;
+    let systemFontInfo, fontPostscriptName, fontFullName, fontName, fontCategory, fontVariant, fontStyle;
+    let fontFace, fontFaceStyle, fontFaceWeight, fontFaceStretch;
     let allStyles = [];
 
     if ("queryLocalFonts" in window) {
@@ -213,14 +254,23 @@ async function getSystemFonts(useFullName) {
                 fontName = fontData.family;
             }
 
+            fontPostscriptName = fontData.postscriptName;
+            fontFullName = fontData.fullName;
+
             fontStyle = fontData.style;
             if (!allStyles.includes(fontStyle)) {
                 allStyles.push(fontStyle);
             }
 
             fontVariant = getFontWeight(fontName, fontStyle);
+            fontFaceWeight = fontVariant;
+            fontFaceStyle = "normal";
             if (fontStyle.toLowerCase().includes("italic")) {
+                fontFaceStyle = "italic";
                 fontVariant = fontVariant + "i";
+            }
+            if (fontStyle.toLowerCase().includes("oblique")) {
+                fontFaceStyle = "oblique";
             }
 
             fontCategory = "system";
@@ -237,14 +287,34 @@ async function getSystemFonts(useFullName) {
                 fontCategory = "handwriting";
             }
 
+            // [FontFace: FontFace() constructor](https://developer.mozilla.org/en-US/docs/Web/API/FontFace/FontFace)
+            // source:style:weight:stretch,...
+            fontFaceStretch = getFontStretch(fontName, fontStyle);
+            fontFace = fontPostscriptName + ":" + fontFaceStyle + ":" + fontFaceWeight + ":" + fontFaceStretch;
+
             if ("category" in systemFontInfo) {
+                if (! ("," + systemFontInfo["postscriptname"] + ",").includes("," + fontPostscriptName + ",")) {
+                    fontPostscriptName = systemFontInfo["postscriptname"] + "," + fontPostscriptName;
+                    systemFontInfo["postscriptname"] = fontPostscriptName.split(",").sort().join(",");
+                }
+
+                if (! ("," + systemFontInfo["fullname"] + ",").includes("," + fontFullName + ",")) {
+                    fontFullName = systemFontInfo["fullname"] + "," + fontFullName;
+                    systemFontInfo["fullname"] = fontFullName.split(",").sort().join(",");
+                }
+
                 if (! ("," + systemFontInfo["variants"] + ",").includes("," + fontVariant + ",")) {
                     fontVariant = systemFontInfo["variants"] + "," + fontVariant;
                     systemFontInfo["variants"] = fontVariant.split(",").sort().join(",");
                 }
+
+                systemFontInfo["fontface"] = systemFontInfo["fontface"] + "," + fontFace;
             } else {
                 systemFontInfo["category"] = fontCategory;
+                systemFontInfo["postscriptname"] = fontPostscriptName;
+                systemFontInfo["fullname"] = fontFullName;
                 systemFontInfo["variants"] = fontVariant;
+                systemFontInfo["fontface"] = fontFace;
             }
 
             if (useFullName) {
@@ -320,6 +390,22 @@ function getRenderedFontFamilyName(elementName) {
     // return fontFamiliesArr.find( e => document.fonts.check( `12px "${e}"`) );
 }
 
+// Detect font is available
+function isFontAvailable(fontName) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const text = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    context.font = '72px monospace';
+    const baselineSize = context.measureText(text).width;
+
+    context.font = '72px "' + fontName + '", monospace';
+    const newSize = context.measureText(text).width;
+
+    // console.log(fontName, baselineSize, newSize);
+
+    return newSize !== baselineSize;
+}
+
 // [Detect available fonts with JS](https://gist.github.com/fijiwebdesign/3b0bf8e88ceef7518844)
 // [list every font a user's browser can display](https://stackoverflow.com/questions/3368837/list-every-font-a-users-browser-can-display)
 /**
@@ -369,6 +455,41 @@ var FontDetector = function() {
 
     this.detect = detect;
 };
+
+// [FontFace: FontFace() constructor](https://developer.mozilla.org/en-US/docs/Web/API/FontFace/FontFace)
+function loadSystemFont(fontFamily, fontFace, localFont) {
+    // source:style:weight:stretch,...
+    const fontFaceProperty = fontFace.split(",");
+    const fonts = fontFaceProperty.map(function(fontface) {
+        const fontFaceDescriptor = fontface.split(":");
+        if (localFont) {
+            return new FontFace(fontFamily, "local('" + fontFaceDescriptor[0] + "')", {
+                style: fontFaceDescriptor[1],
+                weight: fontFaceDescriptor[2],
+                stretch: fontFaceDescriptor[3],
+            });
+        } else {
+            return new FontFace(fontFamily, "url('" + fontFaceDescriptor[0] + "')", {
+                style: fontFaceDescriptor[1],
+                weight: fontFaceDescriptor[2],
+                stretch: fontFaceDescriptor[3],
+            });
+        } 
+    });
+    // console.log(fonts);
+
+    Promise.all(fonts.map(function(font) {
+        font.load();
+    })).then(function () {
+        fonts.map(function(font) {
+            document.fonts.add(font);
+        });
+        console.log(`"${fontFamily}" loaded.`);
+    }).catch(err => {
+        console.log(`"${fontFamily}" not loaded.`);
+        console.log(err);
+    });
+}
 
 // Loading Spinner/Indicator
 // [80+ Best Pure CSS Loading Spinners For Front-end Developers](https://365webresources.com/best-pure-css-loading-spinners/)
