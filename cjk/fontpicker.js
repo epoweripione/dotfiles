@@ -60,7 +60,7 @@ function loadFonts() {
     let promise;
 
     if (isSystemFonts) {
-        promise = getSystemFonts(false);
+        promise = getSystemFonts();
         promise.then(data => {
             systemFonts = data;
             // console.log(systemFonts);
@@ -132,6 +132,7 @@ function changeSampleTextFontSize(fontSize) {
 }
 
 // Determine font weight
+// [font-weight](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-weight)
 function getFontWeight(fontName, fontVariant) {
     let fontStyle, fontWeight, compareName;
     let calcRound, calcFactor, calcTotal;
@@ -148,13 +149,13 @@ function getFontWeight(fontName, fontVariant) {
         fontWeight = "300";
     } else if (fontStyle.includes("semibold") || fontStyle.includes("demibold")) {
         fontWeight = "600";
-    } else if (fontStyle.includes("extrabold")) {
+    } else if (fontStyle.includes("extrabold") || fontStyle.includes("ultrabold")) {
         fontWeight = "800";
     } else if (fontStyle.includes("bold")) {
         fontWeight = "700";
     } else if (fontStyle.includes("medium")) {
         fontWeight = "500";
-    } else if (fontStyle.includes("thin")) {
+    } else if (fontStyle.includes("thin") || fontStyle.includes("hairline")) {
         fontWeight = "100";
     } else if (fontStyle.includes("black") || fontStyle.includes("heavy") || fontStyle.includes("fat") || fontStyle.includes("poster")) {
         fontWeight = "900";
@@ -191,6 +192,7 @@ function getFontWeight(fontName, fontVariant) {
 }
 
 // Determine font stretch
+// [font-stretch](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-stretch)
 function getFontStretch(fontName, fontVariant) {
     let fontStyle, fontStretch, compareName;
 
@@ -204,12 +206,12 @@ function getFontStretch(fontName, fontVariant) {
         fontStretch = "extra-condensed";
     } else if (fontStyle.includes("semi-condensed") || fontStyle.includes("semicondensed")) {
         fontStretch = "semi-condensed";
-    } else if (fontStyle.includes("ultra-expanded") || fontStyle.includes("ultra-expanded")) {
+    } else if (fontStyle.includes("ultra-expanded") || fontStyle.includes("ultraexpanded")) {
         fontStretch = "ultra-expanded";
-    } else if (fontStyle.includes("extra-expanded") || fontStyle.includes("extra-expanded")) {
+    } else if (fontStyle.includes("extra-expanded") || fontStyle.includes("extraexpanded")) {
         fontStretch = "extra-expanded";
-    } else if (fontStyle.includes("semi-expanded") || fontStyle.includes("semi-expanded")) {
-        fontStretch = "ultra-expanded";
+    } else if (fontStyle.includes("semi-expanded") || fontStyle.includes("semiexpanded")) {
+        fontStretch = "semi-expanded";
     } else if (fontStyle.includes("condensed")) {
         fontStretch = "condensed";
     } else if (fontStyle.includes("expanded")) {
@@ -224,9 +226,9 @@ function getFontStretch(fontName, fontVariant) {
 }
 
 // [Local Font Access API](https://developer.mozilla.org/en-US/docs/Web/API/Local_Font_Access_API)
-async function getSystemFonts(useFullName) {
+async function getSystemFonts() {
     let systemInstalledFonts = {};
-    let systemFontInfo, fontPostscriptName, fontFullName, fontName, fontCategory, fontVariant, fontStyle;
+    let systemFontInfo, fontFamilyName, fontPostscriptName, fontFullName, fontName, fontCategory, fontVariant, fontStyle;
     let fontFace, fontFaceStyle, fontFaceWeight, fontFaceStretch;
     let allStyles = [];
 
@@ -237,7 +239,8 @@ async function getSystemFonts(useFullName) {
     }
 
     try {
-        addLoadingIndicator('curtain', 'Loading system fonts...', 'data-colorful');
+        addLoadingIndicator('curtain', 'Querying system fonts...', 'data-colorful');
+        console.log('Querying system fonts...');
 
         const availableFonts = await window.queryLocalFonts();
         // console.log(availableFonts);
@@ -248,12 +251,7 @@ async function getSystemFonts(useFullName) {
                 systemFontInfo = systemInstalledFonts[fontData.family];
             }
 
-            if (useFullName) {
-                fontName = fontData.fullName;
-            } else {
-                fontName = fontData.family;
-            }
-
+            fontFamilyName = fontData.family;
             fontPostscriptName = fontData.postscriptName;
             fontFullName = fontData.fullName;
 
@@ -262,8 +260,10 @@ async function getSystemFonts(useFullName) {
                 allStyles.push(fontStyle);
             }
 
-            fontVariant = getFontWeight(fontName, fontStyle);
+            fontVariant = getFontWeight(fontFamilyName, fontStyle);
             fontFaceWeight = fontVariant;
+
+            // [font-style](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-style)
             fontFaceStyle = "normal";
             if (fontStyle.toLowerCase().includes("italic")) {
                 fontFaceStyle = "italic";
@@ -274,7 +274,7 @@ async function getSystemFonts(useFullName) {
             }
 
             fontCategory = "system";
-            fontName = fontName.toLowerCase();
+            fontName = fontFamilyName.toLowerCase();
             if (fontName.includes("sans")) {
                 fontCategory = "sans-serif";
             } else if (fontName.includes("serif")) {
@@ -288,20 +288,26 @@ async function getSystemFonts(useFullName) {
             }
 
             // [FontFace: FontFace() constructor](https://developer.mozilla.org/en-US/docs/Web/API/FontFace/FontFace)
-            // source:style:weight:stretch,...
-            fontFaceStretch = getFontStretch(fontName, fontStyle);
+            // [src](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src)
+            // [font-style](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-style)
+            // [font-weight](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-weight)
+            // [font-stretch](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-stretch)
+            // fontFace - `src:font-style:font-weight:font-stretch,...`
+            fontFaceStretch = getFontStretch(fontFamilyName, fontStyle);
             fontFace = fontPostscriptName + ":" + fontFaceStyle + ":" + fontFaceWeight + ":" + fontFaceStretch;
 
             if ("category" in systemFontInfo) {
                 if (! ("," + systemFontInfo["postscriptname"] + ",").includes("," + fontPostscriptName + ",")) {
                     fontPostscriptName = systemFontInfo["postscriptname"] + "," + fontPostscriptName;
-                    systemFontInfo["postscriptname"] = fontPostscriptName.split(",").sort().join(",");
+                    systemFontInfo["postscriptname"] = fontPostscriptName;
+                    // systemFontInfo["postscriptname"] = fontPostscriptName.split(",").sort().join(",");
                 }
 
-                if (! ("," + systemFontInfo["fullname"] + ",").includes("," + fontFullName + ",")) {
-                    fontFullName = systemFontInfo["fullname"] + "," + fontFullName;
-                    systemFontInfo["fullname"] = fontFullName.split(",").sort().join(",");
-                }
+                // if (! ("," + systemFontInfo["fullname"] + ",").includes("," + fontFullName + ",")) {
+                //     fontFullName = systemFontInfo["fullname"] + "," + fontFullName;
+                //     systemFontInfo["fullname"] = fontFullName;
+                //     // systemFontInfo["fullname"] = fontFullName.split(",").sort().join(",");
+                // }
 
                 if (! ("," + systemFontInfo["variants"] + ",").includes("," + fontVariant + ",")) {
                     fontVariant = systemFontInfo["variants"] + "," + fontVariant;
@@ -317,11 +323,7 @@ async function getSystemFonts(useFullName) {
                 systemFontInfo["fontface"] = fontFace;
             }
 
-            if (useFullName) {
-                systemInstalledFonts[fontData.fullName] = systemFontInfo;
-            } else {
-                systemInstalledFonts[fontData.family] = systemFontInfo;
-            }
+            systemInstalledFonts[fontFamilyName] = systemFontInfo;
         }
 
         removeLoadingIndicator();
@@ -330,6 +332,7 @@ async function getSystemFonts(useFullName) {
     }
 
     // console.log(systemInstalledFonts);
+    console.log(JSON.stringify(systemInstalledFonts));
     // console.log(allStyles);
 
     return systemInstalledFonts;
@@ -457,8 +460,12 @@ var FontDetector = function() {
 };
 
 // [FontFace: FontFace() constructor](https://developer.mozilla.org/en-US/docs/Web/API/FontFace/FontFace)
+// [src](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src)
+// [font-style](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-style)
+// [font-weight](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-weight)
+// [font-stretch](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-stretch)
+// fontFace - `src:font-style:font-weight:font-stretch,...`
 function loadSystemFont(fontFamily, fontFace, localFont) {
-    // source:style:weight:stretch,...
     const fontFaceProperty = fontFace.split(",");
     const fonts = fontFaceProperty.map(function(fontface) {
         const fontFaceDescriptor = fontface.split(":");
@@ -486,8 +493,19 @@ function loadSystemFont(fontFamily, fontFace, localFont) {
         });
         console.log(`"${fontFamily}" loaded.`);
     }).catch(err => {
-        console.log(`"${fontFamily}" not loaded.`);
         console.log(err);
+    });
+}
+
+// [Document: fonts property](https://developer.mozilla.org/en-US/docs/Web/API/Document/fonts)
+function fontsLoadStatus() {
+    document.fonts.ready.then((fontFaceSet) => {
+        // Any operation that needs to be done only after all used fonts
+        // have finished loading can go here.
+        const fontFaces = [...fontFaceSet];
+        console.log(fontFaces);
+        // some fonts may still be unloaded if they aren't used on the site
+        console.log(fontFaces.map((f) => f.status));
     });
 }
 

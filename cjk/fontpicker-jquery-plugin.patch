@@ -12,7 +12,7 @@ index 6305060..d260294 100644
  	font-size: 12px;
  	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 diff --git a/dist/jquery.fontpicker.js b/dist/jquery.fontpicker.js
-index 4b2817b..bf0426c 100644
+index 4b2817b..6420d84 100644
 --- a/dist/jquery.fontpicker.js
 +++ b/dist/jquery.fontpicker.js
 @@ -8821,6 +8821,7 @@
@@ -94,17 +94,66 @@ index 4b2817b..bf0426c 100644
  				 * @param {string} font Font family name. F.e: 'Chakra', 'Zilla Slab'.
  				 */
  				loadFont: function(type, font) {
-@@ -8985,6 +8995,9 @@
+@@ -8985,9 +8995,58 @@
  								$('head').append("<style> @font-face { font-family:'" + font + "'; src:local('" + font + "'), url('" + this.options.localFontsUrl + font + "." + this.options.localFontType + "') format('" + map[this.options.localFontType] + "'); } </style>");
  							}
  							break;
 +
 +						case 'system':
++							this.options.debug && console.log('Loading system font ' + font);
++							loadSystemFont(font, this.options.systemFonts[font]["fontface"], true);
 +							break;
  					}
  				},
  
-@@ -9482,6 +9495,7 @@
++				/**
++				 * Load system fonts
++				 *
++				 * @param {string} fontFamily font-family name, f.e: 'JetBrainsMono Nerd Font'.
++				 * @param {string} fontFace FontFace spec, format: source:style:weight:stretch,... f.e: 'JetBrainsMonoNF-Regular:normal:400:normal,JetBrainsMonoNF-Bold:normal:700:normal'.
++				 * @param {boolean} localFont load font from local or remote uri.
++				 */
++				loadSystemFont: function(fontFamily, fontFace, localFont) {
++					// [FontFace: FontFace() constructor](https://developer.mozilla.org/en-US/docs/Web/API/FontFace/FontFace)
++					// [src](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/src)
++					// [font-style](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-style)
++					// [font-weight](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-weight)
++					// [font-stretch](https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-stretch)
++					// fontFace - `src:font-style:font-weight:font-stretch,...`
++					const fontFaceProperty = fontFace.split(",");
++					const fonts = fontFaceProperty.map(function(fontface) {
++						const fontFaceDescriptor = fontface.split(":");
++						if (localFont) {
++							return new FontFace(fontFamily, "local('" + fontFaceDescriptor[0] + "')", {
++								style: fontFaceDescriptor[1],
++								weight: fontFaceDescriptor[2],
++								stretch: fontFaceDescriptor[3],
++							});
++						} else {
++							return new FontFace(fontFamily, "url('" + fontFaceDescriptor[0] + "')", {
++								style: fontFaceDescriptor[1],
++								weight: fontFaceDescriptor[2],
++								stretch: fontFaceDescriptor[3],
++							});
++						}
++					});
++
++					Promise.all(fonts.map(function(font) {
++						font.load();
++					})).then(function () {
++						fonts.map(function(font) {
++							document.fonts.add(font);
++						});
++						console.log(`"${fontFamily}" loaded.`);
++					}).catch(err => {
++						console.log(err);
++					});
++				},
++
+ 				/**
+ 				 * Show an (editable) font sample.
+ 				 *
+@@ -9482,6 +9541,7 @@
  					$('<div class="hr">').appendTo(this.$filter);
  
  					var gFontCats = googleFontCats.slice(0); // Clone
@@ -112,7 +161,7 @@ index 4b2817b..bf0426c 100644
  					gFontCats.push('other');
  					for (var g = 0; g < gFontCats.length; g++) {
  						$('<span class="fp-category fp-pill checked">')
-@@ -9535,6 +9549,15 @@
+@@ -9535,6 +9595,15 @@
  						}
  					}
  
