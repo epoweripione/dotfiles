@@ -189,8 +189,8 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
 fi
 for Target in "${AppAlwaysInstallList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
-    [[ ! -s "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
-    if [[ -s "${AppInstaller}" ]]; then
+    [[ ! -f "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
+    if [[ -f "${AppInstaller}" ]]; then
         source "${AppInstaller}"
     else
         if grep -q -E "#" <<<"${Target}"; then
@@ -264,8 +264,8 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
 fi
 for Target in "${AppWSLDesktopList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
-    [[ ! -s "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
-    if [[ -s "${AppInstaller}" ]]; then
+    [[ ! -f "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
+    if [[ -f "${AppInstaller}" ]]; then
         source "${AppInstaller}"
     else
         if grep -q -E "#" <<<"${Target}"; then
@@ -298,14 +298,42 @@ if [[ -z "${AppUpdateOnlyList[*]}" ]]; then
 fi
 for Target in "${AppUpdateOnlyList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
-    [[ ! -s "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
-    if [[ -s "${AppInstaller}" ]]; then
+    [[ ! -f "${AppInstaller}" ]] && AppInstaller="${MY_SHELL_SCRIPTS}/cross/${Target}_installer.sh"
+    if [[ -f "${AppInstaller}" ]]; then
         source "${AppInstaller}"
     else
         if grep -q -E "#" <<<"${Target}"; then
             installPrebuiltBinary "${Target}"
         fi
     fi
+done
+
+# Update fonts
+IS_UPDATE_ONLY="yes"
+if [[ -z "${FontUpdateList[*]}" ]]; then
+    FontUpdateList=(
+        "AlibabaHealthDesign"
+        "DreamHanCJK"
+        "MengshenPinyin"
+        "ToneOZPinyinKai"
+        "ToneOZPinyinWenkai"
+        "ToneOZRadicalZ"
+        "ToneOZTsuipita"
+        "LXGWBright"
+        "LXGWBrightCode"
+        "LXGWKose"
+        "LXGWNeoFusion"
+        "LXGWNeoScreen"
+        "LXGWNeoXiHeiCode"
+        "LXGWYozai"
+        # "MapleMono_hinted" # for low resolution screen(e.g. screen resolution is lower or equal than 1080P)
+        "MapleMono_unhinted" # high resolution screen (e.g. 2K, 4K, Retina for MacBook)
+    )
+fi
+for Target in "${FontUpdateList[@]}"; do
+    FontInstaller="${MY_SHELL_SCRIPTS}/fonts/${Target}_installer.sh"
+    [[ ! -f "${FontInstaller}" ]] && FontInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
+    [[ -f "${FontInstaller}" ]] && source "${FontInstaller}"
 done
 
 unset IS_UPDATE_ONLY
