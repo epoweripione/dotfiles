@@ -398,7 +398,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "LXGWNeoXiHeiCode"
         "LXGWYozai"
         # "FiraCode-Mono-NF"
-        "Sarasa-Gothic"
+        # "Sarasa-Gothic"
+        "Sarasa-Gothic_unhinted"
         # "NotoColorEmoji"
         # "OpenMoji"
         ## nerd-fonts
