@@ -183,6 +183,8 @@ FontInstallList=(
     "LXGWNeoScreen"
     "LXGWNeoXiHeiCode"
     "LXGWYozai"
+    # "MapleMono_hinted" # for low resolution screen(e.g. screen resolution is lower or equal than 1080P)
+    "MapleMono_unhinted" # high resolution screen (e.g. 2K, 4K, Retina for MacBook)
 )
 for Target in "${FontInstallList[@]}"; do
     FontInstaller="${MY_SHELL_SCRIPTS}/fonts/${Target}_installer.sh"
