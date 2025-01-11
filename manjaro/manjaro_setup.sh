@@ -338,6 +338,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "extra/libreoffice-extension-writer2latex"
         "extra/libreoffice-extension-texmaths"
         "archlinuxcn/libreoffice-extension-languagetool"
+        # [Lutris - Open Gaming Platform](https://lutris.net/)
+        "lutris"
         ## [TeX Live](https://wiki.archlinux.org/title/TeX_Live)
         "texlive"
         "texlive-langchinese"
@@ -362,6 +364,20 @@ fi
 for TargetApp in "${AppSnapInstallList[@]}"; do
     colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
     sudo snap install "${TargetApp}"
+done
+
+# Flatpak apps
+if [[ -z "${AppFlatpakInstallList[*]}" ]]; then
+    AppFlatpakInstallList=(
+        # [Run Windows in a Bottle](https://usebottles.com/)
+        "flathub#com.usebottles.bottles"
+    )
+fi
+for TargetApp in "${AppFlatpakInstallList[@]}"; do
+    TargetRemote=$(cut -d# -f1 <<<"${TargetApp}")
+    TargetApp=$(cut -d# -f2 <<<"${TargetApp}")
+    colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
+    flatpak install "${TargetRemote}" "${TargetApp}"
 done
 
 ## RDP Server
