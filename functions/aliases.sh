@@ -77,6 +77,10 @@ if [[ -x "$(command -v docker)" ]]; then
     alias dockerpsall='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Ports}}\t{{.Networks}}\t{{.Command}}\t{{.Size}}"'
     alias dockerclean='docker ps -a | awk '"'"'/Exited/ {print $1}'"'"' | xargs docker rm'
 
+    # https://registry.hub.docker.com/r/cp0204/dkturbo
+    alias docker-mirrors='docker run --rm --name=dkturbo -v /etc/docker:/etc/docker -v /opt:/opt -e MODE=registry -e REGISTRY=auto --network=bridge --pid=host --privileged registry.cn-shenzhen.aliyuncs.com/cp0204/dkturbo:main'
+    alias docker-proxies='docker run --rm --name=dkturbo -v /etc/docker:/etc/docker -v /opt:/opt -e MODE=proxy -e HTTP_PROXY=127.0.0.1:7890 -e HTTPS_PROXY=127.0.0.1:7890 -e NO_PROXY=localhost,127.0.0.1 --network=bridge --pid=host --privileged registry.cn-shenzhen.aliyuncs.com/cp0204/dkturbo:main'
+
     # https://github.com/jesseduffield/lazydocker
     alias docker-lazy='docker run --rm -it --name lazy -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.config/lazydocker:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
     # https://github.com/nicolargo/glances
