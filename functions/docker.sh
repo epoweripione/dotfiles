@@ -18,6 +18,10 @@
 # dockerSetMirrors '"https://dockerproxy.cn","https://docker.chenby.cn","https://dockerpull.com","https://docker.1panel.live"'
 function dockerSetMirrors() {
     local REGISTRY_MIRRORS=$1
+    local CHECK_MIRRORS AVAILABLE_MIRRORS
+    local TEST_IMAGE="library/hello-world:latest"
+    local TIMEOUT=30
+    local opts mirror_url mirror_domain status start_time end_time pull_time
 
     if [[ ! -x "$(command -v docker)" ]]; then
         colorEcho "${FUCHSIA}docker${RED} is not installed!"
@@ -34,10 +38,79 @@ function dockerSetMirrors() {
         return 0
     fi
 
-    if [[ -z "${REGISTRY_MIRRORS}" ]]; then
-        [[ -z "${MIRROR_DOCKER_REGISTRY}" ]] && return 0
+    [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
+    [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+
+    # DOCKER_MIRROR_LIST_URL=("https://gist.githubusercontent.com/Cp0204/4330ca3b8bc68c4a4a8d57e3982a859b/raw")
+    if [[ -z "${REGISTRY_MIRRORS}" && -n "${DOCKER_MIRROR_LIST_URL[*]}" ]]; then
+        for mirror_url in "${DOCKER_MIRROR_LIST_URL[@]}"; do
+            colorEcho "${BLUE}Getting registry mirrors from ${FUCHSIA}${mirror_url}${BLUE}..."
+            REGISTRY_MIRRORS=$(curl "${CURL_CHECK_OPTS[@]}" "${mirror_url}" 2>/dev/null)
+            REGISTRY_MIRRORS=$(cut -d@ -f2 <<<"${REGISTRY_MIRRORS}" | sed 's|"||g')
+            if ! grep -E -q "^https://" <<<"${REGISTRY_MIRRORS}"; then
+                REGISTRY_MIRRORS=$(sed "s|^|https://|g" <<<"${REGISTRY_MIRRORS}")
+            fi
+            REGISTRY_MIRRORS=$(tr '\n' ',' <<<"${REGISTRY_MIRRORS}")
+            [[ -n "${REGISTRY_MIRRORS}" ]] && break
+        done
+    fi
+
+    if [[ -z "${REGISTRY_MIRRORS}" && -n "${MIRROR_DOCKER_REGISTRY}" ]]; then
         REGISTRY_MIRRORS=${MIRROR_DOCKER_REGISTRY}
     fi
+
+    CHECK_MIRRORS=()
+    AVAILABLE_MIRRORS=""
+
+    REGISTRY_MIRRORS=$(sed 's|"||g' <<<"${REGISTRY_MIRRORS}")
+    if ! IFS="," read -r "${READ_ARRAY_OPTS[@]}" CHECK_MIRRORS <<<"${REGISTRY_MIRRORS}" 2>/dev/null; then
+        while read -r opts; do
+            CHECK_MIRRORS+=("${opts}")
+        done < <(tr ' ' '\n'<<<"${REGISTRY_MIRRORS}")
+    fi
+
+    # test mirror address
+    for mirror_url in "${CHECK_MIRRORS[@]}"; do
+        mirror_domain=$(sed -e 's|"||g' -e "s|'||g" <<<"${mirror_url}")
+        mirror_domain=$(awk -F[/:] '{print $4}' <<<"${mirror_domain}")
+
+        colorEcho "${BLUE}Testing ${FUCHSIA}${mirror_domain}${BLUE}..."
+
+        start_time=$(date +%s)
+        if ! timeout --foreground 2 bash -c ">/dev/tcp/${mirror_domain}/443"; then
+            colorEcho "${RED}└─ TCP connection failed!"
+            continue
+        fi
+
+        docker rmi "${mirror_domain}/${TEST_IMAGE}" >/dev/null 2>&1
+
+        timeout --foreground ${TIMEOUT} docker pull --disable-content-trust=true "${mirror_domain}/${TEST_IMAGE}" >/dev/null 2>&1
+        status=$?
+        if [[ $status -eq 124 ]]; then
+            colorEcho "${RED}└─ Timeout ${FUCHSIA}${TIMEOUT}s"
+        elif [[ $status -ne 0 ]]; then
+            colorEcho "${RED}└─ Error ${FUCHSIA}$status"
+        else
+            end_time=$(date +%s)
+            pull_time=$((end_time - start_time))
+            colorEcho "${BLUE}└─ Successful ${FUCHSIA}${pull_time}s"
+
+            if [[ -z "${AVAILABLE_MIRRORS}" ]]; then
+                AVAILABLE_MIRRORS="${pull_time},${mirror_url}"
+            else
+                AVAILABLE_MIRRORS="${AVAILABLE_MIRRORS} ${pull_time},${mirror_url}"
+            fi
+
+            docker rmi "${mirror_domain}/${TEST_IMAGE}" >/dev/null 2>&1
+        fi
+    done
+
+    if [[ -z "${AVAILABLE_MIRRORS}" ]]; then
+        colorEcho "Docker registry mirrors not availabe!"
+        return 1
+    fi
+
+    REGISTRY_MIRRORS=$(xargs -n1 <<<"${AVAILABLE_MIRRORS}" | sort -n | sed 's|^[0-9]\+,||g' | xargs | sed -e 's|\s|","|g' -e 's|^|"|' -e 's|$|"|')
 
     colorEcho "${BLUE}Setting docker registry-mirrors to:"
     colorEcho "${FUCHSIA}  ${REGISTRY_MIRRORS}"
