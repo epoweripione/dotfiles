@@ -72,7 +72,7 @@ function dockerSetMirrors() {
     # test mirror address
     for mirror_url in "${CHECK_MIRRORS[@]}"; do
         mirror_domain=$(sed -e 's|"||g' -e "s|'||g" <<<"${mirror_url}")
-        mirror_domain=$(awk -F[/:] '{print $4}' <<<"${mirror_domain}")
+        mirror_domain=$(awk -F '[/:]' '{print $4}' <<<"${mirror_domain}")
 
         colorEcho "${BLUE}Testing ${FUCHSIA}${mirror_domain}${BLUE}..."
 
