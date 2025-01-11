@@ -21,7 +21,7 @@ function dockerSetMirrors() {
     local CHECK_MIRRORS AVAILABLE_MIRRORS
     local TEST_IMAGE="library/hello-world:latest"
     local TIMEOUT=30
-    local opts mirror_url mirror_domain status start_time end_time pull_time
+    local opts mirror_url mirror_domain test_status start_time end_time pull_time
 
     if [[ ! -x "$(command -v docker)" ]]; then
         colorEcho "${FUCHSIA}docker${RED} is not installed!"
@@ -50,7 +50,7 @@ function dockerSetMirrors() {
             if ! grep -E -q "^https://" <<<"${REGISTRY_MIRRORS}"; then
                 REGISTRY_MIRRORS=$(sed "s|^|https://|g" <<<"${REGISTRY_MIRRORS}")
             fi
-            REGISTRY_MIRRORS=$(tr '\n' ',' <<<"${REGISTRY_MIRRORS}")
+            REGISTRY_MIRRORS=$(tr '\n' ',' <<<"${REGISTRY_MIRRORS}" | sed 's|,$||')
             [[ -n "${REGISTRY_MIRRORS}" ]] && break
         done
     fi
@@ -66,7 +66,7 @@ function dockerSetMirrors() {
     if ! IFS="," read -r "${READ_ARRAY_OPTS[@]}" CHECK_MIRRORS <<<"${REGISTRY_MIRRORS}" 2>/dev/null; then
         while read -r opts; do
             CHECK_MIRRORS+=("${opts}")
-        done < <(tr ' ' '\n'<<<"${REGISTRY_MIRRORS}")
+        done < <(tr ',' '\n'<<<"${REGISTRY_MIRRORS}")
     fi
 
     # test mirror address
@@ -85,11 +85,11 @@ function dockerSetMirrors() {
         docker rmi "${mirror_domain}/${TEST_IMAGE}" >/dev/null 2>&1
 
         timeout --foreground ${TIMEOUT} docker pull --disable-content-trust=true "${mirror_domain}/${TEST_IMAGE}" >/dev/null 2>&1
-        status=$?
-        if [[ $status -eq 124 ]]; then
+        test_status=$?
+        if [[ ${test_status} -eq 124 ]]; then
             colorEcho "${RED}└─ Timeout ${FUCHSIA}${TIMEOUT}s"
-        elif [[ $status -ne 0 ]]; then
-            colorEcho "${RED}└─ Error ${FUCHSIA}$status"
+        elif [[ ${test_status} -ne 0 ]]; then
+            colorEcho "${RED}└─ Error ${FUCHSIA}${test_status}"
         else
             end_time=$(date +%s)
             pull_time=$((end_time - start_time))
