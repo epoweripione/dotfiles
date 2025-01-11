@@ -152,9 +152,9 @@ enable_daemon = true
 EOF
 fi
 
-# [Discover](https://userbase.kde.org/Discover)
-colorEcho "${BLUE}Installing ${FUCHSIA}Discover${BLUE}..."
-sudo pacman --noconfirm --needed -S discover packagekit-qt5
+## [Discover](https://userbase.kde.org/Discover)
+# colorEcho "${BLUE}Installing ${FUCHSIA}Discover${BLUE}..."
+# sudo pacman --noconfirm --needed -S discover packagekit-qt5
 
 # yay
 # https://github.com/Jguer/yay
