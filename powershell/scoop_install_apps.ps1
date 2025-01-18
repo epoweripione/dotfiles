@@ -244,6 +244,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "captura"
         "quicklook"
         "screentogif"
+        "sharex"
         "aida64extreme"
         "cpu-z"
         "fastfetch"
