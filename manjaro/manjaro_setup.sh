@@ -155,7 +155,7 @@ if [[ -x "$(command -v xfce4-terminal)" ]]; then
 fi
 
 # Install apps
-sudo pacman --noconfirm -R p7zip 2>/dev/null # replace `p7zip` with `7-zip-full`
+sudo pacman --noconfirm -R p7zip 2>/dev/null # replace `p7zip` with `extra/7zip`
 
 ## [Konsole: Support OSC 52 (copy to clipboard)](https://bugs.kde.org/show_bug.cgi?id=372116)
 # sudo pacman --noconfirm -R konsole 2>/dev/null
@@ -164,7 +164,7 @@ sudo pacman --noconfirm -R p7zip 2>/dev/null # replace `p7zip` with `7-zip-full`
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppManjaroInstallList[*]}" ]]; then
     AppManjaroInstallList=(
-        "archlinuxcn/7-zip-full"
+        "7zip"
         ## RDP Server
         # "xrdp"
         ## RDP Client
