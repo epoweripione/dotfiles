@@ -72,10 +72,10 @@ fi
 
 # docker
 if [[ -x "$(command -v docker)" ]]; then
-    alias dockerpullall='docker images | grep -Ev "REPOSITORY|<none>" | awk '"'"'{print $1,$2}'"'"' OFS='"'"':'"'"' | xargs -L1 docker pull'
-    alias dockerps='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}"'
-    alias dockerpsall='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Ports}}\t{{.Networks}}\t{{.Command}}\t{{.Size}}"'
-    alias dockerclean='docker ps -a | awk '"'"'/Exited/ {print $1}'"'"' | xargs docker rm'
+    alias dockerPullAll='docker images | grep -Ev "REPOSITORY|<none>" | awk '"'"'{print $1,$2}'"'"' OFS='"'"':'"'"' | xargs -L1 docker pull'
+    alias dockerPs='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}"'
+    alias dockerPsAll='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Ports}}\t{{.Networks}}\t{{.Command}}\t{{.Size}}"'
+    alias dockerClean='docker ps -a | awk '"'"'/Exited/ {print $1}'"'"' | xargs docker rm'
 
     # https://registry.hub.docker.com/r/cp0204/dkturbo
     alias docker-mirrors='docker run --rm --name=dkturbo -v /etc/docker:/etc/docker -v /opt:/opt -e MODE=registry -e REGISTRY=auto --network=bridge --pid=host --privileged registry.cn-shenzhen.aliyuncs.com/cp0204/dkturbo:main'
@@ -146,10 +146,10 @@ fi
 
 # pip
 if [[ -x "$(command -v pip)" ]]; then
-    alias pipupdateall='$HOME/.local/bin/pip list -o 2>/dev/null | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs -r -n1 $HOME/.local/bin/pip install -U'
+    alias pipUpdateAll='$HOME/.local/bin/pip list -o 2>/dev/null | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs -r -n1 $HOME/.local/bin/pip install -U'
     # alias pipupdateall='noproxy_cmd pip list -o | grep -Ev '"'"'^-|^package|^warning|^error'"'"' | cut -d '"'"' '"'"' -f1 | xargs -n1 pip install -U'
 elif [[ -x "$(command -v pip3)" ]]; then
-    alias pipupdateall='$HOME/.local/bin/pip3 list -o 2>/dev/null | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs -r -n1 $HOME/.local/bin/pip3 install -U'
+    alias pipUpdateAll='$HOME/.local/bin/pip3 list -o 2>/dev/null | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | xargs -r -n1 $HOME/.local/bin/pip3 install -U'
 fi
 
 # broot
