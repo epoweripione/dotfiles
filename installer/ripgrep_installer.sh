@@ -21,5 +21,5 @@ App_Installer_Reset
 
 # ripgrep: recursively searches directories for a regex pattern while respecting your gitignore
 # https://github.com/BurntSushi/ripgrep
-[[ ! -x "$(command -v rg)" && "$(command -v mise)" ]] && mise global ripgrep@latest
+[[ ! -x "$(command -v rg)" && "$(command -v mise)" ]] && mise use --global ripgrep@latest
 [[ ! -x "$(command -v rg)" && "$(command -v asdf)" ]] && asdf_App_Install ripgrep

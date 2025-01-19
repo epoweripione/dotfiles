@@ -21,7 +21,7 @@ App_Installer_Reset
 
 # Neovim: Vim-fork focused on extensibility and usability
 # https://neovim.io/
-[[ ! -x "$(command -v nvim)" && "$(command -v mise)" ]] && mise global neovim@latest
+[[ ! -x "$(command -v nvim)" && "$(command -v mise)" ]] && mise use --global neovim@latest
 [[ ! -x "$(command -v nvim)" && "$(command -v asdf)" ]] && asdf_App_Install neovim
 
 if [[ -x "$(command -v nvim)" ]]; then

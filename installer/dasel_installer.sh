@@ -22,5 +22,5 @@ App_Installer_Reset
 # dasel: Select, put and delete data from JSON, TOML, YAML, XML and CSV files with a single tool.
 # Supports conversion between formats and can be used as a Go package.
 # https://github.com/TomWright/dasel
-[[ ! -x "$(command -v dasel)" && "$(command -v mise)" ]] && mise global dasel@latest
+[[ ! -x "$(command -v dasel)" && "$(command -v mise)" ]] && mise use --global dasel@latest
 [[ ! -x "$(command -v dasel)" && "$(command -v asdf)" ]] && asdf_App_Install dasel

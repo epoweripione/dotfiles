@@ -22,5 +22,5 @@ App_Installer_Reset
 # httpie-go: httpie-like HTTP client written in Go
 # https://github.com/nojima/httpie-go
 # https://httpie.io/docs
-[[ ! -x "$(command -v ht)" && "$(command -v mise)" ]] && mise global httpie-go@latest
+[[ ! -x "$(command -v ht)" && "$(command -v mise)" ]] && mise use --global httpie-go@latest
 [[ ! -x "$(command -v ht)" && "$(command -v asdf)" ]] && asdf_App_Install httpie-go

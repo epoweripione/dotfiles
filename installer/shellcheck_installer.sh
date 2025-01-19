@@ -21,7 +21,7 @@ App_Installer_Reset
 
 # ShellCheck: a static analysis tool for shell scripts
 # https://github.com/koalaman/shellcheck
-[[ ! -x "$(command -v shellcheck)" && "$(command -v mise)" ]] && mise global shellcheck@latest
+[[ ! -x "$(command -v shellcheck)" && "$(command -v mise)" ]] && mise use --global shellcheck@latest
 [[ ! -x "$(command -v shellcheck)" && "$(command -v asdf)" ]] && asdf_App_Install shellcheck
 
 ## Usage:

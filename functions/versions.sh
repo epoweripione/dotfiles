@@ -184,7 +184,7 @@ function mise_App_Update() {
 
         if [[ ${appInstallStatus} -eq 0 ]]; then
             # Set the global runtime version to latest installed version
-            mise global "${InstalledApp}@${latestVersion}"
+            mise use --global "${InstalledApp}@${latestVersion}"
 
             # Uninstall old version
             [[ -z "${appVersion}" ]] && mise uninstall "${InstalledApp}@${currentVersion}"

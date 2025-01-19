@@ -54,6 +54,6 @@ fi
 # mise ls
 # mise ls-remote <PLUGIN>
 # mise latest <RUNTIME>
-# mise global <RUNTIME>
+# mise use --global <RUNTIME>
 
 cd "${CURRENT_DIR}" || exit

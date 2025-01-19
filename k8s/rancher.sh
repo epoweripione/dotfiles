@@ -40,13 +40,13 @@ fi
 
 # https://kubernetes.io/docs/reference/kubectl/
 # https://kubernetes.io/docs/reference/kubectl/cheatsheet/
-[[ ! -x "$(command -v kubectl)" && "$(command -v mise)" ]] && mise global kubectl@latest
+[[ ! -x "$(command -v kubectl)" && "$(command -v mise)" ]] && mise use --global kubectl@latest
 [[ ! -x "$(command -v kubectl)" && "$(command -v asdf)" ]] && asdf_App_Install kubectl
 [[ ! -x "$(command -v kubectl)" ]] && colorEcho "${FUCHSIA}kubectl${BLUE} is not installed!" && exit 1
 
 # https://helm.sh/
 # https://artifacthub.io/
-[[ ! -x "$(command -v helm)" && "$(command -v mise)" ]] && mise global helm@latest
+[[ ! -x "$(command -v helm)" && "$(command -v mise)" ]] && mise use --global helm@latest
 [[ ! -x "$(command -v helm)" && "$(command -v asdf)" ]] && asdf_App_Install helm
 [[ ! -x "$(command -v helm)" ]] && colorEcho "${FUCHSIA}helm${BLUE} is not installed!" && exit 1
 
