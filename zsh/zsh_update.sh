@@ -325,6 +325,7 @@ Plugins="${Plugins} cp rsync sudo supervisor colored-man-pages"
 [[ -x "$(command -v kubectl)" ]] && Plugins="${Plugins} kubectl"
 [[ -x "$(command -v fab)" ]] && Plugins="${Plugins} fabric"
 [[ -x "$(command -v redis-cli)" ]] && Plugins="${Plugins} redis-cli"
+[[ "$(command -v mise)" ]] && Plugins="${Plugins} mise"
 
 if [[ -x "$(command -v poetry)" && -s "$ZSH_CUSTOM/plugins/poetry/_poetry" ]]; then
     Plugins="${Plugins} poetry"
