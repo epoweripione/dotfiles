@@ -354,3 +354,39 @@ function setWaylandIMEVSCode() {
         fi
     fi
 }
+
+# Mount NFTS Drive & fix read-only mount NFTS Drive
+function mountReadonlyNTFSDrive() {
+    local NTFSDrive=$1
+    local NTFSMountPath NTFSDriveUUID
+
+    if [[ -z "${NTFSDrive}" ]]; then
+        colorEcho "${BLUE}Usage: ${FUCHSIA}mountReadonlyNTFSDrive${BLUE} Disk-Partition"
+        colorEcho "${BLUE}How to find disk partition:"
+        colorEcho "  ${FUCHSIA}sudo lsblk -o PATH,PTTYPE,PARTTYPE,FSTYPE,PARTTYPENAME,UUID -e7"
+        colorEcho "${BLUE}eg: ${FUCHSIA}mountReadonlyNTFSDrive${YELLOW} /dev/sdc3"
+        return 1
+    fi
+
+    NTFSMountPath=$(basename "${NTFSDrive}")
+    [[ -z "${NTFSMountPath}" ]] && return 1
+
+    NTFSMountPath="/mnt/${NTFSMountPath}"
+    [[ ! -d "${NTFSMountPath}" ]] && sudo mkdir -p "${NTFSMountPath}"
+
+    sudo ntfsfix "${NTFSDrive}"
+    if sudo mount -t ntfs-3g "${NTFSDrive}" "${NTFSMountPath}" 2>/dev/null; then
+        colorEcho "${FUCHSIA}${NTFSDrive}${GREEN} successfully mounted to ${ORANGE}${NTFSMountPath}"
+    else
+        return 1
+    fi
+
+    # Automount
+    NTFSDriveUUID=$(sudo blkid | grep "${NTFSDrive}" | grep -Eo '\s+UUID="[^"]*"' | cut -d\" -f2)
+    echo
+    colorEcho "${BLUE}Auto mount ${FUCHSIA}${NTFSDrive}${BLUE} on boot using following command:"
+    colorEcho "  ${FUCHSIA}echo \"UUID=${NTFSDriveUUID} ${NTFSMountPath} ntfs-3g defaults 0 0\" | sudo tee -a /etc/fstab"
+
+    # sudo findmnt
+    # sudo umount "${NTFSMountPath}"
+}
