@@ -25,8 +25,7 @@ fi
 # sudo blkid | grep vfat | grep -i efi
 # sudo lsblk -o PATH,PTTYPE,PARTTYPE,FSTYPE,PARTTYPENAME,UUID -e7
 
-WTG_EFI_DISK=$1
-if [[ -z "${WTG_EFI_DISK}" ]]; then
+if [[ $# -lt 4 ]]; then
     colorEcho "${BLUE}Usage: ${FUCHSIA}$(basename "$0")${BLUE} ISO-Storing-Directory Partition-TYPE Partition-UUID ISO-FileSystem-Directory GRUB-Partition-Number"
     colorEcho "${BLUE}Partition Type & UUID:"
     colorEcho "  ${FUCHSIA}sudo lsblk -o PATH,PTTYPE,PARTTYPE,FSTYPE,PARTTYPENAME,UUID -e7"
