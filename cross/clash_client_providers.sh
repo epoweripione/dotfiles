@@ -297,14 +297,14 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
         TARGET_LIST_FILE="${WORKDIR}/${TARGET_FILE}.list"
 
-        # Global filter
-        if [[ -n "${GLOBAL_FILTER}" ]]; then
-            sed -ri "/(${GLOBAL_FILTER})/d" "${DOWNLOAD_FILE}"
-        fi
+        ## Global filter
+        # if [[ -n "${GLOBAL_FILTER}" ]]; then
+        #     sed -ri "/(${GLOBAL_FILTER})/d" "${DOWNLOAD_FILE}"
+        # fi
 
-        if [[ -n "${GLOBAL_PERL_FILTER}" ]]; then
-            perl -i -ne "/${GLOBAL_PERL_FILTER}/ or print" "${DOWNLOAD_FILE}"
-        fi
+        # if [[ -n "${GLOBAL_PERL_FILTER}" ]]; then
+        #     perl -i -ne "/${GLOBAL_PERL_FILTER}/ or print" "${DOWNLOAD_FILE}"
+        # fi
 
         # Remove certain characters
         if [[ -n "${TARGET_WORD_REPLACE}" ]]; then
