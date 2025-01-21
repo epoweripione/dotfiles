@@ -306,6 +306,9 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         #     perl -i -ne "/${GLOBAL_PERL_FILTER}/ or print" "${DOWNLOAD_FILE}"
         # fi
 
+        # delete the commented line
+        sed -i '/^\s*#/d' "${DOWNLOAD_FILE}"
+
         # Remove certain characters
         if [[ -n "${TARGET_WORD_REPLACE}" ]]; then
             TARGET_WORD_REPLACE="${TARGET_WORD_REPLACE//|/\\|}"
