@@ -121,7 +121,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     [[ -z "${READLINE}" ]] && continue
 
     TARGET_FILE=$(echo "${READLINE}" | cut -d' ' -f1)
-    [[ "${TARGET_FILE}" == "#" ]] && continue
+    [[ "${TARGET_FILE}" == "#"* ]] && continue
 
     TARGET_URL=$(echo "${READLINE}" | cut -d' ' -f2)
     TARGET_OPTION=$(echo "${READLINE}" | cut -d' ' -f3)
