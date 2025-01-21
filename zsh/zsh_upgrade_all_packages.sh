@@ -154,6 +154,7 @@ fi
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
     AppAlwaysInstallList=(
+        "chsrc"
         # "asdf"
         "mise"
         "as-tree"
@@ -176,6 +177,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "fastfetch#fastfetch-cli/fastfetch#tar.gz#fastfetch*"
         "nnn"
         # "skim"
+        "superfile"
         "tailspin"
         "yq"
         "zoxide"
