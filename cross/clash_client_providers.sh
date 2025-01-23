@@ -21,6 +21,105 @@ else
     fi
 fi
 
+# filter, minify, compact subscribe yaml file
+# only keep `proxies`
+function processSubscribeFile() {
+    local subscribeFile=$1
+
+    [[ ! -f "${subscribeFile}" ]] && return
+
+    ## Global filter
+    # if [[ -n "${GLOBAL_FILTER}" ]]; then
+    #     sed -ri "/(${GLOBAL_FILTER})/d" "${subscribeFile}"
+    # fi
+
+    # if [[ -n "${GLOBAL_PERL_FILTER}" ]]; then
+    #     perl -i -ne "/${GLOBAL_PERL_FILTER}/ or print" "${subscribeFile}"
+    # fi
+
+    # delete the commented line
+    sed -i '/^\s*#/d' "${subscribeFile}"
+
+    # Remove certain characters
+    if [[ -n "${TARGET_WORD_REPLACE}" ]]; then
+        TARGET_WORD_REPLACE="${TARGET_WORD_REPLACE//|/\\|}"
+        sed -i "s/\(${TARGET_WORD_REPLACE}\)//g" "${subscribeFile}"
+    fi
+
+    # Replace \r\n with \n
+    sed -i 's/\r$//g' "${subscribeFile}"
+
+    # Minify yaml file
+    if ! grep -Eq '\-\s+{' "${subscribeFile}"; then
+        colorEcho "${BLUE}      Minifying ${FUCHSIA}${subscribeFile}${BLUE}..."
+        PROXY_START_LINE=$(grep -Ean "^proxies:" "${subscribeFile}" | cut -d: -f1)
+        GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
+        if [[ ${PROXY_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt ${PROXY_START_LINE} ]]; then
+            PROXY_START_LINE=$((PROXY_START_LINE + 0))
+            PROXY_END_LINE=$((GROUP_START_LINE - 1))
+            sed -n "${PROXY_START_LINE},${PROXY_END_LINE} p" "${subscribeFile}" > "${subscribeFile}.yml"
+        fi
+
+        if [[ -f "${subscribeFile}.yml" ]]; then
+            # Minify to new file
+            yq '.. style="flow"' "${subscribeFile}.yml" \
+                | sed -e 's|^{||' -e 's|]}||' \
+                | sed 's|\s\[|\n  - |' \
+                | sed 's|}, {|}\n  - {|g' \
+                > "${subscribeFile}.new"
+
+            # Convert unicode codepoints '\uXXXX' in file
+            echo -e "$(cat "${subscribeFile}.new")" > "${subscribeFile}.yml"
+            [[ -f "${subscribeFile}.new" ]] && rm "${subscribeFile}.new"
+        fi
+
+        if [[ -f "${subscribeFile}.yml" ]]; then
+            echo 'proxy-groups:' >> "${subscribeFile}.yml"
+            rm "${subscribeFile}" && mv "${subscribeFile}.yml" "${subscribeFile}"
+        fi
+    fi
+
+    # Compact proxies
+    sed -i '/^\s*#/d' "${subscribeFile}"
+    sed -i 's/^\s*-/-/g' "${subscribeFile}"
+    sed -i -e 's/":/: /g' -e 's/:"/: /g' -e 's/",/, /g' -e 's/,"/, /g' -e 's/"//g' "${subscribeFile}"
+    sed -i -e "s/':/: /g" -e "s/:'/: /g" -e "s/',/, /g" -e "s/,'/, /g" -e "s/'//g" "${subscribeFile}"
+    # sed -i -e 's/\[/【/g' -e 's/\]/】/g' -e 's/|/｜/g' -e 's/\?/？/g' -e 's/\&/δ/g' "${subscribeFile}"
+    sed -i -e "s/name:\s*\-\s*/name: /g" "${subscribeFile}"
+    sed -i -e 's/\&[a-zA-Z0-9]\+;//g' -e 's/\[/【/g' -e 's/\]/】/g' -e 's/[\|\?\&\@\(\)]//g' "${subscribeFile}"
+
+    # Delete lines with empty name
+    sed -i '/name:\s*,/d' "${subscribeFile}"
+    sed -i 's/,,/,/g' "${subscribeFile}"
+
+    # Global filter
+    if [[ -n "${GLOBAL_FILTER}" ]]; then
+        sed -ri "/(${GLOBAL_FILTER})/d" "${subscribeFile}"
+    fi
+
+    if [[ -n "${GLOBAL_PERL_FILTER}" ]]; then
+        perl -i -ne "/${GLOBAL_PERL_FILTER}/ or print" "${subscribeFile}"
+    fi
+
+    # delete lines contain control characters
+    NOT_VALID_LINE=$(grep -n -P "[\x80-\xFF]" "${subscribeFile}" | cut -d: -f1 | sort -nr)
+    while read -r line; do
+        [[ ${line} -gt 0 ]] && sed -i "${line}d" "${subscribeFile}"
+    done <<< "${NOT_VALID_LINE}"
+
+    # only keep `proxies`
+    PROXY_START_LINE=$(grep -Ean "^proxies:" "${subscribeFile}" | cut -d: -f1)
+    GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
+    if [[ ${PROXY_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt ${PROXY_START_LINE} ]]; then
+        PROXY_START_LINE=$((PROXY_START_LINE + 0))
+        PROXY_END_LINE=$((GROUP_START_LINE - 1))
+        sed -n "${PROXY_START_LINE},${PROXY_END_LINE} p" "${subscribeFile}" > "${subscribeFile}.yml"
+    fi
+    if [[ -f "${subscribeFile}.yml" ]]; then
+        rm "${subscribeFile}" && mv "${subscribeFile}.yml" "${subscribeFile}"
+    fi
+}
+
 [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
@@ -59,6 +158,8 @@ if [[ ! -s "${CLASH_CONFIG}" ]]; then
     exit 1
 fi
 
+# clash subscribe files store directory
+[[ -z "${SUBSCRIBE_DOWNLOAD_DIR}" || ! -d "${SUBSCRIBE_DOWNLOAD_DIR}" ]] && SUBSCRIBE_DOWNLOAD_DIR="${WORKDIR}"
 
 if ! pgrep -f "subconverter" >/dev/null 2>&1; then
     # if [[ -s "/srv/subconverter/subconverter" ]]; then
@@ -137,45 +238,53 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     [[ "${TARGET_OPTION}" =~ "private" && "${OUTPUT_OPTIONS}" != *"private"* ]] && continue
     [[ "${TARGET_OPTION}" =~ "subscription" && "${OUTPUT_OPTIONS}" != *"subscription"* ]] && continue
 
-    DOWNLOAD_FILE="${WORKDIR}/${TARGET_FILE}.yml"
+    DOWNLOAD_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.yml"
 
-    colorEcho "${BLUE}  Getting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
-    if grep -q "^http" <<<"${TARGET_URL}"; then
-        DOWNLOAD_FROM_URL="yes"
-        [[ "${TARGET_OPTION}" =~ "scrap" && "${TARGET_OPTION}" != *"→"* ]] && DOWNLOAD_FROM_URL="no"
+    SCRAP_OPTION="${TARGET_OPTION}"
+    SUBSCRIBE_DOWNLOAD_FILE_EXISTS=false
+    if [[ -s "${DOWNLOAD_FILE}" ]]; then
+        # subscribe file already downloaded
+        SCRAP_OPTION=""
+        SUBSCRIBE_DOWNLOAD_FILE_EXISTS=true
+    else
+        colorEcho "${BLUE}  Getting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
+        if grep -q "^http" <<<"${TARGET_URL}"; then
+            DOWNLOAD_FROM_URL="yes"
+            [[ "${TARGET_OPTION}" =~ "scrap" && "${TARGET_OPTION}" != *"→"* ]] && DOWNLOAD_FROM_URL="no"
 
-        if [[ "${DOWNLOAD_FROM_URL}" == "yes" ]]; then
-            if [[ "${TARGET_OPTION}" =~ "converter" && ! "${TARGET_OPTION}" =~ "scrap" ]]; then
-                CONVERTER_URL="${TARGET_URL}"
-                colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${CONVERTER_URL}${BLUE}..."
-                CONVERTER_URL=$(printf %s "${CONVERTER_URL}" | jq -sRr @uri) # encode URL
-                CONVERTER_URL=$(sed "s|\[URL\]|${CONVERTER_URL}|" <<<"${CONVERTER_SERVICE}")
-                curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${CONVERTER_URL}"
-            else
-                if [[ "${TARGET_OPTION}" =~ "useragent" ]]; then
-                    curl -fsL -A "${USER_AGENT}" --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+            if [[ "${DOWNLOAD_FROM_URL}" == "yes" ]]; then
+                if [[ "${TARGET_OPTION}" =~ "converter" && ! "${TARGET_OPTION}" =~ "scrap" ]]; then
+                    CONVERTER_URL="${TARGET_URL}"
+                    colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${CONVERTER_URL}${BLUE}..."
+                    CONVERTER_URL=$(printf %s "${CONVERTER_URL}" | jq -sRr @uri) # encode URL
+                    CONVERTER_URL=$(sed "s|\[URL\]|${CONVERTER_URL}|" <<<"${CONVERTER_SERVICE}")
+                    curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${CONVERTER_URL}"
                 else
-                    curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+                    if [[ "${TARGET_OPTION}" =~ "useragent" ]]; then
+                        curl -fsL -A "${USER_AGENT}" --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+                    else
+                        curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+                    fi
+                fi
+
+                curl_download_status=$?
+                if [[ ${curl_download_status} != 0 ]]; then
+                    colorEcho "${RED}    Error when downloading from ${FUCHSIA}${TARGET_URL}${RED}!"
+                    [[ "${TARGET_OPTION}" == "rules" ]] && exit 1 || continue
                 fi
             fi
-
-            curl_download_status=$?
-            if [[ ${curl_download_status} != 0 ]]; then
-                colorEcho "${RED}    Error when downloading from ${FUCHSIA}${TARGET_URL}${RED}!"
-                [[ "${TARGET_OPTION}" == "rules" ]] && exit 1 || continue
-            fi
-        fi
-    else
-        if [[ -s "/etc/clash/${TARGET_URL}" ]]; then
-            cp "/etc/clash/${TARGET_URL}" "${DOWNLOAD_FILE}"
-        elif [[ -s "${TARGET_URL}" ]]; then
-            cp "${TARGET_URL}" "${DOWNLOAD_FILE}"
         else
-            continue
+            if [[ -s "/etc/clash/${TARGET_URL}" ]]; then
+                cp "/etc/clash/${TARGET_URL}" "${DOWNLOAD_FILE}"
+            elif [[ -s "${TARGET_URL}" ]]; then
+                cp "${TARGET_URL}" "${DOWNLOAD_FILE}"
+            else
+                continue
+            fi
         fi
     fi
 
-    if [[ "${TARGET_OPTION}" =~ "scrap" ]]; then
+    if [[ "${SCRAP_OPTION}" =~ "scrap" ]]; then
         SCRAP_PATTERN=()
         SCRAP_SUCCESS="no"
         SCRAP_INDEX=0
@@ -206,13 +315,22 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 TARGET_URL=$(grep -o -P "(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" <<<"${TARGET_URL}")
                 [[ -z "${TARGET_URL}" ]] && continue
 
+                SCRAP_DOWNLOAD_FILE="${DOWNLOAD_FILE}"
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
                     [[ "${TARGET_OPTION}" =~ "converter" && "${TARGET_OPTION}" =~ "protect" ]] && SCRAP_ACTION="stop"
+
+                    # Maybe multiple subscirbe files
+                    if [[ "${SCRAP_SUCCESS}" == "yes" && -f "${SCRAP_DOWNLOAD_FILE}" ]]; then
+                        for i in $(seq 1 10); do
+                            SCRAP_DOWNLOAD_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
+                            [[ ! -f "${SCRAP_DOWNLOAD_FILE}" ]] && break
+                        done
+                    fi
                 fi
 
                 if [[ "${SCRAP_ACTION}" != "stop" ]]; then
-                    colorEcho "${BLUE}    Scraping ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
-                    curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+                    colorEcho "${BLUE}    Scraping ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE} to ${ORANGE}${SCRAP_DOWNLOAD_FILE}${BLUE}..."
+                    curl -fsL --connect-timeout 10 --max-time 30 -o "${SCRAP_DOWNLOAD_FILE}" "${TARGET_URL}"
 
                     curl_download_status=$?
                     [[ ${curl_download_status} -gt 0 ]] && continue
@@ -292,88 +410,36 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             sed -i '/^$/d' "${RULES_FILE_NAME}"
         fi
     else
+        colorEcho "${BLUE}  Processing ${FUCHSIA}${TARGET_FILE}${BLUE}..."
         FILELIST+=("${TARGET_FILE}")
         FILEOPTION+=("${TARGET_OPTION}")
 
-        TARGET_LIST_FILE="${WORKDIR}/${TARGET_FILE}.list"
+        # Process new downloaded subscribe files
+        if [[ "${SUBSCRIBE_DOWNLOAD_FILE_EXISTS}" == "false" ]]; then
+            # filter, minify, compact subscribe yaml file
+            processSubscribeFile "${DOWNLOAD_FILE}"
 
-        ## Global filter
-        # if [[ -n "${GLOBAL_FILTER}" ]]; then
-        #     sed -ri "/(${GLOBAL_FILTER})/d" "${DOWNLOAD_FILE}"
-        # fi
+            # Merge multiple downloaded files
+            MERGE_DOWNLOAD_FILES=$(find "${SUBSCRIBE_DOWNLOAD_DIR}" -type f -name "${TARGET_FILE}.*.yml")
+            while read -r finded_file; do
+                [[ ! -f "${finded_file}" ]] && continue
 
-        # if [[ -n "${GLOBAL_PERL_FILTER}" ]]; then
-        #     perl -i -ne "/${GLOBAL_PERL_FILTER}/ or print" "${DOWNLOAD_FILE}"
-        # fi
+                processSubscribeFile "${finded_file}"
 
-        # delete the commented line
-        sed -i '/^\s*#/d' "${DOWNLOAD_FILE}"
+                colorEcho "${BLUE}      Merging ${FUCHSIA}${finded_file}${BLUE} to ${YELLOW}${DOWNLOAD_FILE}${BLUE}..."
+                PROXY_START_LINE=$(grep -Ean "^proxies:" "${finded_file}" | cut -d: -f1)
+                PROXY_END_LINE=$(sed -n '$=' "${finded_file}")
+                if [[ ${PROXY_START_LINE} -gt 0 && ${PROXY_END_LINE} -gt 0 && ${PROXY_END_LINE} -gt ${PROXY_START_LINE} ]]; then
+                    PROXY_START_LINE=$((PROXY_START_LINE + 1))
+                    sed -n "${PROXY_START_LINE},${PROXY_END_LINE} p" "${finded_file}" >> "${DOWNLOAD_FILE}"
+                fi
 
-        # Remove certain characters
-        if [[ -n "${TARGET_WORD_REPLACE}" ]]; then
-            TARGET_WORD_REPLACE="${TARGET_WORD_REPLACE//|/\\|}"
-            sed -i "s/\(${TARGET_WORD_REPLACE}\)//g" "${DOWNLOAD_FILE}"
+                rm -f "${finded_file}"
+            done <<<"${MERGE_DOWNLOAD_FILES}"
+
+            # Add `proxy-groups:`
+            echo 'proxy-groups:' >> "${DOWNLOAD_FILE}"
         fi
-
-        # Replace \r\n with \n
-        sed -i 's/\r$//g' "${DOWNLOAD_FILE}"
-
-        # Minify yaml file
-        if ! grep -q '{' "${DOWNLOAD_FILE}"; then
-            colorEcho "${BLUE}    Minifying ${FUCHSIA}${TARGET_FILE}${BLUE}..."
-            PROXY_START_LINE=$(grep -Ean "^proxies:" "${DOWNLOAD_FILE}" | cut -d: -f1)
-            GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${DOWNLOAD_FILE}" | cut -d: -f1)
-            if [[ ${PROXY_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt ${PROXY_START_LINE} ]]; then
-                PROXY_START_LINE=$((PROXY_START_LINE + 0))
-                PROXY_END_LINE=$((GROUP_START_LINE - 1))
-                sed -n "${PROXY_START_LINE},${PROXY_END_LINE} p" "${DOWNLOAD_FILE}" > "${DOWNLOAD_FILE}.yml"
-            fi
-
-            if [[ -f "${DOWNLOAD_FILE}.yml" ]]; then
-                # Minify to new file
-                yq '.. style="flow"' "${DOWNLOAD_FILE}.yml" \
-                    | sed -e 's|^{||' -e 's|]}||' \
-                    | sed 's|\s\[|\n  - |' \
-                    | sed 's|}, {|}\n  - {|g' \
-                    > "${DOWNLOAD_FILE}.new"
-
-                # Convert unicode codepoints '\uXXXX' in file
-                echo -e "$(cat "${DOWNLOAD_FILE}.new")" > "${DOWNLOAD_FILE}.yml"
-            fi
-
-            if [[ -f "${DOWNLOAD_FILE}.yml" ]]; then
-                echo 'proxy-groups:' >> "${DOWNLOAD_FILE}.yml"
-                rm "${DOWNLOAD_FILE}" && mv "${DOWNLOAD_FILE}.yml" "${DOWNLOAD_FILE}"
-            fi
-        fi
-
-        # Compact proxies
-        sed -i '/^\s*#/d' "${DOWNLOAD_FILE}"
-        sed -i 's/^\s*-/-/g' "${DOWNLOAD_FILE}"
-        sed -i -e 's/":/: /g' -e 's/:"/: /g' -e 's/",/, /g' -e 's/,"/, /g' -e 's/"//g' "${DOWNLOAD_FILE}"
-        sed -i -e "s/':/: /g" -e "s/:'/: /g" -e "s/',/, /g" -e "s/,'/, /g" -e "s/'//g" "${DOWNLOAD_FILE}"
-        # sed -i -e 's/\[/【/g' -e 's/\]/】/g' -e 's/|/｜/g' -e 's/\?/？/g' -e 's/\&/δ/g' "${DOWNLOAD_FILE}"
-        sed -i -e "s/name:\s*\-\s*/name: /g" "${DOWNLOAD_FILE}"
-        sed -i -e 's/\&[a-zA-Z0-9]\+;//g' -e 's/\[/【/g' -e 's/\]/】/g' -e 's/[\|\?\&\@\(\)]//g' "${DOWNLOAD_FILE}"
-
-        # Delete lines with empty name
-        sed -i '/name:\s*,/d' "${DOWNLOAD_FILE}"
-        sed -i 's/,,/,/g' "${DOWNLOAD_FILE}"
-
-        # Global filter
-        if [[ -n "${GLOBAL_FILTER}" ]]; then
-            sed -ri "/(${GLOBAL_FILTER})/d" "${DOWNLOAD_FILE}"
-        fi
-
-        if [[ -n "${GLOBAL_PERL_FILTER}" ]]; then
-            perl -i -ne "/${GLOBAL_PERL_FILTER}/ or print" "${DOWNLOAD_FILE}"
-        fi
-
-        # delete lines contain control characters
-        NOT_VALID_LINE=$(grep -n -P "[\x80-\xFF]" "${DOWNLOAD_FILE}" | cut -d: -f1 | sort -nr)
-        while read -r line; do
-            [[ ${line} -gt 0 ]] && sed -i "${line}d" "${DOWNLOAD_FILE}"
-        done <<< "${NOT_VALID_LINE}"
 
         # Merge proxies
         TARGET_PROXIES=""
@@ -431,8 +497,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 | sed -e "s/^\"//" -e "s/\"$//")
 
             # Rename node name start only with numbers & spaces & special characters
-            # if echo "${TargetName}" | LC_ALL=C grep -Eaq "^[[:digit:][:space:][:punct:]]+$"; then
-            if echo "${TargetName}" | LC_ALL=C grep -Eaq "^[[:digit:][:space:][:punct:]]+"; then
+            if LC_ALL=C grep -Eaq "^[[:digit:][:space:][:punct:]]+" <<<"${TargetName}"; then
                 TargetNewName="ZZ💤${TargetName}"
             else
                 TargetNewName="${TargetName}"
@@ -445,7 +510,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 if [[ "${TARGET_OPTION}" == *"proxypool"* && " ${PROXY_SERVER_ALL[*]} " == *" ${TargetServer} "* ]]; then
                     PROXY_IS_DELETE="Y"
                 elif [[ -n "${TARGET_FILTER}" ]]; then
-                    if echo "${TargetName}" | grep -Eaq "${TARGET_FILTER}"; then
+                    if grep -Eaq "${TARGET_FILTER}" <<<"${TargetName}"; then
                         PROXY_IS_DELETE="Y"
                     fi
                 fi
@@ -455,7 +520,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 fi
 
                 if [[ -n "${TargetHost}" ]]; then
-                    if echo "${TargetHost}" | grep -Eaq ','; then
+                    if grep -Eaq ',' <<<"${TargetHost}"; then
                         PROXY_IS_DELETE="Y"
                     fi
                 fi
@@ -472,20 +537,19 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         done <<<"${TARGET_PROXIES}"
 
         for TargetName in "${PROXY_DELETE[@]}"; do
-            # TargetName_Escape=$(echo "${TargetName}" \
-            #     | sed 's/[\\\/\:\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' \
-            #     | sed 's/]/\\&/g')
-            # TARGET_PROXIES=$(echo "${TARGET_PROXIES}" | sed "/name:\s*${TargetName_Escape},/d")
             TargetName_Escape_GREP=$(echo "${TargetName}" \
                 | sed 's/[\\\/\:\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' \
                 | sed 's/]/\\&/g')
-            TARGET_PROXIES=$(echo "${TARGET_PROXIES}" | grep -Eav "name:\s*${TargetName_Escape_GREP},")
+            TARGET_PROXIES=$(grep -Eav "name:\s*${TargetName_Escape_GREP}," <<<"${TARGET_PROXIES}")
         done
 
         # Delete lines with empty name
-        TARGET_PROXIES=$(echo -e "${TARGET_PROXIES}" | sed '/name:\s*,/d' | sed 's/,,/,/g')
+        TARGET_PROXIES=$(sed '/name:\s*,/d' <<<"${TARGET_PROXIES}" | sed 's/,,/,/g')
 
-        # Rename node name contains only numbers & spaces & special characters
+        # Add proxies node to `.list` file
+        TARGET_LIST_FILE="${WORKDIR}/${TARGET_FILE}.list"
+        [[ -f "${TARGET_LIST_FILE}" ]] && rm -f "${TARGET_LIST_FILE}"
+
         PROXY_INDEX=-1
         for TargetName in "${PROXY_NAME[@]}"; do
             PROXY_INDEX=$((PROXY_INDEX + 1))
@@ -500,13 +564,14 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 TargetName_Escape=$(echo "${TargetName}" \
                     | sed 's/[\\\/\:\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' \
                     | sed 's/]/\\&/g')
-                TARGET_PROXIES=$(echo "${TARGET_PROXIES}" | sed "s/name:\s*${TargetName_Escape},/name: ${TargetNewName_Escape},/")
+                TARGET_PROXIES=$(sed "s/name:\s*${TargetName_Escape},/name: ${TargetNewName_Escape},/" <<<"${TARGET_PROXIES}")
             fi
 
             TargetNewName_Escape_GREP=$(echo "${TargetNewName}" \
                 | sed 's/[\\\/\:\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' \
                 | sed 's/]/\\&/g')
-            if echo "${TARGET_PROXIES}" | grep -Eaq "name:\s*${TargetNewName_Escape_GREP},"; then
+
+            if grep -Eaq "name:\s*${TargetNewName_Escape_GREP}," <<<"${TARGET_PROXIES}"; then
                 echo "      - ${TargetNewName}" | tee -a "${TARGET_LIST_FILE}" >/dev/null
             fi
         done
@@ -539,7 +604,7 @@ else
 fi
 
 # Delete lines with empty name
-PROXIES_ALL=$(echo -e "${PROXIES_ALL}" | sed '/name:\s*,/d' | sed 's/,,/,/g')
+PROXIES_ALL=$(sed '/name:\s*,/d' <<<"${PROXIES_ALL}" | sed 's/,,/,/g')
 
 ## Add placeholder for proxy-groups
 # PROXIES_ALL=$(echo -e "${PROXIES_ALL}\n  - {name: FORBIDDEN-PLACEHOLDER, server: forbidden-placeholder.com, port: 0000, type: trojan, password: Trojan}")
@@ -555,7 +620,7 @@ for TargetName in "${PROXY_LIST_ALL[@]}"; do
         | sed 's/[\\\/\:\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' \
         | sed 's/]/\\&/g')
 
-    TargetProxies=$(echo "${PROXIES_ALL}" | grep -Ea "name:\s*${TargetName_Escape_GREP},")
+    TargetProxies=$(grep -Ea "name:\s*${TargetName_Escape_GREP}," <<<"${PROXIES_ALL}")
     if [[ -n "${TargetProxies}" ]]; then
         [[ -n "${PROXY_LIST_SORT}" ]] && \
             PROXY_LIST_SORT=$(echo -e "${PROXY_LIST_SORT}\n${TargetName}") || \
@@ -567,7 +632,7 @@ for TargetName in "${PROXY_LIST_ALL[@]}"; do
     fi
 done
 
-PROXY_LIST_SORT=$(echo "${PROXY_LIST_SORT}" | sort)
+PROXY_LIST_SORT=$(sort <<<"${PROXY_LIST_SORT}")
 
 PROXY_LIST_ALL=()
 while read -r list; do
@@ -587,7 +652,7 @@ for TargetName in "${PROXY_LIST_ALL[@]}"; do
         | sed 's/[\\\/\:\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' \
         | sed 's/]/\\&/g')
 
-    TargetLine=$(echo "${PROXIES_USE_ALL}" | grep -Ea "name: ${TargetName_Escape_GREP},")
+    TargetLine=$(grep -Ea "name: ${TargetName_Escape_GREP}," <<<"${PROXIES_USE_ALL}")
 
     TargetType=$(echo "${TargetLine}" \
         | sed -rn "s/.*[,{ ]+type:([^,{}]+).*/\1/ip" \
@@ -677,7 +742,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             for TargetName in "${PROXY_LIST_ALL[@]}"; do
                 PROXY_INDEX=$((PROXY_INDEX + 1))
 
-                if echo "${PROXY_TYPE_ALL[$PROXY_INDEX]}" | grep -Eaq "${TARGET_FILTER}"; then
+                if grep -Eaq "${TARGET_FILTER}" <<<"${PROXY_TYPE_ALL[$PROXY_INDEX]}"; then
                     [[ -n "${CONTENT_TAG}" ]] && \
                         CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
                         CONTENT_TAG="      - ${TargetName}"
@@ -735,7 +800,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     # delete empty group
     if [[ -z "${CONTENT_TAG}" && "${CONTENT_IS_GROUP}" == "yes" ]]; then
         PROXY_EMPTY_GROUP+=("${TARGET_GROUP}")
-        CONTENT_PREFIX=$(echo "${CONTENT_PREFIX}" | sed "/name:\s*${TARGET_GROUP}$/,$ d" | sed "/^\s*\-\s*${TARGET_GROUP}$/d")
+        CONTENT_PREFIX=$(sed "/name:\s*${TARGET_GROUP}$/,$ d" <<<"${CONTENT_PREFIX}" | sed "/^\s*\-\s*${TARGET_GROUP}$/d")
         sed -i "/^\s*\-\s*${TARGET_GROUP}$/d" "${TARGET_CONFIG_FILE}"
     fi
 
