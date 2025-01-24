@@ -94,7 +94,10 @@ function processSubscribeFile() {
 
     # Global filter
     if [[ -n "${GLOBAL_FILTER}" ]]; then
-        sed -ri "/(${GLOBAL_FILTER})/d" "${subscribeFile}"
+        # private,subscription
+        if [[ "${TARGET_OPTION}" != "private" && "${TARGET_OPTION}" != *"subscription"* ]]; then
+            sed -ri "/(${GLOBAL_FILTER})/d" "${subscribeFile}"
+        fi
     fi
 
     if [[ -n "${GLOBAL_PERL_FILTER}" ]]; then
@@ -150,7 +153,7 @@ fi
 TMP_URL_LIST="${WORKDIR}/url.txt"
 cp "${SUB_URL_LIST}" "${TMP_URL_LIST}"
 
-OUTPUT_OPTIONS=${4:-""} # private,subscription
+OUTPUT_OPTIONS=${4:-""} # private,subscription@only
 
 CLASH_CONFIG=${5:-"/etc/clash/clash_client_providers.yml"}
 if [[ ! -s "${CLASH_CONFIG}" ]]; then
@@ -237,6 +240,25 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     # private,subscription
     [[ "${TARGET_OPTION}" =~ "private" && "${OUTPUT_OPTIONS}" != *"private"* ]] && continue
     [[ "${TARGET_OPTION}" =~ "subscription" && "${OUTPUT_OPTIONS}" != *"subscription"* ]] && continue
+
+    # Output only the specified target files
+    if [[ "${OUTPUT_OPTIONS}" == *"@only"* ]]; then
+        OUTPUT_ONLY_FILES="${OUTPUT_OPTIONS//@only/}"
+
+        OUTPUT_ONLY=()
+        if ! IFS="," read -r "${READ_ARRAY_OPTS[@]}" OUTPUT_ONLY <<<"${OUTPUT_ONLY_FILES}" 2>/dev/null; then
+            while read -r opts; do
+                OUTPUT_ONLY+=("${opts}")
+            done < <(tr ',' '\n'<<<"${OUTPUT_ONLY_FILES}")
+        fi
+
+        SKIP_PROCESS=true
+        for opts_only in "${OUTPUT_ONLY[@]}"; do
+            [[ "${TARGET_FILE}" == "${opts_only}" ]] && SKIP_PROCESS=false
+        done
+
+        [[ "${SKIP_PROCESS}" == "true" ]] && continue
+    fi
 
     DOWNLOAD_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.yml"
 
