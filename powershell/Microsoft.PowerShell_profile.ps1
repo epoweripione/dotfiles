@@ -388,6 +388,19 @@ function ezat3 {
     eza --tree --icons --level=3 $ListPath
 }
 
+function UpdateOutdatedPipPackages {
+    # update `pip` first
+    python -m pip install -U pip
+
+    # conda
+    if (Get-Command -Name "conda") {
+        conda update -y --all
+    }
+
+    # update oudated packages
+    pip list --outdated | ForEach-Object {$_.split(' ')[0]} | Where-Object {$_ -notmatch "^-|^package|^warning|^error"} | ForEach-Object {pip install -U $_}
+}
+
 ## Other alias
 Set-Alias open Invoke-Item -option AllScope
 Set-Alias .. GoBack -option AllScope
@@ -401,12 +414,14 @@ Set-Alias ums UpdateMyScript -option AllScope
 Set-Alias hosts EditHosts -option AllScope
 Set-Alias history EditHistory -option AllScope
 
-Set-Alias dockerpullall DockerPullAllImages -option AllScope
-Set-Alias dockerps DockerList -option AllScope
-Set-Alias dockerpsall DockerListAll -option AllScope
+Set-Alias dockerPullAll DockerPullAllImages -option AllScope
+Set-Alias dockerPs DockerList -option AllScope
+Set-Alias dockerPsAll DockerListAll -option AllScope
 
 Set-Alias gettcp GetTCPAll -option AllScope
 Set-Alias getudp GetUDPAll -option AllScope
+
+Set-Alias pipUpdateAll UpdateOutdatedPipPackages -option AllScope
 
 # https://github.com/ajeetdsouza/zoxide
 if (Get-Command "zoxide" -ErrorAction SilentlyContinue) {
