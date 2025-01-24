@@ -252,6 +252,9 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             done < <(tr ',' '\n'<<<"${OUTPUT_ONLY_FILES}")
         fi
 
+        # `rules` must include
+        OUTPUT_ONLY+=("rules")
+
         SKIP_PROCESS=true
         for opts_only in "${OUTPUT_ONLY[@]}"; do
             [[ "${TARGET_FILE}" == "${opts_only}" ]] && SKIP_PROCESS=false
