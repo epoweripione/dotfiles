@@ -426,11 +426,9 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
     if [[ "${TARGET_OPTION}" == "rules" ]]; then
         # Get rules
+        RULES_FILE_NAME="${DOWNLOAD_FILE}"
         RULES_START_LINE=$(grep -Ean "^rules:" "${DOWNLOAD_FILE}" | cut -d: -f1)
         if [[ ${RULES_START_LINE} -gt 0 ]]; then
-            # RULES_START_LINE=$((RULES_START_LINE + 1))
-            # RULES=$(sed -n "${RULES_START_LINE},$ p" "${DOWNLOAD_FILE}")
-            RULES_FILE_NAME="${DOWNLOAD_FILE}"
             sed -i "1,${RULES_START_LINE} d" "${RULES_FILE_NAME}"
             sed -i '/^$/d' "${RULES_FILE_NAME}"
         fi
