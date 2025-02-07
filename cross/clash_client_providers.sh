@@ -86,7 +86,7 @@ function processSubscribeFile() {
     sed -i -e "s/':/: /g" -e "s/:'/: /g" -e "s/',/, /g" -e "s/,'/, /g" -e "s/'//g" "${subscribeFile}"
     # sed -i -e 's/\[/【/g' -e 's/\]/】/g' -e 's/|/｜/g' -e 's/\?/？/g' -e 's/\&/δ/g' "${subscribeFile}"
     sed -i -e "s/name:\s*\-\s*/name: /g" "${subscribeFile}"
-    sed -i -e 's/\&[a-zA-Z0-9]\+;//g' -e 's/\[/【/g' -e 's/\]/】/g' -e 's/[\|\?\&\@\(\)]//g' "${subscribeFile}"
+    sed -i -e 's/\&[a-zA-Z0-9]\+;//g' -e 's/\[/【/g' -e 's/\]/】/g' -e 's/[\|\?\&\(\)]//g' "${subscribeFile}"
 
     # Delete lines with empty name
     sed -i '/name:\s*,/d' "${subscribeFile}"
