@@ -89,6 +89,9 @@ function processSubscribeFile() {
     sed -i -e 's/\(\&[a-zA-Z0-9]\+;\)\+.*\(\&[a-zA-Z0-9]\+;\)\+\s*//g' "${subscribeFile}"
     sed -i -e 's/\&[a-zA-Z0-9]\+;//g' -e 's/\[/【/g' -e 's/\]/】/g' -e 's/[\|\?\&\(\)]//g' "${subscribeFile}"
 
+    # yaml: character `@` cannot start any token
+    sed -i -e 's/:\s\+@/: /g' "${subscribeFile}"
+
     # Delete lines with empty name
     sed -i '/name:\s*,/d' "${subscribeFile}"
     sed -i 's/,,/,/g' "${subscribeFile}"
