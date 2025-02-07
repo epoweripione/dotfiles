@@ -147,6 +147,10 @@ EOF
 mita apply config "$HOME/.config/mieru_server.json"
 mita describe config
 
+firewall-cmd --permanent --zone=public --add-port=<port>/tcp
+firewall-cmd --reload
+firewall-cmd --list-all
+
 mita start
 mita status
 mita stop
