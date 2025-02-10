@@ -917,6 +917,13 @@ for TargetName in "${PROXY_LIST_ALL[@]}"; do
     fi
 done
 
+# add Double quotes to `path`, `User-Agent`...
+sed -ri 's/path:\s+([^,"\{\}]+)/path: "\1"/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/Host:\s+([^,"\{\}]+)/Host: "\1"/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${TARGET_CONFIG_FILE}"
+
 # delete empty group
 colorEcho "${BLUE}    Processing ${FUCHSIA}empty proxy-groups${BLUE}..."
 GROUP_CNT=$(yq e '.proxy-groups | length' "${TARGET_CONFIG_FILE}")
@@ -944,13 +951,6 @@ done
 # for TargetIndex in "${GROUP_DELETE_INDEX[@]}"; do
 #     yq e -i "del(.proxy-groups[${TargetIndex}])" "${TARGET_CONFIG_FILE}"
 # done
-
-# add Double quotes to `path`, `User-Agent`...
-sed -ri 's/path:\s+([^,"\{\}]+)/path: "\1"/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/Host:\s+([^,"\{\}]+)/Host: "\1"/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${TARGET_CONFIG_FILE}"
 
 # rules
 colorEcho "${BLUE}    Generating ${FUCHSIA}rules${BLUE}..."
