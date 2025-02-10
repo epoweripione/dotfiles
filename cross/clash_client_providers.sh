@@ -54,6 +54,8 @@ function processSubscribeFile() {
         colorEcho "${BLUE}      Minifying ${FUCHSIA}${subscribeFile}${BLUE}..."
         PROXY_START_LINE=$(grep -Ean "^proxies:" "${subscribeFile}" | cut -d: -f1)
         GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
+        [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(grep -Ean "^rules:" "${subscribeFile}" | cut -d: -f1)
+        [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(wc -l "${subscribeFile}" | awk '{print $1}') && GROUP_START_LINE=$((GROUP_START_LINE + 1))
         if [[ ${PROXY_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt ${PROXY_START_LINE} ]]; then
             PROXY_START_LINE=$((PROXY_START_LINE + 0))
             PROXY_END_LINE=$((GROUP_START_LINE - 1))
@@ -87,7 +89,7 @@ function processSubscribeFile() {
     # sed -i -e 's/\[/【/g' -e 's/\]/】/g' -e 's/|/｜/g' -e 's/\?/？/g' -e 's/\&/δ/g' "${subscribeFile}"
     sed -i -e "s/name:\s*\-\s*/name: /g" "${subscribeFile}"
     sed -i -e 's/\(\&[a-zA-Z0-9]\+;\)\+.*\(\&[a-zA-Z0-9]\+;\)\+\s*//g' "${subscribeFile}"
-    sed -i -e 's/\&[a-zA-Z0-9]\+;//g' -e 's/\[/【/g' -e 's/\]/】/g' -e 's/[\|\?\&\(\)]//g' "${subscribeFile}"
+    sed -i -e 's/\&[a-zA-Z0-9]\+;//g' -e 's/\[/【/g' -e 's/\]/】/g' -e 's/[\|\&\(\)]//g' "${subscribeFile}"
 
     # yaml: character `@` cannot start any token
     sed -i -e 's/:\s\+@/: /g' "${subscribeFile}"
@@ -95,6 +97,9 @@ function processSubscribeFile() {
     # Delete lines with empty name
     sed -i '/name:\s*,/d' "${subscribeFile}"
     sed -i 's/,,/,/g' "${subscribeFile}"
+
+    # Remove char `,` occurernce more than once in proxy name
+    sed -ri "/(name:\s([^:]+,){2,}[^:]+:)/ { s/,//g; s/\s+([^[:space:]:{]+:)/, \1/g; }" "${subscribeFile}"
 
     # Global filter
     if [[ -n "${GLOBAL_FILTER}" ]]; then
@@ -117,6 +122,8 @@ function processSubscribeFile() {
     # only keep `proxies`
     PROXY_START_LINE=$(grep -Ean "^proxies:" "${subscribeFile}" | cut -d: -f1)
     GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
+    [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(grep -Ean "^rules:" "${subscribeFile}" | cut -d: -f1)
+    [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(wc -l "${subscribeFile}" | awk '{print $1}') && GROUP_START_LINE=$((GROUP_START_LINE + 1))
     if [[ ${PROXY_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt ${PROXY_START_LINE} ]]; then
         PROXY_START_LINE=$((PROXY_START_LINE + 0))
         PROXY_END_LINE=$((GROUP_START_LINE - 1))
@@ -228,17 +235,24 @@ USER_AGENT=$(grep '^# useragent' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 while read -r READLINE || [[ "${READLINE}" ]]; do
     [[ -z "${READLINE}" ]] && continue
 
-    TARGET_FILE=$(echo "${READLINE}" | cut -d' ' -f1)
+    TARGET_FILE=$(cut -d' ' -f1 <<<"${READLINE}")
     [[ "${TARGET_FILE}" == "#"* ]] && continue
 
-    TARGET_URL=$(echo "${READLINE}" | cut -d' ' -f2)
-    TARGET_OPTION=$(echo "${READLINE}" | cut -d' ' -f3)
-    TARGET_FILTER=$(echo "${READLINE}" | cut -d' ' -f4)
+    TARGET_URL=$(cut -d' ' -f2 <<<"${READLINE}")
+    # url with date format
+    URL_DATE_FORMAT=$(grep -Eo '\[date+.*\]' <<<"${TARGET_URL}" 2>/dev/null | sed -e 's/date+//g' -e 's/\[//g' -e 's/\]//g')
+    if [[ -n "${URL_DATE_FORMAT}" ]]; then
+        URL_DATE=$(date +"${URL_DATE_FORMAT}" 2>/dev/null)
+        [[ -n "${URL_DATE}" ]] && TARGET_URL=$(sed -r "s|\[date+.*\]|${URL_DATE}|" <<<"${TARGET_URL}")
+    fi
 
-    TARGET_TYPE_FILTER=$(echo "${READLINE}" | cut -d' ' -f5)
+    TARGET_OPTION=$(cut -d' ' -f3 <<<"${READLINE}")
+    TARGET_FILTER=$(cut -d' ' -f4 <<<"${READLINE}")
+
+    TARGET_TYPE_FILTER=$(cut -d' ' -f5 <<<"${READLINE}")
     [[ -z "${TARGET_TYPE_FILTER}" ]] && TARGET_TYPE_FILTER="${GLOBAL_TYPE_FILTER}"
 
-    TARGET_WORD_REPLACE=$(echo "${READLINE}" | cut -d' ' -f6)
+    TARGET_WORD_REPLACE=$(cut -d' ' -f6 <<<"${READLINE}")
     [[ -z "${TARGET_WORD_REPLACE}" ]] && TARGET_WORD_REPLACE="${GLOBAL_WORD_REPLACE}"
 
     # private,subscription
@@ -335,6 +349,12 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 else
                     MATCH_URL=$(sed -e "s|^|${TARGET_URL%\/}/|g" <<<"${MATCH_URL}")
                 fi
+            fi
+
+            # sort & get first match URL
+            if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
+                [[ "${TARGET_OPTION}" =~ "SortFirst" ]] && MATCH_URL=$(sort <<<"${MATCH_URL}" | head -n1)
+                [[ "${TARGET_OPTION}" =~ "SortReverseFirst" ]] && MATCH_URL=$(sort -r <<<"${MATCH_URL}" | head -n1)
             fi
 
             SCRAP_ACTION="scrap"
@@ -473,6 +493,8 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         if [[ "${TARGET_OPTION}" == *"full"* ]]; then
             PROXY_START_LINE=$(grep -Ean "^proxies:" "${DOWNLOAD_FILE}" | cut -d: -f1)
             GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${DOWNLOAD_FILE}" | cut -d: -f1)
+            [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(grep -Ean "^rules:" "${DOWNLOAD_FILE}" | cut -d: -f1)
+            [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(wc -l "${DOWNLOAD_FILE}" | awk '{print $1}') && GROUP_START_LINE=$((GROUP_START_LINE + 1))
             if [[ ${PROXY_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt ${PROXY_START_LINE} ]]; then
                 PROXY_START_LINE=$((PROXY_START_LINE + 1))
                 PROXY_END_LINE=$((GROUP_START_LINE - 1))
@@ -729,10 +751,10 @@ FILL_LINES=$(grep -Ean "^#-" "${CLASH_CONFIG}")
 LINE_START=1
 PROXY_LIST_FILTERED=()
 while read -r READLINE || [[ "${READLINE}" ]]; do
-    TARGET_LINE=$(echo "${READLINE}" | cut -d':' -f1)
-    TARGET_TAG=$(echo "${READLINE}" | cut -d'-' -f2)
-    TARGET_GROUP=$(echo "${READLINE}" | cut -d'-' -f3)
-    TARGET_FILTER=$(echo "${READLINE}" | cut -d'-' -f4)
+    TARGET_LINE=$(cut -d':' -f1 <<<"${READLINE}")
+    TARGET_TAG=$(cut -d'-' -f2 <<<"${READLINE}")
+    TARGET_GROUP=$(cut -d'-' -f3 <<<"${READLINE}")
+    TARGET_FILTER=$(cut -d'-' -f4 <<<"${READLINE}")
 
     LINE_END=$((TARGET_LINE - 1))
 
@@ -922,6 +944,13 @@ done
 # for TargetIndex in "${GROUP_DELETE_INDEX[@]}"; do
 #     yq e -i "del(.proxy-groups[${TargetIndex}])" "${TARGET_CONFIG_FILE}"
 # done
+
+# add Double quotes to `path`, `User-Agent`...
+sed -ri 's/path:\s+([^,"\{\}]+)/path: "\1"/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/Host:\s+([^,"\{\}]+)/Host: "\1"/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${TARGET_CONFIG_FILE}"
 
 # rules
 colorEcho "${BLUE}    Generating ${FUCHSIA}rules${BLUE}..."
