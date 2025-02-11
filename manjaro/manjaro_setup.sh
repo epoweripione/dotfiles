@@ -234,6 +234,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "dbeaver-plugin-svg-format"
         "wireshark-qt"
         "visual-studio-code-bin"
+        "yaml-language-server"
         # "aur/powershell-bin"
         "extra/geany"
         "extra/geany-plugins"
