@@ -25,6 +25,7 @@ fi
 # only keep `proxies`
 function processSubscribeFile() {
     local subscribeFile=$1
+    local readYamlLine yamlLineCount yamlLineToDelete yamlLineToRemove curlyLeft curlyRight
 
     [[ ! -f "${subscribeFile}" ]] && return
 
@@ -100,6 +101,26 @@ function processSubscribeFile() {
 
     # Remove char `,` occurernce more than once in proxy name
     sed -ri "/(name:\s([^:]+,){2,}[^:]+:)/ { s/,//g; s/\s+([^[:space:]:{]+:)/, \1/g; }" "${subscribeFile}"
+
+    # Remove line that curly brackets `{}` unmatched
+    yamlLineCount=0
+    yamlLineToDelete=()
+    while read -r readYamlLine || [[ "${readYamlLine}" ]]; do
+        yamlLineCount=$((yamlLineCount + 1))
+        [[ -z "${readYamlLine}" ]] && continue
+
+        curlyLeft=$(grep -o '{' <<<"${readYamlLine}" | wc -w)
+        curlyRight=$(grep -o '}' <<<"${readYamlLine}" | wc -w)
+        [[ ${curlyLeft} -eq ${curlyRight} ]] && continue
+
+        yamlLineToDelete+=("${yamlLineCount}")
+    done < "${subscribeFile}"
+
+    IFS=$'\n' yamlLineToRemove=$(sort -nr <<<"${yamlLineToDelete[*]}")
+    while read -r readYamlLine || [[ "${readYamlLine}" ]]; do
+        [[ -z "${readYamlLine}" ]] && continue
+        sed -i "${readYamlLine} d" "${subscribeFile}"
+    done <<< "${yamlLineToRemove}"
 
     # Global filter
     if [[ -n "${GLOBAL_FILTER}" ]]; then
@@ -938,7 +959,12 @@ sed -ri 's/path:\s+([^,"\{\}]+)/path: "\1"/' "${TARGET_CONFIG_FILE}"
 sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${TARGET_CONFIG_FILE}"
 sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${TARGET_CONFIG_FILE}"
 sed -ri 's/Host:\s+([^,"\{\}]+)/Host: "\1"/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/host:\s+([^,"\{\}]+)/host: "\1"/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/alpn:\s+([^,"\{\}]+)/alpn: "\1"/' "${TARGET_CONFIG_FILE}"
 sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${TARGET_CONFIG_FILE}"
+
+# 'alpn', 'http-opts.path', 'http-opts.headers[Host]' is a slice
+sed -i -e 's/"【/["/g' -e 's/】"/"]/g' "${TARGET_CONFIG_FILE}"
 
 # delete empty group
 colorEcho "${BLUE}    Processing ${FUCHSIA}empty proxy-groups${BLUE}..."
