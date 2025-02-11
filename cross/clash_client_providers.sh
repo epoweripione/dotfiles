@@ -242,8 +242,16 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     # url with date format
     URL_DATE_FORMAT=$(grep -Eo '\[date+.*\]' <<<"${TARGET_URL}" 2>/dev/null | sed -e 's/date+//g' -e 's/\[//g' -e 's/\]//g')
     if [[ -n "${URL_DATE_FORMAT}" ]]; then
-        URL_DATE=$(date +"${URL_DATE_FORMAT}" 2>/dev/null)
-        [[ -n "${URL_DATE}" ]] && TARGET_URL=$(sed -r "s|\[date+.*\]|${URL_DATE}|" <<<"${TARGET_URL}")
+        CURRENT_DATE=$(date +"%Y-%m-%d")
+        for i in $(seq 0 10); do
+            URL_DATE=$(date -d "${CURRENT_DATE} - ${i} day" +"${URL_DATE_FORMAT}" 2>/dev/null)
+            [[ -z "${URL_DATE}" ]] && break
+            TARGET_DATE_URL=$(sed -r "s|\[date+.*\]|${URL_DATE}|" <<<"${TARGET_URL}")
+            if check_url_exists "${TARGET_DATE_URL}"; then
+                TARGET_URL="${TARGET_DATE_URL}"
+                break
+            fi
+        done
     fi
 
     TARGET_OPTION=$(cut -d' ' -f3 <<<"${READLINE}")
@@ -361,7 +369,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             while read -r TARGET_URL; do
                 [[ -z "${TARGET_URL}" ]] && continue
 
-                TARGET_URL=$(grep -o -P "(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" <<<"${TARGET_URL}")
+                TARGET_URL=$(grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" <<<"${TARGET_URL}")
                 [[ -z "${TARGET_URL}" ]] && continue
 
                 SCRAP_DOWNLOAD_FILE="${DOWNLOAD_FILE}"
@@ -370,7 +378,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
                     # Maybe multiple subscirbe files
                     if [[ "${SCRAP_SUCCESS}" == "yes" && -f "${SCRAP_DOWNLOAD_FILE}" ]]; then
-                        for i in $(seq 1 10); do
+                        for i in $(seq 1 50); do
                             SCRAP_DOWNLOAD_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
                             [[ ! -f "${SCRAP_DOWNLOAD_FILE}" ]] && break
                         done
@@ -387,7 +395,15 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
                     if [[ "${TARGET_OPTION}" =~ "converter" ]]; then
-                        CONVERTER_URL="${TARGET_URL}" && break
+                        colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
+                        TARGET_URL=$(printf %s "${TARGET_URL}" | jq -sRr @uri) # encode URL
+                        TARGET_URL=$(sed "s|\[URL\]|${TARGET_URL}|" <<<"${CONVERTER_SERVICE}")
+                        curl -fsL --connect-timeout 10 --max-time 30 -o "${SCRAP_DOWNLOAD_FILE}" "${TARGET_URL}"
+
+                        curl_download_status=$?
+                        [[ ${curl_download_status} -gt 0 ]] && continue
+
+                        SCRAP_SUCCESS="yes"
                     elif [[ "${TARGET_OPTION}" =~ "protect" ]]; then
                         PROTECT_URL="${TARGET_URL}" && break
                     else
@@ -433,7 +449,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" || exit
             if "${runProtectCMD[@]}"; then
                 TARGET_URL=$(grep -o -P "${PROTECT_MATCH}" "${DOWNLOAD_FILE}" | head -n1)
-                TARGET_URL=$(grep -o -P "(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" <<<"${TARGET_URL}")
+                TARGET_URL=$(grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" <<<"${TARGET_URL}")
                 [[ -z "${TARGET_URL}" ]] && continue
 
                 colorEcho "${BLUE}    Scraping ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
