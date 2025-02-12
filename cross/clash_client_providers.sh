@@ -162,7 +162,7 @@ function processDuplicateProxies() {
     local proxyList duplicateList proxyCount newProxyName renameLine renameSeq
     local groupList groupEndLine groupLine addLine
 
-    colorEcho "${BLUE}  Processing duplicate proxies in ${FUCHSIA}${subscribeFile}${BLUE}..."
+    colorEcho "${BLUE}    Processing duplicate proxies in ${FUCHSIA}${subscribeFile}${BLUE}..."
     proxyList=$(yq e ".proxies[].name" "${subscribeFile}")
     # groupList=$(yq e ".proxy-groups[].name" "${subscribeFile}")
     while read -r TargetName; do
@@ -173,7 +173,7 @@ function processDuplicateProxies() {
 
         proxyCount=$(wc -l <<<"${duplicateList}")
         if [[ ${proxyCount} -gt 1 ]]; then
-            # colorEcho "${BLUE}    Processing duplicate proxy ${FUCHSIA}${TargetName}${BLUE}..."
+            # colorEcho "${BLUE}      Processing duplicate proxy ${FUCHSIA}${TargetName}${BLUE}..."
             # rename proxy
             renameSeq=1
             TargetName_Escape=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' <<<"${TargetName}" | sed -e 's|/|\\&|g' -e 's/]/\\&/g')
@@ -455,7 +455,10 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
                     # Maybe multiple subscirbe files
                     if [[ "${SCRAP_SUCCESS}" == "yes" && -f "${SCRAP_DOWNLOAD_FILE}" ]]; then
-                        for i in $(seq 1 50); do
+                        i=0
+                        # for i in $(seq 1 1000); do
+                        while [[ $i -lt 1000 ]]; do
+                            i=$((i + 1))
                             SCRAP_DOWNLOAD_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
                             [[ ! -f "${SCRAP_DOWNLOAD_FILE}" ]] && break
                         done
