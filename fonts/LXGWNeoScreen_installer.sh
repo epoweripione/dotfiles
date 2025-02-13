@@ -53,10 +53,10 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     [[ ! -d "${INSTALLER_INSTALL_PATH}" ]] && sudo mkdir -p "${INSTALLER_INSTALL_PATH}"
     # Batch download
     INSTALLER_DOWNLOAD_URLS=(
-        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/LXGWNeoXiHeiScreen.ttf"
-        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/LXGWNeoXiHeiScreenFull.ttf"
-        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/LXGWNeoZhiSongScreen.ttf"
-        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/LXGWNeoZhiSongScreenFull.ttf"
+        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/LXGWNeoXiHeiScreen.ttf"
+        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/LXGWNeoXiHeiScreenFull.ttf"
+        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/LXGWNeoZhiSongScreen.ttf"
+        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/LXGWNeoZhiSongScreenFull.ttf"
     )
     INSTALLER_DOWNLOAD_COUNT=0
     for download_url in "${INSTALLER_DOWNLOAD_URLS[@]}"; do
