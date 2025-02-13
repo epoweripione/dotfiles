@@ -895,12 +895,12 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         *)
             MATCH_TAG="no"
             for TargetFile in "${FILELIST[@]}"; do
-                if [[ "${TargetFile}" == "${TARGET_TAG}" && -s "${WORKDIR}/${TargetFile}.list" ]]; then
+                TARGET_LIST_FILE="${WORKDIR}/${TargetFile}.list"
+                if [[ "${TargetFile}" == "${TARGET_TAG}" && -s "${TARGET_LIST_FILE}" ]]; then
                     MATCH_TAG="yes"
-                    # CONTENT_TAG=$(< "${WORKDIR}/${TargetFile}.list")
                     for TargetName in "${PROXY_LIST_ALL[@]}"; do
                         TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-                        if grep -Eaq "${TargetName_Escape_GREP}" "${WORKDIR}/${TargetFile}.list"; then
+                        if grep -Eaq "^\s*-\s*${TargetName_Escape_GREP}$" "${TARGET_LIST_FILE}"; then
                             [[ -n "${CONTENT_TAG}" ]] && \
                                 CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
                                 CONTENT_TAG="      - ${TargetName}"
