@@ -729,7 +729,7 @@ done < "${SUB_URL_LIST}"
 
 colorEcho "${BLUE}  Processing ${FUCHSIA}proxies${BLUE}..."
 # Sort public proxies
-PROXIES_PUBLIC=$(echo "${PROXIES_PUBLIC}" | sort | uniq)
+PROXIES_PUBLIC=$(sort <<<"${PROXIES_PUBLIC}" | uniq)
 
 # Proxies
 if [[ -n "${PROXIES_PRIVATE}" ]]; then
@@ -913,7 +913,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             # Filter by country
             if [[ "${MATCH_TAG}" == "no" ]]; then
                 for TargetName in "${PROXY_LIST_ALL[@]}"; do
-                    if echo "${TargetName}" | grep -Eaq "${TARGET_TAG}"; then
+                    if grep -Eaq "${TARGET_TAG}" <<<"${TargetName}"; then
                         [[ -n "${CONTENT_TAG}" ]] && \
                             CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
                             CONTENT_TAG="      - ${TargetName}"
