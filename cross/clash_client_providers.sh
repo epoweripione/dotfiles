@@ -195,7 +195,7 @@ function processDuplicateProxies() {
                     [[ -z "${groupLine}" ]] && continue
                     [[ ${groupLine} -ge ${groupEndLine} ]] && continue
 
-                    if sed -n "${groupLine},${groupEndLine} p" "${subscribeFile}" | grep -Eq "^\s*-\s*${TargetName_Escape_GREP}$"; then
+                    if sed -n "${groupLine},${groupEndLine} p" "${subscribeFile}" | grep -Eq "^\s*-\s*\"*${TargetName_Escape_GREP}\"*$"; then
                         addLine=$((groupEndLine - 1))
                         sed -i "${addLine}i\      - ${newProxyName}" "${subscribeFile}"
                     fi
@@ -205,8 +205,8 @@ function processDuplicateProxies() {
                 renameSeq=$((renameSeq + 1))
             done <<<"$(cut -d: -f1 <<<"${duplicateList}")"
             ## remove old proxy
-            # sed -i "/name:\s*${TargetName_Escape},/d" "${subscribeFile}"
-            sed -i "/^\s*-\s*${TargetName_Escape}$/d" "${subscribeFile}"
+            # sed -i "/name:\s*\"*${TargetName_Escape}\"*,/d" "${subscribeFile}"
+            sed -i "/^\s*-\s*\"*${TargetName_Escape}\"*$/d" "${subscribeFile}"
         fi
     done <<< "${proxyList}"
 }
