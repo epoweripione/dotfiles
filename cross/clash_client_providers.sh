@@ -1039,7 +1039,7 @@ for TargetGroup in "${PROXY_EMPTY_GROUP[@]}"; do
     [[ -z "${TargetGroup}" ]] && continue
     sed -i "/^\s*\-\s*${TargetGroup}$/d" "${TARGET_CONFIG_FILE}"
 
-    GROUP_START_LINE=$(grep -En "^\s*-\s*name:\s*${TargetGroup}$" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
+    GROUP_START_LINE=$(grep -En "^\s*-\s*name:\s*\"*${TargetGroup}\"*$" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
     if [[ ${GROUP_START_LINE} -gt 0 ]]; then
         GROUP_END_LINE=$((GROUP_START_LINE + 6))
         sed -i "${GROUP_START_LINE},${GROUP_END_LINE}d" "${TARGET_CONFIG_FILE}"
