@@ -747,7 +747,7 @@ PROXIES_ALL=$(sed '/name:\s*,/d' <<<"${PROXIES_ALL}" | sed 's/,,/,/g')
 # sort proxy list
 # sort_array PROXY_LIST_ALL
 PROXY_LIST_SORT=""
-PROXIES_USE_ALL=""
+PROXIES_PROXY_ALL=""
 for TargetName in "${PROXY_LIST_ALL[@]}"; do
     [[ -z "${TargetName}" ]] && continue
 
@@ -758,9 +758,9 @@ for TargetName in "${PROXY_LIST_ALL[@]}"; do
         #     PROXY_LIST_SORT=$(echo -e "${PROXY_LIST_SORT}\n${TargetName}") || \
         #     PROXY_LIST_SORT="${TargetName}"
 
-        [[ -n "${PROXIES_USE_ALL}" ]] && \
-            PROXIES_USE_ALL=$(echo -e "${PROXIES_USE_ALL}\n${TargetProxies}") || \
-            PROXIES_USE_ALL="${TargetProxies}"
+        [[ -n "${PROXIES_PROXY_ALL}" ]] && \
+            PROXIES_PROXY_ALL=$(echo -e "${PROXIES_PROXY_ALL}\n${TargetProxies}") || \
+            PROXIES_PROXY_ALL="${TargetProxies}"
     fi
 done
 
@@ -773,15 +773,15 @@ done
 # done <<<"${PROXY_LIST_SORT}"
 
 # get proxy type
-PROXY_USE_ALL=""
+GROUP_PROXIES_ALL=""
 PROXY_TYPE_ALL=()
 for TargetName in "${PROXY_LIST_ALL[@]}"; do
-    [[ -n "${PROXY_USE_ALL}" ]] && \
-        PROXY_USE_ALL=$(echo -e "${PROXY_USE_ALL}\n      - ${TargetName}") || \
-        PROXY_USE_ALL="      - ${TargetName}"
+    [[ -n "${GROUP_PROXIES_ALL}" ]] && \
+        GROUP_PROXIES_ALL=$(echo -e "${GROUP_PROXIES_ALL}\n      - ${TargetName}") || \
+        GROUP_PROXIES_ALL="      - ${TargetName}"
 
     TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-    TargetLine=$(grep -Ea "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_USE_ALL}")
+    TargetLine=$(grep -Ea "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PROXY_ALL}")
 
     TargetType=$(echo "${TargetLine}" \
         | sed -rn "s/.*[,{ ]+type:([^,{}]+).*/\1/ip" \
@@ -829,8 +829,15 @@ colorEcho "${BLUE}  Setting all config to ${FUCHSIA}${TARGET_CONFIG_FILE}${BLUE}
 
 FILL_LINES=$(grep -Ean "^#-" "${CLASH_CONFIG}")
 LINE_START=1
-PROXY_LIST_FILTERED=()
+
+USED_PROXIES=()
+USED_INDEX_FILE="${WORKDIR}/filtered_index.list"
+USED_INDEX_TEMP="${WORKDIR}/filtered_index.temp"
+[[ -f "${USED_INDEX_TEMP}" ]] && rm -f "${USED_INDEX_TEMP}"
+
 while read -r READLINE || [[ "${READLINE}" ]]; do
+    [[ -z "${READLINE}" ]] && continue
+
     TARGET_LINE=$(cut -d':' -f1 <<<"${READLINE}")
     TARGET_TAG=$(cut -d'-' -f2 <<<"${READLINE}")
     TARGET_GROUP=$(cut -d'-' -f3 <<<"${READLINE}")
@@ -846,10 +853,10 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     [[ -n "${TARGET_GROUP}" ]] && CONTENT_IS_GROUP="yes" || CONTENT_IS_GROUP="no"
     case "${TARGET_TAG}" in
         "proxies")
-            CONTENT_TAG="${PROXIES_USE_ALL}"
+            CONTENT_TAG="${PROXIES_PROXY_ALL}"
             ;;
         "all")
-            CONTENT_TAG="${PROXY_USE_ALL}"
+            CONTENT_TAG="${GROUP_PROXIES_ALL}"
             ;;
         "rules")
             [[ -n "${CONTENT_PREFIX}" ]] && echo "${CONTENT_PREFIX}" | tee -a "${TARGET_CONFIG_FILE}" >/dev/null
@@ -868,11 +875,17 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             done
             ;;
         "OTHERS")
+            for TargetIndex in "${USED_PROXIES[@]}"; do
+                echo "${TargetIndex}" >> "${USED_INDEX_TEMP}"
+            done
+            sort -n "${USED_INDEX_TEMP}" | uniq > "${USED_INDEX_FILE}"
+
             PROXY_INDEX=-1
             for TargetName in "${PROXY_LIST_ALL[@]}"; do
                 PROXY_INDEX=$((PROXY_INDEX + 1))
-                # if [[ " ${PROXY_LIST_FILTERED[*]} " != *" ${TargetName} "* ]]; then
-                if [[ " ${PROXY_LIST_FILTERED[*]} " != *" ${PROXY_INDEX} "* ]]; then
+                # if [[ " ${USED_PROXIES[*]} " != *" ${TargetName} "* ]]; then
+                # if [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]]; then
+                if ! grep -Eaq "^${PROXY_INDEX}$" "${USED_INDEX_FILE}"; then
                     [[ -n "${CONTENT_TAG}" ]] && \
                         CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
                         CONTENT_TAG="      - ${TargetName}"
@@ -896,8 +909,8 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                             [[ -n "${CONTENT_TAG}" ]] && \
                                 CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
                                 CONTENT_TAG="      - ${TargetName}"
-                            # [[ " ${PROXY_LIST_FILTERED[*]} " != *" ${TargetName} "* ]] && PROXY_LIST_FILTERED+=("${TargetName}")
-                            [[ " ${PROXY_LIST_FILTERED[*]} " != *" ${PROXY_INDEX} "* ]] && PROXY_LIST_FILTERED+=("${PROXY_INDEX}")
+                            # [[ " ${USED_PROXIES[*]} " != *" ${TargetName} "* ]] && USED_PROXIES+=("${TargetName}")
+                            [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]] && USED_PROXIES+=("${PROXY_INDEX}")
                         fi
                     done
                 fi
@@ -912,8 +925,8 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                         [[ -n "${CONTENT_TAG}" ]] && \
                             CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
                             CONTENT_TAG="      - ${TargetName}"
-                        # [[ " ${PROXY_LIST_FILTERED[*]} " != *" ${TargetName} "* ]] && PROXY_LIST_FILTERED+=("${TargetName}")
-                        [[ " ${PROXY_LIST_FILTERED[*]} " != *" ${PROXY_INDEX} "* ]] && PROXY_LIST_FILTERED+=("${PROXY_INDEX}")
+                        # [[ " ${USED_PROXIES[*]} " != *" ${TargetName} "* ]] && USED_PROXIES+=("${TargetName}")
+                        [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]] && USED_PROXIES+=("${PROXY_INDEX}")
                     fi
                 done
             fi
@@ -945,8 +958,9 @@ if [[ ${GROUP_OTHER_BALANCE_LINE} -gt 0 ]]; then
     PROXY_INDEX=-1
     for TargetName in "${PROXY_LIST_ALL[@]}"; do
         PROXY_INDEX=$((PROXY_INDEX + 1))
-        # if [[ " ${PROXY_LIST_FILTERED[*]} " != *" ${TargetName} "* ]]; then
-        if [[ " ${PROXY_LIST_FILTERED[*]} " != *" ${PROXY_INDEX} "* ]]; then
+        # if [[ " ${USED_PROXIES[*]} " != *" ${TargetName} "* ]]; then
+        # if [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]]; then
+        if ! grep -Eaq "^${PROXY_INDEX}$" "${USED_INDEX_FILE}"; then
             sed -i "/^#otherbalance/i\      - ${TargetName}" "${TARGET_CONFIG_FILE}"
         fi
     done
