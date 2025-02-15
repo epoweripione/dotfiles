@@ -752,7 +752,7 @@ for TargetName in "${PROXY_LIST_ALL[@]}"; do
     [[ -z "${TargetName}" ]] && continue
 
     TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-    TargetProxies=$(grep -Ea "name:\s*${TargetName_Escape_GREP}," <<<"${PROXIES_ALL}")
+    TargetProxies=$(grep -Ea "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_ALL}")
     if [[ -n "${TargetProxies}" ]]; then
         # [[ -n "${PROXY_LIST_SORT}" ]] && \
         #     PROXY_LIST_SORT=$(echo -e "${PROXY_LIST_SORT}\n${TargetName}") || \
@@ -781,7 +781,7 @@ for TargetName in "${PROXY_LIST_ALL[@]}"; do
         PROXY_USE_ALL="      - ${TargetName}"
 
     TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-    TargetLine=$(grep -Ea "name: ${TargetName_Escape_GREP}," <<<"${PROXIES_USE_ALL}")
+    TargetLine=$(grep -Ea "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_USE_ALL}")
 
     TargetType=$(echo "${TargetLine}" \
         | sed -rn "s/.*[,{ ]+type:([^,{}]+).*/\1/ip" \
@@ -892,7 +892,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                     for TargetName in "${PROXY_LIST_ALL[@]}"; do
                         PROXY_INDEX=$((PROXY_INDEX + 1))
                         TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-                        if grep -Eaq "^\s*-\s*${TargetName_Escape_GREP}$" "${TARGET_LIST_FILE}"; then
+                        if grep -Eaq "^\s*-\s*\"*${TargetName_Escape_GREP}\"*$" "${TARGET_LIST_FILE}"; then
                             [[ -n "${CONTENT_TAG}" ]] && \
                                 CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
                                 CONTENT_TAG="      - ${TargetName}"
@@ -981,21 +981,17 @@ for TargetName in "${PROXY_LIST_ALL[@]}"; do
     [[ -z "${TargetName}" ]] && continue
 
     TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-    TargetProxies=$(grep -Ea "name:\s*${TargetName_Escape_GREP}," "${TARGET_CONFIG_FILE}")
-    if [[ -z "${TargetProxies}" ]]; then
-        sed -i "/^\s*\-\s*${TargetName_Escape_GREP}$/d" "${TARGET_CONFIG_FILE}"
+    if ! grep -Eaq "name:\s*\"*${TargetName_Escape_GREP}\"*," "${TARGET_CONFIG_FILE}"; then
+        TargetName_Escape=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' <<<"${TargetName}" | sed -e 's|/|\\&|g' -e 's/]/\\&/g')
+        sed -i "/^\s*\-\s*\"*${TargetName_Escape}\"*$/d" "${TARGET_CONFIG_FILE}"
     fi
 done
 
 # add Double quotes to `path`, `User-Agent`...
-sed -ri 's/path:\s+([^,"\{\}]+)/path: "\1"/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/alpn:\s+([^,"\{\}]+)/alpn: "\1"/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/HOST:\s+([^,"\{\}]+)/HOST: "\1"/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/Host:\s+([^,"\{\}]+)/Host: "\1"/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/host:\s+([^,"\{\}]+)/host: "\1"/' "${TARGET_CONFIG_FILE}"
+sed -ri 's/(ALPN|Alpn|alpn|HOST|Host|host|PATH|Path|path):\s+([^,"\{\}\[]+)/\1: "\2"/g' "${TARGET_CONFIG_FILE}"
 
 # 'alpn', 'http-opts.path', 'http-opts.headers[Host]' is a slice
-sed -i -e 's/"【/["/g' -e 's/】"/"]/g' "${TARGET_CONFIG_FILE}"
+sed -ri 's/(ALPN|Alpn|alpn|HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${TARGET_CONFIG_FILE}"
 
 sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${TARGET_CONFIG_FILE}"
 sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${TARGET_CONFIG_FILE}"
