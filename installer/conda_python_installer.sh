@@ -44,27 +44,8 @@ if [[ -d "$HOME/miniconda3" ]]; then
     export PATH=$PATH:$HOME/miniconda3/condabin
     source "$HOME/miniconda3/bin/activate"
 
-    ## Use mirror channels
-    if [[ -n "${MIRROR_PYTHON_CONDA}" && ! -s "$HOME/.condarc" ]]; then
-        # conda config --add channels ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/main/
-        # conda config --add channels ${MIRROR_PYTHON_CONDA}/anaconda/cloud/pytorch/
-        tee -a "$HOME/.condarc" >/dev/null <<-EOF
-channels:
-  - defaults
-show_channel_urls: true
-default_channels:
-  - ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/main
-  - ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/r
-  - ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/msys2
-custom_channels:
-  conda-forge: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-  msys2: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-  bioconda: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-  menpo: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-  pytorch: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-  simpleitk: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-EOF
-    fi
+    # conda mirror
+    setMirrorConda
 
     ## Use default channels
     # conda config --remove-key channels
