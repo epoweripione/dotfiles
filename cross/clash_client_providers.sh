@@ -309,6 +309,9 @@ GLOBAL_WORD_REPLACE=$(grep '^# word' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 GLOBAL_PERL_FILTER=$(grep '^# perl' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 CONVERTER_SERVICE=$(grep '^# converter' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 USER_AGENT=$(grep '^# useragent' "${SUB_URL_LIST}" | cut -d' ' -f3-)
+
+# Download subscribe files
+DOWNLOADED_FILES_OPTIONS=""
 while read -r READLINE || [[ "${READLINE}" ]]; do
     [[ -z "${READLINE}" ]] && continue
 
@@ -454,7 +457,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                     [[ "${TARGET_OPTION}" =~ "converter" && "${TARGET_OPTION}" =~ "protect" ]] && SCRAP_ACTION="stop"
 
                     # Maybe multiple subscirbe files
-                    if [[ "${SCRAP_SUCCESS}" == "yes" && -f "${SCRAP_DOWNLOAD_FILE}" ]]; then
+                    if [[ -f "${SCRAP_DOWNLOAD_FILE}" ]]; then
                         i=0
                         # for i in $(seq 1 1000); do
                         while [[ $i -lt 1000 ]]; do
@@ -543,6 +546,26 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     fi
 
     [[ ! -s "${DOWNLOAD_FILE}" ]] && continue
+
+    if ! grep -Eq "^${TARGET_FILE}\s+" <<<"${DOWNLOADED_FILES_OPTIONS}"; then
+        TARGET_OPTION=$(cut -d' ' -f1 <<<"${TARGET_OPTION//→/ }")
+        DOWNLOADED_FILE="${TARGET_FILE} ${DOWNLOAD_FILE} ${TARGET_OPTION} ${SUBSCRIBE_DOWNLOAD_FILE_EXISTS}"
+        [[ -n "${DOWNLOADED_FILES_OPTIONS}" ]] && \
+            DOWNLOADED_FILES_OPTIONS=$(echo -e "${DOWNLOADED_FILES_OPTIONS}\n${DOWNLOADED_FILE}") || \
+            DOWNLOADED_FILES_OPTIONS="${DOWNLOADED_FILE}"
+    fi
+done < "${SUB_URL_LIST}"
+
+# Process downloaded subscribe files
+while read -r READLINE || [[ "${READLINE}" ]]; do
+    [[ -z "${READLINE}" ]] && continue
+
+    TARGET_FILE=$(cut -d' ' -f1 <<<"${READLINE}")
+    [[ "${TARGET_FILE}" == "#"* ]] && continue
+
+    DOWNLOAD_FILE=$(cut -d' ' -f2 <<<"${READLINE}")
+    TARGET_OPTION=$(cut -d' ' -f3 <<<"${READLINE}")
+    SUBSCRIBE_DOWNLOAD_FILE_EXISTS=$(cut -d' ' -f4 <<<"${READLINE}")
 
     if [[ "${TARGET_OPTION}" == "rules" ]]; then
         # Get rules
@@ -724,7 +747,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 ;;
         esac
     fi
-done < "${SUB_URL_LIST}"
+done <<<"${DOWNLOADED_FILES_OPTIONS}"
 
 
 colorEcho "${BLUE}  Processing ${FUCHSIA}proxies${BLUE}..."
