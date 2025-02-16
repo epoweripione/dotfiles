@@ -19,25 +19,13 @@ fi
 
 App_Installer_Reset
 
-# Use proxy or mirror when some sites were blocked or low speed
-[[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
-
 # [Miniforge](https://github.com/conda-forge/miniforge)
 colorEcho "${BLUE}Installing ${FUCHSIA}Miniforge${BLUE}..."
 
 MINIFORGE_FILENAME="Miniforge3-$(uname)-$(uname -m).sh"
 
-if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    [[ -z "${MIRROR_PYTHON_CONDA}" ]] && MIRROR_PYTHON_CONDA="https://mirror.sjtu.edu.cn"
-    [[ -z "${MIRROR_PYTHON_MINIFORGE}" ]] && MIRROR_PYTHON_MINIFORGE="${MIRROR_PYTHON_CONDA}/github-release/conda-forge/miniforge/LatestRelease/"
-fi
-
 if [[ ! -d "$HOME/miniforge3" ]]; then
-    if [[ -n "${MIRROR_PYTHON_MINIFORGE}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${MIRROR_PYTHON_MINIFORGE}/${MINIFORGE_FILENAME}"
-    else
-        INSTALLER_DOWNLOAD_URL="https://github.com/conda-forge/miniforge/releases/latest/download/${MINIFORGE_FILENAME}"
-    fi
+    INSTALLER_DOWNLOAD_URL="https://github.com/conda-forge/miniforge/releases/latest/download/${MINIFORGE_FILENAME}"
     wget -O "${WORKDIR}/Miniforge3.sh" -c "${INSTALLER_DOWNLOAD_URL}" && \
         bash "${WORKDIR}/Miniforge3.sh" -b -p "$HOME/miniforge3"
 fi
@@ -46,27 +34,8 @@ if [[ -d "$HOME/miniforge3" ]]; then
     export PATH=$PATH:$HOME/miniforge3/condabin
     source "$HOME/miniforge3/bin/activate"
 
-    ## Use mirror channels
-    if [[ -n "${MIRROR_PYTHON_CONDA}" && ! -s "$HOME/.condarc" ]]; then
-        # mamba config --add channels ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/main/
-        # mamba config --add channels ${MIRROR_PYTHON_CONDA}/anaconda/cloud/pytorch/
-        tee -a "$HOME/.condarc" >/dev/null <<-EOF
-channels:
-  - defaults
-show_channel_urls: true
-default_channels:
-  - ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/main
-  - ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/r
-  - ${MIRROR_PYTHON_CONDA}/anaconda/pkgs/msys2
-custom_channels:
-  conda-forge: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-  msys2: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-  bioconda: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-  menpo: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-  pytorch: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-  simpleitk: ${MIRROR_PYTHON_CONDA}/anaconda/cloud
-EOF
-    fi
+    # conda mirror
+    setMirrorConda
 
     ## Use default channels
     # mamba config --remove-key channels
@@ -96,6 +65,3 @@ EOF
     # mamba activate py12
     # mamba deactivate
 fi
-
-# [Micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)
-"${SHELL}" <(curl -L micro.mamba.pm/install.sh)
