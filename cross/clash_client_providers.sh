@@ -310,6 +310,26 @@ GLOBAL_PERL_FILTER=$(grep '^# perl' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 CONVERTER_SERVICE=$(grep '^# converter' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 USER_AGENT=$(grep '^# useragent' "${SUB_URL_LIST}" | cut -d' ' -f3-)
 
+# Check files already exists
+DOWNLOADED_FILES_EXISTS=""
+while read -r READLINE || [[ "${READLINE}" ]]; do
+    [[ -z "${READLINE}" ]] && continue
+
+    TARGET_FILE=$(cut -d' ' -f1 <<<"${READLINE}")
+    [[ "${TARGET_FILE}" == "#"* ]] && continue
+
+    DOWNLOAD_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.yml"
+
+    SUBSCRIBE_DOWNLOAD_FILE_EXISTS=false
+    [[ -s "${DOWNLOAD_FILE}" ]] && SUBSCRIBE_DOWNLOAD_FILE_EXISTS=true
+
+    if ! grep -Eq "^${TARGET_FILE}\s+" <<<"${DOWNLOADED_FILES_EXISTS}"; then
+        [[ -n "${DOWNLOADED_FILES_EXISTS}" ]] && \
+            DOWNLOADED_FILES_EXISTS=$(echo -e "${DOWNLOADED_FILES_EXISTS}\n${TARGET_FILE} ${SUBSCRIBE_DOWNLOAD_FILE_EXISTS}") || \
+            DOWNLOADED_FILES_EXISTS="${TARGET_FILE} ${SUBSCRIBE_DOWNLOAD_FILE_EXISTS}"
+    fi
+done < "${SUB_URL_LIST}"
+
 # Download subscribe files
 DOWNLOADED_FILES_OPTIONS=""
 while read -r READLINE || [[ "${READLINE}" ]]; do
@@ -370,10 +390,11 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     fi
 
     DOWNLOAD_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.yml"
+    DOWNLOAD_TEMP="${DOWNLOAD_FILE}.part"
 
     SCRAP_OPTION="${TARGET_OPTION}"
     SUBSCRIBE_DOWNLOAD_FILE_EXISTS=false
-    if [[ -s "${DOWNLOAD_FILE}" ]]; then
+    if grep -Eq "^${TARGET_FILE} true" <<<"${DOWNLOADED_FILES_EXISTS}"; then
         # subscribe file already downloaded
         SCRAP_OPTION=""
         SUBSCRIBE_DOWNLOAD_FILE_EXISTS=true
@@ -389,12 +410,12 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                     colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${CONVERTER_URL}${BLUE}..."
                     CONVERTER_URL=$(printf %s "${CONVERTER_URL}" | jq -sRr @uri) # encode URL
                     CONVERTER_URL=$(sed "s|\[URL\]|${CONVERTER_URL}|" <<<"${CONVERTER_SERVICE}")
-                    curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${CONVERTER_URL}"
+                    curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_TEMP}" "${CONVERTER_URL}"
                 else
                     if [[ "${TARGET_OPTION}" =~ "useragent" ]]; then
-                        curl -fsL -A "${USER_AGENT}" --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+                        curl -fsL -A "${USER_AGENT}" --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_TEMP}" "${TARGET_URL}"
                     else
-                        curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+                        curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_TEMP}" "${TARGET_URL}"
                     fi
                 fi
 
@@ -406,9 +427,9 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             fi
         else
             if [[ -s "/etc/clash/${TARGET_URL}" ]]; then
-                cp "/etc/clash/${TARGET_URL}" "${DOWNLOAD_FILE}"
+                cp "/etc/clash/${TARGET_URL}" "${DOWNLOAD_TEMP}"
             elif [[ -s "${TARGET_URL}" ]]; then
-                cp "${TARGET_URL}" "${DOWNLOAD_FILE}"
+                cp "${TARGET_URL}" "${DOWNLOAD_TEMP}"
             else
                 continue
             fi
@@ -426,9 +447,9 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             SCRAP_INDEX=$((SCRAP_INDEX + 1))
             [[ ${SCRAP_INDEX} -eq 1 ]] && continue
 
-            sed -i -e 's/\s*\&amp;/\&/g' -e 's/\&amp;/\&/g' -e 's/\&\&/\&/g' "${DOWNLOAD_FILE}"
+            sed -i -e 's/\s*\&amp;/\&/g' -e 's/\&amp;/\&/g' -e 's/\&\&/\&/g' "${DOWNLOAD_TEMP}"
 
-            MATCH_URL=$(grep -o -P "${TargetPattern}" "${DOWNLOAD_FILE}" | uniq)
+            MATCH_URL=$(grep -o -P "${TargetPattern}" "${DOWNLOAD_TEMP}" | uniq)
             if ! grep -E -q '(http:|https:|ftp:)' <<<"${MATCH_URL}"; then
                 URL_PROTOCOL=$(awk -F/ '{print $1}' <<<"${TARGET_URL}")
                 URL_DOMAIN=$(awk -F/ '{print $3}' <<<"${TARGET_URL}")
@@ -452,25 +473,25 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 TARGET_URL=$(grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" <<<"${TARGET_URL}")
                 [[ -z "${TARGET_URL}" ]] && continue
 
-                SCRAP_DOWNLOAD_FILE="${DOWNLOAD_FILE}"
+                DOWNLOAD_SCRAP_FILE="${DOWNLOAD_TEMP}"
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
+                    DOWNLOAD_SCRAP_FILE="${DOWNLOAD_FILE}"
                     [[ "${TARGET_OPTION}" =~ "converter" && "${TARGET_OPTION}" =~ "protect" ]] && SCRAP_ACTION="stop"
 
                     # Maybe multiple subscirbe files
-                    if [[ -f "${SCRAP_DOWNLOAD_FILE}" ]]; then
+                    if [[ "${SCRAP_SUCCESS}" == "yes" && -f "${DOWNLOAD_SCRAP_FILE}" ]]; then
                         i=0
-                        # for i in $(seq 1 1000); do
                         while [[ $i -lt 1000 ]]; do
                             i=$((i + 1))
-                            SCRAP_DOWNLOAD_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
-                            [[ ! -f "${SCRAP_DOWNLOAD_FILE}" ]] && break
+                            DOWNLOAD_SCRAP_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
+                            [[ ! -f "${DOWNLOAD_SCRAP_FILE}" ]] && break
                         done
                     fi
                 fi
 
                 if [[ "${SCRAP_ACTION}" != "stop" ]]; then
-                    colorEcho "${BLUE}    Scraping ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE} to ${ORANGE}${SCRAP_DOWNLOAD_FILE}${BLUE}..."
-                    curl -fsL --connect-timeout 10 --max-time 30 -o "${SCRAP_DOWNLOAD_FILE}" "${TARGET_URL}"
+                    colorEcho "${BLUE}    Scraping ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE} to ${ORANGE}${DOWNLOAD_SCRAP_FILE}${BLUE}..."
+                    curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_SCRAP_FILE}" "${TARGET_URL}"
 
                     curl_download_status=$?
                     [[ ${curl_download_status} -gt 0 ]] && continue
@@ -481,7 +502,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                         colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
                         TARGET_URL=$(printf %s "${TARGET_URL}" | jq -sRr @uri) # encode URL
                         TARGET_URL=$(sed "s|\[URL\]|${TARGET_URL}|" <<<"${CONVERTER_SERVICE}")
-                        curl -fsL --connect-timeout 10 --max-time 30 -o "${SCRAP_DOWNLOAD_FILE}" "${TARGET_URL}"
+                        curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_SCRAP_FILE}" "${TARGET_URL}"
 
                         curl_download_status=$?
                         [[ ${curl_download_status} -gt 0 ]] && continue
@@ -493,7 +514,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                         SCRAP_SUCCESS="yes"
                     fi
                 else
-                    MATCH_NEXT=$(grep -o -P "${SCRAP_PATTERN[$SCRAP_INDEX]}" "${DOWNLOAD_FILE}")
+                    MATCH_NEXT=$(grep -o -P "${SCRAP_PATTERN[$SCRAP_INDEX]}" "${DOWNLOAD_TEMP}")
                     [[ -n "${MATCH_NEXT}" ]] && break
                 fi
             done <<<"${MATCH_URL}"
@@ -531,7 +552,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             colorEcho "${BLUE}    Running ${FUCHSIA}${runProtectCMD[*]}${BLUE}..."
             cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" || exit
             if "${runProtectCMD[@]}"; then
-                TARGET_URL=$(grep -o -P "${PROTECT_MATCH}" "${DOWNLOAD_FILE}" | head -n1)
+                TARGET_URL=$(grep -o -P "${PROTECT_MATCH}" "${DOWNLOAD_TEMP}" | head -n1)
                 TARGET_URL=$(grep -o -P "(((ht|f)tps?):\/\/)+[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?" <<<"${TARGET_URL}")
                 [[ -z "${TARGET_URL}" ]] && continue
 
@@ -542,6 +563,10 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 [[ ${curl_download_status} -gt 0 ]] && continue
             fi
             cd "${CURRENT_DIR}" || exit
+        fi
+    else
+        if [[ "${SUBSCRIBE_DOWNLOAD_FILE_EXISTS}" == "false" ]]; then
+            [[ -s "${DOWNLOAD_TEMP}" ]] && cp -f "${DOWNLOAD_TEMP}" "${DOWNLOAD_FILE}"
         fi
     fi
 
