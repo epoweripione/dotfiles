@@ -1,17 +1,29 @@
 channels:
   - defaults
+  - conda-forge
 show_channel_urls: true
 default_channels:
-  - https://mirror.sjtu.edu.cn/anaconda/pkgs/main
-  - https://mirror.sjtu.edu.cn/anaconda/pkgs/mro
-  - https://mirror.sjtu.edu.cn/anaconda/pkgs/msys2
+  - https://mirrors.sustech.edu.cn/anaconda/pkgs/main
+  # - https://mirrors.sustech.edu.cn/anaconda/pkgs/free
+  - https://mirrors.sustech.edu.cn/anaconda/pkgs/r
+  - https://mirrors.sustech.edu.cn/anaconda/pkgs/mro
+  - https://mirrors.sustech.edu.cn/anaconda/pkgs/pro
+  - https://mirrors.sustech.edu.cn/anaconda/pkgs/msys2
 custom_channels:
-  bioconda: https://mirror.sjtu.edu.cn/anaconda/cloud
-  conda-forge: https://mirror.sjtu.edu.cn/anaconda/cloud
-  menpo: https://mirror.sjtu.edu.cn/anaconda/cloud
-  soumith: https://mirror.sjtu.edu.cn/anaconda/cloud
-  viscid-hub: https://mirror.sjtu.edu.cn/anaconda/cloud
-  atztogo: https://mirror.sjtu.edu.cn/anaconda/cloud
-  pytorch: https://mirror.sjtu.edu.cn/anaconda/cloud
-  pytorch-test: https://mirror.sjtu.edu.cn/anaconda/cloud
+  bioconda: https://mirrors.sustech.edu.cn/anaconda/cloud
+  conda-forge: https://mirrors.sustech.edu.cn/anaconda/cloud
+  fermi: https://mirrors.sustech.edu.cn/anaconda/cloud
+  menpo: https://mirrors.sustech.edu.cn/anaconda/cloud
+  msys2: https://mirrors.sustech.edu.cn/anaconda/cloud
+  numba: https://mirrors.sustech.edu.cn/anaconda/cloud
+  pytorch: https://mirrors.sustech.edu.cn/anaconda/cloud
+  pytorch-test: https://mirrors.sustech.edu.cn/anaconda/cloud
+  pytorch-lts: https://mirrors.sustech.edu.cn/anaconda/cloud
+  pytorch-3d: https://mirrors.sustech.edu.cn/anaconda/cloud
+  simpleitk: https://mirrors.sustech.edu.cn/anaconda/cloud
+  speleo3: https://mirrors.sustech.edu.cn/anaconda/cloud
+  nvidia: https://mirrors.sustech.edu.cn/anaconda-extra/cloud
 auto_activate_base: false
+# proxy_servers:
+#   http: http://127.0.0.1:7890
+#   https: http://127.0.0.1:7890

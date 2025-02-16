@@ -260,7 +260,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
     MIRROR_PYTHON_PIP_EXTRA=""
 
     # anaconda
-    MIRROR_PYTHON_CONDA="https://mirror.sjtu.edu.cn"
+    MIRROR_PYTHON_CONDA="mirrors.sustech.edu.cn"
     # MIRROR_PYTHON_CONDA="https://mirror.sjtu.edu.cn"
     # MIRROR_PYTHON_CONDA="https://mirrors.tuna.tsinghua.edu.cn"
 

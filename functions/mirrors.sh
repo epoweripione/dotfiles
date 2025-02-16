@@ -157,12 +157,15 @@ function setMirrorPipGlobal() {
 
 # conda
 function setMirrorConda() {
-    if [[ "$(command -v conda)" ]]; then
-        export MIRROR_PYTHON_CONDA=${MIRROR_PYTHON_CONDA:-"https://mirror.sjtu.edu.cn"}
+    if [[ "$(command -v conda)" || "$(command -v mamba)" ||"$(command -v micromamba)" ]]; then
+        export MIRROR_PYTHON_CONDA=${MIRROR_PYTHON_CONDA:-"https://mirrors.sustech.edu.cn"}
 
         if [[ ! -s "$HOME/.condarc" ]]; then
             cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/condarc" "$HOME/.condarc"
-            sed -i -e "s|https://mirror.sjtu.edu.cn|${MIRROR_PYTHON_CONDA}|g" "$HOME/.condarc"
+        fi
+
+        if [[ "${MIRROR_PYTHON_CONDA}" != "https://mirrors.sustech.edu.cn" ]]; then
+            sed -i -e "s|https://mirrors.sustech.edu.cn|${MIRROR_PYTHON_CONDA}|g" "$HOME/.condarc"
         fi
     fi
 }
