@@ -475,11 +475,11 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
                 DOWNLOAD_SCRAP_FILE="${DOWNLOAD_TEMP}"
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
-                    DOWNLOAD_SCRAP_FILE="${DOWNLOAD_FILE}"
                     [[ "${TARGET_OPTION}" =~ "converter" && "${TARGET_OPTION}" =~ "protect" ]] && SCRAP_ACTION="stop"
 
                     # Maybe multiple subscirbe files
-                    if [[ "${SCRAP_SUCCESS}" == "yes" && -f "${DOWNLOAD_SCRAP_FILE}" ]]; then
+                    DOWNLOAD_SCRAP_FILE="${DOWNLOAD_FILE}"
+                    if [[ -s "${DOWNLOAD_SCRAP_FILE}" ]]; then
                         i=0
                         while [[ $i -lt 1000 ]]; do
                             i=$((i + 1))
@@ -520,12 +520,16 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             done <<<"${MATCH_URL}"
         done
 
-        i=0
-        while [[ $i -lt 1000 ]]; do
-            i=$((i + 1))
-            DOWNLOAD_SCRAP_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
-            [[ ! -f "${DOWNLOAD_SCRAP_FILE}" ]] && break
-        done
+        # Maybe multiple subscirbe files
+        DOWNLOAD_SCRAP_FILE="${DOWNLOAD_FILE}"
+        if [[ -s "${DOWNLOAD_SCRAP_FILE}" ]]; then
+            i=0
+            while [[ $i -lt 1000 ]]; do
+                i=$((i + 1))
+                DOWNLOAD_SCRAP_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
+                [[ ! -f "${DOWNLOAD_SCRAP_FILE}" ]] && break
+            done
+        fi
 
         if [[ -z "${CONVERTER_URL}" && "${SCRAP_SUCCESS}" == "no" ]]; then
             [[ "${TARGET_OPTION}" =~ "converter" ]] && CONVERTER_URL="${TARGET_URL}"
@@ -573,12 +577,16 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         fi
     else
         if [[ "${SUBSCRIBE_DOWNLOAD_FILE_EXISTS}" == "false" ]]; then
-            i=0
-            while [[ $i -lt 1000 ]]; do
-                i=$((i + 1))
-                DOWNLOAD_SCRAP_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
-                [[ ! -f "${DOWNLOAD_SCRAP_FILE}" ]] && break
-            done
+            # Maybe multiple subscirbe files
+            DOWNLOAD_SCRAP_FILE="${DOWNLOAD_FILE}"
+            if [[ -s "${DOWNLOAD_SCRAP_FILE}" ]]; then
+                i=0
+                while [[ $i -lt 1000 ]]; do
+                    i=$((i + 1))
+                    DOWNLOAD_SCRAP_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
+                    [[ ! -f "${DOWNLOAD_SCRAP_FILE}" ]] && break
+                done
+            fi
 
             colorEcho "${BLUE}    Copying ${FUCHSIA}${DOWNLOAD_TEMP}${BLUE} to ${ORANGE}${DOWNLOAD_SCRAP_FILE}${BLUE}..."
             [[ -s "${DOWNLOAD_TEMP}" ]] && cp -f "${DOWNLOAD_TEMP}" "${DOWNLOAD_SCRAP_FILE}"
