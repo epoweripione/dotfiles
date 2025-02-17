@@ -54,6 +54,7 @@ function processSubscribeFile() {
     if ! grep -Eq '\-\s+{' "${subscribeFile}"; then
         colorEcho "${BLUE}      Minifying ${FUCHSIA}${subscribeFile}${BLUE}..."
         PROXY_START_LINE=$(grep -Ean "^proxies:" "${subscribeFile}" | cut -d: -f1)
+        [[ -z "${PROXY_START_LINE}" ]] && PROXY_START_LINE=0
         GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
         [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(grep -Ean "^rules:" "${subscribeFile}" | cut -d: -f1)
         [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(wc -l "${subscribeFile}" | awk '{print $1}') && GROUP_START_LINE=$((GROUP_START_LINE + 1))
@@ -142,6 +143,7 @@ function processSubscribeFile() {
 
     # only keep `proxies`
     PROXY_START_LINE=$(grep -Ean "^proxies:" "${subscribeFile}" | cut -d: -f1)
+    [[ -z "${PROXY_START_LINE}" ]] && PROXY_START_LINE=0
     GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
     [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(grep -Ean "^rules:" "${subscribeFile}" | cut -d: -f1)
     [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(wc -l "${subscribeFile}" | awk '{print $1}') && GROUP_START_LINE=$((GROUP_START_LINE + 1))
@@ -475,7 +477,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
                 DOWNLOAD_SCRAP_FILE="${DOWNLOAD_TEMP}"
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
-                    [[ "${TARGET_OPTION}" =~ "converter" && "${TARGET_OPTION}" =~ "protect" ]] && SCRAP_ACTION="stop"
+                    [[ "${TARGET_OPTION}" =~ "converter" || "${TARGET_OPTION}" =~ "protect" ]] && SCRAP_ACTION="stop"
 
                     # Maybe multiple subscirbe files
                     DOWNLOAD_SCRAP_FILE="${DOWNLOAD_FILE}"
@@ -630,18 +632,28 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
         # Process new downloaded subscribe files
         if [[ "${SUBSCRIBE_DOWNLOAD_FILE_EXISTS}" == "false" ]]; then
-            # filter, minify, compact subscribe yaml file
-            processSubscribeFile "${DOWNLOAD_FILE}"
+            if grep -Eaq "^proxies:" "${DOWNLOAD_FILE}"; then
+                # filter, minify, compact subscribe yaml file
+                processSubscribeFile "${DOWNLOAD_FILE}"
+            else
+                echo 'proxies:' > "${DOWNLOAD_FILE}"
+            fi
 
             # Merge multiple downloaded files
             MERGE_DOWNLOAD_FILES=$(find "${SUBSCRIBE_DOWNLOAD_DIR}" -type f -name "${TARGET_FILE}.*.yml")
             while read -r finded_file; do
                 [[ ! -f "${finded_file}" ]] && continue
 
-                processSubscribeFile "${finded_file}"
+                if grep -Eaq "^proxies:" "${finded_file}"; then
+                    processSubscribeFile "${finded_file}"
+                else
+                    rm -f "${finded_file}"
+                    continue
+                fi
 
                 colorEcho "${BLUE}      Merging ${FUCHSIA}${finded_file}${BLUE} to ${YELLOW}${DOWNLOAD_FILE}${BLUE}..."
                 PROXY_START_LINE=$(grep -Ean "^proxies:" "${finded_file}" | cut -d: -f1)
+                [[ -z "${PROXY_START_LINE}" ]] && PROXY_START_LINE=0
                 PROXY_END_LINE=$(sed -n '$=' "${finded_file}")
                 if [[ ${PROXY_START_LINE} -gt 0 && ${PROXY_END_LINE} -gt 0 && ${PROXY_END_LINE} -gt ${PROXY_START_LINE} ]]; then
                     PROXY_START_LINE=$((PROXY_START_LINE + 1))
@@ -659,6 +671,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         TARGET_PROXIES=""
         if [[ "${TARGET_OPTION}" == *"full"* ]]; then
             PROXY_START_LINE=$(grep -Ean "^proxies:" "${DOWNLOAD_FILE}" | cut -d: -f1)
+            [[ -z "${PROXY_START_LINE}" ]] && PROXY_START_LINE=0
             GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${DOWNLOAD_FILE}" | cut -d: -f1)
             [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(grep -Ean "^rules:" "${DOWNLOAD_FILE}" | cut -d: -f1)
             [[ -z "${GROUP_START_LINE}" || ${GROUP_START_LINE} -le ${PROXY_START_LINE} ]] && GROUP_START_LINE=$(wc -l "${DOWNLOAD_FILE}" | awk '{print $1}') && GROUP_START_LINE=$((GROUP_START_LINE + 1))
