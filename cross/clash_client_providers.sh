@@ -520,6 +520,13 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             done <<<"${MATCH_URL}"
         done
 
+        i=0
+        while [[ $i -lt 1000 ]]; do
+            i=$((i + 1))
+            DOWNLOAD_SCRAP_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
+            [[ ! -f "${DOWNLOAD_SCRAP_FILE}" ]] && break
+        done
+
         if [[ -z "${CONVERTER_URL}" && "${SCRAP_SUCCESS}" == "no" ]]; then
             [[ "${TARGET_OPTION}" =~ "converter" ]] && CONVERTER_URL="${TARGET_URL}"
         fi
@@ -528,7 +535,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${CONVERTER_URL}${BLUE}..."
             CONVERTER_URL=$(printf %s "${CONVERTER_URL}" | jq -sRr @uri) # encode URL
             CONVERTER_URL=$(sed "s|\[URL\]|${CONVERTER_URL}|" <<<"${CONVERTER_SERVICE}")
-            curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${CONVERTER_URL}"
+            curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_SCRAP_FILE}" "${CONVERTER_URL}"
 
             curl_download_status=$?
             [[ ${curl_download_status} -gt 0 ]] && continue
@@ -538,7 +545,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             PROTECT_MATCH=$(grep "^# ${TARGET_FILE}-match" "${TMP_URL_LIST}" | cut -d' ' -f3-)
 
             PROTECT_CMD=$(grep "^# ${TARGET_FILE}-protect" "${TMP_URL_LIST}" | cut -d' ' -f3-)
-            PROTECT_CMD=$(sed -e "s|ProtectURL|${PROTECT_URL}|" -e "s|text.txt|${WORKDIR}/${TARGET_FILE}.txt|" -e "s|protect.txt|${DOWNLOAD_FILE}|" <<<"${PROTECT_CMD}")
+            PROTECT_CMD=$(sed -e "s|ProtectURL|${PROTECT_URL}|" -e "s|text.txt|${WORKDIR}/${TARGET_FILE}.txt|" -e "s|protect.txt|${DOWNLOAD_TEMP}|" <<<"${PROTECT_CMD}")
 
             # [How can we run a command stored in a variable?](https://unix.stackexchange.com/questions/444946/how-can-we-run-a-command-stored-in-a-variable)
             runProtectCMD=()
@@ -557,7 +564,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 [[ -z "${TARGET_URL}" ]] && continue
 
                 colorEcho "${BLUE}    Scraping ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
-                curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_FILE}" "${TARGET_URL}"
+                curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_SCRAP_FILE}" "${TARGET_URL}"
 
                 curl_download_status=$?
                 [[ ${curl_download_status} -gt 0 ]] && continue
@@ -566,7 +573,15 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         fi
     else
         if [[ "${SUBSCRIBE_DOWNLOAD_FILE_EXISTS}" == "false" ]]; then
-            [[ -s "${DOWNLOAD_TEMP}" ]] && cp -f "${DOWNLOAD_TEMP}" "${DOWNLOAD_FILE}"
+            i=0
+            while [[ $i -lt 1000 ]]; do
+                i=$((i + 1))
+                DOWNLOAD_SCRAP_FILE="${SUBSCRIBE_DOWNLOAD_DIR}/${TARGET_FILE}.${i}.yml"
+                [[ ! -f "${DOWNLOAD_SCRAP_FILE}" ]] && break
+            done
+
+            colorEcho "${BLUE}    Copying ${FUCHSIA}${DOWNLOAD_TEMP}${BLUE} to ${ORANGE}${DOWNLOAD_SCRAP_FILE}${BLUE}..."
+            [[ -s "${DOWNLOAD_TEMP}" ]] && cp -f "${DOWNLOAD_TEMP}" "${DOWNLOAD_SCRAP_FILE}"
         fi
     fi
 
@@ -957,8 +972,6 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                             [[ -n "${CONTENT_TAG}" ]] && \
                                 CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
                                 CONTENT_TAG="      - ${TargetName}"
-                            # [[ " ${USED_PROXIES[*]} " != *" ${TargetName} "* ]] && USED_PROXIES+=("${TargetName}")
-                            [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]] && USED_PROXIES+=("${PROXY_INDEX}")
                         fi
                     done
                 fi
