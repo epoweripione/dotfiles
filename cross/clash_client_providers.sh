@@ -289,6 +289,7 @@ if [[ -s "/srv/subconverter/subconverter" ]]; then
     fi
 fi
 
+IPV6RegExp='(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
 
 TARGET_CONFIG_DIR=$(dirname "${TARGET_CONFIG_FILE}")
 TARGET_CONFIG_NAME=$(basename "${TARGET_CONFIG_FILE}")
@@ -501,7 +502,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
                     if [[ "${TARGET_OPTION}" =~ "converter" ]]; then
-                        colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE}..."
+                        colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE} to ${ORANGE}${DOWNLOAD_SCRAP_FILE}${BLUE}..."
                         TARGET_URL=$(printf %s "${TARGET_URL}" | jq -sRr @uri) # encode URL
                         TARGET_URL=$(sed "s|\[URL\]|${TARGET_URL}|" <<<"${CONVERTER_SERVICE}")
                         curl -fsL --connect-timeout 10 --max-time 30 -o "${DOWNLOAD_SCRAP_FILE}" "${TARGET_URL}"
@@ -1087,7 +1088,8 @@ done
 sed -ri 's/(ALPN|Alpn|alpn|HOST|Host|host|PATH|Path|path):\s+([^,"\{\}\[]+)/\1: "\2"/g' "${TARGET_CONFIG_FILE}"
 
 # 'alpn', 'http-opts.path', 'http-opts.headers[Host]' is a slice
-sed -ri 's/(ALPN|Alpn|alpn|HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${TARGET_CONFIG_FILE}"
+sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${TARGET_CONFIG_FILE}"
+sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${TARGET_CONFIG_FILE}"
 
 sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${TARGET_CONFIG_FILE}"
 sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${TARGET_CONFIG_FILE}"
@@ -1095,6 +1097,10 @@ sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${TARGET
 
 sed -ri 's/name:\s+([^,"\{\}]+)/name: "\1"/' "${TARGET_CONFIG_FILE}"
 sed -ri 's/password:\s+([^,"\{\}]+)/password: "\1"/' "${TARGET_CONFIG_FILE}"
+
+# IPV6
+sed -ri "/name:/ s/[\"【]*(${IPV6RegExp})[\"】]*/\"\[\1\]\"/g" "${TARGET_CONFIG_FILE}"
+sed -ri 's/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: "\[\2\]"/g' "${TARGET_CONFIG_FILE}"
 
 # add Double quotes to `proxy-groups[].proxies`
 GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
