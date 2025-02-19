@@ -265,11 +265,23 @@ Set-PSReadLineKeyHandler -Chord 'Ctrl+d,Ctrl+c' -Function CaptureScreen
 # prefer the token based movements bound to the normal emacs word movement
 # key bindings.
 Set-PSReadLineKeyHandler -Key Alt+d -Function ShellKillWord
+Set-PSReadLineKeyHandler -Key Alt+D -Function ShellKillWord
 Set-PSReadLineKeyHandler -Key Alt+Backspace -Function ShellBackwardKillWord
-Set-PSReadLineKeyHandler -Key Alt+b -Function ShellBackwardWord
-Set-PSReadLineKeyHandler -Key Alt+f -Function ShellForwardWord
-Set-PSReadLineKeyHandler -Key Alt+B -Function SelectShellBackwardWord
-Set-PSReadLineKeyHandler -Key Alt+F -Function SelectShellForwardWord
+
+Set-PSReadLineKeyHandler -Key Alt+b -Function BackwardWord
+Set-PSReadLineKeyHandler -Key Alt+B -Function BackwardWord
+Set-PSReadLineKeyHandler -Key Alt+f -Function ForwardWord
+Set-PSReadLineKeyHandler -Key Alt+F -Function ForwardWord
+
+Set-PSReadLineKeyHandler -Key Ctrl+b -Function BackwardChar
+Set-PSReadLineKeyHandler -Key Ctrl+B -Function BackwardChar
+Set-PSReadLineKeyHandler -Key Ctrl+f -Function ForwardChar
+Set-PSReadLineKeyHandler -Key Ctrl+F -Function ForwardChar
+
+Set-PSReadLineKeyHandler -Key Ctrl+a -Function BeginningOfLine
+Set-PSReadLineKeyHandler -Key Ctrl+A -Function BeginningOfLine
+Set-PSReadLineKeyHandler -Key Ctrl+e -Function EndOfLine
+Set-PSReadLineKeyHandler -Key Ctrl+E -Function EndOfLine
 
 Set-PSReadLineKeyHandler -Key Ctrl+u -Function BackwardDeleteLine
 Set-PSReadLineKeyHandler -Key Ctrl+U -Function BackwardDeleteLine
@@ -476,6 +488,19 @@ function ezat3 {
     eza --tree --icons --level=3 $ListPath
 }
 
+function UpdateOutdatedPipPackages {
+    # update `pip` first
+    python -m pip install -U pip
+
+    # conda
+    if (Get-Command -Name "conda") {
+        conda update -y --all
+    }
+
+    # update oudated packages
+    pip list --outdated | ForEach-Object {$_.split(' ')[0]} | Where-Object {$_ -notmatch "^-|^package|^warning|^error"} | ForEach-Object {pip install -U $_}
+}
+
 ## Other alias
 Set-Alias open Invoke-Item -option AllScope
 Set-Alias .. GoBack -option AllScope
@@ -489,12 +514,14 @@ Set-Alias ums UpdateMyScript -option AllScope
 Set-Alias hosts EditHosts -option AllScope
 Set-Alias history EditHistory -option AllScope
 
-Set-Alias dockerpullall DockerPullAllImages -option AllScope
-Set-Alias dockerps DockerList -option AllScope
-Set-Alias dockerpsall DockerListAll -option AllScope
+Set-Alias dockerPullAll DockerPullAllImages -option AllScope
+Set-Alias dockerPs DockerList -option AllScope
+Set-Alias dockerPsAll DockerListAll -option AllScope
 
 Set-Alias gettcp GetTCPAll -option AllScope
 Set-Alias getudp GetUDPAll -option AllScope
+
+Set-Alias pipUpdateAll UpdateOutdatedPipPackages -option AllScope
 
 # https://github.com/ajeetdsouza/zoxide
 if (Get-Command "zoxide" -ErrorAction SilentlyContinue) {
@@ -518,4 +545,5 @@ if (!$GLOBAL_PROXY_IP) {$GLOBAL_PROXY_IP="127.0.0.1"}
 if (!$GLOBAL_PROXY_MIXED_PORT) {$GLOBAL_PROXY_MIXED_PORT="7890"}
 if (!$GLOBAL_PROXY_HTTP_PORT) {$GLOBAL_PROXY_HTTP_PORT="7890"}
 CheckSetGlobalProxy -ProxyAddress "$GLOBAL_PROXY_IP" -ProxyMixedPort "$GLOBAL_PROXY_MIXED_PORT" -ProxyHttpPort "$GLOBAL_PROXY_HTTP_PORT"
+
 '@ | Tee-Object $PROFILE -Append | Out-Null
