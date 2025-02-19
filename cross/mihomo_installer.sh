@@ -19,6 +19,9 @@ fi
 
 App_Installer_Reset
 
+# Use proxy or mirror when some sites were blocked or low speed
+[[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
+
 # [mihomo - A simple Python Pydantic model for Honkai: Star Rail parsed data from the Mihomo API](https://github.com/MetaCubeX/mihomo)
 INSTALLER_GITHUB_REPO="MetaCubeX/mihomo"
 INSTALLER_BINARY_NAME="mihomo"
@@ -54,17 +57,30 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     if installPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"; then
         # Replace clash with mihomo
         if [[ -d "/srv/clash" ]]; then
+            # Remove clash
+            systemctl is-enabled "clash" >/dev/null 2>&1 && {
+                sudo systemctl stop "clash"
+                sudo systemctl disable --now "clash"
+                [[ -f "/srv/clash/clash" ]] && sudo rm -f "/srv/clash/clash"
+            }
+
+            # Install mihomo if network blocked
             INSTALLER_BINARY_FILE="$(which ${INSTALLER_BINARY_NAME})"
             if [[ -f "${INSTALLER_BINARY_FILE}" ]]; then
-                [[ -f "/srv/clash/clash" ]] && sudo rm -f "/srv/clash/clash"
-                sudo cp -f "${INSTALLER_BINARY_FILE}" "/srv/clash/clash"
+                sudo cp -f "${INSTALLER_BINARY_FILE}" "/srv/clash/mihomo"
             fi
+
+            systemctl is-enabled "mihomo" >/dev/null 2>&1 || {
+                if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+                    Install_systemd_Service "mihomo" "/srv/clash/mihomo -d /srv/clash" "root"
+                fi
+            }
 
             [[ -s "$HOME/.config/mihomo/Country.mmdb" ]] && sudo cp -f "$HOME/.config/mihomo/Country.mmdb" "/srv/clash/Country.mmdb"
             [[ -s "$HOME/.config/mihomo/geoip.dat" ]] && sudo cp -f "$HOME/.config/mihomo/geoip.dat" "/srv/clash/geoip.dat"
             [[ -s "$HOME/.config/mihomo/geosite.dat" ]] && sudo cp -f "$HOME/.config/mihomo/geosite.dat" "/srv/clash/geosite.dat"
 
-            systemctl is-enabled clash >/dev/null 2>&1 && sudo systemctl restart clash
+            systemctl is-enabled "mihomo" >/dev/null 2>&1 && sudo systemctl restart "mihomo"
         fi
     fi
 fi

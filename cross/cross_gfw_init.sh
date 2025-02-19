@@ -28,16 +28,69 @@ function colorEcho() {
     fi
 }
 
+# test http request status using http_code: return 1 when DENIED, ERROR, NO RESPONSE
+function check_http_request_status() {
+    local url=$1
+    local proxy_address=$2
+    local proxy_protocol=$3
+    local httpcode exitStatus=0
+
+    if [[ -z "${proxy_address}" ]]; then
+        httpcode=$(curl -fsL -I --connect-timeout 3 --max-time 5 -w "%{http_code}\\n" "${url}" -o /dev/null)
+    else
+        if [[ "${proxy_protocol}" == *"socks5"* ]]; then
+            httpcode=$(curl -fsL -I --connect-timeout 3 --max-time 5 --socks5-hostname "${proxy_address}" -w "%{http_code}\\n" "${url}" -o /dev/null)
+        elif [[ "${proxy_protocol}" == *"noproxy"* ]]; then
+            httpcode=$(curl -fsL -I --connect-timeout 3 --max-time 5 --noproxy "*" -w "%{http_code}\\n" "${url}" -o /dev/null)
+        else
+            httpcode=$(curl -fsL -I --connect-timeout 3 --max-time 5 --proxy "${proxy_address}" -w "%{http_code}\\n" "${url}" -o /dev/null)
+        fi
+    fi
+
+    case "${httpcode}" in
+        [2]*)
+            # UP
+            ;;
+        [3]*)
+            # REDIRECT
+            ;;
+        [4]*)
+            # 400 Bad Request
+            [[ "${httpcode}" != "400" ]] && exitStatus=4 # DENIED
+            ;;
+        [5]*)
+            exitStatus=5 # ERROR
+            ;;
+        *)
+            exitStatus=6 # NO RESPONSE
+            ;;
+    esac
+
+    # echo "${url} ${httpcode} ${proxy_protocol} ${proxy_address}"
+
+    return ${exitStatus}
+}
+
+# test the availability of a socks5 proxy
 function check_socks5_proxy_up() {
-    local socks_proxy_url=${1:-"127.0.0.1:1080"}
+    local PROXY_ADDRESS=${1:-""}
     local webservice_url=${2:-"www.google.com"}
-    local exitStatus=0
 
-    curl -fsL -I --connect-timeout 3 --max-time 5 \
-        --socks5-hostname "${socks_proxy_url}" \
-        "${webservice_url}" >/dev/null 2>&1 || exitStatus=$?
+    [[ -z "${PROXY_ADDRESS}" ]] && PROXY_ADDRESS="127.0.0.1:1080"
+    if check_http_request_status "${webservice_url}" "${PROXY_ADDRESS}" "socks5"; then
+        return 0
+    else
+        return 1
+    fi
+}
 
-    if [[ "$exitStatus" -eq "0" ]]; then
+# test the availability of a http proxy
+function check_http_proxy_up() {
+    local PROXY_ADDRESS=${1:-""}
+    local webservice_url=${2:-"www.google.com"}
+
+    [[ -z "${PROXY_ADDRESS}" ]] && PROXY_ADDRESS="127.0.0.1:8080"
+    if check_http_request_status "${webservice_url}" "${PROXY_ADDRESS}"; then
         return 0
     else
         return 1
@@ -107,27 +160,27 @@ if [[ ! -d "/srv/clash" ]]; then
         [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cross/subconverter_installer.sh" ]] && \
             source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cross/subconverter_installer.sh"
 
-        [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cross/clash_installer.sh" ]] && \
-            source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cross/clash_installer.sh"
+        [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cross/mihomo_installer.sh" ]] && \
+            source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/cross/mihomo_installer.sh"
     else
         wget -c -O "/tmp/subconverter_clash.zip" "${DOWNLOAD_URL}" && \
             unzip -qo "/tmp/subconverter_clash.zip" -d "/srv" && \
             rm -f "/tmp/subconverter_clash.zip" && \
             Install_systemd_Service "subconverter" "/srv/subconverter/subconverter" && \
-            Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash" "root" && \
-            colorEcho "${GREEN}Subconverter & Clash installed!"
+            Install_systemd_Service "mihomo" "/srv/clash/mihomo -d /srv/clash" "root" && \
+            colorEcho "${FUCHSIA}Subconverter & mihomo${GREEN} installed!"
     fi
 fi
 
 
-if ! pgrep -f "clash" >/dev/null 2>&1; then
+if ! pgrep -f "mihomo" >/dev/null 2>&1; then
     [[ -d "/srv/subconverter" ]] && Install_systemd_Service "subconverter" "/srv/subconverter/subconverter"
-    [[ -d "/srv/clash" ]] && Install_systemd_Service "clash" "/srv/clash/clash -d /srv/clash" "root"
-    systemctl is-enabled clash >/dev/null 2>&1 && sudo systemctl restart clash
+    [[ -d "/srv/clash" ]] && Install_systemd_Service "mihomo" "/srv/clash/mihomo -d /srv/clash" "root"
+    systemctl is-enabled "mihomo" >/dev/null 2>&1 && sudo systemctl restart "mihomo"
 fi
 
-if ! pgrep -f "clash" >/dev/null 2>&1; then
-    colorEcho "${RED}Please install and run ${FUCHSIA}clash${RED} first!"
+if ! pgrep -f "mihomo" >/dev/null 2>&1; then
+    colorEcho "${RED}Please install and run ${FUCHSIA}mihomo${RED} first!"
     exit 1
 fi
 
@@ -200,7 +253,7 @@ if [[ -s "${SUB_LIST_FILE}" ]]; then
             DownloadURL="${TargetURL}&url=${URL_URL}&${URL_CONFIG}"
             [[ -n "${URL_EXCLUDE}" ]] && DownloadURL="${DownloadURL}&${URL_EXCLUDE}"
 
-            colorEcho "${BLUE}Downloading clash configuration from ${FUCHSIA}${DownloadURL}${BLUE}..."
+            colorEcho "${BLUE}Downloading ${FUCHSIA}mihomo${BLUE} configuration from ${YELLOW}${DownloadURL}${BLUE}..."
             curl -fSL --noproxy "*" --connect-timeout 10 --max-time 60 \
                 -o "${SUB_DOWNLOAD_FILE}" "${DownloadURL}"
 
@@ -219,12 +272,19 @@ if [[ -s "${SUB_LIST_FILE}" ]]; then
 
                 sudo cp -f "${SUB_DOWNLOAD_FILE}" "${TARGET_CONFIG_FILE}"
 
-                # if pgrep -f "clash" >/dev/null 2>&1; then
-                if systemctl is-enabled clash >/dev/null 2>&1; then
-                    colorEcho "${BLUE}Checking clash connectivity..."
-                    sudo systemctl restart clash && sleep 3
+                # if pgrep -f "mihomo" >/dev/null 2>&1; then
+                if systemctl is-enabled "mihomo" >/dev/null 2>&1; then
+                    colorEcho "${BLUE}Checking ${FUCHSIA}mihomo${BLUE} connectivity..."
+                    sudo systemctl restart "mihomo" && sleep 3
 
-                    if check_socks5_proxy_up "127.0.0.1:7890"; then
+                    proxy_available="no"
+                    if check_http_proxy_up "127.0.0.1:7890"; then
+                        proxy_available="yes"
+                    elif check_socks5_proxy_up "127.0.0.1:7890"; then
+                        proxy_available="yes"
+                    fi
+
+                    if [[ "${proxy_available}" == "yes" ]]; then
                         colorEcho "${GREEN}The configuration looks ok, done!"
                         break 2
                     else
@@ -245,31 +305,40 @@ if [[ "$(uname -r)" =~ "WSL2" || "$(uname -r)" =~ "microsoft" ]]; then
     # WSL2
     # Fix "Invalid argument" when executing Windows commands
     CMD_DIR=$(dirname "$(which ipconfig.exe)")
-    PROXY_IP=$(cd "${CMD_DIR}" && ipconfig.exe | grep -a "IPv4" \
+    IP_LIST=$(cd "${CMD_DIR}" && ipconfig.exe | grep -a "IPv4" \
                 | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
-                | grep -Ev "^0\.|^127\.|^172\." \
-                | head -n1)
-    # PROXY_IP=$(grep -m1 nameserver /etc/resolv.conf | awk '{print $2}')
-    # PROXY_ADDRESS="socks5://${PROXY_IP}:7890"
-    # export {http,https,ftp,all}_proxy=${PROXY_ADDRESS} && export {HTTP,HTTPS,FTP,ALL}_PROXY=${PROXY_ADDRESS}
-    # git config --global http.proxy \"${PROXY_ADDRESS}\" && git config --global https.proxy \"${PROXY_ADDRESS}\"
+                | grep -Ev "^0\.|^127\.|^172\.")
+    ## [Accessing network applications with WSL](https://learn.microsoft.com/en-us/windows/wsl/networking)
+    ## [Advanced settings configuration in WSL](https://learn.microsoft.com/en-us/windows/wsl/wsl-config)
+    ## networkingMode=NAT using `host IP`
+    # IP_WSL=$(grep -m1 nameserver /etc/resolv.conf | awk '{print $2}')
+    IP_WSL=$(ip route show | grep -i default | awk '{ print $3}')
+    ## networkingMode=Mirrored using `127.0.0.1` or `host.docker.internal` with Docker Desktop
+    IP_LIST=$(echo -e "127.0.0.1\n${IP_WSL}\nhost.docker.internal\n${IP_LIST}" | uniq)
 else
-    PROXY_IP="127.0.0.1"
+    IP_LIST="127.0.0.1"
 fi
+
+colorEcho "${BLUE}Waiting for ${FUCHSIA}mihomo${BLUE} to check proxies connectivity..."
+sleep 5
 
 PROXY_ADDRESS=""
-if check_socks5_proxy_up "${PROXY_IP}:7890"; then
-    PROXY_ADDRESS="${PROXY_IP}:7890"
-elif check_socks5_proxy_up "${PROXY_IP}:7891"; then
-    PROXY_ADDRESS="${PROXY_IP}:7891"
-fi
+proxy_available="no"
+while read -r PROXY_IP; do
+    if check_http_proxy_up "${PROXY_IP}:7890"; then
+        proxy_available="yes"
+    elif check_socks5_proxy_up "${PROXY_IP}:7890"; then
+        proxy_available="yes"
+    fi
+    [[ "${proxy_available}" == "yes" ]] && PROXY_ADDRESS="${PROXY_IP}:7890" && break
+done <<<"${IP_LIST}"
 
 if [[ -z "${PROXY_ADDRESS}" ]]; then
-    colorEcho "${RED}Error when setting socks5 proxy!"
+    colorEcho "${RED}Error when setting proxy!"
     exit 1
 fi
 
-PROXY_ADDRESS="socks5://${PROXY_ADDRESS}"
+PROXY_ADDRESS="http://${PROXY_ADDRESS}"
 
 colorEcho "${GREEN}Usage:"
 colorEcho "${BLUE}  export {http,https,ftp,all}_proxy=\"${PROXY_ADDRESS}\""
