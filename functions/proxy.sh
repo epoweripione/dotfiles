@@ -284,24 +284,12 @@ function check_socks5_proxy_up() {
     # if check_socks5_proxy_up 127.0.0.1:1080 www.google.com; then echo "ok"; else echo "something wrong"; fi
     local PROXY_ADDRESS=${1:-""}
     local webservice_url=${2:-"www.google.com"}
-    local exitStatus=0
 
     if [[ -z "${PROXY_ADDRESS}" && -n "${GLOBAL_PROXY_IP}" && -n "${GLOBAL_PROXY_SOCKS_PORT}" ]]; then
         PROXY_ADDRESS="${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_SOCKS_PORT}"
     fi
 
     [[ -z "${PROXY_ADDRESS}" ]] && PROXY_ADDRESS="127.0.0.1:1080"
-
-    # curl -fsL -I --connect-timeout 3 --max-time 5 \
-    #     --socks5-hostname "${PROXY_ADDRESS}" \
-    #     "${webservice_url}" >/dev/null 2>&1 || exitStatus=$?
-
-    # if [[ "$exitStatus" -eq "0" ]]; then
-    #     return 0
-    # else
-    #     return 1
-    # fi
-
     if check_http_request_status "${webservice_url}" "${PROXY_ADDRESS}" "socks5"; then
         return 0
     else
@@ -315,24 +303,12 @@ function check_http_proxy_up() {
     # if check_http_proxy_up 127.0.0.1:8080 www.google.com; then echo "ok"; else echo "something wrong"; fi
     local PROXY_ADDRESS=${1:-""}
     local webservice_url=${2:-"www.google.com"}
-    local exitStatus=0
 
     if [[ -z "${PROXY_ADDRESS}" && -n "${GLOBAL_PROXY_IP}" && -n "${GLOBAL_PROXY_MIXED_PORT}" ]]; then
         PROXY_ADDRESS="${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_MIXED_PORT}"
     fi
 
     [[ -z "${PROXY_ADDRESS}" ]] && PROXY_ADDRESS="127.0.0.1:8080"
-
-    # curl -fsL -I --connect-timeout 3 --max-time 5 \
-    #     --proxy "${PROXY_ADDRESS}" \
-    #     "${webservice_url}" >/dev/null 2>&1 || exitStatus=$?
-
-    # if [[ "$exitStatus" -eq "0" ]]; then
-    #     return 0
-    # else
-    #     return 1
-    # fi
-
     if check_http_request_status "${webservice_url}" "${PROXY_ADDRESS}"; then
         return 0
     else
@@ -685,30 +661,144 @@ function set_special_socks5_proxy() {
     fi
 }
 
-# download clash config & restart clash
+# download clash/mihomo config & restart clash
 function downloadClashConfig() {
     # Usage: downloadClashConfig "https://transfer.sh/xxxx/clash.yaml.enc" "/srv/clash/clash.yaml.enc" "$HOME/keyfile.key" "/srv/clash/clash.yaml"
     local download_url=$1
     local download_filename=$2
     local encrypt_keyfile=$3
     local decrypt_filename=$4
+    local proxy_available="no"
 
-    if [[ ! -s "/srv/clash/clash" ]]; then
-        colorEcho "${RED}  Please install and run ${FUCHSIA}clash${RED} first!"
+    if [[ ! -x "$(command -v mihomo)" ]]; then
+        colorEcho "${FUCHSIA}mihomo${RED} is not installed!"
+        return 1
+    fi
+
+    if [[ ! -d "/srv/clash" ]]; then
+        colorEcho "${FUCHSIA}/srv/clash${RED} not exists!"
         return 1
     fi
 
     if downloadDecryptFile "${download_url}" "${download_filename}" "${encrypt_keyfile}" "${decrypt_filename}"; then
-        if /srv/clash/clash -f /srv/clash/public.yml -t; then
-            sudo cp -f "/srv/clash/public.yml" "/srv/clash/config.yaml"
-            sudo systemctl restart clash
+        [[ -n "${decrypt_filename}" && -f "${decrypt_filename}" ]] && download_filename="${decrypt_filename}"
+        if mihomo -t -f "${download_filename}"; then
+            sudo cp -f "${download_filename}" "/srv/clash/config.yaml"
+
+            # systemctl is-enabled clash >/dev/null 2>&1 && sudo systemctl restart clash
+            systemctl is-enabled mihomo >/dev/null 2>&1 && sudo systemctl restart mihomo
+
             sleep 3
 
-            if check_socks5_proxy_up "127.0.0.1:7890"; then
+            if check_http_proxy_up "127.0.0.1:7890"; then
+                proxy_available="yes"
+            elif check_socks5_proxy_up "127.0.0.1:7890"; then
+                proxy_available="yes"
+            fi
+
+            if [[ "${proxy_available}" == "yes" ]]; then
                 colorEcho "${GREEN}The configuration looks ok!"
             else
-                sudo journalctl -u clash --since "1 minutes ago" -e
+                sudo journalctl -u mihomo --since "1 minutes ago" -e
             fi
         fi
+    fi
+}
+
+## get clash/mihomo alive proxies delay data
+# [API](https://wiki.metacubex.one/api/)
+# [Test Clash RESTful API using Golang](https://github.com/obgnail/clash-api)
+# [FullTClash](https://github.com/AirportR/fulltclash)
+function getClashAliveProxiesDelay() {
+    local configFile=$1
+    local delayOutput=${2:-"/tmp/delay.txt"}
+    local testConfig="/tmp/test.yml"
+    local controllerUrl="127.0.0.1"
+    local controllerPort="9097"
+    local controllerSecret=''
+    local proxiesUrl="http://127.0.0.1:9097/proxies"
+    # local delayUrl="http://127.0.0.1:9097/proxies/[encodeProxyName]/delay?timeout=2000&url=http:%2F%2Fwww.gstatic.com%2Fgenerate_204"
+    local delayUrl="http://127.0.0.1:9097/proxies/[encodeProxyName]/delay?timeout=2000&url=http:%2F%2Fcp.cloudflare.com%2Fgenerate_204"
+    local proxiesJson="/tmp/proxies.json"
+    local mihomoPID aliveCount proxyList proxyName encodeProxyName testUrl proxyDelay
+
+    if [[ ! -f "${configFile}" ]]; then
+        colorEcho "${RED}Configuration file ${FUCHSIA}${configFile}${RED} not exists!"
+        return 1
+    fi
+
+    if [[ ! -x "$(command -v jq)" ]]; then
+        colorEcho "${FUCHSIA}jq${RED} is not installed!"
+        return 1
+    fi
+
+    if [[ ! -x "$(command -v yq)" ]]; then
+        colorEcho "${FUCHSIA}yq${RED} is not installed!"
+        return 1
+    fi
+
+    if [[ ! -x "$(command -v mihomo)" ]]; then
+        colorEcho "${FUCHSIA}mihomo${RED} is not installed!"
+        return 1
+    fi
+
+    # mihomo configuration file
+    cp -f "${configFile}" "${testConfig}"
+    sed -i -e "s/^allow-lan:.*/# &/" \
+        -e "s/^external-controller:.*/# &/" \
+        -e "s/^secret:.*/# &/" \
+        -e "s/^port:.*/# &/" \
+        -e "s/^redir-port:.*/# &/" \
+        -e "s/^mixed-port:.*/# &/" \
+        -e "s/^socks-port:.*/# &/" "${testConfig}"
+
+    sed -i "1i\mixed-port: 7890\nexternal-controller: ${controllerUrl}:${controllerPort}\nsecret: '${controllerSecret}'\nallow-lan: true" "${testConfig}"
+
+    # Run `mihomo` in background
+    nohup mihomo -f "${testConfig}" >/dev/null 2>&1 & disown
+    mihomoPID=$!
+    # mihomoPID=$(lsof -Fp -i ":${controllerPort}" 2>/dev/null | sed 's/^p//')
+    if [[ -z "${mihomoPID}" || ${mihomoPID} -le 0 ]]; then
+        colorEcho "${RED}Running ${FUCHSIA}mihomo${RED} failed!"
+        return 1
+    fi
+
+    # Getting proxies
+    [[ -z "${CURL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_CURL_Options
+    if ! curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${proxiesJson}" "${proxiesUrl}"; then
+        colorEcho "${RED}Getting ${FUCHSIA}proxies${RED} failed!"
+        return 1
+    fi
+
+    # Alive proxies list: latest delay with name
+    echo '' > "${delayOutput}"
+    jq -r '.proxies[] | select(.alive==true and (.history | length) > 0) | [.history[-1].delay, .name] | join(" ")' "${proxiesJson}" 2>/dev/null | sort -n > "${delayOutput}"
+
+    aliveCount=$(wc -l "${delayOutput}")
+    if [[ -z "${aliveCount}" || ${aliveCount} -le 0 ]]; then
+        # proxyList=$(yq e ".proxies[].name" "${testConfig}")
+        proxyList=$(jq -r '.proxies[] | .name' "${proxiesJson}")
+
+        # Test proxies delay using API
+        while read -r proxyName; do
+            [[ -z "${proxyName}" ]] && continue
+
+            encodeProxyName=$(printf %s "${proxyName}" | jq -sRr @uri)
+            testUrl=$(sed "s|\[encodeProxyName\]|${encodeProxyName}|" <<<"${delayUrl}")
+
+            proxyDelay=$(curl "${CURL_CHECK_OPTS[@]}" "${testUrl}" | jq -r '.delay//empty' 2>/dev/null)
+            [[ -z "${proxyDelay}" || ${proxyDelay} -le 0 ]] && continue
+
+            echo "${proxyDelay} ${proxyName}" >> "${delayOutput}"
+        done <<< "${proxyList}"
+    fi
+
+    # Stop running `mihomo`
+    [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "${mihomoPID}"
+
+    if [[ -s "${delayOutput}" ]]; then
+        colorEcho "${BLUE}Proxies delay data has been save to ${FUCHSIA}${delayOutput}${BLUE}!"
+    else
+        colorEcho "${RED}No proxies delay data for ${FUCHSIA}${configFile}${RED}!"
     fi
 }
