@@ -270,3 +270,16 @@ if [[ "${OS_TYPE}" =~ "MSYS_NT" || "${OS_TYPE}" =~ "MINGW" || "${OS_TYPE}" =~ "C
     # other
     alias wmic="winpty wmic"
 fi
+
+# [Deprecated aliases](https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/git/README.md#deprecated-aliases)
+DeprecatedAliases=(
+    "gup"
+    "gupv"
+    "gupa"
+    "gupav"
+    "gupom"
+    "gupomi"
+)
+for deprecatedAlias in "${DeprecatedAliases[@]}"; do
+    alias "${deprecatedAlias}" >/dev/null && unalias "${deprecatedAlias}" 2>/dev/null
+done
