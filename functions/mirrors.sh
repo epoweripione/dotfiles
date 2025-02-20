@@ -50,14 +50,14 @@ function setMirrorGo() {
         GO_VERSION=$(go version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
         if version_ge "${GO_VERSION}" '1.13'; then
             go env -w GOPROXY="${MIRROR_GO_PROXY:-"https://goproxy.cn,direct"}"
-            go env -w GOSUMDB="${MIRROR_GO_SUMDB:-"sum.golang.google.cn"}"
+            # go env -w GOSUMDB="${MIRROR_GO_SUMDB:-"sum.golang.google.cn"}"
             # GONOSUMDB=*.corp.example.com,rsc.io/private
             [[ -n "${MIRROR_GO_NOSUMDB}" ]] && go env -w GONOSUMDB="${MIRROR_GO_NOSUMDB}"
             # https://goproxy.io/zh/docs/goproxyio-private.html
             [[ -n "${MIRROR_GO_PRIVATE}" ]] && go env -w GOPRIVATE="${MIRROR_GO_PRIVATE}"
         else
             export GOPROXY=${MIRROR_GO_PROXY:-"https://goproxy.cn,direct"}
-            export GOSUMDB=${MIRROR_GO_SUMDB:-"sum.golang.google.cn"}
+            # export GOSUMDB=${MIRROR_GO_SUMDB:-"sum.golang.google.cn"}
             [[ -n "${MIRROR_GO_NOSUMDB}" ]] && export GONOSUMDB="${MIRROR_GO_NOSUMDB}"
             [[ -n "${MIRROR_GO_PRIVATE}" ]] && export GOPRIVATE="${MIRROR_GO_PRIVATE}"
         fi
