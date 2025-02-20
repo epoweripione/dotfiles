@@ -67,7 +67,8 @@ fi
 
 # ZSH
 # upgrade_oh_my_zsh
-[[ -n "$ZSH" ]] && Git_Clone_Update_Branch "ohmyzsh/ohmyzsh" "$ZSH"
+# [[ -n "$ZSH" ]] && Git_Clone_Update_Branch "ohmyzsh/ohmyzsh" "$ZSH"
+[[ -n "$ZSH" ]] && $ZSH/tools/upgrade.sh
 
 
 ## tmux
