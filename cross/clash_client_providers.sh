@@ -1089,6 +1089,7 @@ sed -ri 's/(ALPN|Alpn|alpn|HOST|Host|host|PATH|Path|path):\s+([^,"\{\}\[]+)/\1: 
 
 # 'alpn', 'http-opts.path', 'http-opts.headers[Host]' is a slice
 sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${TARGET_CONFIG_FILE}"
+sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)\"*,\s*([^,"\{\}]+)】\"*/\1: \["\2","\3"\]/g' "${TARGET_CONFIG_FILE}"
 sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${TARGET_CONFIG_FILE}"
 
 sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${TARGET_CONFIG_FILE}"
