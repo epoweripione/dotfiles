@@ -61,6 +61,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
             systemctl is-enabled "clash" >/dev/null 2>&1 && {
                 sudo systemctl stop "clash"
                 sudo systemctl disable --now "clash"
+                sudo rm "/etc/systemd/system/clash.service"
                 [[ -f "/srv/clash/clash" ]] && sudo rm -f "/srv/clash/clash"
             }
 
