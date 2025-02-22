@@ -324,10 +324,14 @@ if [[ -z "${FontUpdateList[*]}" ]]; then
         "LXGWBright"
         "LXGWBrightCode"
         "LXGWKose"
+        "LxgwMarkerGothic"
         "LXGWNeoFusion"
         "LXGWNeoScreen"
         "LXGWNeoXiHeiCode"
+        "LxgwXiHei"
         "LXGWYozai"
+        "LxgwZhenKai"
+        "LxgwZhiSong"
         # "MapleMono_hinted" # for low resolution screen(e.g. screen resolution is lower or equal than 1080P)
         "MapleMono_unhinted" # high resolution screen (e.g. 2K, 4K, Retina for MacBook)
     )
