@@ -26,7 +26,7 @@ INSTALLER_BINARY_NAME="spf"
 
 if [[ -x "$(command -v ${INSTALLER_BINARY_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
-    App_Installer_Get_Installed_Version "${INSTALLER_APP_NAME}"
+    App_Installer_Get_Installed_Version "${INSTALLER_BINARY_NAME}"
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
