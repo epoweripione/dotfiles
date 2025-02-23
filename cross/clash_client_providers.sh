@@ -1111,6 +1111,58 @@ if [[ ${GROUP_START_LINE} -lt ${RULE_START_LINE} ]]; then
     sed -ri "${GROUP_START_LINE},${RULE_START_LINE} s|^\s*-\s+([^\"]+)$|      - \"\1\"|g" "${TARGET_CONFIG_FILE}"
 fi
 
+# Rename duplicate proxies in yaml file
+processDuplicateProxies "${TARGET_CONFIG_FILE}"
+
+# for TargetIndex in "${GROUP_DELETE_INDEX[@]}"; do
+#     yq e -i "del(.proxy-groups[${TargetIndex}])" "${TARGET_CONFIG_FILE}"
+# done
+
+# Only keep alive proxies
+if [[ "${OUTPUT_OPTIONS}" =~ "CheckAlive" ]]; then
+    colorEcho "${BLUE}    Processing alive proxies in ${FUCHSIA}${TARGET_CONFIG_FILE}${BLUE}..."
+    ExcludeProxyRules=$(awk -F- '{print $2}' <<<"${OUTPUT_OPTIONS}")
+    MinAliveProxiesCount=$(awk -F- '{print $3}' <<<"${OUTPUT_OPTIONS}")
+    [[ -z "${MinAliveProxiesCount}" ]] && MinAliveProxiesCount=100
+
+    CHECK_CONFIG_FILE="${WORKDIR}/check_alive.yml"
+    cp -f "${TARGET_CONFIG_FILE}" "${CHECK_CONFIG_FILE}"
+
+    TARGET_DELAY_FILE="${CHECK_CONFIG_FILE}.txt"
+    [[ -f "${TARGET_DELAY_FILE}" ]] && rm -f "${TARGET_DELAY_FILE}"
+    # if ps -fC "verge-mihomo" >/dev/null 2>&1; then
+    #     getClashVergeAliveProxiesDelay "http://127.0.0.1:9097" "${TARGET_DELAY_FILE}"
+    # else
+    #     getClashAliveProxiesDelay "${CHECK_CONFIG_FILE}" "${TARGET_DELAY_FILE}"
+    # fi
+    getClashAliveProxiesDelay "${CHECK_CONFIG_FILE}" "${TARGET_DELAY_FILE}"
+
+    aliveCount=0
+    [[ -f "${TARGET_DELAY_FILE}" ]] && aliveCount=$(wc -l "${TARGET_DELAY_FILE}")
+    if [[ ${aliveCount} -ge ${MinAliveProxiesCount} ]]; then
+        proxyList=$(yq e ".proxies[].name" "${CHECK_CONFIG_FILE}")
+        while read -r TargetName; do
+            [[ -z "${TargetName}" ]] && continue
+
+            if [[ -n "${ExcludeProxyRules}" ]]; then
+                grep -Eq "${ExcludeProxyRules}" <<<"${TargetName}" && continue
+            fi
+
+            TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
+            if ! grep -Eq "[0-9]+\s+\"*${TargetName_Escape_GREP}\"*$" "${TARGET_DELAY_FILE}"; then
+                TargetName_Escape=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' <<<"${TargetName}" | sed -e 's|/|\\&|g' -e 's/]/\\&/g')
+                sed -i "/name:\s*\"*${TargetName_Escape}\"*,/d" "${CHECK_CONFIG_FILE}"
+                sed -i "/^\s*\-\s*\"*${TargetName_Escape}\"*$/d" "${CHECK_CONFIG_FILE}"
+            fi
+        done <<< "${proxyList}"
+
+        # if mihomo -t -f "${CHECK_CONFIG_FILE}" >/dev/null 2>&1; then
+        #     cp -f "${CHECK_CONFIG_FILE}" "${TARGET_CONFIG_FILE}"
+        # fi
+        cp -f "${CHECK_CONFIG_FILE}" "${TARGET_CONFIG_FILE}"
+    fi
+fi
+
 # delete empty group
 colorEcho "${BLUE}    Processing ${FUCHSIA}empty proxy-groups${BLUE}..."
 GROUP_CNT=$(yq e '.proxy-groups | length' "${TARGET_CONFIG_FILE}")
@@ -1134,13 +1186,6 @@ for TargetGroup in "${PROXY_EMPTY_GROUP[@]}"; do
         sed -i "${GROUP_START_LINE},${GROUP_END_LINE}d" "${TARGET_CONFIG_FILE}"
     fi
 done
-
-# Rename duplicate proxies in yaml file
-processDuplicateProxies "${TARGET_CONFIG_FILE}"
-
-# for TargetIndex in "${GROUP_DELETE_INDEX[@]}"; do
-#     yq e -i "del(.proxy-groups[${TargetIndex}])" "${TARGET_CONFIG_FILE}"
-# done
 
 # rules
 colorEcho "${BLUE}    Generating ${FUCHSIA}rules${BLUE}..."
