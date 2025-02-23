@@ -763,6 +763,9 @@ function getClashAliveProxiesDelay() {
         return 1
     fi
 
+    # sleep 60 seconds to let `mihomo` to finish check proxies timeout
+    sleep 60
+
     # Getting proxies
     [[ -z "${CURL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_CURL_Options
     if ! curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${proxiesJson}" "${proxiesUrl}"; then
@@ -774,27 +777,70 @@ function getClashAliveProxiesDelay() {
     echo '' > "${delayOutput}"
     jq -r '.proxies[] | select(.alive==true and (.history | length) > 0) | [.history[-1].delay, .name] | join(" ")' "${proxiesJson}" 2>/dev/null | sort -n > "${delayOutput}"
 
-    aliveCount=$(wc -l "${delayOutput}")
-    if [[ -z "${aliveCount}" || ${aliveCount} -le 0 ]]; then
-        # proxyList=$(yq e ".proxies[].name" "${testConfig}")
-        proxyList=$(jq -r '.proxies[] | .name' "${proxiesJson}")
+    # aliveCount=$(wc -l "${delayOutput}")
+    # if [[ -z "${aliveCount}" || ${aliveCount} -le 0 ]]; then
+    #     # proxyList=$(yq e ".proxies[].name" "${testConfig}")
+    #     proxyList=$(jq -r '.proxies[] | .name' "${proxiesJson}")
 
-        # Test proxies delay using API
-        while read -r proxyName; do
-            [[ -z "${proxyName}" ]] && continue
+    #     # Test proxies delay using API
+    #     while read -r proxyName; do
+    #         [[ -z "${proxyName}" ]] && continue
 
-            encodeProxyName=$(printf %s "${proxyName}" | jq -sRr @uri)
-            testUrl=$(sed "s|\[encodeProxyName\]|${encodeProxyName}|" <<<"${delayUrl}")
+    #         encodeProxyName=$(printf %s "${proxyName}" | jq -sRr @uri)
+    #         testUrl=$(sed "s|\[encodeProxyName\]|${encodeProxyName}|" <<<"${delayUrl}")
 
-            proxyDelay=$(curl "${CURL_CHECK_OPTS[@]}" "${testUrl}" | jq -r '.delay//empty' 2>/dev/null)
-            [[ -z "${proxyDelay}" || ${proxyDelay} -le 0 ]] && continue
+    #         proxyDelay=$(curl "${CURL_CHECK_OPTS[@]}" "${testUrl}" | jq -r '.delay//empty' 2>/dev/null)
+    #         [[ -z "${proxyDelay}" || ${proxyDelay} -le 0 ]] && continue
 
-            echo "${proxyDelay} ${proxyName}" >> "${delayOutput}"
-        done <<< "${proxyList}"
-    fi
+    #         echo "${proxyDelay} ${proxyName}" >> "${delayOutput}"
+    #     done <<< "${proxyList}"
+    # fi
 
     # Stop running `mihomo`
     [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "${mihomoPID}"
+
+    if [[ -s "${delayOutput}" ]]; then
+        colorEcho "${BLUE}Proxies delay data has been save to ${FUCHSIA}${delayOutput}${BLUE}!"
+    else
+        colorEcho "${RED}No proxies delay data for ${FUCHSIA}${configFile}${RED}!"
+    fi
+}
+
+## get clash-verge alive proxies delay data
+function getClashVergeAliveProxiesDelay() {
+    local controllerUrlWithPort=${1:-"http://127.0.0.1:9097"}
+    local delayOutput=${2:-"/tmp/delay.txt"}
+    local controllerSecret=${3:-""}
+    local proxiesUrl
+    local proxiesJson="/tmp/proxies.json"
+
+    if [[ -z "${controllerUrlWithPort}" ]]; then
+        colorEcho "${RED}Clash Verge ${FUCHSIA}controller url with port${RED} can't empty! eg: ${YELLOW}http://127.0.0.1:9097"
+        return 1
+    fi
+
+    if [[ ! -x "$(command -v jq)" ]]; then
+        colorEcho "${FUCHSIA}jq${RED} is not installed!"
+        return 1
+    fi
+
+    if ! ps -fC "verge-mihomo" >/dev/null 2>&1; then
+        colorEcho "${FUCHSIA}verge-mihomo${RED} not Running!"
+        return 1
+    fi
+
+    # Getting proxies
+    proxiesUrl="${controllerUrlWithPort}/proxies"
+
+    [[ -z "${CURL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_CURL_Options
+    if ! curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${proxiesJson}" "${proxiesUrl}"; then
+        colorEcho "${RED}Getting ${FUCHSIA}proxies${RED} failed!"
+        return 1
+    fi
+
+    # Alive proxies list: latest delay with name
+    echo '' > "${delayOutput}"
+    jq -r '.proxies[] | select(.alive==true and (.history | length) > 0) | [.history[-1].delay, .name] | join(" ")' "${proxiesJson}" 2>/dev/null | sort -n > "${delayOutput}"
 
     if [[ -s "${delayOutput}" ]]; then
         colorEcho "${BLUE}Proxies delay data has been save to ${FUCHSIA}${delayOutput}${BLUE}!"
