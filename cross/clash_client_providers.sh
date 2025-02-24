@@ -213,6 +213,39 @@ function processDuplicateProxies() {
     done <<< "${proxyList}"
 }
 
+# Delete empty group
+function processEmptyGroup() {
+    local subscribeFile=$1
+    local GroupCnt GroupName GroupProxies GroupStartLine GroupEndLine
+    local GroupEmptyList=()
+
+    colorEcho "${BLUE}    Processing empty proxy-groups in ${FUCHSIA}${subscribeFile}${BLUE}..."
+    for GroupName in "${PROXY_EMPTY_GROUP[@]}"; do
+        [[ -z "${GroupName}" ]] && continue
+        GroupEmptyList+=("${GroupName}")
+    done
+
+    GroupCnt=$(yq e '.proxy-groups | length' "${subscribeFile}")
+    for ((i=0; i < GroupCnt; ++i)); do
+        GroupName=$(yq e ".proxy-groups[$i].name" "${subscribeFile}")
+        GroupProxies=$(yq e ".proxy-groups[$i].proxies // \"\"" "${subscribeFile}")
+        if [[ -z "${GroupProxies}" ]]; then
+            GroupEmptyList+=("${GroupName}")
+        fi
+    done
+
+    for GroupName in "${GroupEmptyList[@]}"; do
+        [[ -z "${GroupName}" ]] && continue
+        sed -i "/^\s*\-\s*\"*${GroupName}\"*$/d" "${subscribeFile}"
+
+        GroupStartLine=$(grep -En "^\s*-\s*name:\s*\"*${GroupName}\"*$" "${subscribeFile}" | cut -d: -f1)
+        if [[ ${GroupStartLine} -gt 0 ]]; then
+            GroupEndLine=$((GroupStartLine + 6))
+            sed -i "${GroupStartLine},${GroupEndLine}d" "${subscribeFile}"
+        fi
+    done
+}
+
 [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
@@ -1114,9 +1147,8 @@ fi
 # Rename duplicate proxies in yaml file
 processDuplicateProxies "${TARGET_CONFIG_FILE}"
 
-# for TargetIndex in "${GROUP_DELETE_INDEX[@]}"; do
-#     yq e -i "del(.proxy-groups[${TargetIndex}])" "${TARGET_CONFIG_FILE}"
-# done
+# Delete empty group
+processEmptyGroup "${TARGET_CONFIG_FILE}"
 
 # Only keep alive proxies
 if [[ "${OUTPUT_OPTIONS}" =~ "CheckAlive" ]]; then
@@ -1156,36 +1188,14 @@ if [[ "${OUTPUT_OPTIONS}" =~ "CheckAlive" ]]; then
             fi
         done <<< "${proxyList}"
 
-        # if mihomo -t -f "${CHECK_CONFIG_FILE}" >/dev/null 2>&1; then
-        #     cp -f "${CHECK_CONFIG_FILE}" "${TARGET_CONFIG_FILE}"
-        # fi
-        cp -f "${CHECK_CONFIG_FILE}" "${TARGET_CONFIG_FILE}"
+        # Delete empty group
+        processEmptyGroup "${CHECK_CONFIG_FILE}"
+
+        if mihomo -t -f "${CHECK_CONFIG_FILE}" >/dev/null 2>&1; then
+            cp -f "${CHECK_CONFIG_FILE}" "${TARGET_CONFIG_FILE}"
+        fi
     fi
 fi
-
-# delete empty group
-colorEcho "${BLUE}    Processing ${FUCHSIA}empty proxy-groups${BLUE}..."
-GROUP_CNT=$(yq e '.proxy-groups | length' "${TARGET_CONFIG_FILE}")
-GROUP_DELETE_INDEX=()
-for ((i=0; i < GROUP_CNT; ++i)); do
-    GROUP_NAME=$(yq e ".proxy-groups[$i].name" "${TARGET_CONFIG_FILE}")
-    GROUP_PROXIES=$(yq e ".proxy-groups[$i].proxies // \"\"" "${TARGET_CONFIG_FILE}")
-    if [[ -z "${GROUP_PROXIES}" ]]; then
-        PROXY_EMPTY_GROUP+=("${GROUP_NAME}")
-        GROUP_DELETE_INDEX+=("$i")
-    fi
-done
-
-for TargetGroup in "${PROXY_EMPTY_GROUP[@]}"; do
-    [[ -z "${TargetGroup}" ]] && continue
-    sed -i "/^\s*\-\s*\"*${TargetGroup}\"*$/d" "${TARGET_CONFIG_FILE}"
-
-    GROUP_START_LINE=$(grep -En "^\s*-\s*name:\s*\"*${TargetGroup}\"*$" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
-    if [[ ${GROUP_START_LINE} -gt 0 ]]; then
-        GROUP_END_LINE=$((GROUP_START_LINE + 6))
-        sed -i "${GROUP_START_LINE},${GROUP_END_LINE}d" "${TARGET_CONFIG_FILE}"
-    fi
-done
 
 # rules
 colorEcho "${BLUE}    Generating ${FUCHSIA}rules${BLUE}..."
