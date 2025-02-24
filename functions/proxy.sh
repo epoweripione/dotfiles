@@ -757,8 +757,10 @@ function getClashAliveProxiesDelay() {
     # Run `mihomo` in background
     colorEcho "${BLUE}Running ${FUCHSIA}mihomo${BLUE} using ${YELLOW}${testConfig}${BLUE}..."
     nohup mihomo -f "${testConfig}" >/dev/null 2>&1 & disown
-    mihomoPID=$!
-    # mihomoPID=$(lsof -Fp -i ":${controllerPort}" 2>/dev/null | sed 's/^p//')
+
+    sleep 3
+    # mihomoPID=$!
+    mihomoPID=$(lsof -Fp -i ":${controllerPort}" 2>/dev/null | sed 's/^p//')
     if [[ -z "${mihomoPID}" || ${mihomoPID} -le 0 ]]; then
         colorEcho "${RED}Running ${FUCHSIA}mihomo${RED} failed!"
         return 1
@@ -782,7 +784,7 @@ function getClashAliveProxiesDelay() {
     echo '' > "${delayOutput}"
     jq -r '.proxies[] | select(.alive==true and (.history | length) > 0) | [.history[-1].delay, .name] | join(" ")' "${proxiesJson}" 2>/dev/null | sort -n > "${delayOutput}"
 
-    # aliveCount=$(wc -l "${delayOutput}")
+    aliveCount=$(wc -l "${delayOutput}")
     # if [[ -z "${aliveCount}" || ${aliveCount} -le 0 ]]; then
     #     # proxyList=$(yq e ".proxies[].name" "${testConfig}")
     #     proxyList=$(jq -r '.proxies[] | .name' "${proxiesJson}")
@@ -805,7 +807,7 @@ function getClashAliveProxiesDelay() {
     [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "${mihomoPID}"
 
     if [[ -s "${delayOutput}" ]]; then
-        colorEcho "${BLUE}Proxies delay data has been save to ${FUCHSIA}${delayOutput}${BLUE}!"
+        colorEcho "There are ${BLUE}${FUCHSIA}${aliveCount}${BLUE} proxies available proxies saved to file ${YELLOW}${delayOutput}${BLUE}!"
     else
         colorEcho "${RED}No proxies delay data for ${FUCHSIA}${configFile}${RED}!"
     fi
@@ -847,8 +849,9 @@ function getClashVergeAliveProxiesDelay() {
     echo '' > "${delayOutput}"
     jq -r '.proxies[] | select(.alive==true and (.history | length) > 0) | [.history[-1].delay, .name] | join(" ")' "${proxiesJson}" 2>/dev/null | sort -n > "${delayOutput}"
 
+    aliveCount=$(wc -l "${delayOutput}")
     if [[ -s "${delayOutput}" ]]; then
-        colorEcho "${BLUE}Proxies delay data has been save to ${FUCHSIA}${delayOutput}${BLUE}!"
+        colorEcho "There are ${BLUE}${FUCHSIA}${aliveCount}${BLUE} proxies available proxies saved to file ${YELLOW}${delayOutput}${BLUE}!"
     else
         colorEcho "${RED}No proxies delay data for ${FUCHSIA}${configFile}${RED}!"
     fi
