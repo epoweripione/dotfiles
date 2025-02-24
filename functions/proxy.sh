@@ -755,6 +755,7 @@ function getClashAliveProxiesDelay() {
     sed -i "1i\mixed-port: 7890\nexternal-controller: ${controllerUrl}:${controllerPort}\nsecret: '${controllerSecret}'\nallow-lan: true" "${testConfig}"
 
     # Run `mihomo` in background
+    colorEcho "${BLUE}Running ${FUCHSIA}mihomo${BLUE} using ${YELLOW}${testConfig}${BLUE}..."
     nohup mihomo -f "${testConfig}" >/dev/null 2>&1 & disown
     mihomoPID=$!
     # mihomoPID=$(lsof -Fp -i ":${controllerPort}" 2>/dev/null | sed 's/^p//')
@@ -764,12 +765,16 @@ function getClashAliveProxiesDelay() {
     fi
 
     # sleep 60 seconds to let `mihomo` to finish check proxies timeout
+    colorEcho "${BLUE}Waiting for ${FUCHSIA}mihomo${BLUE} to check proxies status..."
     sleep 60
 
     # Getting proxies
+    colorEcho "${RED}Getting ${FUCHSIA}proxies${RED}..."
     [[ -z "${CURL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_CURL_Options
     if ! curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${proxiesJson}" "${proxiesUrl}"; then
         colorEcho "${RED}Getting ${FUCHSIA}proxies${RED} failed!"
+        # Stop running `mihomo`
+        [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "${mihomoPID}"
         return 1
     fi
 
