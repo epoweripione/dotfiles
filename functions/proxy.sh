@@ -760,7 +760,8 @@ function getClashAliveProxiesDelay() {
 
     sleep 3
     # mihomoPID=$!
-    mihomoPID=$(lsof -Fp -i ":${controllerPort}" 2>/dev/null | sed 's/^p//')
+    # mihomoPID=$(lsof -Fp -i ":${controllerPort}" 2>/dev/null | grep '^p' | grep -Eo '[0-9]+' | head -n1)
+    mihomoPID=$(lsof -ti ":${controllerPort}" 2>/dev/null)
     if [[ -z "${mihomoPID}" || ${mihomoPID} -le 0 ]]; then
         colorEcho "${RED}Running ${FUCHSIA}mihomo${RED} failed!"
         return 1
@@ -776,7 +777,7 @@ function getClashAliveProxiesDelay() {
     if ! curl "${CURL_CHECK_OPTS[@]}" -o "${proxiesJson}" "${proxiesUrl}"; then
         colorEcho "${RED}Getting ${FUCHSIA}proxies${RED} failed!"
         # Stop running `mihomo`
-        [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "${mihomoPID}"
+        [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "$(lsof -ti ":${controllerPort}")" >/dev/null 2>&1
         return 1
     fi
 
@@ -804,7 +805,7 @@ function getClashAliveProxiesDelay() {
     # fi
 
     # Stop running `mihomo`
-    [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "${mihomoPID}"
+    [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "$(lsof -ti ":${controllerPort}")" >/dev/null 2>&1
 
     if [[ -s "${delayOutput}" ]]; then
         colorEcho "There are ${FUCHSIA}${aliveCount}${BLUE} available proxies saved to file ${YELLOW}${delayOutput}${BLUE}!"
