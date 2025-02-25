@@ -772,8 +772,8 @@ function getClashAliveProxiesDelay() {
 
     # Getting proxies
     colorEcho "${RED}Getting ${FUCHSIA}proxies${RED}..."
-    [[ -z "${CURL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_CURL_Options
-    if ! curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${proxiesJson}" "${proxiesUrl}"; then
+    [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+    if ! curl "${CURL_CHECK_OPTS[@]}" -o "${proxiesJson}" "${proxiesUrl}"; then
         colorEcho "${RED}Getting ${FUCHSIA}proxies${RED} failed!"
         # Stop running `mihomo`
         [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "${mihomoPID}"
@@ -784,7 +784,7 @@ function getClashAliveProxiesDelay() {
     echo '' > "${delayOutput}"
     jq -r '.proxies[] | select(.alive==true and (.history | length) > 0) | [.history[-1].delay, .name] | join(" ")' "${proxiesJson}" 2>/dev/null | sort -n > "${delayOutput}"
 
-    aliveCount=$(wc -l "${delayOutput}")
+    aliveCount=$(wc -l "${delayOutput}" | awk '{print $1}')
     # if [[ -z "${aliveCount}" || ${aliveCount} -le 0 ]]; then
     #     # proxyList=$(yq e ".proxies[].name" "${testConfig}")
     #     proxyList=$(jq -r '.proxies[] | .name' "${proxiesJson}")
@@ -807,7 +807,7 @@ function getClashAliveProxiesDelay() {
     [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "${mihomoPID}"
 
     if [[ -s "${delayOutput}" ]]; then
-        colorEcho "There are ${BLUE}${FUCHSIA}${aliveCount}${BLUE} proxies available proxies saved to file ${YELLOW}${delayOutput}${BLUE}!"
+        colorEcho "There are ${FUCHSIA}${aliveCount}${BLUE} available proxies saved to file ${YELLOW}${delayOutput}${BLUE}!"
     else
         colorEcho "${RED}No proxies delay data for ${FUCHSIA}${configFile}${RED}!"
     fi
@@ -839,8 +839,8 @@ function getClashVergeAliveProxiesDelay() {
     # Getting proxies
     proxiesUrl="${controllerUrlWithPort}/proxies"
 
-    [[ -z "${CURL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_CURL_Options
-    if ! curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${proxiesJson}" "${proxiesUrl}"; then
+    [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+    if ! curl "${CURL_CHECK_OPTS[@]}" -o "${proxiesJson}" "${proxiesUrl}"; then
         colorEcho "${RED}Getting ${FUCHSIA}proxies${RED} failed!"
         return 1
     fi
@@ -849,9 +849,9 @@ function getClashVergeAliveProxiesDelay() {
     echo '' > "${delayOutput}"
     jq -r '.proxies[] | select(.alive==true and (.history | length) > 0) | [.history[-1].delay, .name] | join(" ")' "${proxiesJson}" 2>/dev/null | sort -n > "${delayOutput}"
 
-    aliveCount=$(wc -l "${delayOutput}")
+    aliveCount=$(wc -l "${delayOutput}" | awk '{print $1}')
     if [[ -s "${delayOutput}" ]]; then
-        colorEcho "There are ${BLUE}${FUCHSIA}${aliveCount}${BLUE} proxies available proxies saved to file ${YELLOW}${delayOutput}${BLUE}!"
+        colorEcho "There are ${FUCHSIA}${aliveCount}${BLUE} available proxies saved to file ${YELLOW}${delayOutput}${BLUE}!"
     else
         colorEcho "${RED}No proxies delay data for ${FUCHSIA}${configFile}${RED}!"
     fi

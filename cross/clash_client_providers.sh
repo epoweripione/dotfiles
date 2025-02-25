@@ -1170,7 +1170,7 @@ if [[ "${OUTPUT_OPTIONS}" =~ "CheckAlive" ]]; then
     getClashAliveProxiesDelay "${CHECK_CONFIG_FILE}" "${TARGET_DELAY_FILE}"
 
     aliveCount=0
-    [[ -f "${TARGET_DELAY_FILE}" ]] && aliveCount=$(wc -l "${TARGET_DELAY_FILE}")
+    [[ -f "${TARGET_DELAY_FILE}" ]] && aliveCount=$(wc -l "${TARGET_DELAY_FILE}" | awk '{print $1}')
     if [[ ${aliveCount} -ge ${MinAliveProxiesCount} ]]; then
         proxyList=$(yq e ".proxies[].name" "${CHECK_CONFIG_FILE}")
         while read -r TargetName; do
