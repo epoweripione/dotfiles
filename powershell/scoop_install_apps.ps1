@@ -280,6 +280,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "sysinternals"
         # "utools"
         "ghostscript"
+        "imageglass"
         "imagine"
         "xnresize"
         "xnviewmp"
