@@ -720,7 +720,7 @@ function getClashAliveProxiesDelay() {
     # local delayUrl="http://127.0.0.1:9097/proxies/[encodeProxyName]/delay?timeout=2000&url=http:%2F%2Fwww.gstatic.com%2Fgenerate_204"
     local delayUrl="http://127.0.0.1:9097/proxies/[encodeProxyName]/delay?timeout=2000&url=http:%2F%2Fcp.cloudflare.com%2Fgenerate_204"
     local proxiesJson="/tmp/proxies.json"
-    local mihomoPID aliveCount proxyList proxyName encodeProxyName testUrl proxyDelay
+    local mihomoPID totalProxies aliveProxies proxyList proxyName encodeProxyName testUrl proxyDelay
 
     if [[ ! -f "${configFile}" ]]; then
         colorEcho "${RED}Configuration file ${FUCHSIA}${configFile}${RED} not exists!"
@@ -762,7 +762,7 @@ function getClashAliveProxiesDelay() {
     # mihomoPID=$!
     # mihomoPID=$(lsof -Fp -i ":${controllerPort}" 2>/dev/null | grep '^p' | grep -Eo '[0-9]+' | head -n1)
     mihomoPID=$(lsof -ti ":${controllerPort}" 2>/dev/null)
-    if [[ -z "${mihomoPID}" || ${mihomoPID} -le 0 ]]; then
+    if [[ -z "${mihomoPID}" ]]; then
         colorEcho "${RED}Running ${FUCHSIA}mihomo${RED} failed!"
         return 1
     fi
@@ -777,16 +777,20 @@ function getClashAliveProxiesDelay() {
     if ! curl "${CURL_CHECK_OPTS[@]}" -o "${proxiesJson}" "${proxiesUrl}"; then
         colorEcho "${RED}Getting ${FUCHSIA}proxies${RED} failed!"
         # Stop running `mihomo`
-        [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "$(lsof -ti ":${controllerPort}")" >/dev/null 2>&1
+        [[ -n "${mihomoPID}" ]] && kill -9 "$(lsof -ti ":${controllerPort}")" >/dev/null 2>&1
         return 1
     fi
+
+    # Proxies count
+    totalProxies=$(jq -r '.proxies | length' "${proxiesJson}" 2>/dev/null)
+    aliveProxies=$(jq -r '.proxies | map(select(.alive==true and (.history | length) > 0)) | length' "${proxiesJson}" 2>/dev/null)
 
     # Alive proxies list: latest delay with name
     echo '' > "${delayOutput}"
     jq -r '.proxies[] | select(.alive==true and (.history | length) > 0) | [.history[-1].delay, .name] | join(" ")' "${proxiesJson}" 2>/dev/null | sort -n > "${delayOutput}"
 
-    aliveCount=$(wc -l "${delayOutput}" | awk '{print $1}')
-    # if [[ -z "${aliveCount}" || ${aliveCount} -le 0 ]]; then
+    # aliveProxies=$(wc -l "${delayOutput}" | awk '{print $1}')
+    # if [[ -z "${aliveProxies}" || ${aliveProxies} -le 0 ]]; then
     #     # proxyList=$(yq e ".proxies[].name" "${testConfig}")
     #     proxyList=$(jq -r '.proxies[] | .name' "${proxiesJson}")
 
@@ -805,10 +809,10 @@ function getClashAliveProxiesDelay() {
     # fi
 
     # Stop running `mihomo`
-    [[ -n "${mihomoPID}" && ${mihomoPID} -gt 0 ]] && kill -9 "$(lsof -ti ":${controllerPort}")" >/dev/null 2>&1
+    [[ -n "${mihomoPID}" ]] && kill -9 "$(lsof -ti ":${controllerPort}")" >/dev/null 2>&1
 
     if [[ -s "${delayOutput}" ]]; then
-        colorEcho "There are ${FUCHSIA}${aliveCount}${BLUE} available proxies saved to file ${YELLOW}${delayOutput}${BLUE}!"
+        colorEcho "${GREEN}${aliveProxies}${BLUE} of ${FUCHSIA}${totalProxies}${BLUE} proxies available and saved to file ${YELLOW}${delayOutput}${BLUE}!"
     else
         colorEcho "${RED}No proxies delay data for ${FUCHSIA}${configFile}${RED}!"
     fi
@@ -821,6 +825,7 @@ function getClashVergeAliveProxiesDelay() {
     local controllerSecret=${3:-""}
     local proxiesUrl
     local proxiesJson="/tmp/proxies.json"
+    local totalProxies aliveProxies
 
     if [[ -z "${controllerUrlWithPort}" ]]; then
         colorEcho "${RED}Clash Verge ${FUCHSIA}controller url with port${RED} can't empty! eg: ${YELLOW}http://127.0.0.1:9097"
@@ -846,13 +851,17 @@ function getClashVergeAliveProxiesDelay() {
         return 1
     fi
 
+    # Proxies count
+    totalProxies=$(jq -r '.proxies | length' "${proxiesJson}" 2>/dev/null)
+    aliveProxies=$(jq -r '.proxies | map(select(.alive==true and (.history | length) > 0)) | length' "${proxiesJson}" 2>/dev/null)
+
     # Alive proxies list: latest delay with name
     echo '' > "${delayOutput}"
     jq -r '.proxies[] | select(.alive==true and (.history | length) > 0) | [.history[-1].delay, .name] | join(" ")' "${proxiesJson}" 2>/dev/null | sort -n > "${delayOutput}"
 
-    aliveCount=$(wc -l "${delayOutput}" | awk '{print $1}')
+    # aliveProxies=$(wc -l "${delayOutput}" | awk '{print $1}')
     if [[ -s "${delayOutput}" ]]; then
-        colorEcho "There are ${FUCHSIA}${aliveCount}${BLUE} available proxies saved to file ${YELLOW}${delayOutput}${BLUE}!"
+        colorEcho "${GREEN}${aliveProxies}${BLUE} of ${FUCHSIA}${totalProxies}${BLUE} proxies available and saved to file ${YELLOW}${delayOutput}${BLUE}!"
     else
         colorEcho "${RED}No proxies delay data for ${FUCHSIA}${configFile}${RED}!"
     fi
