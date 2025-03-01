@@ -90,12 +90,12 @@ function get_proxy() {
         [[ -n "${proxy_output2}" ]] && colorEcho "${FUCHSIA}${proxy_output2}"
     fi
 
-    if [[ -x "$(command -v yarn)" ]]; then
-        proxy_output1=$(yarn config get proxy | grep -Ev "null|undefined")
-        proxy_output2=$(yarn config get https-proxy | grep -Ev "null|undefined")
-        [[ -n "${proxy_output1}" ]] && colorEcho "\n${BLUE}yarn proxies:\n${FUCHSIA}${proxy_output1}"
-        [[ -n "${proxy_output2}" ]] && colorEcho "${FUCHSIA}${proxy_output2}"
-    fi
+    # if [[ -x "$(command -v yarn)" ]]; then
+    #     proxy_output1=$(yarn config get proxy | grep -Ev "null|undefined")
+    #     proxy_output2=$(yarn config get https-proxy | grep -Ev "null|undefined")
+    #     [[ -n "${proxy_output1}" ]] && colorEcho "\n${BLUE}yarn proxies:\n${FUCHSIA}${proxy_output1}"
+    #     [[ -n "${proxy_output2}" ]] && colorEcho "${FUCHSIA}${proxy_output2}"
+    # fi
 
     if [[ -s "/etc/apt/apt.conf.d/80proxy" ]]; then
         proxy_output1=$(< "/etc/apt/apt.conf.d/80proxy")
@@ -134,8 +134,8 @@ function get_proxy() {
 }
 
 function clear_proxy() {
-    unset {http,https,ftp,all}_proxy
-    unset {HTTP,HTTPS,FTP,ALL}_PROXY
+    unset {http,https,ftp,all,no}_proxy
+    unset {HTTP,HTTPS,FTP,ALL,NO}_PROXY
 }
 
 function clear_all_proxy() {
