@@ -66,8 +66,8 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
 
     # Clash Verge
     colorEcho "${BLUE}Installing ${FUCHSIA}Clash Verge${BLUE}..."
-    # yay --noconfirm --needed -S aur/clash-verge-rev-bin
-    yay --noconfirm --needed -S archlinuxcn/clash-verge-rev
+    yay --noconfirm --needed -S aur/clash-verge-rev-bin
+    # yay --noconfirm --needed -S archlinuxcn/clash-verge-rev
 
     # Hiddify-Next
     colorEcho "${BLUE}Installing ${FUCHSIA}Hiddify-Next${BLUE}..."
