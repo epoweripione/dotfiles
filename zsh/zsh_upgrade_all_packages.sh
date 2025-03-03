@@ -145,10 +145,14 @@ if [[ -x "$(command -v goup)" ]]; then
 fi
 
 if [[ -x "$(command -v rustup)" ]]; then
-    colorEcho "${BLUE}Updating ${FUCHSIA} Rust toolchains and rustup${BLUE}..."
+    colorEcho "${BLUE}Updating ${FUCHSIA}Rust toolchains and rustup${BLUE}..."
     rustup upgrade
 fi
 
+if [[ -x "$(command -v cargo-binstall)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}cargo-binstall${BLUE}..."
+    cargo binstall cargo-binstall
+fi
 
 # Always install & update apps
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
