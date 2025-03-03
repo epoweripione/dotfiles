@@ -316,6 +316,25 @@ function check_http_proxy_up() {
     fi
 }
 
+## Set git sshCommand proxy
+function set_git_sshCommand() {
+    if [[ -x "$(command -v nc)" && -n "${GLOBAL_PROXY_IP}" ]]; then
+        if [[ -n "${GLOBAL_PROXY_MIXED_PORT}" ]]; then
+            # git config --global core.sshCommand "ssh -o 'ProxyCommand nc -X connect -x ${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_MIXED_PORT} %h %p'"
+            export GIT_SSH_COMMAND="ssh -o 'ProxyCommand nc -X connect -x \${GLOBAL_PROXY_IP}:\${GLOBAL_PROXY_MIXED_PORT} %h %p'"
+        elif [[ -n "${GLOBAL_PROXY_SOCKS_PORT}" ]]; then
+            # git config --global core.sshCommand "ssh -o 'ProxyCommand nc -X 5 -x ${GLOBAL_PROXY_IP}:${GLOBAL_PROXY_SOCKS_PORT} %h %p'"
+            export GIT_SSH_COMMAND="ssh -o 'ProxyCommand nc -X 5 -x \${GLOBAL_PROXY_IP}:\${GLOBAL_PROXY_SOCKS_PORT} %h %p'"
+        else
+            # git config --global --unset core.sshCommand
+            unset GIT_SSH_COMMAND
+        fi
+    else
+        # git config --global --unset core.sshCommand
+        unset GIT_SSH_COMMAND
+    fi
+}
+
 # Set global git proxy
 function set_git_proxy() {
     local PROXY_ADDRESS=$1
