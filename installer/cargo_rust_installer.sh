@@ -28,3 +28,10 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ## On Windows
 ## https://win.rustup.rs/
 # scoop install rustup
+
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+
+if [[ -x "$(command -v cargo)" ]]; then
+    AppInstaller="${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/cargo-binstall_installer.sh"
+    [[ -f "${AppInstaller}" ]] && source "${AppInstaller}"
+fi
