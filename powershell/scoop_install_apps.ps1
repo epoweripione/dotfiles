@@ -185,6 +185,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "android-studio"
         # "flutter"
         "go"
+        "cargo-binstall"
         "rustup"
         "nodejs-lts"
         # "dotnet-sdk"
