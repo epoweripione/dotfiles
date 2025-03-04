@@ -110,6 +110,10 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         scoop install sudo
     }
 
+    if ($GITHUB_API_TOKEN) {
+        scoop config gh_token "$GITHUB_API_TOKEN"
+    }
+
     Write-Host "Adding scoop buckets..." -ForegroundColor Blue
     # list all known buckets
     # scoop bucket known
