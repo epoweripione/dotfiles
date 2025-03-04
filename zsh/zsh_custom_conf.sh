@@ -166,6 +166,9 @@ fi
 # alias
 [[ -s "${MY_SHELL_SCRIPTS}/functions/aliases.sh" ]] && source "${MY_SHELL_SCRIPTS}/functions/aliases.sh"
 
+# Proxies
+set_git_sshCommand # git sshCommand with ProxyCommand
+
 # Autostart Tmux/screen Session On Remote System When Logging In Via SSH
 if [[ -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
     if [[ "$(command -v zellij)" ]]; then
