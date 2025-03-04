@@ -52,3 +52,6 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && "${USE_MIRROR_WHEN_BLOCKED}" == "true"
     setMirrorRbenv
     # setMirrorGem # set by installer/rbenv_ruby_installer.sh
 fi
+
+# Proxies
+set_git_sshCommand # git sshCommand with ProxyCommand
