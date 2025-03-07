@@ -985,6 +985,13 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             PROXY_INDEX=-1
             for TargetName in "${PROXY_LIST_ALL[@]}"; do
                 PROXY_INDEX=$((PROXY_INDEX + 1))
+
+                # Exclude private proxies
+                if [[ "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
+                    TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
+                    grep -Eq "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PRIVATE}" && continue
+                fi
+
                 if grep -Eaq "${TARGET_FILTER}" <<<"${PROXY_TYPE_ALL[$PROXY_INDEX]}"; then
                     [[ -n "${CONTENT_TAG}" ]] && \
                         CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
@@ -1037,6 +1044,16 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 PROXY_INDEX=-1
                 for TargetName in "${PROXY_LIST_ALL[@]}"; do
                     PROXY_INDEX=$((PROXY_INDEX + 1))
+
+                    # Exclude private proxies
+                    if [[ "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
+                        TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
+                        if grep -Eq "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PRIVATE}"; then
+                            [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]] && USED_PROXIES+=("${PROXY_INDEX}")
+                            continue
+                        fi
+                    fi
+
                     if grep -Eaq "${TARGET_TAG}" <<<"${TargetName}"; then
                         [[ -n "${CONTENT_TAG}" ]] && \
                             CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
