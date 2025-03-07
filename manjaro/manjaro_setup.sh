@@ -269,6 +269,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "aur/linuxqq"
         "slirp4netns"
         "socat"
+        "sniffnet"
         "aur/linuxqq-nt-bwrap"
         # "aur/deepin-wine-qq"
         "aur/deepin-wine-tim"
