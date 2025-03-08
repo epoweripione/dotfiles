@@ -963,7 +963,11 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 
     LINE_END=$((TARGET_LINE - 1))
 
-    [[ -n "${TARGET_FILTER}" ]] && MSG_INFO="${TARGET_FILTER}" || MSG_INFO="${TARGET_TAG}"
+    if [[ -n "${TARGET_FILTER}" ]]; then
+        MSG_INFO="${TARGET_GROUP}→${TARGET_FILTER}"
+    else
+        [[ -n "${TARGET_GROUP}" ]] && MSG_INFO="${TARGET_GROUP}→${TARGET_TAG}" || MSG_INFO="${TARGET_TAG}"
+    fi
     colorEcho "${BLUE}    Generating ${FUCHSIA}${MSG_INFO}${BLUE}..."
 
     CONTENT_PREFIX=$(sed -n "${LINE_START},${LINE_END} p" "${CLASH_CONFIG}")
@@ -974,7 +978,15 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             CONTENT_TAG="${PROXIES_PROXY_ALL}"
             ;;
         "all")
-            CONTENT_TAG="${GROUP_PROXIES_ALL}"
+            if [[ -n "${TARGET_FILTER}" ]]; then
+                if grep -Eq "\!" <<<"${TARGET_FILTER}"; then
+                    CONTENT_TAG=$(grep -Ev "${TARGET_FILTER//\!/}" <<<"${GROUP_PROXIES_ALL}")
+                else
+                    CONTENT_TAG=$(grep -E "${TARGET_FILTER}" <<<"${GROUP_PROXIES_ALL}")
+                fi
+            else
+                CONTENT_TAG="${GROUP_PROXIES_ALL}"
+            fi
             ;;
         "rules")
             [[ -n "${CONTENT_PREFIX}" ]] && echo "${CONTENT_PREFIX}" | tee -a "${TARGET_CONFIG_FILE}" >/dev/null
