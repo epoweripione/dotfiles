@@ -19,15 +19,15 @@ if (($ConfigAction -eq "AUTO") -and $UseMirror) {
     Write-Host "Change npm registry to npmmirror.com..." -ForegroundColor Blue
     npm config set registry https://registry.npmmirror.com
 
-    Add-Content "$env:USERPROFILE\.npmrc" "`ndisturl=https://npmmirror.com/dist" # node-gyp
-    Add-Content "$env:USERPROFILE\.npmrc" "`nsass_binary_site=https://npmmirror.com/mirrors/node-sass" # node-sass
-    Add-Content "$env:USERPROFILE\.npmrc" "`nelectron_mirror=https://npmmirror.com/mirrors/electron/" # electron
-    Add-Content "$env:USERPROFILE\.npmrc" "`npuppeteer_download_base_url=https://cdn.npmmirror.com/binaries/chrome-for-testing" # puppeteer
-    Add-Content "$env:USERPROFILE\.npmrc" "`nchromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver" # chromedriver
-    Add-Content "$env:USERPROFILE\.npmrc" "`noperadriver_cdnurl=https://npmmirror.com/mirrors/operadriver" # operadriver
-    Add-Content "$env:USERPROFILE\.npmrc" "`nphantomjs_cdnurl=https://npmmirror.com/mirrors/phantomjs" # phantomjs
-    Add-Content "$env:USERPROFILE\.npmrc" "`nselenium_cdnurl=https://npmmirror.com/mirrors/selenium" # selenium
-    Add-Content "$env:USERPROFILE\.npmrc" "`nnode_inspector_cdnurl=https://npmmirror.com/mirrors/node-inspector" # node-inspector
+    # Add-Content "$env:USERPROFILE\.npmrc" "`ndisturl=https://npmmirror.com/dist" # node-gyp
+    # Add-Content "$env:USERPROFILE\.npmrc" "`nsass_binary_site=https://npmmirror.com/mirrors/node-sass" # node-sass
+    # Add-Content "$env:USERPROFILE\.npmrc" "`nelectron_mirror=https://npmmirror.com/mirrors/electron/" # electron
+    # Add-Content "$env:USERPROFILE\.npmrc" "`npuppeteer_download_base_url=https://cdn.npmmirror.com/binaries/chrome-for-testing" # puppeteer
+    # Add-Content "$env:USERPROFILE\.npmrc" "`nchromedriver_cdnurl=https://npmmirror.com/mirrors/chromedriver" # chromedriver
+    # Add-Content "$env:USERPROFILE\.npmrc" "`noperadriver_cdnurl=https://npmmirror.com/mirrors/operadriver" # operadriver
+    # Add-Content "$env:USERPROFILE\.npmrc" "`nphantomjs_cdnurl=https://npmmirror.com/mirrors/phantomjs" # phantomjs
+    # Add-Content "$env:USERPROFILE\.npmrc" "`nselenium_cdnurl=https://npmmirror.com/mirrors/selenium" # selenium
+    # Add-Content "$env:USERPROFILE\.npmrc" "`nnode_inspector_cdnurl=https://npmmirror.com/mirrors/node-inspector" # node-inspector
 }
 
 if ($ConfigAction -eq "RESET") {

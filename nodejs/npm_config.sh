@@ -41,16 +41,16 @@ if [[ "${CONFIG_ACTION}" == "AUTO" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
     colorEcho "${BLUE}Change npm registry to npmmirror.com..."
     npm config set registry "${MIRROR_NODEJS_REGISTRY:-"https://registry.npmmirror.com"}"
 
-    echo "disturl=${MIRROR_NODEJS_DISTURL:-"https://npmmirror.com/dist"}" >> "$HOME/.npmrc" # node-gyp
-    echo "sass_binary_site=${MIRROR_NODEJS_SASS_BINARY_SITE:-"https://npmmirror.com/mirrors/node-sass"}" >> "$HOME/.npmrc" # node-sass
-    echo "electron_mirror=${MIRROR_NODEJS_ELECTRON_MIRROR:-"https://npmmirror.com/mirrors/electron/"}" >> "$HOME/.npmrc" # electron
-    # echo "puppeteer_download_host=${MIRROR_NODEJS_PUPPETEER_DOWNLOAD_HOST:-"https://npmmirror.com/mirrors"}" >> "$HOME/.npmrc" # puppeteer
-    echo "puppeteer_download_base_url=${MIRROR_NODEJS_PUPPETEER_DOWNLOAD_BASE_URL:-"https://cdn.npmmirror.com/binaries/chrome-for-testing"}" >> "$HOME/.npmrc" # puppeteer
-    echo "chromedriver_cdnurl=${MIRROR_NODEJS_CHROMEDRIVER_CDNURL:-"https://npmmirror.com/mirrors/chromedriver"}" >> "$HOME/.npmrc" # chromedriver
-    echo "operadriver_cdnurl=${MIRROR_NODEJS_OPERADRIVER_CDNURL:-"https://npmmirror.com/mirrors/operadriver"}" >> "$HOME/.npmrc" # operadriver
-    echo "phantomjs_cdnurl=${MIRROR_NODEJS_PHANTOMJS_CDNURL:-"https://npmmirror.com/mirrors/phantomjs"}" >> "$HOME/.npmrc" # phantomjs
-    echo "selenium_cdnurl=${MIRROR_NODEJS_SELENIUM_CDNURL:-"https://npmmirror.com/mirrors/selenium"}" >> "$HOME/.npmrc" # selenium
-    echo "node_inspector_cdnurl=${MIRROR_NODEJS_NODE_INSPECTOR_CDNURL:-"https://npmmirror.com/mirrors/node-inspector"}" >> "$HOME/.npmrc" # node-inspector
+    # echo "disturl=${MIRROR_NODEJS_DISTURL:-"https://npmmirror.com/dist"}" >> "$HOME/.npmrc" # node-gyp
+    # echo "sass_binary_site=${MIRROR_NODEJS_SASS_BINARY_SITE:-"https://npmmirror.com/mirrors/node-sass"}" >> "$HOME/.npmrc" # node-sass
+    # echo "electron_mirror=${MIRROR_NODEJS_ELECTRON_MIRROR:-"https://npmmirror.com/mirrors/electron/"}" >> "$HOME/.npmrc" # electron
+    # # echo "puppeteer_download_host=${MIRROR_NODEJS_PUPPETEER_DOWNLOAD_HOST:-"https://npmmirror.com/mirrors"}" >> "$HOME/.npmrc" # puppeteer
+    # echo "puppeteer_download_base_url=${MIRROR_NODEJS_PUPPETEER_DOWNLOAD_BASE_URL:-"https://cdn.npmmirror.com/binaries/chrome-for-testing"}" >> "$HOME/.npmrc" # puppeteer
+    # echo "chromedriver_cdnurl=${MIRROR_NODEJS_CHROMEDRIVER_CDNURL:-"https://npmmirror.com/mirrors/chromedriver"}" >> "$HOME/.npmrc" # chromedriver
+    # echo "operadriver_cdnurl=${MIRROR_NODEJS_OPERADRIVER_CDNURL:-"https://npmmirror.com/mirrors/operadriver"}" >> "$HOME/.npmrc" # operadriver
+    # echo "phantomjs_cdnurl=${MIRROR_NODEJS_PHANTOMJS_CDNURL:-"https://npmmirror.com/mirrors/phantomjs"}" >> "$HOME/.npmrc" # phantomjs
+    # echo "selenium_cdnurl=${MIRROR_NODEJS_SELENIUM_CDNURL:-"https://npmmirror.com/mirrors/selenium"}" >> "$HOME/.npmrc" # selenium
+    # echo "node_inspector_cdnurl=${MIRROR_NODEJS_NODE_INSPECTOR_CDNURL:-"https://npmmirror.com/mirrors/node-inspector"}" >> "$HOME/.npmrc" # node-inspector
 fi
 
 if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
