@@ -335,7 +335,10 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "yq"
         "vfox"
         # "trafficmonitor"
+        "driverstoreexplorer"
+        "spacesniffer"
         "treesize-free"
+        "wiztree"
         # "windterm"
         ## OCR
         # "umi-ocr"
