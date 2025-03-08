@@ -1245,7 +1245,13 @@ function installBuildBinary() {
                 return 1
             fi
 
-            cargo install "${app_name}"
+            if [[ -x "$(command -v cargo-binstall)" ]]; then
+                if ! cargo binstall --no-confirm "${app_name}" 2>/dev/null; then
+                    cargo install "${app_name}"
+                fi
+            else
+                cargo install "${app_name}"
+            fi
             ;;
         brew)
             # Install via Homebrew
