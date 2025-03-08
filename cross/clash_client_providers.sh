@@ -830,7 +830,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         done
 
         case "${TARGET_OPTION}" in
-            "*private*")
+            *private*)
                 [[ -n "${PROXIES_PRIVATE}" ]] && \
                     PROXIES_PRIVATE=$(echo -e "${PROXIES_PRIVATE}\n${TARGET_PROXIES}") || \
                     PROXIES_PRIVATE="${TARGET_PROXIES}"
@@ -987,7 +987,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 PROXY_INDEX=$((PROXY_INDEX + 1))
 
                 # Exclude private proxies
-                if [[ "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
+                if [[ -n "${PROXIES_PRIVATE}" && "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
                     TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
                     grep -Eq "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PRIVATE}" && continue
                 fi
@@ -1046,7 +1046,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                     PROXY_INDEX=$((PROXY_INDEX + 1))
 
                     # Exclude private proxies
-                    if [[ "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
+                    if [[ -n "${PROXIES_PRIVATE}" && "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
                         TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
                         if grep -Eq "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PRIVATE}"; then
                             [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]] && USED_PROXIES+=("${PROXY_INDEX}")
