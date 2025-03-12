@@ -125,7 +125,7 @@ Set-Alias ls Get-ChildItemColorFormatWide -option AllScope
 Set-PSReadLineOption -HistoryNoDuplicates
 Set-PSReadLineOption -HistorySearchCursorMovesToEnd
 Set-PSReadLineOption -HistorySaveStyle SaveIncrementally
-Set-PSReadLineOption -MaximumHistoryCount 4000
+Set-PSReadLineOption -MaximumHistoryCount 9999
 
 # history substring search
 Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
@@ -187,6 +187,9 @@ Set-PSReadLineKeyHandler -Key Ctrl+u -Function BackwardDeleteLine
 Set-PSReadLineKeyHandler -Key Ctrl+U -Function BackwardDeleteLine
 Set-PSReadLineKeyHandler -Key Ctrl+k -Function ForwardDeleteLine
 Set-PSReadLineKeyHandler -Key Ctrl+K -Function ForwardDeleteLine
+
+# [Remove InsertPairedBraces by WozTools](https://github.com/Woznet/WozTools/blob/main/Lib/PSReadLine/PSReadLine-Config.ps1)
+Remove-PSReadLineKeyHandler '(', '{', '[', '"', "'"
 
 ## cddash
 # You can use the following to have the "dash" functionality - namely, you can go back to the previous location by typing cd -. It is from http://goo.gl/xRbYbk.
