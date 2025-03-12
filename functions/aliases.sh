@@ -123,6 +123,10 @@ if [[ -x "$(command -v docker)" ]]; then
     alias docker-certs-maker='docker run --rm -it --name certs-maker -v $PWD:/ssl soulteary/certs-maker'
     # https://nix.dev/
     alias docker-nix='docker run --rm -it --name nix -v $PWD:/opt ghcr.io/nixos/nix'
+    # https://github.com/ToolJet/ToolJet
+    alias docker-tooljet='docker run -d --name tooljet -p 80:80 -v $HOME/tooljet_data:/var/lib/postgresql/13/main tooljet/try:ee-lts-latest'
+    # https://github.com/songquanpeng/one-api
+    alias docker-oneapi='docker run -d --name one-api -p 3000:3000 -e TZ=Asia/Shanghai -v $HOME/one-api:/data justsong/one-api'
 fi
 
 
