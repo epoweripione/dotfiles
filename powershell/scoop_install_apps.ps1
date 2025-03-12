@@ -207,6 +207,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "dbgate"
         "krita"
         "obs-studio"
+        "xpipe"
         # "geany"
         # "geany-plugins"
         # "notepad3"
