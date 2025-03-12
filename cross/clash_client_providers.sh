@@ -534,7 +534,16 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 fi
 
                 if [[ ${SCRAP_INDEX} -eq ${#SCRAP_PATTERN[@]} ]]; then
-                    if [[ "${TARGET_OPTION}" =~ "converter" ]]; then
+                    CLASH_CONVERT="no"
+                    [[ "${TARGET_OPTION}" =~ "converter" ]] && CLASH_CONVERT="yes"
+                    if [[ "${TARGET_OPTION}" =~ "autodetect" ]]; then
+                        # if downloaded file is base64 encoded then use converter
+                        if base64 -d "${DOWNLOAD_SCRAP_FILE}" >/dev/null 2>&1; then
+                            CLASH_CONVERT="yes"
+                        fi
+                    fi
+
+                    if [[ "${CLASH_CONVERT}" == "yes" ]]; then
                         colorEcho "${BLUE}    Converting ${FUCHSIA}${TARGET_FILE}${BLUE} from ${YELLOW}${TARGET_URL}${BLUE} to ${ORANGE}${DOWNLOAD_SCRAP_FILE}${BLUE}..."
                         TARGET_URL=$(printf %s "${TARGET_URL}" | jq -sRr @uri) # encode URL
                         TARGET_URL=$(sed "s|\[URL\]|${TARGET_URL}|" <<<"${CONVERTER_SERVICE}")
@@ -979,10 +988,19 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             ;;
         "all")
             if [[ -n "${TARGET_FILTER}" ]]; then
-                if grep -Eq "\!" <<<"${TARGET_FILTER}"; then
-                    CONTENT_TAG=$(grep -Ev "${TARGET_FILTER//\!/}" <<<"${GROUP_PROXIES_ALL}")
+                # use awk to filter multiple patterns
+                # match foo and bar: `awk '/foo/ && /bar/'`
+                # match foo or bar: `awk '/foo|bar/'`
+                # match foo but not bar: `awk '/foo/ && !/bar/'`
+                # match not foo nor bar: `awk '!/foo|bar/'`
+                if grep -E '^awk' <<<"${TARGET_FILTER}"; then
+                    CONTENT_TAG=$(awk "${TARGET_FILTER//awk/}" <<<"${GROUP_PROXIES_ALL}")
                 else
-                    CONTENT_TAG=$(grep -E "${TARGET_FILTER}" <<<"${GROUP_PROXIES_ALL}")
+                    if grep -Eq "\!" <<<"${TARGET_FILTER}"; then
+                        CONTENT_TAG=$(grep -Ev "${TARGET_FILTER//\!/}" <<<"${GROUP_PROXIES_ALL}")
+                    else
+                        CONTENT_TAG=$(grep -E "${TARGET_FILTER}" <<<"${GROUP_PROXIES_ALL}")
+                    fi
                 fi
             else
                 CONTENT_TAG="${GROUP_PROXIES_ALL}"
