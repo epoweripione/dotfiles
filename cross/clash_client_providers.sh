@@ -157,7 +157,7 @@ function processSubscribeFile() {
     fi
 }
 
-# Rename duplicate proxies in yaml file
+# proxy entries with the same name in yaml file: delete duplicate entries & rename 
 function processDuplicateProxies() {
     local subscribeFile=$1
     local TargetName TargetName_Escape TargetName_Escape_GREP
@@ -172,8 +172,29 @@ function processDuplicateProxies() {
 
         TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
         duplicateList=$(grep -En "name:\s*\"*${TargetName_Escape_GREP}\"*," "${subscribeFile}")
-
         proxyCount=$(wc -l <<<"${duplicateList}")
+
+        # Delete duplicate entries
+        if [[ ${proxyCount} -gt 1 ]]; then
+            duplicateEntries=$(sort -nr <<<"${duplicateList}")
+            previousEntry=""
+            while read -r currentEntry; do
+                [[ -z "${currentEntry}" ]] && continue
+
+                proxyLine=$(cut -d: -f1 <<<"${currentEntry}")
+                proxyEntry=$(cut -d: -f2 <<<"${currentEntry}")
+                if [[ -n "${previousEntry}" && "${previousEntry}" == "${proxyEntry}" ]]; then
+                    sed -i "${proxyLine}d" "${subscribeFile}"
+                fi
+
+                previousEntry=${proxyEntry}
+            done <<<"${duplicateEntries}"
+
+            # Update entries with the same name
+            duplicateList=$(grep -En "name:\s*\"*${TargetName_Escape_GREP}\"*," "${subscribeFile}")
+        fi
+
+        # Rename entries with the same name
         if [[ ${proxyCount} -gt 1 ]]; then
             # colorEcho "${BLUE}      Processing duplicate proxy ${FUCHSIA}${TargetName}${BLUE}..."
             # rename proxy
