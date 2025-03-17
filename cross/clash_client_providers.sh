@@ -989,7 +989,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     TARGET_LINE=$(cut -d':' -f1 <<<"${READLINE}")
     TARGET_TAG=$(cut -d'-' -f2 <<<"${READLINE}")
     TARGET_GROUP=$(cut -d'-' -f3 <<<"${READLINE}")
-    TARGET_FILTER=$(cut -d'-' -f4 <<<"${READLINE}")
+    TARGET_FILTER=$(cut -d'-' -f4- <<<"${READLINE}")
 
     LINE_END=$((TARGET_LINE - 1))
 
@@ -1113,6 +1113,19 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                         [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]] && USED_PROXIES+=("${PROXY_INDEX}")
                     fi
                 done
+            fi
+
+            # Additional filters
+            if [[ -n "${TARGET_FILTER}" && -n "${CONTENT_TAG}" ]]; then
+                if grep -E '^awk' <<<"${TARGET_FILTER}"; then
+                    CONTENT_TAG=$(awk "${TARGET_FILTER//awk/}" <<<"${CONTENT_TAG}")
+                else
+                    if grep -Eq "\!" <<<"${TARGET_FILTER}"; then
+                        CONTENT_TAG=$(grep -Ev "${TARGET_FILTER//\!/}" <<<"${CONTENT_TAG}")
+                    else
+                        CONTENT_TAG=$(grep -E "${TARGET_FILTER}" <<<"${CONTENT_TAG}")
+                    fi
+                fi
             fi
             ;;
     esac
