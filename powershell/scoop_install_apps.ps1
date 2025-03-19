@@ -324,6 +324,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "rainmeter"
         "smartmontools"
         "smartsystemmenu"
+        "twinkle-tray"
         "usql"
         "wget"
         "win32yank"
