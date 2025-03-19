@@ -267,6 +267,41 @@ function processEmptyGroup() {
     done
 }
 
+# Format the file contents into YAML format
+function formatYAMLFile() {
+    local subscribeFile=$1
+    local GroupStartLine RuleStartLine
+
+    # add Double quotes to `path`, `User-Agent`...
+    sed -ri 's/(ALPN|Alpn|alpn|HOST|Host|host|PATH|Path|path):\s+([^,"\{\}\[]+)/\1: "\2"/g' "${subscribeFile}"
+
+    # 'alpn', 'http-opts.path', 'http-opts.headers[Host]' is a slice
+    sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${subscribeFile}"
+    sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)\"*,\s*([^,"\{\}]+)】\"*/\1: \["\2","\3"\]/g' "${subscribeFile}"
+    sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${subscribeFile}"
+
+    sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${subscribeFile}"
+    sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${subscribeFile}"
+    sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${subscribeFile}"
+
+    sed -ri 's/name:\s+([^,"\{\}]+)/name: "\1"/' "${subscribeFile}"
+    sed -ri 's/password:\s+([^,"\{\}]+)/password: "\1"/' "${subscribeFile}"
+
+    # IPV6
+    sed -ri "/name:/ s/[\"【]*(${IPV6RegExp})[\"】]*/\"\[\1\]\"/g" "${subscribeFile}"
+    sed -ri 's/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: "\[\2\]"/g' "${subscribeFile}"
+
+    # add Double quotes to `proxy-groups[].proxies`
+    GroupStartLine=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
+    [[ -z "${RuleStartLine}" ]] && GroupStartLine=$(wc -l "${subscribeFile}" | awk '{print $1}')
+
+    RuleStartLine=$(grep -Ean "^rules:" "${subscribeFile}" | cut -d: -f1)
+    [[ -z "${RuleStartLine}" || ${RuleStartLine} -le ${GroupStartLine} ]] && RuleStartLine=$(wc -l "${subscribeFile}" | awk '{print $1}')
+    if [[ ${GroupStartLine} -lt ${RuleStartLine} ]]; then
+        sed -ri "${GroupStartLine},${RuleStartLine} s|^\s*-\s+([^\"]+)$|      - \"\1\"|g" "${subscribeFile}"
+    fi
+}
+
 [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
@@ -344,6 +379,8 @@ if [[ -s "/srv/subconverter/subconverter" ]]; then
 fi
 
 IPV6RegExp='(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]).){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))'
+# UUID: 128-bit value, and the conventional display uses the 8-4-4-4-12 grouping
+UUIDRegExp='[[:xdigit:]]{8}-([[:xdigit:]]{4}-){3}[[:xdigit:]]{12}'
 
 TARGET_CONFIG_DIR=$(dirname "${TARGET_CONFIG_FILE}")
 TARGET_CONFIG_NAME=$(basename "${TARGET_CONFIG_FILE}")
@@ -761,73 +798,85 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         # Remove proxies not end with '}'
         TARGET_PROXIES=$(grep -a '}$' <<<"${TARGET_PROXIES}")
 
-        PROXY_NAME=()
-        PROXY_NEW_NAME=()
+        # PROXY_NAME=()
+        # PROXY_NEW_NAME=()
         PROXY_DELETE=()
-        while read -r line; do
-            [[ -z "${line}" ]] && continue
+        # while read -r line; do
+        #     [[ -z "${line}" ]] && continue
 
-            TargetName=$(echo "${line}" \
-                | sed -rn "s/.*[,{ ]+name:([^,{}]+).*/\1/ip" \
+        #     TargetName=$(echo "${line}" \
+        #         | sed -rn "s/.*[,{ ]+name:([^,{}]+).*/\1/ip" \
+        #         | sed -e "s/^\s//" -e "s/\s$//" \
+        #         | sed -e "s/^\"//" -e "s/\"$//")
+
+        #     TargetServer=$(echo "${line}" \
+        #         | sed -rn "s/.*[,{ ]+server:([^,{}]+).*/\1/ip" \
+        #         | sed -e "s/^\s//" -e "s/\s$//" \
+        #         | sed -e "s/^\"//" -e "s/\"$//")
+
+        #     [[ -z "${TargetName}" || -z "${TargetServer}" ]] && continue
+
+        #     TargetUUID=$(echo "${line}" \
+        #         | sed -rn "s/.*[,{ ]+uuid:([^,{}]+).*/\1/ip" \
+        #         | sed -e "s/^\s//" -e "s/\s$//" \
+        #         | sed -e "s/^\"//" -e "s/\"$//")
+
+        #     TargetHost=$(echo "${line}" \
+        #         | sed -rn "s/.*Host:([^{}]+).*/\1/ip" \
+        #         | sed -e "s/^\s//" -e "s/\s$//" \
+        #         | sed -e "s/^\"//" -e "s/\"$//")
+
+        #     # Rename node name start only with numbers & spaces & special characters
+        #     if LC_ALL=C grep -Eaq "^[[:digit:][:space:][:punct:]]+" <<<"${TargetName}"; then
+        #         TargetNewName="ZZ💤${TargetName}"
+        #     else
+        #         TargetNewName="${TargetName}"
+        #     fi
+
+        #     PROXY_IS_DELETE="N"
+        #     if [[ " ${PROXY_LIST_ALL[*]} " == *" ${TargetNewName} "* ]]; then
+        #         PROXY_IS_DELETE="Y"
+        #     else
+        #         if [[ "${TARGET_OPTION}" == *"proxypool"* && " ${PROXY_SERVER_ALL[*]} " == *" ${TargetServer} "* ]]; then
+        #             PROXY_IS_DELETE="Y"
+        #         elif [[ -n "${TARGET_FILTER}" ]]; then
+        #             if grep -Eaq "${TARGET_FILTER}" <<<"${TargetName}"; then
+        #                 PROXY_IS_DELETE="Y"
+        #             fi
+        #         fi
+
+        #         if [[ -n "${TargetUUID}" ]]; then
+        #             [[ ${TargetUUID//-/} =~ ^[[:xdigit:]]{32}$ ]] || PROXY_IS_DELETE="Y"
+        #         fi
+
+        #         if [[ -n "${TargetHost}" ]]; then
+        #             if grep -Eaq ',' <<<"${TargetHost}"; then
+        #                 PROXY_IS_DELETE="Y"
+        #             fi
+        #         fi
+        #     fi
+
+        #     if [[ "${PROXY_IS_DELETE}" == "Y" ]]; then
+        #         PROXY_DELETE+=("${TargetName}")
+        #     else
+        #         PROXY_NAME+=("${TargetName}")
+        #         PROXY_NEW_NAME+=("${TargetNewName}")
+        #         PROXY_LIST_ALL+=("${TargetNewName}")
+        #         PROXY_SERVER_ALL+=("${TargetServer}")
+        #     fi
+        # done <<<"${TARGET_PROXIES}"
+
+        # Delete invalid UUID proxies
+        InvalidProxies=$(grep 'uuid:' <<<"${TARGET_PROXIES}" | grep -Ev "uuid:\s*${UUIDRegExp},")
+        while read -r InvalidEntry; do
+            [[ -z "${InvalidEntry}" ]] && continue
+
+            TargetName=$(sed -rn "s/.*[,{ ]+name:([^,{}]+).*/\1/ip" <<<"${InvalidEntry}" \
                 | sed -e "s/^\s//" -e "s/\s$//" \
                 | sed -e "s/^\"//" -e "s/\"$//")
 
-            TargetServer=$(echo "${line}" \
-                | sed -rn "s/.*[,{ ]+server:([^,{}]+).*/\1/ip" \
-                | sed -e "s/^\s//" -e "s/\s$//" \
-                | sed -e "s/^\"//" -e "s/\"$//")
-
-            [[ -z "${TargetName}" || -z "${TargetServer}" ]] && continue
-
-            TargetUUID=$(echo "${line}" \
-                | sed -rn "s/.*[,{ ]+uuid:([^,{}]+).*/\1/ip" \
-                | sed -e "s/^\s//" -e "s/\s$//" \
-                | sed -e "s/^\"//" -e "s/\"$//")
-
-            TargetHost=$(echo "${line}" \
-                | sed -rn "s/.*Host:([^{}]+).*/\1/ip" \
-                | sed -e "s/^\s//" -e "s/\s$//" \
-                | sed -e "s/^\"//" -e "s/\"$//")
-
-            # Rename node name start only with numbers & spaces & special characters
-            if LC_ALL=C grep -Eaq "^[[:digit:][:space:][:punct:]]+" <<<"${TargetName}"; then
-                TargetNewName="ZZ💤${TargetName}"
-            else
-                TargetNewName="${TargetName}"
-            fi
-
-            PROXY_IS_DELETE="N"
-            if [[ " ${PROXY_LIST_ALL[*]} " == *" ${TargetNewName} "* ]]; then
-                PROXY_IS_DELETE="Y"
-            else
-                if [[ "${TARGET_OPTION}" == *"proxypool"* && " ${PROXY_SERVER_ALL[*]} " == *" ${TargetServer} "* ]]; then
-                    PROXY_IS_DELETE="Y"
-                elif [[ -n "${TARGET_FILTER}" ]]; then
-                    if grep -Eaq "${TARGET_FILTER}" <<<"${TargetName}"; then
-                        PROXY_IS_DELETE="Y"
-                    fi
-                fi
-
-                if [[ -n "${TargetUUID}" ]]; then
-                    [[ ${TargetUUID//-/} =~ ^[[:xdigit:]]{32}$ ]] || PROXY_IS_DELETE="Y"
-                fi
-
-                if [[ -n "${TargetHost}" ]]; then
-                    if grep -Eaq ',' <<<"${TargetHost}"; then
-                        PROXY_IS_DELETE="Y"
-                    fi
-                fi
-            fi
-
-            if [[ "${PROXY_IS_DELETE}" == "Y" ]]; then
-                PROXY_DELETE+=("${TargetName}")
-            else
-                PROXY_NAME+=("${TargetName}")
-                PROXY_NEW_NAME+=("${TargetNewName}")
-                PROXY_LIST_ALL+=("${TargetNewName}")
-                PROXY_SERVER_ALL+=("${TargetServer}")
-            fi
-        done <<<"${TARGET_PROXIES}"
+            PROXY_DELETE+=("${TargetName}")
+        done <<<"${InvalidProxies}"
 
         for TargetName in "${PROXY_DELETE[@]}"; do
             TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
@@ -837,35 +886,41 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         # Delete lines with empty name
         TARGET_PROXIES=$(sed '/name:\s*,/d' <<<"${TARGET_PROXIES}" | sed 's/,,/,/g')
 
-        # Add proxies node to `.list` file
-        TARGET_LIST_FILE="${WORKDIR}/${TARGET_FILE}.list"
-        [[ -f "${TARGET_LIST_FILE}" ]] && rm -f "${TARGET_LIST_FILE}"
+        ## Add proxies node to `.list` file
+        # TARGET_LIST_FILE="${WORKDIR}/${TARGET_FILE}.list"
+        # [[ -f "${TARGET_LIST_FILE}" ]] && rm -f "${TARGET_LIST_FILE}"
 
-        PROXY_INDEX=-1
-        for TargetName in "${PROXY_NAME[@]}"; do
-            PROXY_INDEX=$((PROXY_INDEX + 1))
+        # PROXY_INDEX=-1
+        # for TargetName in "${PROXY_NAME[@]}"; do
+        #     PROXY_INDEX=$((PROXY_INDEX + 1))
 
-            TargetNewName="${PROXY_NEW_NAME[$PROXY_INDEX]}"
-            TargetNewName_Escape=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' <<<"${TargetNewName}" | sed -e 's|/|\\&|g' -e 's/]/\\&/g')
+        #     TargetNewName="${PROXY_NEW_NAME[$PROXY_INDEX]}"
+        #     TargetNewName_Escape=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' <<<"${TargetNewName}" | sed -e 's|/|\\&|g' -e 's/]/\\&/g')
 
-            if [[ "${TargetName}" != "${TargetNewName}" ]]; then
-                TargetName_Escape=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' <<<"${TargetName}" | sed -e 's|/|\\&|g' -e 's/]/\\&/g')
-                TARGET_PROXIES=$(sed "s/name:\s*\"*${TargetName_Escape}\"*,/name: ${TargetNewName_Escape},/" <<<"${TARGET_PROXIES}")
-            fi
+        #     if [[ "${TargetName}" != "${TargetNewName}" ]]; then
+        #         TargetName_Escape=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' <<<"${TargetName}" | sed -e 's|/|\\&|g' -e 's/]/\\&/g')
+        #         TARGET_PROXIES=$(sed "s/name:\s*\"*${TargetName_Escape}\"*,/name: ${TargetNewName_Escape},/" <<<"${TARGET_PROXIES}")
+        #     fi
 
-            TargetNewName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetNewName}" | sed -e 's/]/\\&/g')
-            if grep -Eaq "name:\s*\"*${TargetNewName_Escape_GREP}\"*," <<<"${TARGET_PROXIES}"; then
-                echo "      - ${TargetNewName}" | tee -a "${TARGET_LIST_FILE}" >/dev/null
-            fi
-        done
+        #     TargetNewName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetNewName}" | sed -e 's/]/\\&/g')
+        #     if grep -Eaq "name:\s*\"*${TargetNewName_Escape_GREP}\"*," <<<"${TARGET_PROXIES}"; then
+        #         echo "      - ${TargetNewName}" | tee -a "${TARGET_LIST_FILE}" >/dev/null
+        #     fi
+        # done
 
         case "${TARGET_OPTION}" in
             *private*)
+                # Add `targetfile` & `private` field to proxies
+                TARGET_PROXIES=$(sed "s/\bname\b:/targetfile: ${TARGET_FILE}, private: true, name:/g" <<<"${TARGET_PROXIES}")
+
                 [[ -n "${PROXIES_PRIVATE}" ]] && \
                     PROXIES_PRIVATE=$(echo -e "${PROXIES_PRIVATE}\n${TARGET_PROXIES}") || \
                     PROXIES_PRIVATE="${TARGET_PROXIES}"
                 ;;
             *)
+                # Delete duplicate proxies, Add `targetfile` field to proxies
+                TARGET_PROXIES=$(sort -u <<<"${TARGET_PROXIES}" | sed "s/\bname\b:/targetfile: ${TARGET_FILE}, name:/g")
+
                 [[ -n "${PROXIES_PUBLIC}" ]] && \
                     PROXIES_PUBLIC=$(echo -e "${PROXIES_PUBLIC}\n${TARGET_PROXIES}") || \
                     PROXIES_PUBLIC="${TARGET_PROXIES}"
@@ -876,41 +931,70 @@ done <<<"${DOWNLOADED_FILES_OPTIONS}"
 
 
 colorEcho "${BLUE}  Processing ${FUCHSIA}proxies${BLUE}..."
-## Sort public proxies
-# PROXIES_PUBLIC=$(sort <<<"${PROXIES_PUBLIC}" | uniq)
-
 # Proxies
 if [[ -n "${PROXIES_PRIVATE}" ]]; then
-    PROXIES_ALL=$(echo -e "${PROXIES_PRIVATE}\n${PROXIES_PUBLIC}" | sed 's/^-/  -/g')
+    PROXIES_PROXY_ALL=$(echo -e "${PROXIES_PRIVATE}\n${PROXIES_PUBLIC}" | sed 's/^-/  -/g')
 else
-    PROXIES_ALL=$(echo -e "${PROXIES_PUBLIC}" | sed 's/^-/  -/g')
+    PROXIES_PROXY_ALL=$(echo -e "${PROXIES_PUBLIC}" | sed 's/^-/  -/g')
 fi
 
+TARGET_PROXIES=""
+PROXIES_PRIVATE=""
+PROXIES_PUBLIC=""
+
 # Delete lines with empty name
-PROXIES_ALL=$(sed '/name:\s*,/d' <<<"${PROXIES_ALL}" | sed 's/,,/,/g')
+PROXIES_PROXY_ALL=$(sed '/name:\s*,/d' <<<"${PROXIES_PROXY_ALL}" | sed 's/,,/,/g')
 
-## Add placeholder for proxy-groups
-# PROXIES_ALL=$(echo -e "${PROXIES_ALL}\n  - {name: FORBIDDEN-PLACEHOLDER, server: forbidden-placeholder.com, port: 0000, type: trojan, password: Trojan}")
+# Output all proxies to temp file
+PROXIES_OUTPUT_TEMP="${SUBSCRIBE_DOWNLOAD_DIR}/proxies_all.yaml"
+echo 'proxies:' > "${PROXIES_OUTPUT_TEMP}"
+echo "${PROXIES_PROXY_ALL}" | tee -a "${PROXIES_OUTPUT_TEMP}" >/dev/null
+echo '' >> "${PROXIES_OUTPUT_TEMP}"
+echo 'proxy-groups:' >> "${PROXIES_OUTPUT_TEMP}"
 
-# sort proxy list
-# sort_array PROXY_LIST_ALL
-PROXY_LIST_SORT=""
+# Format the proxies temp file contents into YAML format
+formatYAMLFile "${PROXIES_OUTPUT_TEMP}"
+
+# Rename duplicate proxies in yaml file
+processDuplicateProxies "${PROXIES_OUTPUT_TEMP}"
+
+# Get all proxies
 PROXIES_PROXY_ALL=""
-for TargetName in "${PROXY_LIST_ALL[@]}"; do
-    [[ -z "${TargetName}" ]] && continue
+PROXY_START_LINE=$(grep -Ean "^proxies:" "${PROXIES_OUTPUT_TEMP}" | cut -d: -f1)
+GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${PROXIES_OUTPUT_TEMP}" | cut -d: -f1)
+if [[ ${PROXY_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt 0 && ${GROUP_START_LINE} -gt ${PROXY_START_LINE} ]]; then
+    PROXY_START_LINE=$((PROXY_START_LINE + 1))
+    PROXY_END_LINE=$((GROUP_START_LINE - 1))
+    PROXIES_PROXY_ALL=$(sed -n "${PROXY_START_LINE},${PROXY_END_LINE} p" "${PROXIES_OUTPUT_TEMP}")
+fi
 
-    TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-    TargetProxies=$(grep -Ea "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_ALL}")
-    if [[ -n "${TargetProxies}" ]]; then
-        # [[ -n "${PROXY_LIST_SORT}" ]] && \
-        #     PROXY_LIST_SORT=$(echo -e "${PROXY_LIST_SORT}\n${TargetName}") || \
-        #     PROXY_LIST_SORT="${TargetName}"
+GROUP_PROXIES_ALL=$(yq e '.proxies[].name' "${PROXIES_OUTPUT_TEMP}" | sed -r 's/^(.*)$/      - "\1"/g')
+GROUP_PROXIES_PRIVATE=$(yq e '.proxies[] | select(.private==true) | .name' "${PROXIES_OUTPUT_TEMP}" \
+                            | sed -r 's/^(.*)$/      - "\1"/g')
+GROUP_PROXIES_PUBILC=$(yq e '.proxies[] | select(.private==false or has("private")==false) | .name' "${PROXIES_OUTPUT_TEMP}" \
+                            | sed -r 's/^(.*)$/      - "\1"/g')
+GROUP_PROXIES_OTHERS=""
 
-        [[ -n "${PROXIES_PROXY_ALL}" ]] && \
-            PROXIES_PROXY_ALL=$(echo -e "${PROXIES_PROXY_ALL}\n${TargetProxies}") || \
-            PROXIES_PROXY_ALL="${TargetProxies}"
-    fi
-done
+PROXY_LIST_OTHERS=()
+readarray -t PROXY_LIST_OTHERS < <(yq e '.proxies[].name' "${PROXIES_OUTPUT_TEMP}")
+
+# PROXY_LIST_SORT=""
+# PROXIES_PROXY_ALL=""
+# for TargetName in "${PROXY_LIST_ALL[@]}"; do
+#     [[ -z "${TargetName}" ]] && continue
+
+#     TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
+#     TargetProxies=$(grep -Ea "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_ALL}")
+#     if [[ -n "${TargetProxies}" ]]; then
+#         # [[ -n "${PROXY_LIST_SORT}" ]] && \
+#         #     PROXY_LIST_SORT=$(echo -e "${PROXY_LIST_SORT}\n${TargetName}") || \
+#         #     PROXY_LIST_SORT="${TargetName}"
+
+#         [[ -n "${PROXIES_PROXY_ALL}" ]] && \
+#             PROXIES_PROXY_ALL=$(echo -e "${PROXIES_PROXY_ALL}\n${TargetProxies}") || \
+#             PROXIES_PROXY_ALL="${TargetProxies}"
+#     fi
+# done
 
 # PROXY_LIST_SORT=$(sort <<<"${PROXY_LIST_SORT}")
 
@@ -920,25 +1004,25 @@ done
 #     PROXY_LIST_ALL+=("${list}")
 # done <<<"${PROXY_LIST_SORT}"
 
-# get proxy type
-GROUP_PROXIES_ALL=""
-PROXY_TYPE_ALL=()
-for TargetName in "${PROXY_LIST_ALL[@]}"; do
-    [[ -n "${GROUP_PROXIES_ALL}" ]] && \
-        GROUP_PROXIES_ALL=$(echo -e "${GROUP_PROXIES_ALL}\n      - ${TargetName}") || \
-        GROUP_PROXIES_ALL="      - ${TargetName}"
+## get proxy type
+# GROUP_PROXIES_ALL=""
+# PROXY_TYPE_ALL=()
+# for TargetName in "${PROXY_LIST_ALL[@]}"; do
+#     [[ -n "${GROUP_PROXIES_ALL}" ]] && \
+#         GROUP_PROXIES_ALL=$(echo -e "${GROUP_PROXIES_ALL}\n      - ${TargetName}") || \
+#         GROUP_PROXIES_ALL="      - ${TargetName}"
 
-    TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-    TargetLine=$(grep -Ea "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PROXY_ALL}")
+#     TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
+#     TargetLine=$(grep -Ea "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PROXY_ALL}")
 
-    TargetType=$(echo "${TargetLine}" \
-        | sed -rn "s/.*[,{ ]+type:([^,{}]+).*/\1/ip" \
-        | sed -e "s/^\s//" -e "s/\s$//" \
-        | sed -e "s/^\"//" -e "s/\"$//")
+#     TargetType=$(echo "${TargetLine}" \
+#         | sed -rn "s/.*[,{ ]+type:([^,{}]+).*/\1/ip" \
+#         | sed -e "s/^\s//" -e "s/\s$//" \
+#         | sed -e "s/^\"//" -e "s/\"$//")
 
-    [[ "${TargetType}" == "ss" || "${TargetType}" == "ssr" ]] && TargetType="shadowsocks"
-    PROXY_TYPE_ALL+=("${TargetType}")
-done
+#     [[ "${TargetType}" == "ss" || "${TargetType}" == "ssr" ]] && TargetType="shadowsocks"
+#     PROXY_TYPE_ALL+=("${TargetType}")
+# done
 
 # custom rules
 RULE_CUSTOM_FILE="/etc/clash/clash_rule_custom.yml"
@@ -978,7 +1062,7 @@ colorEcho "${BLUE}  Setting all config to ${FUCHSIA}${TARGET_CONFIG_FILE}${BLUE}
 FILL_LINES=$(grep -Ean "^#-" "${CLASH_CONFIG}")
 LINE_START=1
 
-USED_PROXIES=()
+PROXY_LIST_USED=()
 USED_INDEX_FILE="${WORKDIR}/filtered_index.list"
 USED_INDEX_TEMP="${WORKDIR}/filtered_index.temp"
 [[ -f "${USED_INDEX_TEMP}" ]] && rm -f "${USED_INDEX_TEMP}"
@@ -1005,7 +1089,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     [[ -n "${TARGET_GROUP}" ]] && CONTENT_IS_GROUP="yes" || CONTENT_IS_GROUP="no"
     case "${TARGET_TAG}" in
         "proxies")
-            CONTENT_TAG="${PROXIES_PROXY_ALL}"
+            CONTENT_TAG=$(sed -r -e 's/\btargetfile\b:\s+[^\s,]+,\s*//g' -e 's/\bprivate\b:\s+[^\s,]+,\s*//g' <<<"${PROXIES_PROXY_ALL}")
             ;;
         "all")
             if [[ -n "${TARGET_FILTER}" ]]; then
@@ -1014,7 +1098,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 # match foo or bar: `awk '/foo|bar/'`
                 # match foo but not bar: `awk '/foo/ && !/bar/'`
                 # match not foo nor bar: `awk '!/foo|bar/'`
-                if grep -E '^awk' <<<"${TARGET_FILTER}"; then
+                if grep -Eq '^awk' <<<"${TARGET_FILTER}"; then
                     CONTENT_TAG=$(awk "${TARGET_FILTER//awk/}" <<<"${GROUP_PROXIES_ALL}")
                 else
                     if grep -Eq "\!" <<<"${TARGET_FILTER}"; then
@@ -1033,91 +1117,141 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             ;;
         "type")
             # filter by protocol type
-            PROXY_INDEX=-1
-            for TargetName in "${PROXY_LIST_ALL[@]}"; do
-                PROXY_INDEX=$((PROXY_INDEX + 1))
+            if [[ "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
+                CONTENT_TAG=$(yq e ".proxies[] | select(.type==\"${TARGET_FILTER}\" and (.private==false or has(\"private\")==false)) | .name" "${PROXIES_OUTPUT_TEMP}" \
+                                | sed -r 's/^(.*)$/      - "\1"/g')
+            else
+                CONTENT_TAG=$(yq e ".proxies[] | select(.type==\"${TARGET_FILTER}\") | .name" "${PROXIES_OUTPUT_TEMP}" \
+                                | sed -r 's/^(.*)$/      - "\1"/g')
+            fi
+            # PROXY_INDEX=-1
+            # for TargetName in "${PROXY_LIST_ALL[@]}"; do
+            #     PROXY_INDEX=$((PROXY_INDEX + 1))
 
-                # Exclude private proxies
-                if [[ -n "${PROXIES_PRIVATE}" && "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
-                    TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-                    grep -Eq "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PRIVATE}" && continue
-                fi
+            #     # Exclude private proxies
+            #     if [[ -n "${PROXIES_PRIVATE}" && "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
+            #         TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
+            #         grep -Eq "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PRIVATE}" && continue
+            #     fi
 
-                if grep -Eaq "${TARGET_FILTER}" <<<"${PROXY_TYPE_ALL[$PROXY_INDEX]}"; then
-                    [[ -n "${CONTENT_TAG}" ]] && \
-                        CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
-                        CONTENT_TAG="      - ${TargetName}"
-                fi
-            done
+            #     if grep -Eaq "${TARGET_FILTER}" <<<"${PROXY_TYPE_ALL[$PROXY_INDEX]}"; then
+            #         [[ -n "${CONTENT_TAG}" ]] && \
+            #             CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
+            #             CONTENT_TAG="      - ${TargetName}"
+            #     fi
+            # done
             ;;
         "OTHERS")
-            for TargetIndex in "${USED_PROXIES[@]}"; do
-                echo "${TargetIndex}" >> "${USED_INDEX_TEMP}"
-            done
-            sort -n "${USED_INDEX_TEMP}" | uniq > "${USED_INDEX_FILE}"
+            # Delete used proxies
+            for usedProxy in "${PROXY_LIST_USED[@]}"; do
+                [[ -z "${usedProxy}" ]] && continue
 
-            PROXY_INDEX=-1
-            for TargetName in "${PROXY_LIST_ALL[@]}"; do
-                PROXY_INDEX=$((PROXY_INDEX + 1))
-                # if [[ " ${USED_PROXIES[*]} " != *" ${TargetName} "* ]]; then
-                # if [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]]; then
-                if ! grep -Eaq "^${PROXY_INDEX}$" "${USED_INDEX_FILE}"; then
-                    [[ -n "${CONTENT_TAG}" ]] && \
-                        CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
-                        CONTENT_TAG="      - ${TargetName}"
-                fi
+                for TargetIndex in "${!PROXY_LIST_OTHERS[@]}"; do
+                    [[ "${PROXY_LIST_OTHERS[${TargetIndex}]}" == "${usedProxy}" ]] && unset "PROXY_LIST_OTHERS[${TargetIndex}]"
+                done
             done
+
+            for TargetName in "${PROXY_LIST_OTHERS[@]}"; do
+                [[ -z "${TargetName}" ]] && continue
+
+                [[ -n "${CONTENT_TAG}" ]] && \
+                    CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - \"${TargetName}\"") || \
+                    CONTENT_TAG="      - \"${TargetName}\""
+            done
+            GROUP_PROXIES_OTHERS="${CONTENT_TAG}"
+            # for TargetIndex in "${PROXY_LIST_USED[@]}"; do
+            #     echo "${TargetIndex}" >> "${USED_INDEX_TEMP}"
+            # done
+            # sort -n "${USED_INDEX_TEMP}" | uniq > "${USED_INDEX_FILE}"
+
+            # PROXY_INDEX=-1
+            # for TargetName in "${PROXY_LIST_ALL[@]}"; do
+            #     PROXY_INDEX=$((PROXY_INDEX + 1))
+            #     # if [[ " ${PROXY_LIST_USED[*]} " != *" ${TargetName} "* ]]; then
+            #     # if [[ " ${PROXY_LIST_USED[*]} " != *" ${PROXY_INDEX} "* ]]; then
+            #     if ! grep -Eaq "^${PROXY_INDEX}$" "${USED_INDEX_FILE}"; then
+            #         [[ -n "${CONTENT_TAG}" ]] && \
+            #             CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
+            #             CONTENT_TAG="      - ${TargetName}"
+            #     fi
+            # done
             ;;
         "otherbalance")
-            CONTENT_TAG="#otherbalance"
+            # CONTENT_TAG="#otherbalance"
+            CONTENT_TAG="${GROUP_PROXIES_OTHERS}"
             ;;
         *)
-            MATCH_TAG="no"
-            for TargetFile in "${FILELIST[@]}"; do
-                TARGET_LIST_FILE="${WORKDIR}/${TargetFile}.list"
-                if [[ "${TargetFile}" == "${TARGET_TAG}" && -s "${TARGET_LIST_FILE}" ]]; then
-                    MATCH_TAG="yes"
-                    PROXY_INDEX=-1
-                    for TargetName in "${PROXY_LIST_ALL[@]}"; do
-                        PROXY_INDEX=$((PROXY_INDEX + 1))
-                        TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-                        if grep -Eaq "^\s*-\s*\"*${TargetName_Escape_GREP}\"*$" "${TARGET_LIST_FILE}"; then
-                            [[ -n "${CONTENT_TAG}" ]] && \
-                                CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
-                                CONTENT_TAG="      - ${TargetName}"
-                        fi
-                    done
+            if grep -q "targetfile: ${TARGET_TAG}," "${PROXIES_OUTPUT_TEMP}"; then
+                # Filter by targetfile
+                CONTENT_TAG=$(yq e ".proxies[] | select(.targetfile==\"${TARGET_TAG}\") | .name" "${PROXIES_OUTPUT_TEMP}" \
+                                | sed -r 's/^(.*)$/      - "\1"/g')
+            else
+                # Filter by country
+                if [[ "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
+                    CONTENT_TAG=$(grep -Eq "${TARGET_TAG}" <<<"${GROUP_PROXIES_PUBILC}")
+                else
+                    CONTENT_TAG=$(grep -Eq "${TARGET_TAG}" <<<"${GROUP_PROXIES_ALL}")
                 fi
-            done
-
-            # Filter by country
-            if [[ "${MATCH_TAG}" == "no" ]]; then
-                PROXY_INDEX=-1
-                for TargetName in "${PROXY_LIST_ALL[@]}"; do
-                    PROXY_INDEX=$((PROXY_INDEX + 1))
-
-                    # Exclude private proxies
-                    if [[ -n "${PROXIES_PRIVATE}" && "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
-                        TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-                        if grep -Eq "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PRIVATE}"; then
-                            [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]] && USED_PROXIES+=("${PROXY_INDEX}")
-                            continue
-                        fi
-                    fi
-
-                    if grep -Eaq "${TARGET_TAG}" <<<"${TargetName}"; then
-                        [[ -n "${CONTENT_TAG}" ]] && \
-                            CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
-                            CONTENT_TAG="      - ${TargetName}"
-                        # [[ " ${USED_PROXIES[*]} " != *" ${TargetName} "* ]] && USED_PROXIES+=("${TargetName}")
-                        [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]] && USED_PROXIES+=("${PROXY_INDEX}")
-                    fi
-                done
             fi
+
+            # Used proxies
+            while read -r usedProxy; do
+                [[ -z "${usedProxy}" ]] && continue
+
+                TargetName=$(sed -e "s/^\s*-\s*//g" <<<"${usedProxy}" \
+                    | sed -e "s/^\s//" -e "s/\s$//" \
+                    | sed -e "s/^\"//" -e "s/\"$//")
+
+                PROXY_LIST_USED+=("${TargetName}")
+            done <<<"${CONTENT_TAG}"
+
+            # MATCH_TAG="no"
+            ## Filter by targetfile
+            # for TargetFile in "${FILELIST[@]}"; do
+            #     TARGET_LIST_FILE="${WORKDIR}/${TargetFile}.list"
+            #     if [[ "${TargetFile}" == "${TARGET_TAG}" && -s "${TARGET_LIST_FILE}" ]]; then
+            #         MATCH_TAG="yes"
+            #         PROXY_INDEX=-1
+            #         for TargetName in "${PROXY_LIST_ALL[@]}"; do
+            #             PROXY_INDEX=$((PROXY_INDEX + 1))
+            #             TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
+            #             if grep -Eaq "^\s*-\s*\"*${TargetName_Escape_GREP}\"*$" "${TARGET_LIST_FILE}"; then
+            #                 [[ -n "${CONTENT_TAG}" ]] && \
+            #                     CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
+            #                     CONTENT_TAG="      - ${TargetName}"
+            #             fi
+            #         done
+            #     fi
+            # done
+
+            ## Filter by country
+            # if [[ "${MATCH_TAG}" == "no" ]]; then
+            #     PROXY_INDEX=-1
+            #     for TargetName in "${PROXY_LIST_ALL[@]}"; do
+            #         PROXY_INDEX=$((PROXY_INDEX + 1))
+
+            #         # Exclude private proxies
+            #         if [[ -n "${PROXIES_PRIVATE}" && "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
+            #             TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
+            #             if grep -Eq "name:\s*\"*${TargetName_Escape_GREP}\"*," <<<"${PROXIES_PRIVATE}"; then
+            #                 [[ " ${PROXY_LIST_USED[*]} " != *" ${PROXY_INDEX} "* ]] && PROXY_LIST_USED+=("${PROXY_INDEX}")
+            #                 continue
+            #             fi
+            #         fi
+
+            #         if grep -Eaq "${TARGET_TAG}" <<<"${TargetName}"; then
+            #             [[ -n "${CONTENT_TAG}" ]] && \
+            #                 CONTENT_TAG=$(echo -e "${CONTENT_TAG}\n      - ${TargetName}") || \
+            #                 CONTENT_TAG="      - ${TargetName}"
+            #             # [[ " ${PROXY_LIST_USED[*]} " != *" ${TargetName} "* ]] && PROXY_LIST_USED+=("${TargetName}")
+            #             [[ " ${PROXY_LIST_USED[*]} " != *" ${PROXY_INDEX} "* ]] && PROXY_LIST_USED+=("${PROXY_INDEX}")
+            #         fi
+            #     done
+            # fi
 
             # Additional filters
             if [[ -n "${TARGET_FILTER}" && -n "${CONTENT_TAG}" ]]; then
-                if grep -E '^awk' <<<"${TARGET_FILTER}"; then
+                if grep -Eq '^awk' <<<"${TARGET_FILTER}"; then
                     CONTENT_TAG=$(awk "${TARGET_FILTER//awk/}" <<<"${CONTENT_TAG}")
                 else
                     if grep -Eq "\!" <<<"${TARGET_FILTER}"; then
@@ -1144,26 +1278,26 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
 done <<<"${FILL_LINES}"
 
 ## auto-balance group for OTHER proxies
-GROUP_OTHER_BALANCE_LINE=$(grep -E -n "^#otherbalance" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
-if [[ ${GROUP_OTHER_BALANCE_LINE} -gt 0 ]]; then
-    colorEcho "${BLUE}    Processing ${FUCHSIA}auto-balance group for OTHER proxies${BLUE}..."
-    # PROXY_OTHER=$(yq e ".proxy-groups[] | select(.name ==\"🏁 其他节点\") | .proxies[]" "${TARGET_CONFIG_FILE}")
-    # PROXY_LIST_OTHER=()
-    # while read -r list; do [[ -z "${list}" ]] && continue; PROXY_LIST_OTHER+=("${list}"); done <<<"${PROXY_OTHER}"
-    # CURRENT_LINE=${GROUP_OTHER_BALANCE_LINE}
+# GROUP_OTHER_BALANCE_LINE=$(grep -E -n "^#otherbalance" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
+# if [[ ${GROUP_OTHER_BALANCE_LINE} -gt 0 ]]; then
+#     colorEcho "${BLUE}    Processing ${FUCHSIA}auto-balance group for OTHER proxies${BLUE}..."
+#     # PROXY_OTHER=$(yq e ".proxy-groups[] | select(.name ==\"🏁 其他节点\") | .proxies[]" "${TARGET_CONFIG_FILE}")
+#     # PROXY_LIST_OTHER=()
+#     # while read -r list; do [[ -z "${list}" ]] && continue; PROXY_LIST_OTHER+=("${list}"); done <<<"${PROXY_OTHER}"
+#     # CURRENT_LINE=${GROUP_OTHER_BALANCE_LINE}
 
-    PROXY_INDEX=-1
-    for TargetName in "${PROXY_LIST_ALL[@]}"; do
-        PROXY_INDEX=$((PROXY_INDEX + 1))
-        # if [[ " ${USED_PROXIES[*]} " != *" ${TargetName} "* ]]; then
-        # if [[ " ${USED_PROXIES[*]} " != *" ${PROXY_INDEX} "* ]]; then
-        if ! grep -Eaq "^${PROXY_INDEX}$" "${USED_INDEX_FILE}"; then
-            sed -i "/^#otherbalance/i\      - ${TargetName}" "${TARGET_CONFIG_FILE}"
-        fi
-    done
+#     PROXY_INDEX=-1
+#     for TargetName in "${PROXY_LIST_ALL[@]}"; do
+#         PROXY_INDEX=$((PROXY_INDEX + 1))
+#         # if [[ " ${PROXY_LIST_USED[*]} " != *" ${TargetName} "* ]]; then
+#         # if [[ " ${PROXY_LIST_USED[*]} " != *" ${PROXY_INDEX} "* ]]; then
+#         if ! grep -Eaq "^${PROXY_INDEX}$" "${USED_INDEX_FILE}"; then
+#             sed -i "/^#otherbalance/i\      - ${TargetName}" "${TARGET_CONFIG_FILE}"
+#         fi
+#     done
 
-    sed -i "/^#otherbalance/d" "$TARGET_CONFIG_FILE"
-fi
+#     sed -i "/^#otherbalance/d" "${TARGET_CONFIG_FILE}"
+# fi
 
 ## Fix: invalid leading UTF-8 octet
 ## https://stackoverflow.com/questions/12999651/how-to-remove-non-utf-8-characters-from-text-file
@@ -1186,44 +1320,19 @@ fi
 
 ## delete not exist proxies
 ## PROXY_LIST=$(yq e ".proxies[].name" "${TARGET_CONFIG_FILE}")
-# PROXY_LIST=$(yq e ".proxy-groups[] | select(.name ==\"🌀 自动选择\") | .proxies[]" "${TARGET_CONFIG_FILE}")
-colorEcho "${BLUE}    Processing ${FUCHSIA}not exist proxies${BLUE}..."
-for TargetName in "${PROXY_LIST_ALL[@]}"; do
-    [[ -z "${TargetName}" ]] && continue
+## PROXY_LIST=$(yq e ".proxy-groups[] | select(.name ==\"🌀 自动选择\") | .proxies[]" "${TARGET_CONFIG_FILE}")
+# colorEcho "${BLUE}    Processing ${FUCHSIA}not exist proxies${BLUE}..."
+# for TargetName in "${PROXY_LIST_ALL[@]}"; do
+#     [[ -z "${TargetName}" ]] && continue
+#     TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
+#     if ! grep -Eaq "name:\s*\"*${TargetName_Escape_GREP}\"*," "${TARGET_CONFIG_FILE}"; then
+#         TargetName_Escape=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' <<<"${TargetName}" | sed -e 's|/|\\&|g' -e 's/]/\\&/g')
+#         sed -i "/^\s*\-\s*\"*${TargetName_Escape}\"*$/d" "${TARGET_CONFIG_FILE}"
+#     fi
+# done
 
-    TargetName_Escape_GREP=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"\(\)]/\\&/g' <<<"${TargetName}" | sed -e 's/]/\\&/g')
-    if ! grep -Eaq "name:\s*\"*${TargetName_Escape_GREP}\"*," "${TARGET_CONFIG_FILE}"; then
-        TargetName_Escape=$(sed 's/[\\\*\?\|\$\&\#\[\^\+\.\=\!\"]/\\&/g' <<<"${TargetName}" | sed -e 's|/|\\&|g' -e 's/]/\\&/g')
-        sed -i "/^\s*\-\s*\"*${TargetName_Escape}\"*$/d" "${TARGET_CONFIG_FILE}"
-    fi
-done
-
-# add Double quotes to `path`, `User-Agent`...
-sed -ri 's/(ALPN|Alpn|alpn|HOST|Host|host|PATH|Path|path):\s+([^,"\{\}\[]+)/\1: "\2"/g' "${TARGET_CONFIG_FILE}"
-
-# 'alpn', 'http-opts.path', 'http-opts.headers[Host]' is a slice
-sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${TARGET_CONFIG_FILE}"
-sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)\"*,\s*([^,"\{\}]+)】\"*/\1: \["\2","\3"\]/g' "${TARGET_CONFIG_FILE}"
-sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${TARGET_CONFIG_FILE}"
-
-sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${TARGET_CONFIG_FILE}"
-
-sed -ri 's/name:\s+([^,"\{\}]+)/name: "\1"/' "${TARGET_CONFIG_FILE}"
-sed -ri 's/password:\s+([^,"\{\}]+)/password: "\1"/' "${TARGET_CONFIG_FILE}"
-
-# IPV6
-sed -ri "/name:/ s/[\"【]*(${IPV6RegExp})[\"】]*/\"\[\1\]\"/g" "${TARGET_CONFIG_FILE}"
-sed -ri 's/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: "\[\2\]"/g' "${TARGET_CONFIG_FILE}"
-
-# add Double quotes to `proxy-groups[].proxies`
-GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
-RULE_START_LINE=$(grep -Ean "^rules:" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
-[[ -z "${RULE_START_LINE}" || ${RULE_START_LINE} -le ${GROUP_START_LINE} ]] && RULE_START_LINE=$(wc -l "${TARGET_CONFIG_FILE}" | awk '{print $1}')
-if [[ ${GROUP_START_LINE} -lt ${RULE_START_LINE} ]]; then
-    sed -ri "${GROUP_START_LINE},${RULE_START_LINE} s|^\s*-\s+([^\"]+)$|      - \"\1\"|g" "${TARGET_CONFIG_FILE}"
-fi
+# Format the file contents into YAML format
+formatYAMLFile "${TARGET_CONFIG_FILE}"
 
 # Rename duplicate proxies in yaml file
 processDuplicateProxies "${TARGET_CONFIG_FILE}"
