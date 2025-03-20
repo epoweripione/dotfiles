@@ -1181,16 +1181,23 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             CONTENT_TAG="#otherbalance"
             ;;
         *)
-            if grep -q "targetfile: ${TARGET_TAG}," "${PROXIES_OUTPUT_TEMP}"; then
-                # Filter by targetfile
-                CONTENT_TAG=$(yq e ".proxies[] | select(.targetfile==\"${TARGET_TAG}\") | .name" "${PROXIES_OUTPUT_TEMP}" \
-                                | sed -r 's/^(.*)$/      - "\1"/g')
-            else
-                # Filter by country
+            MATCH_TAG="no"
+
+            # Filter by targetfile
+            for TargetFile in "${FILELIST[@]}"; do
+                if [[ "${TargetFile}" == "${TARGET_TAG}" ]]; then
+                    MATCH_TAG="yes"
+                    CONTENT_TAG=$(yq e ".proxies[] | select(.targetfile==\"${TARGET_TAG}\") | .name" "${PROXIES_OUTPUT_TEMP}" \
+                                    | sed -r 's/^(.*)$/      - "\1"/g')
+                fi
+            done
+
+            # Filter by country
+            if [[ "${MATCH_TAG}" == "no" ]]; then
                 if [[ "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
-                    CONTENT_TAG=$(grep -Eq "${TARGET_TAG}" <<<"${GROUP_PROXIES_PUBILC}")
+                    CONTENT_TAG=$(grep -E "${TARGET_TAG}" <<<"${GROUP_PROXIES_PUBILC}")
                 else
-                    CONTENT_TAG=$(grep -Eq "${TARGET_TAG}" <<<"${GROUP_PROXIES_ALL}")
+                    CONTENT_TAG=$(grep -E "${TARGET_TAG}" <<<"${GROUP_PROXIES_ALL}")
                 fi
 
                 # Used proxies
@@ -1205,7 +1212,6 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 done <<<"${CONTENT_TAG}"
             fi
 
-            # MATCH_TAG="no"
             ## Filter by targetfile
             # for TargetFile in "${FILELIST[@]}"; do
             #     TARGET_LIST_FILE="${WORKDIR}/${TargetFile}.list"
