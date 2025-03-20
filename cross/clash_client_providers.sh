@@ -289,6 +289,7 @@ function formatYAMLFile() {
 
     # IPV6
     sed -ri "/name:/ s/[\"【]*(${IPV6RegExp})[\"】]*/\"\[\1\]\"/g" "${subscribeFile}"
+    sed -ri -e 's/\[\"\[\"/\[\"/g' -e 's/\"\]\"\]/\"\]/g' "${subscribeFile}"
     sed -ri 's/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: "\[\2\]"/g' "${subscribeFile}"
 
     # add Double quotes to `proxy-groups[].proxies`
@@ -1177,8 +1178,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
             # done
             ;;
         "otherbalance")
-            # CONTENT_TAG="#otherbalance"
-            CONTENT_TAG="${GROUP_PROXIES_OTHERS}"
+            CONTENT_TAG="#otherbalance"
             ;;
         *)
             if grep -q "targetfile: ${TARGET_TAG}," "${PROXIES_OUTPUT_TEMP}"; then
@@ -1277,27 +1277,31 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
     LINE_START=$((TARGET_LINE + 1))
 done <<<"${FILL_LINES}"
 
-## auto-balance group for OTHER proxies
-# GROUP_OTHER_BALANCE_LINE=$(grep -E -n "^#otherbalance" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
-# if [[ ${GROUP_OTHER_BALANCE_LINE} -gt 0 ]]; then
-#     colorEcho "${BLUE}    Processing ${FUCHSIA}auto-balance group for OTHER proxies${BLUE}..."
-#     # PROXY_OTHER=$(yq e ".proxy-groups[] | select(.name ==\"🏁 其他节点\") | .proxies[]" "${TARGET_CONFIG_FILE}")
-#     # PROXY_LIST_OTHER=()
-#     # while read -r list; do [[ -z "${list}" ]] && continue; PROXY_LIST_OTHER+=("${list}"); done <<<"${PROXY_OTHER}"
-#     # CURRENT_LINE=${GROUP_OTHER_BALANCE_LINE}
+# auto-balance group for OTHER proxies
+GROUP_OTHER_BALANCE_LINE=$(grep -E -n "^#otherbalance" "${TARGET_CONFIG_FILE}" | cut -d: -f1)
+if [[ ${GROUP_OTHER_BALANCE_LINE} -gt 0 ]]; then
+    colorEcho "${BLUE}    Processing ${FUCHSIA}auto-balance group for OTHER proxies${BLUE}..."
+    ## PROXY_OTHER=$(yq e ".proxy-groups[] | select(.name ==\"🏁 其他节点\") | .proxies[]" "${TARGET_CONFIG_FILE}")
+    ## PROXY_LIST_OTHER=()
+    ## while read -r list; do [[ -z "${list}" ]] && continue; PROXY_LIST_OTHER+=("${list}"); done <<<"${PROXY_OTHER}"
+    ## CURRENT_LINE=${GROUP_OTHER_BALANCE_LINE}
 
-#     PROXY_INDEX=-1
-#     for TargetName in "${PROXY_LIST_ALL[@]}"; do
-#         PROXY_INDEX=$((PROXY_INDEX + 1))
-#         # if [[ " ${PROXY_LIST_USED[*]} " != *" ${TargetName} "* ]]; then
-#         # if [[ " ${PROXY_LIST_USED[*]} " != *" ${PROXY_INDEX} "* ]]; then
-#         if ! grep -Eaq "^${PROXY_INDEX}$" "${USED_INDEX_FILE}"; then
-#             sed -i "/^#otherbalance/i\      - ${TargetName}" "${TARGET_CONFIG_FILE}"
-#         fi
-#     done
+    # PROXY_INDEX=-1
+    # for TargetName in "${PROXY_LIST_ALL[@]}"; do
+    #     PROXY_INDEX=$((PROXY_INDEX + 1))
+    #     # if [[ " ${PROXY_LIST_USED[*]} " != *" ${TargetName} "* ]]; then
+    #     # if [[ " ${PROXY_LIST_USED[*]} " != *" ${PROXY_INDEX} "* ]]; then
+    #     if ! grep -Eaq "^${PROXY_INDEX}$" "${USED_INDEX_FILE}"; then
+    #         sed -i "/^#otherbalance/i\      - ${TargetName}" "${TARGET_CONFIG_FILE}"
+    #     fi
+    # done
 
-#     sed -i "/^#otherbalance/d" "${TARGET_CONFIG_FILE}"
-# fi
+    for TargetName in "${PROXY_LIST_OTHERS[@]}"; do
+        [[ -n "${TargetName}" ]] && sed -i "/^#otherbalance/i\      - \"${TargetName}\"" "${TARGET_CONFIG_FILE}"
+    done
+
+    sed -i "/^#otherbalance/d" "${TARGET_CONFIG_FILE}"
+fi
 
 ## Fix: invalid leading UTF-8 octet
 ## https://stackoverflow.com/questions/12999651/how-to-remove-non-utf-8-characters-from-text-file
