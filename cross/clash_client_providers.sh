@@ -1192,18 +1192,18 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 else
                     CONTENT_TAG=$(grep -Eq "${TARGET_TAG}" <<<"${GROUP_PROXIES_ALL}")
                 fi
+
+                # Used proxies
+                while read -r usedProxy; do
+                    [[ -z "${usedProxy}" ]] && continue
+
+                    TargetName=$(sed -e "s/^\s*-\s*//g" <<<"${usedProxy}" \
+                        | sed -e "s/^\s//" -e "s/\s$//" \
+                        | sed -e "s/^\"//" -e "s/\"$//")
+
+                    PROXY_LIST_USED+=("${TargetName}")
+                done <<<"${CONTENT_TAG}"
             fi
-
-            # Used proxies
-            while read -r usedProxy; do
-                [[ -z "${usedProxy}" ]] && continue
-
-                TargetName=$(sed -e "s/^\s*-\s*//g" <<<"${usedProxy}" \
-                    | sed -e "s/^\s//" -e "s/\s$//" \
-                    | sed -e "s/^\"//" -e "s/\"$//")
-
-                PROXY_LIST_USED+=("${TargetName}")
-            done <<<"${CONTENT_TAG}"
 
             # MATCH_TAG="no"
             ## Filter by targetfile
