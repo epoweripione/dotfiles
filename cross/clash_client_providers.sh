@@ -977,7 +977,11 @@ GROUP_PROXIES_PUBILC=$(yq e '.proxies[] | select(.private==false or has("private
 GROUP_PROXIES_OTHERS=""
 
 PROXY_LIST_OTHERS=()
-readarray -t PROXY_LIST_OTHERS < <(yq e '.proxies[].name' "${PROXIES_OUTPUT_TEMP}")
+if [[ "${OUTPUT_OPTIONS}" == *"@ExcludePrivate"* ]]; then
+    readarray -t PROXY_LIST_OTHERS < <(yq e '.proxies[] | select(.private==false or has("private")==false) | .name' "${PROXIES_OUTPUT_TEMP}")
+else
+    readarray -t PROXY_LIST_OTHERS < <(yq e '.proxies[].name' "${PROXIES_OUTPUT_TEMP}")
+fi
 
 # PROXY_LIST_SORT=""
 # PROXIES_PROXY_ALL=""
