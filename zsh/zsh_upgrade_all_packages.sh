@@ -346,6 +346,19 @@ for Target in "${FontUpdateList[@]}"; do
     [[ -f "${FontInstaller}" ]] && source "${FontInstaller}"
 done
 
+# AI
+IS_UPDATE_ONLY="yes"
+if [[ -z "${AIUpdateList[*]}" ]]; then
+    AIUpdateList=(
+        "ollama"
+    )
+fi
+for Target in "${AIUpdateList[@]}"; do
+    AIInstaller="${MY_SHELL_SCRIPTS}/AI/${Target}_installer.sh"
+    [[ ! -f "${AIInstaller}" ]] && AIInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
+    [[ -f "${AIInstaller}" ]] && source "${AIInstaller}"
+done
+
 unset IS_UPDATE_ONLY
 
 if [[ "$(command -v micromamba)" ]]; then
