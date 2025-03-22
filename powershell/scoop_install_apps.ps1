@@ -365,6 +365,12 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         ## images & videos
         "darktable"
         "kiwix"
+        ##AI
+        "ollama"
+        "chatbox-ce"
+        "cherry-studio"
+        "uv"
+        "bun"
         ## epower
         "chromium-justclueless-dev-avx2"
         # "chromium-robrich-dev-avx2"
@@ -536,6 +542,16 @@ if (Get-Command "flutter" -ErrorAction SilentlyContinue) {
 
     ## fix: Error: Unable to find git in your PATH
     # git config --global --add safe.directory "*"
+}
+
+# Cherry Studio MCP depencency
+if (Get-Command "$env:USERPROFILE\scoop\apps\cherry-studio\current\Cherry Studio.exe" -ErrorAction SilentlyContinue) {
+    if (-Not (Test-Path "$env:USERPROFILE\.cherrystudio\bin\uv.exe")) {
+        mkdir -p "$env:USERPROFILE\.cherrystudio\bin"
+        sudo mklink "$env:USERPROFILE\.cherrystudio\bin\uv.exe" "$env:USERPROFILE\scoop\apps\uv\current\uv.exe"
+        sudo mklink "$env:USERPROFILE\.cherrystudio\bin\uvx.exe" "$env:USERPROFILE\scoop\apps\uv\current\uvx.exe"
+        sudo mklink "$env:USERPROFILE\.cherrystudio\bin\bun.exe" "$env:USERPROFILE\scoop\apps\bun\current\bun.exe"
+    }
 }
 
 ## Android Studio
