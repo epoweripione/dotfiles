@@ -290,6 +290,7 @@ function formatYAMLFile() {
     # IPV6
     sed -ri "/name:/ s/[\"【]*(${IPV6RegExp})[\"】]*/\"\[\1\]\"/g" "${subscribeFile}"
     sed -ri -e 's/\[\"\[\"/\[\"/g' -e 's/\"\]\"\]/\"\]/g' "${subscribeFile}"
+    sed -ri -e 's/\"\[\"\[/\"\[/g' -e 's/\]\"\]\"/\]\"/g' "${subscribeFile}"
     sed -ri 's/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: "\[\2\]"/g' "${subscribeFile}"
 
     # add Double quotes to `proxy-groups[].proxies`
