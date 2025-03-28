@@ -38,7 +38,7 @@ fi
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_BINARY_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
     if [[ "${INSTALLER_IS_UPDATE}" == "yes" ]]; then
-        cargo binstall cargo-binstall
+        cargo binstall --no-confirm cargo-binstall
     else
         curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
     fi
