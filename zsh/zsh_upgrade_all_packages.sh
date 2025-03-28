@@ -150,8 +150,8 @@ if [[ -x "$(command -v rustup)" ]]; then
 fi
 
 if [[ -x "$(command -v cargo-binstall)" ]]; then
-    colorEcho "${BLUE}Updating ${FUCHSIA}cargo-binstall${BLUE}..."
-    cargo binstall cargo-binstall
+    AppInstaller="${MY_SHELL_SCRIPTS}/installer/cargo-binstall_installer.sh"
+    [[ -f "${AppInstaller}" ]] && source "${AppInstaller}"
 fi
 
 # Always install & update apps
@@ -379,6 +379,10 @@ fi
 
 if [[ -d "$HOME/.nvs" && -s "${MY_SHELL_SCRIPTS}/nodejs/nvs_node_updater.sh" ]]; then
     source "${MY_SHELL_SCRIPTS}/nodejs/nvs_node_updater.sh"
+fi
+
+if [[ -d "$HOME/.bun" && -s "${MY_SHELL_SCRIPTS}/nodejs/bun_installer.sh" ]]; then
+    source "${MY_SHELL_SCRIPTS}/nodejs/bun_installer.sh"
 fi
 
 if [[ -d "$HOME/.asdf" && ! "$(command -v mise)" ]]; then
