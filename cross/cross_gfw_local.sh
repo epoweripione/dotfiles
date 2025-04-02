@@ -133,6 +133,19 @@ if [[ -s "${PROXY_WORKDIR}/mieru" && -s "${MIERU_CONFIG}" ]]; then
     # htop -p "$(pgrep -d, mieru)"
 fi
 
+# xray
+if [[ -s "${PROXY_WORKDIR}/xray" && -s "${XRAY_CONFIG}" ]]; then
+    colorEcho "${BLUE}Running ${FUCHSIA}xray${BLUE}..."
+
+    sudo pkill -f "xray"
+    chmod +x "${PROXY_WORKDIR}/xray"
+
+    nohup "${PROXY_WORKDIR}/xray" run -c="${XRAY_CONFIG}" >/dev/null 2>&1 &
+
+    ps -fC "xray"
+    # htop -p "$(pgrep -d, xray)"
+fi
+
 sleep 3
 
 if check_http_proxy_up "${PROXY_ADDRESS}" "www.google.com"; then

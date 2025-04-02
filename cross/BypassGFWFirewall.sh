@@ -36,6 +36,7 @@ case "$1" in
         pgrep -f "naive" >/dev/null 2>&1 && pkill -f "naive"
         pgrep -f "naiveproxy" >/dev/null 2>&1 && pkill -f "naiveproxy"
         pgrep -f "mieru" >/dev/null 2>&1 && pkill -f "mieru"
+        pgrep -f "xray" >/dev/null 2>&1 && pkill -f "xray"
         ;;
     'up')
         if [[ -x "$(command -v naive)" || -x "$(command -v naiveproxy)" ]]; then
@@ -64,6 +65,12 @@ case "$1" in
 
             mieru stop
             nohup mieru start >/dev/null 2>&1 &
+        fi
+
+        if [[ -x "$(command -v xray)" && -s "${XRAY_CONFIG}" ]]; then
+            pgrep -f "xray" >/dev/null 2>&1 && pkill -f "xray"
+
+            nohup xray run -c="${XRAY_CONFIG}" >/dev/null 2>&1 &
         fi
         ;;
 esac

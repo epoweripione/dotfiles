@@ -24,6 +24,19 @@ if (Get-Command "${MieruCMD}" -ErrorAction SilentlyContinue) {
     }
 }
 
+if (Get-Process -Name "xray" -ErrorAction SilentlyContinue) {
+    Stop-Process -Name "xray" -Force
+}
+
+$XRayCMD = "xray.exe"
+if (Get-Command "${XRayCMD}" -ErrorAction SilentlyContinue) {
+    $XRayCMD = (Get-Command "${XRayCMD}" -ErrorAction SilentlyContinue).Path
+} else {
+    if (Test-Path "$env:SystemDrive\Tools\xray\xray.exe") {
+        $XRayCMD = "$env:SystemDrive\Tools\xray\xray.exe"
+    }
+}
+
 ## Load variables from local proxy env file
 # NAIVEPROXY_PORT = 7895
 # NAIVEPROXY_URL = @(
@@ -63,6 +76,16 @@ if ((Test-Path "${MieruCMD}") -and (Test-Path "$env:SystemDrive\Tools\mieru\mier
     $MieruArgs = "start"
     Start-Process -FilePath "${MieruCMD}" `
     -ArgumentList "${MieruArgs}" `
+    -WorkingDirectory "$env:USERPROFILE" `
+    -WindowStyle "Hidden"
+}
+
+# xray
+if ((Test-Path "${XRayCMD}") -and (Test-Path "$env:SystemDrive\Tools\xray\xray.json")) {
+    # xray.exe run -c="$env:SystemDrive\Tools\xray\xray.json"
+    $XRayArgs = "run -c=""$env:SystemDrive\Tools\xray\xray.json"""
+    Start-Process -FilePath "${XRayCMD}" `
+    -ArgumentList "${XRayArgs}" `
     -WorkingDirectory "$env:USERPROFILE" `
     -WindowStyle "Hidden"
 }
