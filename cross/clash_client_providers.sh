@@ -293,6 +293,9 @@ function formatYAMLFile() {
     sed -ri -e 's/\"\[\"\[/\"\[/g' -e 's/\]\"\]\"/\]\"/g' "${subscribeFile}"
     sed -ri 's/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: "\[\2\]"/g' "${subscribeFile}"
 
+    # empty slice
+    sed -i 's/\"【】\"/[]/g' "${subscribeFile}"
+
     # add Double quotes to `proxy-groups[].proxies`
     GroupStartLine=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
     [[ -z "${RuleStartLine}" ]] && GroupStartLine=$(wc -l "${subscribeFile}" | awk '{print $1}')
