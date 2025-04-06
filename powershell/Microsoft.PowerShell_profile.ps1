@@ -22,6 +22,7 @@ Import-Module Posh-git
 
 Import-Module Terminal-Icons
 Import-Module PSEverything
+Import-Module PSWriteColor
 Import-Module WozTools
 
 # Oh My Posh

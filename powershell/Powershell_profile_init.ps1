@@ -76,6 +76,7 @@ $InstallModules = @(
     "PoshFunctions"
     "PSEverything"
     "PSFzf"
+    "PSWriteColor"
     "WozTools"
     "Az.Accounts"
     "Az.Tools.Predictor"
@@ -96,6 +97,7 @@ $EnableModules = @(
     "Posh-git"
     "Terminal-Icons"
     "PSEverything"
+    "PSWriteColor"
     "WozTools"
 )
 
