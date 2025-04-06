@@ -20,8 +20,8 @@ fi
 ## Run proxy client from local env variables
 # PROXY_WORKDIR="$HOME/Proxy"
 # PROXY_IP="127.0.0.1" && PROXY_ADDRESS="${PROXY_IP}:7890"
-# [[ -z "${GITHUB_DOWNLOAD_URL}" ]] && GITHUB_DOWNLOAD_URL="https://github.com"
-# [[ -z "${GITHUB_RAW_URL}" ]] && GITHUB_RAW_URL="https://raw.githubusercontent.com"
+[[ -z "${GITHUB_DOWNLOAD_URL}" ]] && GITHUB_DOWNLOAD_URL="https://github.com"
+[[ -z "${GITHUB_RAW_URL}" ]] && GITHUB_RAW_URL="https://raw.githubusercontent.com"
 # NAIVEPROXY_PORT=7895
 # NAIVEPROXY_URL=(
 #     "https://user:password@test.com"
