@@ -28,7 +28,7 @@ colorEcho "${BLUE}Setting LUKS generation to ${FUCHSIA}LUKS2${BLUE}..."
 sudo sed -i 's/^luksGeneration:.*/luksGeneration: luks2/' "/usr/share/calamares/modules/partition.conf"
 
 # Resize the size of the EFI system partition to store System Rescue ISOs
-colorEcho "${BLUE}Setting the size of the EFI system partition to ${FUCHSIA}10240MiB{BLUE}..."
+colorEcho "${BLUE}Setting the size of the EFI system partition to ${FUCHSIA}10240MiB${BLUE}..."
 sudo sed -i 's/recommendedSize:.*/recommendedSize:    10240MiB/' "/usr/share/calamares/modules/partition.conf"
 
 # Btrfs mount options
@@ -55,22 +55,37 @@ sudo sed -i -e 's|.*/var/cache|# &|g' \
     -e 's|.*/@log|# &|g' \
     "/usr/share/calamares/modules/mount.conf"
 
-sudo tee -a "/usr/share/calamares/modules/mount.conf" >/dev/null <<-'EOF'
-#     - mountPoint: /usr/local
-#       subvolume: /@local
-    - mountPoint: /opt
-      subvolume: /@opt
-    - mountPoint: /srv
-      subvolume: /@srv
-    - mountPoint: /var
-      subvolume: /@var
-    - mountPoint: /tmp
-      subvolume: /@tmp
-    - mountPoint: /.snapshots
-      subvolume: /@rootsnaps
-    - mountPoint: /home/.snapshots
-      subvolume: /@homesnaps
-EOF
+# sudo tee -a "/usr/share/calamares/modules/mount.conf" >/dev/null <<-'EOF'
+# #     - mountPoint: /usr/local
+# #       subvolume: /@local
+#     - mountPoint: /opt
+#       subvolume: /@opt
+#     - mountPoint: /srv
+#       subvolume: /@srv
+#     - mountPoint: /var
+#       subvolume: /@var
+#     - mountPoint: /tmp
+#       subvolume: /@tmp
+#     - mountPoint: /.snapshots
+#       subvolume: /@rootsnaps
+#     - mountPoint: /home/.snapshots
+#       subvolume: /@homesnaps
+# EOF
+
+sed '/subvolume: \/@log/r'<(
+    echo "    - mountPoint: /opt"
+    echo "      subvolume: /@opt"
+    echo "    - mountPoint: /srv"
+    echo "      subvolume: /@srv"
+    echo "    - mountPoint: /var"
+    echo "      subvolume: /@var"
+    echo "    - mountPoint: /tmp"
+    echo "      subvolume: /@tmp"
+    echo "    - mountPoint: /.snapshots"
+    echo "      subvolume: /@rootsnaps"
+    echo "    - mountPoint: /home/.snapshots"
+    echo "      subvolume: /@homesnaps"
+) -i -- "/usr/share/calamares/modules/mount.conf"
 
 # /usr/share/calamares/modules/umount.conf
 
