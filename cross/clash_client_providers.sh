@@ -278,6 +278,8 @@ function formatYAMLFile() {
     # 'alpn', 'http-opts.path', 'http-opts.headers[Host]' is a slice
     sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${subscribeFile}"
     sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)\"*,\s*([^,"\{\}]+)】\"*/\1: \["\2","\3"\]/g' "${subscribeFile}"
+    sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)\"*,\s*([^,"\{\}]+),\s*([^,"\{\}]+)】\"*/\1: \["\2","\3","\4"\]/g' "${subscribeFile}"
+    sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)\"*,\s*([^,"\{\}]+),\s*([^,"\{\}]+),\s*([^,"\{\}]+)】\"*/\1: \["\2","\3","\4","\5"\]/g' "${subscribeFile}"
     sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${subscribeFile}"
 
     sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${subscribeFile}"
