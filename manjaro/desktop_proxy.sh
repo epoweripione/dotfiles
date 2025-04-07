@@ -23,55 +23,33 @@ fi
 [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
 [[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
 
+if [[ -z "${AppProxyInstallList[*]}" ]]; then
+    AppProxyInstallList=(
+        "archlinuxcn/naiveproxy"
+        "archlinuxcn/hysteria"
+        "aur/clash-verge-rev-bin"
+        "archlinuxcn/xray"
+        "archlinuxcn/xray-geoip"
+        "archlinuxcn/xray-domain-list-community"
+        # "aur/hiddify-next-appimage"
+        # "archlinuxcn/clash-verge-rev"
+        # "archlinuxcn/clash-premium-bin"
+        # "archlinuxcn/clash-meta"
+        # "aur/clash-for-windows-bin"
+        # "aur/mihomo"
+        # "aur/sing-box"
+        # "nftables"
+        # "iproute2"
+    )
+fi
+
 # Setup network proxy in desktop environment
 if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
     PROXY_HTTP_HOST="${GLOBAL_PROXY_IP}" && PROXY_HTTP_PORT="${GLOBAL_PROXY_MIXED_PORT}"
     PROXY_SOCKS_HOST="${GLOBAL_PROXY_IP}" && PROXY_SOCKS_PORT="${GLOBAL_PROXY_SOCKS_PORT}"
     PROXY_NOPROXY=${GLOBAL_NO_PROXY:-""}
 
-    # Naiveproxy
-    colorEcho "${BLUE}Installing ${FUCHSIA}Naiveproxy${BLUE}..."
-    yay --noconfirm --needed -S archlinuxcn/naiveproxy
-
-    # Hysteria
-    colorEcho "${BLUE}Installing ${FUCHSIA}Hysteria${BLUE}..."
-    yay --noconfirm --needed -S archlinuxcn/hysteria
-
-    # Clash
-    # colorEcho "${BLUE}Installing ${FUCHSIA}Clash Premium${BLUE}..."
-    # yay --noconfirm --needed -S archlinuxcn/clash-premium-bin
-
-    # colorEcho "${BLUE}Installing ${FUCHSIA}Clash Meta${BLUE}..."
-    # yay --noconfirm --needed -S archlinuxcn/clash-meta
-
-    # colorEcho "${BLUE}Installing ${FUCHSIA}mihomo${BLUE}..."
-    # yay --noconfirm --needed -S aur/mihomo
-
-    # colorEcho "${BLUE}Installing ${FUCHSIA}sing-box${BLUE}..."
-    # yay --noconfirm --needed -S aur/sing-box
-
-    # Clash for Windows
-    # colorEcho "${BLUE}Installing ${FUCHSIA}Clash for Windows${BLUE}..."
-    # yay --noconfirm --needed -S nftables iproute2
-    # yay --noconfirm --needed -S aur/clash-for-windows-bin
-
-    ## If you want to use clash-meta, install it and run  
-    # sudo ln -sf /usr/bin/clash-meta /opt/clash-for-windows/static/files/linux/x64/clash-linux 
-
-    ## To use the TUN mode, you need to run 
-    # sudo systemctl start clash-core-service@$USER
-    # sudo systemctl enable clash-core-service@$USER
-
-    ## Clash for Windows→General→Service Mode→Manage→install→TUN Mode
-
-    # Clash Verge
-    colorEcho "${BLUE}Installing ${FUCHSIA}Clash Verge${BLUE}..."
-    yay --noconfirm --needed -S aur/clash-verge-rev-bin
-    # yay --noconfirm --needed -S archlinuxcn/clash-verge-rev
-
-    # Hiddify-Next
-    colorEcho "${BLUE}Installing ${FUCHSIA}Hiddify-Next${BLUE}..."
-    yay --noconfirm --needed -S aur/hiddify-next-appimage
+    InstallSystemPackages "" "${AppProxyInstallList[@]}"
 
     # Fix `start tun interface error: operation not permitted`
     # [setcap 详解](https://www.cnblogs.com/nf01/articles/10418141.html)
@@ -80,10 +58,6 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" && -n "${GLOBAL_PROXY_IP}" ]]; then
     [[ -x "$(command -v mihomo)" ]] && sudo setcap cap_net_admin=+eip "$(which mihomo)"
     [[ -x "$(command -v cfw)" ]] && sudo setcap cap_net_admin=+eip "$(which cfw)"
     [[ -x "$(command -v clash-verge)" ]] && sudo setcap cap_net_admin=+eip "$(which clash-verge)"
-
-    # xray
-    colorEcho "${BLUE}Installing ${FUCHSIA}XRay${BLUE}..."
-    yay --noconfirm --needed -S archlinuxcn/xray archlinuxcn/xray-geoip archlinuxcn/xray-domain-list-community
 
     # Install `BypassGFWFirewall` service
     if ! systemctl is-enabled "BypassGFWFirewall" >/dev/null 2>&1; then

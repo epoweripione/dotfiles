@@ -71,10 +71,14 @@ fi
 [[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
 
 # Setup pacman repository & AUR & install pre-requisite packages
-[[ -s "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh"
+if [[ ! "$(command -v yay)" && -s "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh" ]]; then
+    source "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh"
+fi
 
 # Setup network proxy in desktop environment
-[[ -s "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh" ]] && source "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh"
+if [[ ! -f "/etc/chromium/policies/managed/proxy.json" && -s "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh" ]]; then
+    source "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh"
+fi
 
 # SSH
 mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"

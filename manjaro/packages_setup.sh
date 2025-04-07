@@ -37,10 +37,12 @@ colorEcho "GEO location: ${FUCHSIA}${NETWORK_WAN_NET_IP_GEO}${BLUE}"
 
 # try to set up the fastest mirror
 # https://wiki.manjaro.org/index.php/Pacman-mirrors
-colorEcho "${BLUE}Setting ${FUCHSIA}pacman mirrors${BLUE}..."
-# sudo pacman-mirrors -i -c China -m rank
-# sudo pacman-mirrors -i --continent --timeout 2 -m rank
-sudo pacman-mirrors -i --geoip --timeout 2 -m rank
+if [[ ! -f "/etc/pacman-mirrors.conf" ]]; then
+    colorEcho "${BLUE}Setting ${FUCHSIA}pacman mirrors${BLUE}..."
+    # sudo pacman-mirrors -i -c China,Taiwan -m rank
+    # sudo pacman-mirrors -i --continent --timeout 2 -m rank
+    sudo pacman-mirrors -i --geoip --timeout 2 -m rank
+fi
 
 # Show colorful output on the terminal
 sudo sed -i 's|^#Color|Color|' /etc/pacman.conf
@@ -70,7 +72,7 @@ sudo sed -i -e 's|^#EnableAUR|EnableAUR|' \
 # [Arch Linux Chinese Community Repository](https://github.com/archlinuxcn/mirrorlist-repo)
 if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
     if ! grep -q "archlinuxcn" /etc/pacman.conf 2>/dev/null; then
-        colorEcho "${BLUE}Installing${FUCHSIA} archlinuxcn ${BLUE} repo..."
+        colorEcho "${BLUE}Installing ${FUCHSIA}archlinuxcn${BLUE} repo..."
         echo -e "\n[archlinuxcn]" | sudo tee -a /etc/pacman.conf >/dev/null
         # echo "Server = https://repo.archlinuxcn.org/\$arch" | sudo tee -a /etc/pacman.conf >/dev/null
         export MIRROR_ARCHLINUX_CN=${MIRROR_ARCHLINUX_CN:-"https://mirrors.sjtug.sjtu.edu.cn"}
@@ -137,21 +139,6 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     flatpak remotes -d
 fi
 
-# [Appimages](https://appimage.org/)
-# [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher)
-colorEcho "${BLUE}Installing ${FUCHSIA}AppImageLauncher${BLUE}..."
-sudo pacman --noconfirm --needed -S appimagelauncher
-
-if [[ ! -s "$HOME/.config/appimagelauncher.cfg" ]]; then
-    mkdir -p "$HOME/.config"
-    mkdir -p "$HOME/Applications"
-    tee "$HOME/.config/appimagelauncher.cfg" >/dev/null <<-'EOF'
-[AppImageLauncher]
-destination = ~/Applications
-enable_daemon = true
-EOF
-fi
-
 ## [Discover](https://userbase.kde.org/Discover)
 # colorEcho "${BLUE}Installing ${FUCHSIA}Discover${BLUE}..."
 # sudo pacman --noconfirm --needed -S discover packagekit-qt5
@@ -214,6 +201,20 @@ EOF
     sudo sed -i "s|'https::.*|'https::/etc/makepkg_axel.sh %o %u'|" "/etc/makepkg.conf"
 fi
 
+# [Appimages](https://appimage.org/)
+# [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher)
+colorEcho "${BLUE}Installing ${FUCHSIA}AppImageLauncher${BLUE}..."
+yay --needed -S aur/appimagelauncher
+
+if [[ ! -s "$HOME/.config/appimagelauncher.cfg" ]]; then
+    mkdir -p "$HOME/.config"
+    mkdir -p "$HOME/Applications"
+    tee "$HOME/.config/appimagelauncher.cfg" >/dev/null <<-'EOF'
+[AppImageLauncher]
+destination = ~/Applications
+enable_daemon = true
+EOF
+fi
 
 # Change from exfat-utils to exfatprogs for exfat
 colorEcho "${BLUE}Installing ${FUCHSIA}exfatprogs${BLUE}..."
