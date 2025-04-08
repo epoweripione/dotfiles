@@ -17,10 +17,19 @@ else
     fi
 fi
 
+if [[ -z "${AppNetworkInstallList[*]}" ]]; then
+    AppNetworkInstallList=(
+        "dnslookup-bin"
+        "ipset"
+        "smartdns"
+        "smartdns-china-list-git"
+        "aur/chinadns-ng-git"
+    )
+fi
+InstallSystemPackages "" "${AppNetworkInstallList[@]}"
+
 # [SmartDNS](https://github.com/pymumu/smartdns)
 # https://blog.dnomd343.top/dns-server/
-colorEcho "${BLUE}Installing ${FUCHSIA}smartdns${BLUE}..."
-yay --noconfirm --needed -S dnslookup-bin smartdns smartdns-china-list-git
 
 # sudo sed -i -e "s/[#]*[ ]*cache-persist.*/cache-persist yes/" \
 #             -e "s|[#]*[ ]*cache-file.*|cache-file /tmp/smartdns.cache|" \
@@ -91,8 +100,10 @@ EOF
 #     fi
 # fi
 
-# Default DNS Server: 127.0.0.1#53
-echo 'nameserver 127.0.0.1' | sudo tee "/etc/resolv.conf" >/dev/null
+## Default DNS Server: 127.0.0.1#53
+# if ! grep -q '^nameserver 127.0.0.1'; then
+#     echo 'nameserver 127.0.0.1' | sudo tee "/etc/resolv.conf" >/dev/null
+# fi
 
 # [ChinaDNS-NG: Protect yourself against DNS poisoning in China](https://github.com/zfl9/chinadns-ng)
 # dnsmasq:53->ChinaDNS:65353->China->SmartDNS:65355
@@ -100,6 +111,7 @@ echo 'nameserver 127.0.0.1' | sudo tee "/etc/resolv.conf" >/dev/null
 # DNS list
 [[ -d "$HOME/chinadns-ng" ]] && cd "$HOME/chinadns-ng" && git reset --hard
 Git_Clone_Update_Branch "zfl9/chinadns-ng" "$HOME/chinadns-ng"
+
 if [[ -d "$HOME/chinadns-ng" ]]; then
     cd "$HOME/chinadns-ng" && \
         ./update-gfwlist.sh && ./update-chnlist.sh && ./update-chnroute.sh && ./update-chnroute6.sh
@@ -114,13 +126,11 @@ if [[ -d "$HOME/chinadns-ng" ]]; then
 fi
 
 ## ipset
-colorEcho "${BLUE}Installing ${FUCHSIA}ipset${BLUE}..."
-sudo pacman --noconfirm --needed -S ipset
 # sudo ipset list -n
 # sudo ipset list | grep ': '
 # sudo ipset list
 
-if [[ -s "/opt/chinadns-ng/chnroute.ipset" ]]; then
+if [[ -x "$(command -v ipset)" && -s "/opt/chinadns-ng/chnroute.ipset" ]]; then
     sudo ipset -F chnroute 2>/dev/null
     sudo ipset -F chnroute6 2>/dev/null
 
@@ -128,7 +138,6 @@ if [[ -s "/opt/chinadns-ng/chnroute.ipset" ]]; then
     (sudo ipset -R -exist) <"/opt/chinadns-ng/chnroute6.ipset"
 fi
 
-yay --noconfirm --needed -S aur/chinadns-ng-git
 if [[ -x "$(command -v chinadns-ng)" ]]; then
     CHINADNS_ARGS="--bind-port 65353 --china-dns 127.0.0.1#65355 --trust-dns 127.0.0.1#65356" && \
         CHINADNS_ARGS="${CHINADNS_ARGS} --gfwlist-file /opt/chinadns-ng/gfwlist.txt" && \
