@@ -70,7 +70,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
             ;;
     esac
 
-    [[ -n "${INSTALLER_FILE_NAME}" ]] && INSTALLER_DOWNLOAD_URL="https://he3-1309519128.cos.accelerate.myqcloud.com/${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
+    [[ -n "${INSTALLER_FILE_NAME}" ]] && INSTALLER_DOWNLOAD_URL="https://dl.he3app.com/${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
 
     if [[ -n "${INSTALLER_DOWNLOAD_URL}" ]]; then
         colorEcho "${BLUE}Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
