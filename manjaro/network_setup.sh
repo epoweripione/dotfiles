@@ -62,11 +62,11 @@ sudo systemctl enable systemd-resolved && sudo systemctl start systemd-resolved
 # sudo systemctl restart systemd-resolved
 
 
-# SmartDNS
-if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
-    [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/smartdns_insaller.sh" ]] && \
-        source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/smartdns_insaller.sh"
-fi
+## SmartDNS
+# if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
+#     [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/smartdns_insaller.sh" ]] && \
+#         source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/smartdns_insaller.sh"
+# fi
 
 
 # Samba
