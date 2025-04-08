@@ -358,6 +358,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "beamer-theme-metropolis"
         # "bed-latex"
         "zed"
+        ## Android emulator
+        "xdroid-bin"
     )
 fi
 InstallSystemPackages "" "${AppManjaroInstallList[@]}"
