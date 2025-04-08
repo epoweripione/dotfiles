@@ -376,3 +376,76 @@ git clone --depth=1 "https://github.com/epoweripione/dotfiles.git" "$HOME/.dotfi
 
 "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_convert_LUKS1_to_LUKS2.sh" "<EFI partition: /dev/sda1, /dev/nvme0n1p1>" "<encrypted LUKS1 root partition: /dev/sda2, /dev/nvme0n1p2>" "<encrypted LUKS1 swap partition: /dev/sda3, /dev/nvme0n1p3>"
 ```
+
+## Move subvolume to a new disk
+### [Move your BTRFS /home subvolume to a new disk](https://gist.github.com/jdoss/a8278844059ca125d0f443604fcedc30)
+```bash
+# Check old mount
+df -h /home
+
+# Create LUKS devices on new disk using `GParted`
+sudo gparted
+
+## Create the BTRFS file system on new disk
+# RAID10 with 2 or more disks
+sudo mkfs.btrfs -m raid10 -d raid10 /dev/mapper/luks-<new-disk1-UUID> /dev/mapper/luks-<new-disk2-UUID> -f
+# Only 1 disk
+sudo mkfs.btrfs /dev/mapper/luks-<new-disk-UUID> -f
+# Take note of the UUID from the `mkfs.btrfs` output
+
+# Create a mount point and mount new disk
+sudo mkdir /mnt/btrfs-new
+
+# Mount the UUID from the `mkfs.btrfs` command output
+sudo mount /dev/disk/by-uuid/<new-BTRFS-UUID> /mnt/btrfs-new
+
+# Create a read-only snapshot of the `/home` directory
+sudo btrfs subvolume homesnaps -r /home "home_$(date '+%Y%m%d')"
+
+# Send this read-only subvolume snapshot to the newly mounted BTRFS filesystem
+sudo btrfs send "/home/.snapshots/home_$(date '+%Y%m%d')" | sudo btrfs receive /mnt/btrfs-new/
+
+# Create another snapshot
+sudo btrfs subvolume homesnaps "/mnt/btrfs-new/home_$(date '+%Y%m%d')" "/mnt/btrfs-new/home"
+
+# Edit `/etc/fstab` with the UUID from the `mkfs.btrfs` of mount point `/home` and `/home/.snapshots`
+
+# Reboot
+
+# Check new mount
+df -h /home
+```
+
+### [btrfs-clone](https://github.com/mwilck/btrfs-clone)
+```bash
+# btrfs-clone [options] <mount-point-of-existing-FS> <mount-point-of-new-FS>
+
+# Check old mount
+df -h /home
+
+# Create LUKS devices on new disk using `GParted`
+sudo gparted
+
+## Create the BTRFS file system on new disk
+# RAID10 with 2 or more disks
+sudo mkfs.btrfs -m raid10 -d raid10 /dev/mapper/luks-<new-disk1-UUID> /dev/mapper/luks-<new-disk2-UUID> -f
+# Only 1 disk
+sudo mkfs.btrfs /dev/mapper/luks-<new-disk-UUID> -f
+# Take note of the UUID from the `mkfs.btrfs` output
+
+# Create a mount point and mount new disk
+sudo mkdir /mnt/btrfs-new
+
+# Mount the UUID from the `mkfs.btrfs` command output
+sudo mount /dev/disk/by-uuid/<new-BTRFS-UUID> /mnt/btrfs-new
+
+# Clone
+btrfs-clone /home /mnt/btrfs-new
+
+# Edit `/etc/fstab` with the UUID from the `mkfs.btrfs` of mount point `/home` and `/home/.snapshots`
+
+# Reboot
+
+# Check new mount
+df -h /home
+```
