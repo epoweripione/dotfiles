@@ -24,7 +24,7 @@ colorEcho "${BLUE}Installing ${FUCHSIA}samba${BLUE}..."
 sudo pacman --noconfirm --needed -S samba nautilus-share manjaro-settings-samba
 
 colorEcho "${BLUE}Setting share folder to ${FUCHSIA}${HOME}/share${BLUE}..."
-sudo mv "/etc/samba/smb.conf" "/etc/samba/smb.conf.bak"
+[[ -f "/etc/samba/smb.conf" && ! -f "/etc/samba/smb.conf.bak" ]] && sudo mv "/etc/samba/smb.conf" "/etc/samba/smb.conf.bak"
 
 # Create a Linux user `guest` which anonymous Samba users will be mapped to
 id guest 2>/dev/null || sudo useradd guest -s /bin/nologin
@@ -70,11 +70,15 @@ EOF
 
 mkdir -p "${HOME}/share" && chmod 777 -R "${HOME}/share"
 
-colorEcho "${BLUE}Setting ${FUCHSIA}samba user${BLUE}..."
-sudo smbpasswd -a "$(id -un)"
+if ! systemctl is-enabled smb >/dev/null 2>&1; then
+    if [[ -x "$(command -v smbpasswd)" ]]; then
+        colorEcho "${BLUE}Setting ${FUCHSIA}samba user${BLUE}..."
+        sudo smbpasswd -a "$(id -un)"
+    fi
 
-colorEcho "${BLUE}Enabling ${FUCHSIA}samba${BLUE} service..."
-sudo systemctl enable smb && sudo systemctl start smb
+    colorEcho "${BLUE}Enabling ${FUCHSIA}samba${BLUE} service..."
+    sudo systemctl enable smb && sudo systemctl start smb
+fi
 
 
 # winbind
