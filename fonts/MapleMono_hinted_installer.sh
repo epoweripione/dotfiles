@@ -37,16 +37,20 @@ fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+    # INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases"
+    # INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" 2>/dev/null \
+    #         | jq -r 'map(select(.prerelease)) | first | .tag_name' | cut -d'v' -f2)
+    # if [[ -z "${INSTALLER_VER_REMOTE}" ]]; then
+    #     INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+    #     INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" 2>/dev/null \
+    #         | jq -r ".tag_name//empty" 2>/dev/null \
+    #         | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    # fi
 
-    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases"
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
     INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" 2>/dev/null \
-            | jq -r 'map(select(.prerelease)) | first | .tag_name' | cut -d'v' -f2)
-    if [[ -z "${INSTALLER_VER_REMOTE}" ]]; then
-        INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
-        INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" 2>/dev/null \
-            | jq -r ".tag_name//empty" 2>/dev/null \
-            | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    fi
+        | jq -r ".tag_name//empty" 2>/dev/null \
+        | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
         INSTALLER_IS_INSTALL="no"
     fi
