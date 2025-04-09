@@ -40,8 +40,9 @@ fi
 
 if [[ -x "$(command -v snap)" ]]; then
     colorEcho "${BLUE}Setting ${FUCHSIA}snap${BLUE}..."
+    systemctl is-enabled snapd.service >/dev/null 2>&1 || sudo systemctl enable --now snapd.service
     systemctl is-enabled snapd.socket >/dev/null 2>&1 || sudo systemctl enable --now snapd.socket
-    systemctl is-enabled snapd.apparmor >/dev/null 2>&1 || sudo systemctl enable --now snapd.apparmor
+    systemctl is-enabled snapd.apparmor.service >/dev/null 2>&1 || sudo systemctl enable --now snapd.apparmor.service
 
     # enable classic snap support
     [[ ! -d "/snap" && -d "/var/lib/snapd/snap" ]] && sudo ln -s /var/lib/snapd/snap /snap
