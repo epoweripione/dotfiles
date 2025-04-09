@@ -68,16 +68,16 @@ if ((Test-Path "${MieruCMD}") -and (Test-Path "$env:SystemDrive\Tools\mieru\mier
     # mieru.exe apply config "$env:SystemDrive\Tools\mieru\mieru.json"
     $MieruArgs = "apply config ""$env:SystemDrive\Tools\mieru\mieru.json"""
     Start-Process -FilePath "${MieruCMD}" `
-    -ArgumentList "${MieruArgs}" `
-    -WorkingDirectory "$env:USERPROFILE" `
-    -WindowStyle "Hidden"
+        -ArgumentList "${MieruArgs}" `
+        -WorkingDirectory "$env:USERPROFILE" `
+        -WindowStyle "Hidden"
 
     # mieru stop; mieru start
     $MieruArgs = "start"
     Start-Process -FilePath "${MieruCMD}" `
-    -ArgumentList "${MieruArgs}" `
-    -WorkingDirectory "$env:USERPROFILE" `
-    -WindowStyle "Hidden"
+        -ArgumentList "${MieruArgs}" `
+        -WorkingDirectory "$env:USERPROFILE" `
+        -WindowStyle "Hidden"
 }
 
 # xray
@@ -85,7 +85,18 @@ if ((Test-Path "${XRayCMD}") -and (Test-Path "$env:SystemDrive\Tools\xray\xray.j
     # xray.exe run -c="$env:SystemDrive\Tools\xray\xray.json"
     $XRayArgs = "run -c=""$env:SystemDrive\Tools\xray\xray.json"""
     Start-Process -FilePath "${XRayCMD}" `
-    -ArgumentList "${XRayArgs}" `
-    -WorkingDirectory "$env:USERPROFILE" `
-    -WindowStyle "Hidden"
+        -ArgumentList "${XRayArgs}" `
+        -WorkingDirectory "$env:USERPROFILE" `
+        -WindowStyle "Hidden"
 }
+
+<#
+# Make WLAN Interface first
+if (Get-NetIPInterface | Where-Object { $_.InterfaceAlias -eq 'WLAN' }) {
+    Get-NetIPInterface | Where-Object { $_.InterfaceAlias -eq 'WLAN' } | `
+        Select-Object 'ifIndex' -Unique | `
+        ForEach-Object {
+            Set-NetIPInterface -InterfaceIndex $_.ifIndex -InterfaceMetric 10
+        }
+}
+#>
