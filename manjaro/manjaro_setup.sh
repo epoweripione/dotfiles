@@ -165,6 +165,9 @@ sudo pacman --noconfirm -R p7zip 2>/dev/null # replace `p7zip` with `extra/7zip`
 # sudo pacman --noconfirm -R konsole 2>/dev/null
 # sudo pacman --noconfirm --needed -S "konsole-osc52"
 
+# Electron30 for `dbgate`
+yay --noconfirm --needed -S aur/electron30-bin
+
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppManjaroInstallList[*]}" ]]; then
     AppManjaroInstallList=(
@@ -337,7 +340,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "wps-office-mui-zh-cn"
         "wps-office-mime-cn"
         "wps-office-fonts"
-        "ttf-wps-fonts"
+        # "ttf-wps-fonts"
         "wps-office-all-dicts-win-languages"
         # [LibreOffice](https://wiki.archlinux.org/title/LibreOffice)
         "extra/libreoffice-fresh"
@@ -359,7 +362,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "bed-latex"
         "zed"
         ## Android emulator
-        "xdroid-bin"
+        # "xdroid-bin"
     )
 fi
 InstallSystemPackages "" "${AppManjaroInstallList[@]}"
@@ -386,7 +389,7 @@ for TargetApp in "${AppFlatpakInstallList[@]}"; do
     TargetRemote=$(cut -d# -f1 <<<"${TargetApp}")
     TargetApp=$(cut -d# -f2 <<<"${TargetApp}")
     colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
-    flatpak install "${TargetRemote}" "${TargetApp}"
+    flatpak install -y "${TargetRemote}" "${TargetApp}"
 done
 
 ## RDP Server
