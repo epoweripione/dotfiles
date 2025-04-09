@@ -129,7 +129,7 @@ fi
 
 colorEcho "${BLUE}Setting ${FUCHSIA}pip${BLUE}..."
 if [[ -d "$HOME/.local/bin" ]]; then
-    export PATH=$PATH:$HOME/.local/bin
+    [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH=$PATH:$HOME/.local/bin
 fi
 
 ## WARNING: Discarding xxx has inconsistent version: filename has 'x.y.z', but metadata has 'x.y.z'
@@ -205,10 +205,16 @@ if [[ -x "$(command -v pip)" || -x "$(command -v pip3)" ]]; then
     # noproxy_cmd pipx install pgclt
 fi
 
+# pip configurations
+PYTHON_PIP_CONFIG=${PYTHON_PIP_CONFIG:-"$HOME/.pip/pip.conf"}
+
+# pip configurations for current user
+if [[ ! -f "${PYTHON_PIP_CONFIG}" ]]; then
+    cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/pip" "${PYTHON_PIP_CONFIG}"
+fi
 
 # pip configurations for root user
-if [[ ! -s "/root/.pip/pip.conf" ]]; then
-    PYTHON_PIP_CONFIG=${PYTHON_PIP_CONFIG:-"$HOME/.pip/pip.conf"}
+if [[ ! -f "/root/.pip/pip.conf" ]]; then
     sudo mkdir -p "/root/.pip" && sudo cp -f "${PYTHON_PIP_CONFIG}" "/root/.pip"
 fi
 
