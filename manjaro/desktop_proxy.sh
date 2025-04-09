@@ -193,7 +193,7 @@ if [[ -n "${RULE_FILE}" ]]; then
     sudo tee "${RULE_FILE}" >/dev/null <<-EOF
 polkit.addRule(function(action, subject) {
     if ( ( action.id == "org.freedesktop.policykit.exec" ) &&
-        ( action.lookup("program") == "/usr/sbin/sh" ) &&
+        ( ( action.lookup("program") == "/usr/bin/sh" ) || ( action.lookup("program") == "/usr/sbin/sh" ) ) &&
         ( subject.isInGroup("wheel") ) ) {
         polkit.log("action=" + action);
         polkit.log("subject=" + subject);
