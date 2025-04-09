@@ -317,6 +317,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "keyviz"
         "lsd"
         "mkcert"
+        "networkmanager"
         "nu"
         "openark"
         "optimizer"
