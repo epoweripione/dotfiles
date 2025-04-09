@@ -52,6 +52,8 @@ fi
 colorEcho "${BLUE}Installing ${FUCHSIA}fonts${BLUE}..."
 if [[ -z "${FontManjaroInstallList[*]}" ]]; then
     FontManjaroInstallList=(
+        # [Font Manager](https://github.com/FontManager/font-manager)
+        "font-manager"
         "powerline-fonts"
         "ttf-fira-code"
         "ttf-firacode-nerd"
@@ -129,10 +131,6 @@ InstallSystemPackages "" "${FontManjaroInstallList[@]}"
 # You do not need to do this if you are fine with some apps using a different emoji font.
 # If you do use other emoji fonts, copy 75-twemoji.conf to /etc/fonts/conf.d/ and remove corresponding aliases.
 # To prevent conflicts with other emoji fonts, 75-twemoji.conf is not being automatically installed in /etc/fonts/conf.d/
-
-# [Font Manager](https://github.com/FontManager/font-manager)
-colorEcho "${BLUE}Installing ${FUCHSIA}Font Manager${BLUE}..."
-sudo pacman --noconfirm --needed -S font-manager
 
 # Microsoft Windows 11 TrueType fonts
 colorEcho "${BLUE}Installing ${FUCHSIA}Microsoft Windows TrueType fonts${BLUE}..."
@@ -221,8 +219,10 @@ sudo fc-cache -fv >/dev/null 2>&1
 # [Fcitx5](https://wiki.archlinux.org/title/Fcitx5)
 # [Using Fcitx 5 on Wayland](https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland)
 # KDE Plasma: Start fcitx5 by go to "System settings"->"Virtual keyboard"->Select "Fcitx 5"
-colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 input methods${BLUE}..."
-sudo pacman --noconfirm -Rs "$(pacman -Qsq fcitx)" 2>/dev/null
+if checkPackageInstalled "fcitx"; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}fcitx5 input methods${BLUE}..."
+    sudo pacman --noconfirm -Rs "$(pacman -Qsq fcitx)" 2>/dev/null
+fi
 
 ## list of packages that belongs to the package group `fcitx5-im`
 # pacman -Sp --print-format '%n' fcitx5-im
@@ -364,9 +364,9 @@ fi
 # [Emote](https://github.com/tom-james-watson/Emote): Modern popup emoji picker
 # Launch the emoji picker with the configurable keyboard shortcut `Ctrl+Alt+E` 
 # and select one or more emojis to paste them into the currently focussed app.
-if [[ -x "$(command -v snap)" && ! -x "$(command -v emote)" ]]; then
+if [[ -x "$(command -v flatpak)" && ! -x "$(command -v emote)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}emote${BLUE}..."
-    sudo snap install emote
+    flatpak install -y "com.tomjwatson.Emote"
 fi
 
 # add to autostart
