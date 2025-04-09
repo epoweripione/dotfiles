@@ -5,7 +5,7 @@ wsl --shutdown
 
 # open window diskpart with script file
 @'
-select vdisk file="%USERPROFILE%\AppData\Local\Docker\wsl\data\ext4.vhdx"
+select vdisk file="%USERPROFILE%\AppData\Local\Docker\wsl\disk\docker_data.vhdx"
 attach vdisk readonly
 compact vdisk
 detach vdisk
