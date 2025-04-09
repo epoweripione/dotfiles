@@ -191,7 +191,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
     MIRROR_PACKAGE_MANAGER_APT="mirror.sjtu.edu.cn"
     
     # Archlinux
-    MIRROR_ARCHLINUX_CN="https://mirrors.sjtug.sjtu.edu.cn"
+    MIRROR_ARCHLINUX_CN="https://mirrors.sustech.edu.cn"
 
     # CentOS Stream
     MIRROR_CENTOS_STREAM="https://mirrors.aliyun.com/centos-stream"
