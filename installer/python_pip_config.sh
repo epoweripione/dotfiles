@@ -210,6 +210,7 @@ PYTHON_PIP_CONFIG=${PYTHON_PIP_CONFIG:-"$HOME/.pip/pip.conf"}
 
 # pip configurations for current user
 if [[ ! -f "${PYTHON_PIP_CONFIG}" ]]; then
+    mkdir -p "$(dirname "${PYTHON_PIP_CONFIG}")"
     cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/pip" "${PYTHON_PIP_CONFIG}"
 fi
 
