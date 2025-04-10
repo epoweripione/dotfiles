@@ -134,7 +134,7 @@ InstallSystemPackages "" "${FontManjaroInstallList[@]}"
 
 # Microsoft Windows 11 TrueType fonts
 colorEcho "${BLUE}Installing ${FUCHSIA}Microsoft Windows TrueType fonts${BLUE}..."
-if [[ ! -d "/usr/share/fonts/WindowsFonts" ]]; then
+if [[ ! -f "/usr/share/fonts/WindowsFonts/msyh.ttc" ]]; then
     FontDownloadURL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/ms-win11-fonts.zip"
     mkdir -p "${WORKDIR}/WindowsFonts" && \
         curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/ms-win11-fonts.zip" "${FontDownloadURL}" && \
@@ -251,7 +251,7 @@ CJKInstallList=(
     "fcitx5-breeze"
     # emoji & screen keyboard
     "aur/emoji-keyboard-bin" # [Emoji keyboard](https://github.com/OzymandiasTheGreat/emoji-keyboard)
-    "aur/emote" # [Emote](https://github.com/tom-james-watson/Emote)
+    # "aur/emote" # [Emote](https://github.com/tom-james-watson/Emote)
     "onboard" # [Onboard Onscreen Keyboard](https://launchpad.net/onboard)
 )
 InstallSystemPackages "" "${CJKInstallList[@]}"
@@ -307,8 +307,8 @@ if [[ "${OS_INFO_DESKTOP}" == "GNOME" ]]; then
 fi
 
 # Fcitx5 configuration
-mkdir -p "$HOME/.config/fcitx5/conf"
 if [[ ! -f "$HOME/.config/fcitx5/conf/classicui.conf" ]]; then
+    mkdir -p "$HOME/.config/fcitx5/conf"
     if [[ -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/fcitx/classicui.conf" ]]; then
         cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/ssh/classicui.conf" "$HOME/.config/fcitx5/conf/classicui.conf"
     fi
@@ -342,7 +342,7 @@ fi
 
 ## GNOME: Insert Special Characters via `GNOME Characters` App
 # GNOME Characters
-if [[ "${OS_INFO_DESKTOP}" == "GNOME" ]]; then
+if [[ "${OS_INFO_DESKTOP}" == "GNOME" && ! -x "$(command -v gnome-characters)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}GNOME Characters${BLUE}..."
     sudo pacman --noconfirm --needed -S gnome-characters
 
@@ -370,7 +370,7 @@ if [[ -x "$(command -v flatpak)" && ! -x "$(command -v emote)" ]]; then
 fi
 
 # add to autostart
-if [[ -x "$(command -v emote)" ]]; then
+if [[ -x "$(command -v emote)" && ! -f "$HOME/.config/autostart/emote.desktop" ]]; then
     tee "$HOME/.config/autostart/emote.desktop" >/dev/null <<-'EOF'
 [Desktop Entry]
 Encoding=UTF-8
@@ -391,8 +391,8 @@ if [[ -s "/etc/sddm.conf" ]]; then
 fi
 
 # 以 [雾凇拼音](https://github.com/iDvel/rime-ice) 为基础，合并粵語拼音、四叶草等输入法方案
-mkdir -p "$HOME/.local/share/fcitx5/rime/"
 if [[ ! -f "$HOME/.local/share/fcitx5/rime/default.custom.yaml" ]]; then
+    mkdir -p "$HOME/.local/share/fcitx5/rime/"
     # source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/cjk_rime_symbols.sh"
     source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/cjk_fcitx_themes.sh"
     source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/cjk_rime_schema.sh"

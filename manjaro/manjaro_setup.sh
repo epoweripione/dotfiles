@@ -244,12 +244,12 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "aur/xpipe"
         "yaml-language-server"
         # "aur/powershell-bin"
-        "extra/geany"
-        "extra/geany-plugins"
-        "aur/geany-themes"
+        # "extra/geany"
+        # "extra/geany-plugins"
+        # "aur/geany-themes"
         # "extra/notepadqq"
         "archlinuxcn/notepad---git"
-        "aur/cudatext-qt5-bin"
+        "aur/cudatext-qt6-bin"
         ## Dictionary
         # "goldendict-git"
         ## Download & Upload
@@ -339,8 +339,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "wps-office-cn"
         "wps-office-mui-zh-cn"
         "wps-office-mime-cn"
-        "wps-office-fonts"
-        # "ttf-wps-fonts"
+        # "wps-office-fonts"
+        "ttf-wps-fonts"
         "wps-office-all-dicts-win-languages"
         # [LibreOffice](https://wiki.archlinux.org/title/LibreOffice)
         "extra/libreoffice-fresh"
