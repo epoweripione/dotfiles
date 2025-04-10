@@ -341,18 +341,20 @@ function App_Installer_Get_Remote_Version() {
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 
     # Get app version
-    INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
-
-    # Github repos
-    [[ "${remote_url}" == "https://api.github.com/repos/"* ]] && jq_match_pattern=".tag_name"
-
-    if [[ -z "${INSTALLER_REMOTE_CONTENT}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
-        jq_match_pattern=""
+    if [[ "${remote_url}" == "https://api.github.com/repos/"* ]]; then
+        # Github repos
+        jq_match_pattern=".tag_name"
         if [[ -n "${GITHUB_API_TOKEN}" ]]; then
             # Use Github API token to fix rate limit exceeded
             INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" -H "Authorization: token ${GITHUB_API_TOKEN}" "${remote_url}" 2>/dev/null)
+        else
+            INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
         fi
+    else
+        INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${remote_url}" 2>/dev/null)
+    fi
 
+    if [[ -z "${INSTALLER_REMOTE_CONTENT}" && "${remote_url}" == "https://api.github.com/repos/"* ]]; then
         # Extract from github release page
         if [[ -z "${INSTALLER_REMOTE_CONTENT}" ]]; then
             remote_url="${remote_url//api.github.com\/repos/github.com}"
@@ -360,6 +362,7 @@ function App_Installer_Get_Remote_Version() {
 
             if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
                 INSTALLER_FROM_GITHUB_RELEASE="yes"
+                jq_match_pattern=""
                 INSTALLER_VER_REMOTE=$(grep '<title>' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
                 [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep 'Release' <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
                 [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
@@ -454,7 +457,7 @@ function App_Installer_Get_Remote_URL() {
             file_match_pattern=$(awk -F# '{print $2}' <<<"${file_match_pattern}")
         else
             jq_match_pattern="${file_match_pattern}"
-            file_match_pattern=""
+            file_match_pattern=".*"
         fi
     fi
 
@@ -477,6 +480,9 @@ function App_Installer_Get_Remote_URL() {
     fi
 
     [[ -z "${match_urls}" ]] && match_urls=$(grep -Eo "${file_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}")
+
+    # All download urls
+    INSTALLER_ALL_DOWNLOAD_URLS="${match_urls}"
 
     # Get urls which match running platform
     [[ -z "${OS_INFO_MATCH_TYPE}" ]] && App_Installer_Get_OS_Info_Match_Cond
@@ -831,6 +837,8 @@ function App_Installer_Reset() {
     INSTALLER_ADDON_FILES=()
 
     INSTALLER_INSTALL_LOGFILE="$HOME/.dotfiles.installer.log"
+
+    INSTALLER_ALL_DOWNLOAD_URLS=""
 
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
     [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
