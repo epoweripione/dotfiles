@@ -19,12 +19,12 @@ fi
 
 App_Installer_Reset
 
-# llama: Terminal file manager
-# https://github.com/antonmedv/llama
-INSTALLER_APP_NAME="llama"
-INSTALLER_GITHUB_REPO="antonmedv/llama"
+# walk: Terminal file manager
+# https://github.com/antonmedv/walk
+INSTALLER_APP_NAME="walk"
+INSTALLER_GITHUB_REPO="antonmedv/walk"
 
-INSTALLER_INSTALL_NAME="llama"
+INSTALLER_INSTALL_NAME="walk"
 
 INSTALLER_VER_FILE="${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}.version"
 
@@ -38,7 +38,7 @@ else
 fi
 
 REMOTE_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
-if App_Installer_Get_Remote_URL "${REMOTE_URL}" 'llama_.*' "llama_.*"; then
+if App_Installer_Get_Remote_URL "${REMOTE_URL}" 'walk_.*' "walk_.*"; then
     if App_Installer_Install; then
         :
     else
@@ -46,9 +46,9 @@ if App_Installer_Get_Remote_URL "${REMOTE_URL}" 'llama_.*' "llama_.*"; then
     fi
 fi
 
-# export LLAMA_EDITOR=nano
+# export walk_EDITOR=nano
 # function llcd() {
-#     llama "$@" 2> /tmp/path && cd "$(cat /tmp/path)" || return 0
+#     walk "$@" 2> /tmp/path && cd "$(cat /tmp/path)" || return 0
 # }
 
 cd "${CURRENT_DIR}" || exit
