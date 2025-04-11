@@ -45,7 +45,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     if check_os_arch; then
         if App_Installer_Get_Remote_URL "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" "tabby-.*\.pacman"; then
             if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "$(xdg-user-dir DOWNLOAD)/tabby.pacman"; then
-                sudo pacman -U "$(xdg-user-dir DOWNLOAD)/tabby.pacman"
+                sudo pacman --noconfirm -U "$(xdg-user-dir DOWNLOAD)/tabby.pacman"
                 [[ -n "${INSTALLER_VER_FILE}" ]] && echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null || true
             else
                 colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
