@@ -526,8 +526,8 @@ function CheckSetGlobalProxy() {
     $Proxy = ""
     if (-Not (check_webservice_up)) {
         $Proxy = "${ProxyAddress}:${ProxyMixedPort}"
-        if (-Not (check_socks5_proxy_up $Proxy)) {
-            if (-Not (check_http_proxy_up $Proxy)) {
+        if (-Not (check_http_proxy_up $Proxy)) {
+            if (-Not (check_socks5_proxy_up $Proxy)) {
                 $Proxy = ""
             }
         }
