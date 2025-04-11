@@ -123,6 +123,9 @@ sudo pacman --noconfirm --needed -S bind git axel curl wget unzip seahorse yay f
 colorEcho "${BLUE}Installing ${FUCHSIA}Build deps${BLUE}..."
 sudo pacman --noconfirm --needed -S base-devel cmake patch pkg-config automake
 
+colorEcho "${BLUE}Installing ${FUCHSIA}openjdk${BLUE}..."
+sudo pacman --noconfirm --needed -S jdk17-openjdk
+
 # [Flatpak](https://flatpak.org/)
 colorEcho "${BLUE}Installing ${FUCHSIA}Flatpak${BLUE}..."
 sudo pacman --noconfirm --needed -S flatpak libpamac-flatpak-plugin
