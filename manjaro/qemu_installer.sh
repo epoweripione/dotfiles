@@ -51,8 +51,10 @@ InstallSystemPackages "" "${InstallList[@]}"
 sudo systemctl enable --now libvirtd.service
 
 # Enable normal user account to use KVM
-sudo sed -i 's/^[# ]*unix_sock_group.*/unix_sock_group = "libvirt"/g' "/etc/libvirt/libvirtd.conf"
-sudo sed -i 's/^[# ]*unix_sock_rw_perms.*/unix_sock_rw_perms = "0770"/g' "/etc/libvirt/libvirtd.conf"
+if [[ -f "/etc/libvirt/libvirtd.conf" ]]; then
+    sudo sed -i 's/^[# ]*unix_sock_group.*/unix_sock_group = "libvirt"/g' "/etc/libvirt/libvirtd.conf"
+    sudo sed -i 's/^[# ]*unix_sock_rw_perms.*/unix_sock_rw_perms = "0770"/g' "/etc/libvirt/libvirtd.conf"
+fi
 
 ## Add user to the kvm and libvirt groups
 # sudo usermod -a -G libvirt "$(whoami)"
