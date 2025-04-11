@@ -133,8 +133,8 @@ InstallSystemPackages "" "${FontManjaroInstallList[@]}"
 # To prevent conflicts with other emoji fonts, 75-twemoji.conf is not being automatically installed in /etc/fonts/conf.d/
 
 # Microsoft Windows 11 TrueType fonts
-colorEcho "${BLUE}Installing ${FUCHSIA}Microsoft Windows TrueType fonts${BLUE}..."
-if [[ ! -f "/usr/share/fonts/WindowsFonts/msyh.ttc" ]]; then
+if ! sudo test -f "/usr/share/fonts/WindowsFonts/msyh.ttc"; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}Microsoft Windows TrueType fonts${BLUE}..."
     FontDownloadURL="https://github.com/epoweripione/fonts/releases/download/v0.1.0/ms-win11-fonts.zip"
     mkdir -p "${WORKDIR}/WindowsFonts" && \
         curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/ms-win11-fonts.zip" "${FontDownloadURL}" && \
@@ -332,12 +332,14 @@ if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}KCharSelect${BLUE}..."
     sudo pacman --noconfirm --needed -S kcharselect
 
-    colorEcho "${BLUE}Installing ${FUCHSIA}krunner-symbols${BLUE}..."
-    sudo pacman --noconfirm --needed -S ki18n krunner qt5-base cmake extra-cmake-modules
+    if vulkaninfo >/dev/null 2>&1; then
+        colorEcho "${BLUE}Installing ${FUCHSIA}krunner-symbols${BLUE}..."
+        sudo pacman --noconfirm --needed -S ki18n krunner qt5-base cmake extra-cmake-modules
 
-    mkdir -p "$HOME/Applications"
-    Git_Clone_Update_Branch "domschrei/krunner-symbols" "$HOME/Applications/krunner-symbols"
-    [[ -d "$HOME/Applications/krunner-symbols" ]] && cd "$HOME/Applications/krunner-symbols" && bash build_and_install.sh
+        mkdir -p "$HOME/Applications"
+        Git_Clone_Update_Branch "domschrei/krunner-symbols" "$HOME/Applications/krunner-symbols" "github.com" "plasma6"
+        [[ -d "$HOME/Applications/krunner-symbols" ]] && cd "$HOME/Applications/krunner-symbols" && bash build_and_install.sh
+    fi
 fi
 
 ## GNOME: Insert Special Characters via `GNOME Characters` App
@@ -366,7 +368,7 @@ fi
 # and select one or more emojis to paste them into the currently focussed app.
 if [[ -x "$(command -v flatpak)" && ! -x "$(command -v emote)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}emote${BLUE}..."
-    flatpak install -y "com.tomjwatson.Emote"
+    flatpak install --or-update -y "com.tomjwatson.Emote"
 fi
 
 # add to autostart
