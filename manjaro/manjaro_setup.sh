@@ -249,7 +249,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "aur/geany-themes"
         # "extra/notepadqq"
         "archlinuxcn/notepad---git"
-        "aur/cudatext-qt6-bin"
+        # "aur/cudatext-qt6-bin"
         ## Dictionary
         # "goldendict-git"
         ## Download & Upload
@@ -323,10 +323,10 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "synapse"
         "utools"
         ## Linux Advanced Power Management
-        # "power-profiles-daemon"
-        "tlp"
-        "tlp-rdw"
-        "tlpui"
+        "power-profiles-daemon"
+        # "tlp"
+        # "tlp-rdw"
+        # "tlpui"
         ## System
         "filelight"
         "peek"
@@ -340,7 +340,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "wps-office-mui-zh-cn"
         "wps-office-mime-cn"
         # "wps-office-fonts"
-        "ttf-wps-fonts"
+        # "ttf-wps-fonts"
         "wps-office-all-dicts-win-languages"
         # [LibreOffice](https://wiki.archlinux.org/title/LibreOffice)
         "extra/libreoffice-fresh"
@@ -389,7 +389,7 @@ for TargetApp in "${AppFlatpakInstallList[@]}"; do
     TargetRemote=$(cut -d# -f1 <<<"${TargetApp}")
     TargetApp=$(cut -d# -f2 <<<"${TargetApp}")
     colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
-    flatpak install -y "${TargetRemote}" "${TargetApp}"
+    flatpak install --or-update -y "${TargetRemote}" "${TargetApp}"
 done
 
 ## RDP Server
@@ -544,6 +544,9 @@ if [[ -x "$(command -v ksshaskpass)" ]]; then
     mkdir -p "$HOME/.config/environment.d"
     echo -e "SSH_ASKPASS=/usr/bin/ksshaskpass\nSH_ASKPASS_REQUIRE=prefer" > "$HOME/.config/environment.d/ssh_askpass.conf"
 fi
+
+# Rustdesk
+[[ -x "$(command -v rustdesk)" ]] && sudo systemctl enable --now rustdesk
 
 # Clean jobs
 # sudo pacman -Rns $(pacman -Qtdq)
