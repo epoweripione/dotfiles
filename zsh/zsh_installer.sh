@@ -102,6 +102,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         mtr
         multitail
         netcat-openbsd
+        openbsd-netcat
         nmap
         python3
         recode
