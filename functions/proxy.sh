@@ -564,8 +564,8 @@ function set_global_proxy() {
 
 # Check & set global proxy
 function check_set_global_proxy() {
-    local SOCKS_PORT=${1:-"1080"}
-    local MIXED_PORT=${2:-"8080"}
+    local SOCKS_PORT=$1
+    local MIXED_PORT=$2
     local PROXY_IP
     local PROXY_SOCKS=""
     local SOCKS_PROTOCOL="socks5"
@@ -608,9 +608,10 @@ function check_set_global_proxy() {
 
     if [[ -n "${GLOBAL_PROXY_IP}" ]]; then
         IP_LIST=$(echo -e "${GLOBAL_PROXY_IP}\n${IP_LIST}" | uniq)
-        SOCKS_PROTOCOL="${GLOBAL_PROXY_SOCKS_PROTOCOL:-${SOCKS_PROTOCOL}}"
-        SOCKS_PORT="${GLOBAL_PROXY_SOCKS_PORT:-${SOCKS_PORT}}"
-        MIXED_PORT="${GLOBAL_PROXY_MIXED_PORT:-${MIXED_PORT}}"
+
+        [[ -z "${SOCKS_PROTOCOL}" ]] && SOCKS_PROTOCOL="${GLOBAL_PROXY_SOCKS_PROTOCOL:-${SOCKS_PROTOCOL}}"
+        [[ -z "${SOCKS_PORT}" ]] && SOCKS_PORT="${GLOBAL_PROXY_SOCKS_PORT:-${SOCKS_PORT}}"
+        [[ -z "${MIXED_PORT}" ]] && MIXED_PORT="${GLOBAL_PROXY_MIXED_PORT:-${MIXED_PORT}}"
     fi
 
     # Set global proxy
@@ -663,6 +664,18 @@ function check_set_global_proxy() {
         set_global_proxy # clear global proxy
 
         return 1
+    fi
+}
+
+function setGlobalProxies() {
+    # Use proxy or mirror when some sites were blocked or low speed
+    [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
+
+    # Check & set global proxy
+    if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+        if ! check_set_global_proxy "${GLOBAL_PROXY_SOCKS_PORT:-7891}" "${GLOBAL_PROXY_MIXED_PORT:-7890}"; then
+            check_set_global_proxy "${GLOBAL_PROXY_SECONDARY_SOCKS_PORT:-7961}" "${GLOBAL_PROXY_SECONDARY_MIXED_PORT:-7960}"
+        fi
     fi
 }
 
