@@ -33,32 +33,40 @@ colorEcho "${BLUE}Installing ${FUCHSIA}Conky${BLUE}..."
 # http://www.manongzj.com/blog/4-lhjnjqtantllpnj.html
 AppConkyInstallList=(
     "jq"
-    "aur/conky-lua-nv"
+    "conky"
+    "conky-manager2"
+    # "aur/conky-lua-nv"
+    # "aur/conky-manager2-git"
     "aur/conky-colors-git"
-    "aur/conky-manager2-git"
 )
 InstallSystemPackages "" "${AppConkyInstallList[@]}"
 
-curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$HOME/conky-convert.lua" \
-    "https://raw.githubusercontent.com/brndnmtthws/conky/master/extras/convert.lua"
+if [[ ! -f "$HOME/conky-convert.lua" ]]; then
+    curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$HOME/conky-convert.lua" \
+        "https://raw.githubusercontent.com/brndnmtthws/conky/master/extras/convert.lua"
+fi
 
 # conky-colors --help
-conky-colors --theme=human --side=right --arch --cpu=2 --proc=5 \
-    --swap --hd=mix --network --clock=modern --calendar
-    # --weather=2161838 --bbcweather=1809858 --unit=C
+if [[ -x "$(command -v conky-colors)" ]]; then
+    conky-colors --theme=human --side=right --arch --cpu=2 --proc=5 \
+        --swap --hd=mix --network --clock=modern --calendar
+        # --weather=2161838 --bbcweather=1809858 --unit=C
+fi
 
 # network interface
 get_network_interface_default
-[[ -n "${NETWORK_INTERFACE_DEFAULT}" ]] && \
-    sed -i "s/ppp0/${NETWORK_INTERFACE_DEFAULT}/g" "$HOME/.conkycolors/conkyrc"
+if [[ -f "$HOME/.conkycolors/conkyrc" ]]; then
+    [[ -n "${NETWORK_INTERFACE_DEFAULT}" ]] && \
+        sed -i "s/ppp0/${NETWORK_INTERFACE_DEFAULT}/g" "$HOME/.conkycolors/conkyrc"
 
-# display font
-sed -i 's/font Liberation Sans/font Sarasa Term SC/g' "$HOME/.conkycolors/conkyrc" && \
-    sed -i 's/font Liberation Mono/font Sarasa Mono SC/g' "$HOME/.conkycolors/conkyrc" && \
-    sed -i 's/font ConkyColors/font Sarasa Term SC/g' "$HOME/.conkycolors/conkyrc" && \
-    sed -i 's/font Sarasa Term SCLogos/font ConkyColorsLogos/g' "$HOME/.conkycolors/conkyrc" && \
-    : && \
-    lua "$HOME/conky-convert.lua" "$HOME/.conkycolors/conkyrc"
+    # display font
+    sed -i 's/font Liberation Sans/font Sarasa Term SC/g' "$HOME/.conkycolors/conkyrc" && \
+        sed -i 's/font Liberation Mono/font Sarasa Mono SC/g' "$HOME/.conkycolors/conkyrc" && \
+        sed -i 's/font ConkyColors/font Sarasa Term SC/g' "$HOME/.conkycolors/conkyrc" && \
+        sed -i 's/font Sarasa Term SCLogos/font ConkyColorsLogos/g' "$HOME/.conkycolors/conkyrc" && \
+        : && \
+        lua "$HOME/conky-convert.lua" "$HOME/.conkycolors/conkyrc"
+fi
 # conky -c "$HOME/.conkycolors/conkyrc"
 
 # Hybrid
@@ -255,9 +263,8 @@ ${image $HOME/.config/conky/hybrid/weather_mini.png -p 0,0 -n}
 ]]
 EOF
 
-# A Conky theme pack
-# https://github.com/closebox73/Leonis
-Git_Clone_Update_Branch "closebox73/Leonis" "$HOME/.conky/Leonis"
+## [A Conky theme pack](https://github.com/closebox73/Leonis)
+# Git_Clone_Update_Branch "closebox73/Leonis" "$HOME/.conky/Leonis"
 if [[ -d "$HOME/.conky/Leonis/Regulus" ]]; then
     cp -r "$HOME/.conky/Leonis/Regulus/" "$HOME/.conky/"
 
