@@ -36,9 +36,9 @@ APP_LIST_FILE=$2
 
 DOWNLOAD_OPTIONS="$3"
 
-## app list file format: url or github repo#app_name#filename_match_pattern#version_match_pattern
+## app list file format: app_name or github_repo#check_url#archive_file_extension#filename_match_pattern#version_match_pattern
 # eza-community/eza
-# https://dev.yorhel.nl/ncdu#ncdu#ncdu-.*\.tar\.gz#ncdu-[^<>:;,?"*|/]+\.tar\.gz'
+# ncdu#https://dev.yorhel.nl/ncdu#tar.gz#/download/ncdu-[^<>:;,?"*|/]+\.tar\.gz#ncdu-.*\.tar\.gz
 
 APP_JSON_FILE="${CACHE_DIR}/apps.json"
 [[ ! -f "${APP_JSON_FILE}" ]] && echo -e '[]' | tee "${APP_JSON_FILE}" >/dev/null
@@ -55,10 +55,11 @@ while read -r line; do
     App_Installer_Reset
 
     if grep -q '#' <<<"${line}"; then
-        INSTALLER_CHECK_URL=$(awk -F"#" '{print $1}' <<< "${line}")
-        APP_NAME=$(awk -F"#" '{print $2}' <<< "${line}")
-        FILENAME_PATTERN=$(awk -F"#" '{print $3}' <<< "${line}")
-        VERSION_PATTERN=$(awk -F"#" '{print $4}' <<< "${line}")
+        APP_NAME=$(awk -F"#" '{print $1}' <<< "${line}")
+        INSTALLER_CHECK_URL=$(awk -F"#" '{print $2}' <<< "${line}")
+        INSTALLER_ARCHIVE_EXT=$(awk -F'#' '{print $3}' <<<"${line}")
+        FILENAME_PATTERN=$(awk -F"#" '{print $4}' <<< "${line}")
+        VERSION_PATTERN=$(awk -F"#" '{print $5}' <<< "${line}")
     else
         INSTALLER_CHECK_URL="${line}"
         APP_NAME=$(awk -F"/" '{print $NF}' <<< "${line}")
@@ -81,13 +82,22 @@ while read -r line; do
 
     # Get app download URLs
     App_Installer_Get_Remote_URL "${INSTALLER_CHECK_URL}" "${FILENAME_PATTERN}" "${VERSION_PATTERN}"
+
     [[ -z "${INSTALLER_VER_REMOTE}" ]] && continue
+    [[ -z "${INSTALLER_ALL_DOWNLOAD_URLS}" ]] && continue
 
     # Add app to json
     JSON_APP_NAME=$(jq -r ".[] | select(.name == \"${APP_NAME}\").name//empty" <<< "${APP_JSON}")
     if [[ -z "${JSON_APP_NAME}" ]]; then
         APP_JSON=$(jq -r ". += [{\"name\": \"${APP_NAME}\"}]" <<< "${APP_JSON}")
     fi
+
+    # App info
+    APP_JSON=$(jq -r "(.[] | select(.name == \"${APP_NAME}\")).source |= \"${INSTALLER_CHECK_URL}\"" <<< "${APP_JSON}")
+    APP_JSON=$(jq -r "(.[] | select(.name == \"${APP_NAME}\")).repository |= \"${INSTALLER_GITHUB_REPO}\"" <<< "${APP_JSON}")
+
+    JSON_APP_OPTIONS=$(sed 's/[\\\"]/\\&/g' <<<"${line}")
+    APP_JSON=$(jq -r "(.[] | select(.name == \"${APP_NAME}\")).options |= \"${JSON_APP_OPTIONS}\"" <<< "${APP_JSON}")
 
     ## Check app version and URLs
     # JSON_APP_VERSION=$(jq -r ".[] | select(.name == \"${APP_NAME}\").version//empty" <<< "${APP_JSON}")
@@ -101,6 +111,14 @@ while read -r line; do
     APP_JSON=$(jq -r "(.[] | select(.name == \"${APP_NAME}\")).version |= \"${INSTALLER_VER_REMOTE}\"" <<< "${APP_JSON}")
 
     # App download URLs
+    INSTALLER_ALL_DOWNLOAD_URLS=$(sort -u <<<"${INSTALLER_ALL_DOWNLOAD_URLS}")
+    if grep -q "^/" <<<"${INSTALLER_ALL_DOWNLOAD_URLS}"; then
+        URL_PROTOCOL=$(awk -F/ '{print $1}' <<<"${INSTALLER_CHECK_URL}")
+        URL_DOMAIN=$(awk -F/ '{print $3}' <<<"${INSTALLER_CHECK_URL}")
+        INSTALLER_ALL_DOWNLOAD_URLS=$(sed "s|^|${URL_PROTOCOL}//${URL_DOMAIN}|" <<<"${INSTALLER_ALL_DOWNLOAD_URLS}")
+    fi
+
+    APP_JSON=$(jq -r "(.[] | select(.name == \"${APP_NAME}\")).urls |= []" <<< "${APP_JSON}")
     while read -r downloadUrl; do
         [[ -z "${downloadUrl}" ]] && continue
         APP_JSON=$(jq -r "(.[] | select(.name == \"${APP_NAME}\")).urls += [\"${downloadUrl}\"]" <<< "${APP_JSON}")
