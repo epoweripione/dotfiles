@@ -23,13 +23,15 @@ App_Installer_Reset
 ## Rust and Cargo
 ## https://www.rust-lang.org/learn/get-started
 ## On Linux and macOS systems
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+
+if [[ ! -x "$(command -v rustup)" ]]; then
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+fi
 
 ## On Windows
 ## https://win.rustup.rs/
 # scoop install rustup
-
-[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
 if [[ -x "$(command -v cargo)" ]]; then
     AppInstaller="${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/cargo-binstall_installer.sh"
