@@ -121,6 +121,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${INSTALLER_FILE_PATH}" ]]; then
             zlib.i686
             ncurses-libs.i686
             bzip2-libs.i686
+            clang
             cmake
             ninja
         )
