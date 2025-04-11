@@ -129,7 +129,7 @@ function main() {
 
         [[ -z "${GLOBAL_PROXY_IP}" ]] && use_clash 127.0.0.1 "${GLOBAL_PROXY_SOCKS_PORT:-7891}" "${GLOBAL_PROXY_MIXED_PORT:-7890}"
 
-        check_set_global_proxy "${GLOBAL_PROXY_SOCKS_PORT:-7891}" "${GLOBAL_PROXY_MIXED_PORT:-7890}"
+        setGlobalProxies
     fi
 }
 

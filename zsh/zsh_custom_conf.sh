@@ -73,13 +73,8 @@ fi
 if [[ -s "${MY_SHELL_SCRIPTS}/custom_functions.sh" ]]; then
     source "${MY_SHELL_SCRIPTS}/custom_functions.sh"
 
-    # Use proxy or mirror when some sites were blocked or low speed
-    [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
-
     # Check & set global proxy
-    if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-        check_set_global_proxy "${GLOBAL_PROXY_SOCKS_PORT:-7891}" "${GLOBAL_PROXY_MIXED_PORT:-7890}"
-    fi
+    setGlobalProxies
 fi
 
 # zsh-command-time
