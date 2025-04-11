@@ -482,7 +482,7 @@ function App_Installer_Get_Remote_URL() {
     [[ -z "${match_urls}" ]] && match_urls=$(grep -Eo "${file_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}")
 
     # All download urls
-    INSTALLER_ALL_DOWNLOAD_URLS="${match_urls}"
+    INSTALLER_ALL_DOWNLOAD_URLS=$(sort -u <<<"${match_urls}")
 
     # Get urls which match running platform
     [[ -z "${OS_INFO_MATCH_TYPE}" ]] && App_Installer_Get_OS_Info_Match_Cond
