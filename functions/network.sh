@@ -419,6 +419,16 @@ function flush_dns_cache() {
     fi
 }
 
+# Reset network without SmartDNS made in `manjaro/smartdns_insaller.sh`
+function resetNetworkWithoutSmartDNS() {
+    sudo test -f "/etc/NetworkManager/conf.d/disableresolv.conf" && sudo rm "/etc/NetworkManager/conf.d/disableresolv.conf"
+    sudo test -f "/etc/systemd/resolved.conf.d/fallback_dns.conf" && sudo rm "/etc/systemd/resolved.conf.d/fallback_dns.conf"
+    echo "nameserver 1.1.1.1" | sudo tee "/etc/resolv.conf" >/dev/null
+    sudo systemctl restart systemd-resolved
+    sudo systemctl restart systemd-networkd
+    sudo systemctl restart NetworkManager
+}
+
 ## Download hosts from url
 function download_hosts() {
     local hostsURL=${1:-""}
