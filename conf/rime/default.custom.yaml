@@ -43,11 +43,11 @@ patch:
     # 第四页 & more
     # [双拼练习](https://api.ihint.me/shuang/)
     - schema: moqi_xh # 墨奇音形+小鹤双拼
-    - schema: moqi_zrm # 墨奇音形+自然码双拼
+    # - schema: moqi_zrm # 墨奇音形+自然码双拼
     - schema: moqi_big # 墨奇音形大字集
-    - schema: moqi_ms # 墨奇音形+微软双拼
-    - schema: moqi_single_xh # 墨奇音形·顶屏版·鹤拼
-    - schema: moqi_sogou # 墨奇音形+搜狗双拼
+    # - schema: moqi_ms # 墨奇音形+微软双拼
+    # - schema: moqi_single_xh # 墨奇音形·顶屏版·鹤拼
+    # - schema: moqi_sogou # 墨奇音形+搜狗双拼
     # - schema: moqi_wan_abc_mo # 墨奇万象+智能abc双拼·墨奇
     # - schema: moqi_wan_flypy # 墨奇万象+小鹤双拼·鹤形
     # - schema: moqi_wan_flypyhu # 墨奇万象+小鹤双拼·虎形
@@ -60,12 +60,12 @@ patch:
     # - schema: moqi_wan_zrm_hx # 墨奇万象+自然码双拼·汉心码
     - schema: radical_flypy # 部件拆字 | 双拼
     - schema: reverse_moqima # 墨奇码反查
-    - schema: zrlf # 自然兩分
+    # - schema: zrlf # 自然兩分
     # - schema: jp_sela # jp_sela
-    - schema: sampheng # 中古三拼
-    - schema: zyenpheng # 中古全拼
-    - schema: ipa_xsampa # X-SAMPA
-    - schema: ipa_yunlong # 雲龍國際音標
+    # - schema: sampheng # 中古三拼
+    # - schema: zyenpheng # 中古全拼
+    # - schema: ipa_xsampa # X-SAMPA
+    # - schema: ipa_yunlong # 雲龍國際音標
     # - schema: jyut6ping3_ipa # 粵語拼音（IPA版）
     # - schema: terra_pinyin # 地球拼音
     # - schema: clover # 🍀️四叶草简体拼音
@@ -84,13 +84,13 @@ patch:
     # - schema: double_pinyin_mspy # 微软双拼
     # - schema: double_pinyin_sogou # 搜狗双拼
     # - schema: double_pinyin_ziguang # 紫光双拼
-    - schema: xuma_52p_qshare # 徐码五二
-    - schema: xuma_52p_long # 徐码五二辅案
-    - schema: xuma_qshare # 徐码·QS
-    - schema: xuma_qshare_type1 # 徐码·QS·一型
+    # - schema: xuma_52p_qshare # 徐码五二
+    # - schema: xuma_52p_long # 徐码五二辅案
+    # - schema: xuma_qshare # 徐码·QS
+    # - schema: xuma_qshare_type1 # 徐码·QS·一型
     ## - schema: xuma_52p_reverse # 徐码五二反·伪方案·勿用勿改
     ## - schema: xuma_spelling_pseudo # 徐码·伪方案·勿用勿改
-    - schema: zhengma # 郑码
+    # - schema: zhengma # 郑码
   # 从方案选单（而非快捷键）切换时会记住的选项
   "switcher/save_options":
     - ascii_mode          # 中、英
