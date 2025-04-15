@@ -310,7 +310,7 @@ fi
 if [[ ! -f "$HOME/.config/fcitx5/conf/classicui.conf" ]]; then
     mkdir -p "$HOME/.config/fcitx5/conf"
     if [[ -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/fcitx/classicui.conf" ]]; then
-        cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/ssh/classicui.conf" "$HOME/.config/fcitx5/conf/classicui.conf"
+        cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/fcitx/classicui.conf" "$HOME/.config/fcitx5/conf/classicui.conf"
     fi
 EOF
 fi
