@@ -617,6 +617,11 @@ if (-Not (check_webservice_up)) {
     }
 }
 
+# npm
+if (Get-Command "npm" -ErrorAction SilentlyContinue) {
+    npm install -g npm-check pnpm pm2
+}
+
 ## Fix `fatal: index file corrupt`
 # Set-Location "$HOME\scoop\apps\scoop\current"; Remove-Item -Path .\.git\index -Recurse; git reset; git reset --hard; git pull
 # Remove-Item -Path "$HOME\scoop\buckets\main" -Recurse; git clone -c core.autocrlf=false -c core.filemode=false "https://github.com/ScoopInstaller/Main" "$HOME\scoop\buckets\main"
