@@ -167,6 +167,10 @@ fi
 # GRUB_OS_PROBER_SKIP_LIST="d32ccad4-bedd-40d3-9e40-b62a4c8a09ec@/dev/sda2 58EE-F18B@/efi/Microsoft/Boot/bootmgfw.efi"
 # EOF
 
+## [Install-grub: a new way to keep your EFI/MBR in-sync with grub package](https://forum.manjaro.org/t/install-grub-a-new-way-to-keep-your-efi-mbr-in-sync-with-grub-package/154000)
+## [Primer on handling a grub package update](https://forum.manjaro.org/t/root-tip-how-to-primer-on-handling-a-grub-package-update/154003)
+# [[ "$(command -v install-grub)" ]] && sudo install-grub
+
 colorEcho "${BLUE}Regenerate ${FUCHSIA}GRUB2 configuration${BLUE}..."
 sudo mkinitcpio -P
 # sudo update-grub
