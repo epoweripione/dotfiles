@@ -158,6 +158,7 @@ function InstallSystemPackages() {
 
     [[ -n "${PreInstallMsg}" ]] && colorEcho "${PreInstallMsg}"
     for TargetPackage in "${InstallList[@]}"; do
+        colorEchoN "${BLUE}  Checking ${FUCHSIA}${TargetPackage}${BLUE}...\033[0K\r"
         if checkPackageNeedInstall "${TargetPackage}"; then
             PackagesToInstall+=("${TargetPackage}")
         fi
