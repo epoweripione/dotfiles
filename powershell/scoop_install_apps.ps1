@@ -11,31 +11,43 @@ if (-Not (Get-Command -Name "check_webservice_up" 2>$null)) {
 }
 
 # proxy
-$SCOOP_PROXY_ADDR = "127.0.0.1:7890"
-if (-Not (check_socks5_proxy_up $SCOOP_PROXY_ADDR)) {
-    $SCOOP_PROXY_ADDR = ""
-    if ($PROMPT_VALUE = Read-Host "Proxy address for scoop?") {
-        $SCOOP_PROXY_ADDR = $PROMPT_VALUE
-    }
+if (!$env:GLOBAL_PROXY_IP) {
+    setGlobalProxies
 }
+
+$SCOOP_PROXY_ADDR = "${env:GLOBAL_PROXY_IP}:${env:GLOBAL_PROXY_MIXED_PORT}"
+# if (-Not (check_http_proxy_up $SCOOP_PROXY_ADDR)) {
+#     $SCOOP_PROXY_ADDR = ""
+#     if ($PROMPT_VALUE = Read-Host "Proxy address for scoop?") {
+#         $SCOOP_PROXY_ADDR = $PROMPT_VALUE
+#     }
+# }
 
 # Scoop
 # https://scoop.sh/
 if (-Not (Get-Command "scoop" -ErrorAction SilentlyContinue)) {
     Write-Host "Installing scoop..." -ForegroundColor Blue
 
-    # https://github.com/lukesampson/scoop/wiki/Quick-Start
+    ## https://github.com/lukesampson/scoop/wiki/Quick-Start
     ## If you're behind a proxy you might need to run one or more of these commands first:
     ## If you want to use a proxy that isn't already configured in Internet Options
-    # [net.webrequest]::defaultwebproxy = new-object net.webproxy "http://proxy.example.org:8080"
+    # [Net.WebRequest]::DefaultWebProxy = New-Object Net.WebProxy "http://proxy.example.org:8080"
     ## If you want to use the Windows credentials of the logged-in user to authenticate with your proxy
-    # [net.webrequest]::defaultwebproxy.credentials = [net.credentialcache]::defaultcredentials
+    # [Net.WebRequest]::DefaultWebProxy.Credentials = [Net.CredentialCache]::DefaultCredentials
     ## If you want to use other credentials (replace 'username' and 'password')
-    # [net.webrequest]::defaultwebproxy.credentials = new-object net.networkcredential 'username', 'password'
+    # [Net.WebRequest]::DefaultWebProxy.Credentials = New-Object Net.NetworkCredential 'username', 'password'
 
-    if (-Not (($null -eq $SCOOP_PROXY_ADDR) -or ($SCOOP_PROXY_ADDR -eq ""))) {
-        [net.webrequest]::defaultwebproxy = new-object net.webproxy "http://$SCOOP_PROXY_ADDR"
-    }
+    # if (-Not (($null -eq $SCOOP_PROXY_ADDR) -or ($SCOOP_PROXY_ADDR -eq ""))) {
+    #     # [Net.WebRequest]::DefaultWebProxy = [Net.WebRequest]::GetSystemWebProxy()
+    #     # [Net.WebRequest]::DefaultWebProxy = New-Object Net.WebProxy($null)
+    #     [Net.WebRequest]::DefaultWebProxy = New-Object Net.WebProxy("http://$SCOOP_PROXY_ADDR")
+
+    #     # [Net.Http.HttpClient]::DefaultProxy = New-Object Net.WebProxy($null)
+    #     [Net.Http.HttpClient]::DefaultProxy = New-Object Net.WebProxy("http://$SCOOP_PROXY_ADDR")
+
+    #     # [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::SystemDefault
+    #     # [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    # }
 
     Set-ExecutionPolicy RemoteSigned -scope CurrentUser
 
@@ -73,7 +85,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
     ## Bypassing the proxy configured in Internet Options
     # scoop config rm proxy
 
-    if (-Not (($null -eq $SCOOP_PROXY_ADDR) -or ($SCOOP_PROXY_ADDR -eq ""))) {
+    if ($SCOOP_PROXY_ADDR) {
         scoop config proxy $SCOOP_PROXY_ADDR
     }
 

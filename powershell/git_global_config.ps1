@@ -15,10 +15,10 @@ if (-Not (Get-Command -Name "check_webservice_up" 2>$null)) {
 # }
 
 if ($Proxy) {
-    if (check_socks5_proxy_up $Proxy) {
-        $Proxy = "socks5://$Proxy"
-    } elseif (check_http_proxy_up $Proxy) {
+    if (check_http_proxy_up $Proxy) {
         $Proxy = "http://$Proxy"
+    } elseif (check_socks5_proxy_up $Proxy) {
+        $Proxy = "socks5://$Proxy"
     } else {
         $Proxy = ""
     }

@@ -7,16 +7,18 @@ if (-Not (Get-Command -Name "check_webservice_up" 2>$null)) {
     }
 }
 
-# socks proxy
-if (-Not (check_webservice_up)) {
-    $SOCKS_PROXY_ADDR = "127.0.0.1:7890"
-    if($PROMPT_VALUE = Read-Host "Scoks proxy address for github download?[$($SOCKS_PROXY_ADDR)]") {
-        $SOCKS_PROXY_ADDR = $PROMPT_VALUE
-    }
-    if (-Not (check_socks5_proxy_up $SOCKS_PROXY_ADDR)) {
-        $SOCKS_PROXY_ADDR = ""
-    }
+# proxy
+if (!$env:GLOBAL_PROXY_IP) {
+    setGlobalProxies
 }
+
+$PROXY_ADDR = "${env:GLOBAL_PROXY_IP}:${env:GLOBAL_PROXY_MIXED_PORT}"
+# if (-Not (check_http_proxy_up $PROXY_ADDR)) {
+#     $PROXY_ADDR = ""
+#     if($PROMPT_VALUE = Read-Host "Proxy address for Install-Module?") {
+#         $PROXY_ADDR = $PROMPT_VALUE
+#     }
+# }
 
 
 # A better way to add and remove Windows hosts file entries
@@ -37,10 +39,10 @@ if (Test-Path $DOWNLOAD_HOST) {
     Remove-Item $DOWNLOAD_HOST
 }
 
-if (($null -eq $SOCKS_PROXY_ADDR) -or ($SOCKS_PROXY_ADDR -eq "")) {
+if (($null -eq $PROXY_ADDR) -or ($PROXY_ADDR -eq "")) {
     curl -fsL --connect-timeout 5 -o "$DOWNLOAD_HOST" "$DOWNLOAD_URL"
 } else {
-    curl -fsL --connect-timeout 5 --socks5-hostname "$SOCKS_PROXY_ADDR" -o "$DOWNLOAD_HOST" "$DOWNLOAD_URL"
+    curl -fsL --connect-timeout 5 --proxy "$PROXY_ADDR" -o "$DOWNLOAD_HOST" "$DOWNLOAD_URL"
 }
 # $p = New-Object System.Net.WebClient
 # $p.DownloadFile($DOWNLOAD_URL, $Hostfile)

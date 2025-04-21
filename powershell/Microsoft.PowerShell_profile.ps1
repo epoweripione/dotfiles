@@ -12,6 +12,10 @@ if ((Test-Path "$PS_CUSTOM_ENV") -and ((Get-Item "$PS_CUSTOM_ENV").length -gt 0)
     . "$PS_CUSTOM_ENV"
 }
 
+if(!$env:SCOOP_HOME) {
+    $env:SCOOP_HOME = Resolve-Path (scoop prefix scoop)
+}
+
 Import-Module Find-String
 Import-Module Posh-git
 
@@ -69,7 +73,7 @@ $env:POSH_GIT_ENABLED = $true
 # Remove-Item $env:POSH_PATH -Force -Recurse
 # Uninstall-Module oh-my-posh -AllVersions
 # scoop install oh-my-posh
-$env:POSH_THEMES_PATH = "$(scoop prefix oh-my-posh)\themes\"
+$env:POSH_THEMES_PATH = Resolve-Path "$(scoop prefix oh-my-posh)\themes\"
 if (Test-Path "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json") {
     oh-my-posh init pwsh --config "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json" | Invoke-Expression
 } else {
@@ -226,7 +230,10 @@ function UpdateScoop {
 
     # update scoop
     $CurrentDir = Get-Location
-    $ScoopRoot = "$env:USERPROFILE\scoop\apps\scoop\current"
+    if(!$env:SCOOP_HOME) {
+        $env:SCOOP_HOME = Resolve-Path (scoop prefix scoop)
+    }
+    $ScoopRoot = "$env:SCOOP_HOME"
 
     Set-Location -Path $ScoopRoot
     git reset --hard | Out-Null
@@ -445,15 +452,19 @@ if (Get-Command "vfox" -ErrorAction SilentlyContinue) {
 #     Invoke-Expression (&starship init powershell)
 # }
 
-if (!$GLOBAL_PROXY_IP) {$GLOBAL_PROXY_IP="127.0.0.1"}
-if (!$GLOBAL_PROXY_MIXED_PORT) {$GLOBAL_PROXY_MIXED_PORT="7890"}
-if (!$GLOBAL_PROXY_HTTP_PORT) {$GLOBAL_PROXY_HTTP_PORT="7890"}
+# Global proxy settings
+setGlobalProxies
 
-CheckSetGlobalProxy -ProxyAddress "$GLOBAL_PROXY_IP" -ProxyMixedPort "$GLOBAL_PROXY_MIXED_PORT" -ProxyHttpPort "$GLOBAL_PROXY_HTTP_PORT"
+## proxy for httpclient
+# if ($env:HTTP_PROXY) {
+#     if ([Net.WebRequest]::DefaultWebProxy | Select-Object -ExpandProperty Address -ErrorAction SilentlyContinue) {
+#         [Net.WebRequest]::DefaultWebProxy = New-Object Net.WebProxy("$env:HTTP_PROXY")
+#     }
 
-if (!$env:GLOBAL_PROXY_IP) {
-    if (!$GLOBAL_PROXY_SECONDARY_MIXED_PORT) {$GLOBAL_PROXY_SECONDARY_MIXED_PORT="7960"}
-    if (!$GLOBAL_PROXY_SECONDARY_HTTP_PORT) {$GLOBAL_PROXY_SECONDARY_HTTP_PORT="7960"}
-
-    CheckSetGlobalProxy -ProxyAddress "$GLOBAL_PROXY_IP" -ProxyMixedPort "$GLOBAL_PROXY_SECONDARY_MIXED_PORT" -ProxyHttpPort "$GLOBAL_PROXY_SECONDARY_HTTP_PORT"
-}
+#     if ([Net.Http.HttpClient]::DefaultProxy | Select-Object -ExpandProperty Address -ErrorAction SilentlyContinue) {
+#         [Net.Http.HttpClient]::DefaultProxy = New-Object Net.WebProxy("$env:HTTP_PROXY")
+#     }
+# } else {
+#     [Net.WebRequest]::DefaultWebProxy = $null
+#     [Net.Http.HttpClient]::DefaultProxy = New-Object Net.WebProxy($null)
+# }
