@@ -439,7 +439,7 @@ fi
 
 if [[ -x "$(command -v flatpak)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}all Flatpak packages${BLUE}..."
-    flatpak upgrade
+    flatpak upgrade -y
 fi
 
 if [[ -x "$(command -v snap)" ]]; then
