@@ -75,6 +75,11 @@ if [[ ! "$(command -v yay)" && -s "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh
     source "${MY_SHELL_SCRIPTS}/manjaro/packages_setup.sh"
 fi
 
+if [[ ! -x "$(command -v yay)" ]]; then
+    colorEcho "${FUCHSIA}yay${RED} is not installed!"
+    exit 1
+fi
+
 # Setup network proxy in desktop environment
 if [[ ! -f "/etc/chromium/policies/managed/proxy.json" && -s "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh" ]]; then
     source "${MY_SHELL_SCRIPTS}/manjaro/desktop_proxy.sh"
@@ -329,12 +334,20 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "tlpui"
         ## System
         "filelight"
+        "inotify-tools"
         "peek"
         "redshift"
         "ventoy-bin"
         "wsysmon-git"
+        "zenity"
         "archlinuxcn/mission-center"
         #"easystroke"
+        ## Time synchronization
+        "chrony"
+        "ntp"
+        ## multi thread compression
+        "pigz"
+        "lbzip2"
         ## WPS
         "wps-office-cn"
         "wps-office-mui-zh-cn"
@@ -363,6 +376,10 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "zed"
         ## Android emulator
         # "xdroid-bin"
+        ## [Manjaro-tools](https://wiki.manjaro.org/index.php/Manjaro-tools)
+        "manjaro-tools-base"
+        "manjaro-tools-pkg"
+        "manjaro-tools-iso"
     )
 fi
 InstallSystemPackages "" "${AppManjaroInstallList[@]}"
@@ -448,6 +465,26 @@ fi
 # sudo tlp start
 # sudo tlp-stat -s # System Info
 # sudo tlp-stat -b # Battery Care
+
+# sync system time
+colorEcho "${BLUE}Syncing ${FUCHSIA}system time${BLUE}..."
+if ! grep -q "pool ntp.aliyun.com iburst" /etc/chrony.conf; then
+    sudo sed -i -e "s/^pool/# &/g" \
+        -e "/^# pool/a\pool ntp.aliyun.com iburst" \
+        -e "/^# pool/a\pool ntp.tencent.com iburst" /etc/chrony.conf
+fi
+
+systemctl is-enabled "chronyd" >/dev/null 2>&1 || {
+    sudo timedatectl set-ntp yes
+
+    sudo systemctl enable --now chronyd
+
+    # chronyc activity
+    chronyc sourcestats -v
+    chronyc tracking
+    # timedatectl set-timezone Asia/Shanghai
+    timedatectl status
+}
 
 ## [Virtualbox](https://wiki.archlinux.org/title/VirtualBox)
 # yay --noconfirm --needed -S extra/virtualbox extra/virtualbox-guest-iso
@@ -543,6 +580,20 @@ echo -e "\n# Disable PC speaker\nblacklist pcspkr" | sudo tee "/etc/modprobe.d/n
 if [[ -x "$(command -v ksshaskpass)" ]]; then
     mkdir -p "$HOME/.config/environment.d"
     echo -e "SSH_ASKPASS=/usr/bin/ksshaskpass\nSH_ASKPASS_REQUIRE=prefer" > "$HOME/.config/environment.d/ssh_askpass.conf"
+fi
+
+# disable speaker
+colorEcho "${BLUE}Disabling ${FUCHSIA}speaker${BLUE}..."
+echo "blacklist pcspkr"  | sudo tee -a /etc/modprobe.d/nobeep.conf >/dev/null
+
+# multi thread compression
+if [[ -x "$(command -v lbzip2)" && -x "$(command -v pigz)" ]]; then
+    colorEcho "${BLUE}Enabling ${FUCHSIA}multi thread compression${BLUE}..."
+    cd /usr/local/bin && \
+        sudo ln -s /usr/bin/lbzip2 bzip2 && \
+        sudo ln -s /usr/bin/lbzip2 bunzip2 && \
+        sudo ln -s /usr/bin/lbzip2 bzcat && \
+        sudo ln -s /usr/bin/pigz gzip
 fi
 
 # Rustdesk

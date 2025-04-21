@@ -37,7 +37,7 @@ colorEcho "GEO location: ${FUCHSIA}${NETWORK_WAN_NET_IP_GEO}${BLUE}"
 
 # try to set up the fastest mirror
 # https://wiki.manjaro.org/index.php/Pacman-mirrors
-if [[ ! -f "/etc/pacman-mirrors.conf" ]]; then
+if ! sudo test -f "/etc/pacman-mirrors.conf"; then
     colorEcho "${BLUE}Setting ${FUCHSIA}pacman mirrors${BLUE}..."
     # sudo pacman-mirrors -i -c China,Taiwan -m rank
     # sudo pacman-mirrors -i --continent --timeout 2 -m rank
@@ -117,7 +117,7 @@ fi
 
 # pre-requisite packages
 colorEcho "${BLUE}Installing ${FUCHSIA}pre-requisite packages${BLUE}..."
-sudo pacman --noconfirm --needed -S bind git axel curl wget unzip seahorse yay fx croc magic-wormhole
+sudo pacman --noconfirm --needed -S bind git axel curl wget unzip seahorse yay fx croc magic-wormhole keychain
 
 # Build deps
 colorEcho "${BLUE}Installing ${FUCHSIA}Build deps${BLUE}..."
@@ -130,7 +130,7 @@ sudo pacman --noconfirm --needed -S jdk17-openjdk
 colorEcho "${BLUE}Installing ${FUCHSIA}Flatpak${BLUE}..."
 sudo pacman --noconfirm --needed -S flatpak libpamac-flatpak-plugin
 if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    [[ -z "${MIRROR_FLATPAK_URL}" ]] && MIRROR_FLATPAK_URL="https://mirror.sjtu.edu.cn/flathub"
+    [[ -z "${MIRROR_FLATPAK_URL}" ]] && MIRROR_FLATPAK_URL="https://mirrors.ustc.edu.cn/flathub"
     sudo flatpak remote-modify flathub --url="${MIRROR_FLATPAK_URL}"
 
     # sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
