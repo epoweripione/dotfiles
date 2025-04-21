@@ -127,6 +127,8 @@ if [[ -x "$(command -v docker)" ]]; then
     alias docker-tooljet='docker run -d --name tooljet -p 80:80 -v $HOME/tooljet_data:/var/lib/postgresql/13/main tooljet/try:ee-lts-latest'
     # https://github.com/songquanpeng/one-api
     alias docker-oneapi='docker run -d --name one-api -p 3000:3000 -e TZ=Asia/Shanghai -v $HOME/one-api:/data justsong/one-api'
+    # https://github.com/drawdb-io/drawdb
+    alias docker-drawdb='docker run -d --name drawdb -p 80:80 -e TZ=Asia/Shanghai -v $HOME/drawdb:/var/www/html ghcr.io/drawdb-io/drawdb'
 fi
 
 
