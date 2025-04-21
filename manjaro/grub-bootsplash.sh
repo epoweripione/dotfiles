@@ -35,7 +35,9 @@ AppBootsplashInstallList=(
     "lightdm-settings"
     "lightdm-slick-greeter"
     "plymouth"
+    "plymouth-theme-manjaro-circle"
     "plymouth-theme-manjaro-elegant"
+    "plymouth-theme-manjaro-extra-elegant"
     "terminus-font"
     ## [mkinitcpio-firmware](https://wiki.archlinux.org/title/Mkinitcpio#Possibly_missing_firmware_for_module_XXXX)
     ## Identify if you need the Firmware: `sudo dmesg | grep module_name`
@@ -89,7 +91,7 @@ if ! grep -q 'plymouth' /etc/mkinitcpio.conf; then
     sudo sed -i 's/HOOKS="[^"]*/& plymouth/' /etc/mkinitcpio.conf
 fi
 
-if ! grep -q 'splash' /etc/default/grub; then
+if ! grep 'GRUB_CMDLINE_LINUX_DEFAULT' /etc/default/grub | grep -q 'splash'; then
     sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& splash/' /etc/default/grub
     # sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& systemd.show_status=1/' /etc/default/grub
     # sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet /GRUB_CMDLINE_LINUX_DEFAULT="/' /etc/default/grub
@@ -112,6 +114,24 @@ fi
 #     # fi
 # fi
 
+# disable tmp.mount
+colorEcho "${BLUE}Disabling ${FUCHSIA}tmp.mount${BLUE}..."
+# sudo systemctl status tmp.mount && sudo systemctl is-enabled tmp.mount
+sudo systemctl disable tmp.mount
+sudo systemctl mask tmp.mount
+sudo sed -i -e 's/^tmpfs.*/# &/g' /etc/fstab
+
+## List plymouth themes
+# ls /usr/share/plymouth/themes
+# plymouth-set-default-theme -l
+
+## Preview themes
+# sudo plymouthd; sudo plymouth --show-splash; sleep 5; sudo plymouth --quit
+
+# Change plymouth default theme
+sudo plymouth-set-default-theme -R manjaro-circle
+# sudo sed -i 's/ShowDelay=.*/ShowDelay=5/' /etc/plymouth/plymouthd.conf
+
 ## https://wiki.archlinux.org/title/mkinitcpio
 # presets=()
 # for file in "/etc/mkinitcpio.d/"*; do
@@ -120,4 +140,6 @@ fi
 # done
 # sudo mkinitcpio "${presets[@]}"
 
-sudo mkinitcpio -P
+# sudo mkinitcpio -P
+# sudo update-grub
+sudo grub-mkconfig -o /boot/grub/grub.cfg
