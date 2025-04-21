@@ -400,7 +400,7 @@ function DownloadHosts() {
     if (($null -eq $Proxy) -or ($Proxy -eq "")) {
         curl -fsL --connect-timeout 5 --ssl-no-revoke -o "$DOWNLOAD_TO" "$HostsURL"
     } else {
-        curl -fsL --connect-timeout 5 --ssl-no-revoke --socks5-hostname "$Proxy" -o "$DOWNLOAD_TO" "$HostsURL"
+        curl -fsL --connect-timeout 5 --ssl-no-revoke --proxy "$Proxy" -o "$DOWNLOAD_TO" "$HostsURL"
     }
 
     if ($?) {
@@ -561,7 +561,15 @@ function CheckSetGlobalProxy() {
 
         $env:HTTP_PROXY="http://${ProxyAddress}:${ProxyHttpPort}"
         $env:HTTPS_PROXY="http://${ProxyAddress}:${ProxyHttpPort}"
+        $env:ALL_PROXY="http://${ProxyAddress}:${ProxyHttpPort}"
         $env:NO_PROXY="localhost,127.0.0.1,::1"
+
+        if (-Not ([Environment]::GetEnvironmentVariable("HTTP_PROXY") -eq "$env:HTTP_PROXY")) {
+            [Environment]::SetEnvironmentVariable("HTTP_PROXY", $env:HTTP_PROXY, "User")
+            [Environment]::SetEnvironmentVariable("HTTPS_PROXY", $env:HTTPS_PROXY, "User")
+            [Environment]::SetEnvironmentVariable("ALL_PROXY", $env:ALL_PROXY, "User")
+            [Environment]::SetEnvironmentVariable("NO_PROXY", $env:NO_PROXY, "User")
+        }
     } else {
         if ($env:GLOBAL_PROXY_IP) {Remove-Item "Env:\GLOBAL_PROXY_IP"}
         if ($env:GLOBAL_PROXY_MIXED_PORT) {Remove-Item "Env:\GLOBAL_PROXY_MIXED_PORT"}
@@ -569,7 +577,18 @@ function CheckSetGlobalProxy() {
 
         if ($env:HTTP_PROXY) {Remove-Item "Env:\HTTP_PROXY"}
         if ($env:HTTPS_PROXY) {Remove-Item "Env:\HTTPS_PROXY"}
+        if ($env:ALL_PROXY) {Remove-Item "Env:\ALL_PROXY"}
         if ($env:NO_PROXY) {Remove-Item "Env:\NO_PROXY"}
+
+        [Environment]::SetEnvironmentVariable("HTTP_PROXY", '', "User")
+        [Environment]::SetEnvironmentVariable("HTTPS_PROXY", '', "User")
+        [Environment]::SetEnvironmentVariable("ALL_PROXY", '', "User")
+        [Environment]::SetEnvironmentVariable("NO_PROXY", '', "User")
+
+        [Environment]::SetEnvironmentVariable("HTTP_PROXY", [NullString]::Value, "User")
+        [Environment]::SetEnvironmentVariable("HTTPS_PROXY", [NullString]::Value, "User")
+        [Environment]::SetEnvironmentVariable("ALL_PROXY", [NullString]::Value, "User")
+        [Environment]::SetEnvironmentVariable("NO_PROXY", [NullString]::Value, "User")
     }
 
     # if (![string]::IsNullOrEmpty($Proxy)) {
@@ -588,6 +607,22 @@ function CheckSetGlobalProxy() {
         Write-Host " NO_PROXY" -ForegroundColor Magenta -NoNewline
         Write-Host "=" -ForegroundColor Cyan -NoNewline
         Write-Host "$env:NO_PROXY" -ForegroundColor Yellow
+    }
+}
+
+function setGlobalProxies {
+    if (!$GLOBAL_PROXY_IP) {$GLOBAL_PROXY_IP="127.0.0.1"}
+    if (!$GLOBAL_PROXY_MIXED_PORT) {$GLOBAL_PROXY_MIXED_PORT="7890"}
+    if (!$GLOBAL_PROXY_HTTP_PORT) {$GLOBAL_PROXY_HTTP_PORT="7890"}
+    
+    CheckSetGlobalProxy -ProxyAddress "$GLOBAL_PROXY_IP" -ProxyMixedPort "$GLOBAL_PROXY_MIXED_PORT" -ProxyHttpPort "$GLOBAL_PROXY_HTTP_PORT"
+    
+    if (!$env:GLOBAL_PROXY_IP) {
+        $GLOBAL_PROXY_IP="127.0.0.1"
+        $GLOBAL_PROXY_SECONDARY_MIXED_PORT="7960"
+        $GLOBAL_PROXY_SECONDARY_HTTP_PORT="7960"
+    
+        CheckSetGlobalProxy -ProxyAddress "$GLOBAL_PROXY_IP" -ProxyMixedPort "$GLOBAL_PROXY_SECONDARY_MIXED_PORT" -ProxyHttpPort "$GLOBAL_PROXY_SECONDARY_HTTP_PORT"
     }
 }
 
