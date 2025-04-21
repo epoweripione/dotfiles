@@ -293,15 +293,8 @@ function SearchScoopBucket {
 
 function UpdateMyScript {
     Set-Location ~
-    if (check_socks5_proxy_up "127.0.0.1:7890") {
-        curl -fsSL --connect-timeout 5 --ssl-no-revoke --socks5-hostname "127.0.0.1:7890" `
-            -o ".\pwsh_script_download.ps1" "https://git.io/JPS2j" && `
+    curl -fsSL --connect-timeout 5 -o ".\pwsh_script_download.ps1" "https://git.io/JPS2j" && `
         .\pwsh_script_download.ps1
-    } else {
-        curl -fsSL --connect-timeout 5 --ssl-no-revoke `
-            -o ".\pwsh_script_download.ps1" "https://git.io/JPS2j" && `
-        .\pwsh_script_download.ps1
-    }
 }
 
 function DockerPullAllImages {
