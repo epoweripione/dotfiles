@@ -596,6 +596,21 @@ if [[ -x "$(command -v lbzip2)" && -x "$(command -v pigz)" ]]; then
         sudo ln -s /usr/bin/pigz gzip
 fi
 
+# make sudo more user friendly
+# remove sudo timeout, make cache global, extend timeout
+if ! sudo test -f "/etc/sudoers.d/20-password-timeout-0-ppid-60min"; then
+    colorEcho "${BLUE}Making sudo more user friendly..."
+    sudo tee "/etc/sudoers.d/20-password-timeout-0-ppid-60min" <<-'EOF'
+Defaults passwd_timeout=0
+Defaults timestamp_type="global"
+
+# sudo only once for 60 minute
+Defaults timestamp_timeout=60
+EOF
+
+sudo chmod 440 "/etc/sudoers.d/20-password-timeout-0-ppid-60min"
+fi
+
 # Rustdesk
 [[ -x "$(command -v rustdesk)" ]] && sudo systemctl enable --now rustdesk
 
@@ -610,6 +625,7 @@ sudo sh -c 'rm -rf /var/lib/snapd/cache/*'
 ## Change default data location for some applications: docker, kvm...
 # [[ -s "${MY_SHELL_SCRIPTS}/manjaro/change_apps_data_location.sh" ]] && \
 #     source "${MY_SHELL_SCRIPTS}/manjaro/change_apps_data_location.sh"
+systemctl is-enabled "docker" >/dev/null 2>&1 || sudo systemctl --now enable docker
 
 
 # Auto shutdown at 20:00
