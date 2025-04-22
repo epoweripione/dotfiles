@@ -212,7 +212,7 @@ function check_webservice_up() {
         $webservice_url = "www.google.com"
     }
 
-    curl -fsL --connect-timeout 3 --max-time 5 -I "$webservice_url"
+    curl -fsL --connect-timeout 3 --max-time 5 --noproxy "*" -I "$webservice_url"
     if ($?) {
         return $true
     } else {
@@ -517,23 +517,29 @@ function CheckSetGlobalProxy() {
         [string]$Msg = "Porxy address?"
     )
 
-    if ($env:GLOBAL_PROXY_IP) { return }
+    # if ($env:GLOBAL_PROXY_IP) { return }
 
     if (!$ProxyHttpPort) {
         $ProxyHttpPort = $ProxyMixedPort
     }
 
     $Proxy = ""
+    $ProxyProtocol = "http"
+    $ProxyPort = "$ProxyHttpPort"
     if (-Not (check_webservice_up)) {
         $Proxy = "${ProxyAddress}:${ProxyMixedPort}"
+        $ProxyPort = "$ProxyMixedPort"
         if (-Not (check_http_proxy_up $Proxy)) {
-            if (-Not (check_socks5_proxy_up $Proxy)) {
+            if (check_socks5_proxy_up $Proxy) {
+                $ProxyProtocol = "socks5"
+            } else {
                 $Proxy = ""
             }
         }
 
         if (!$Proxy) {
             $Proxy = "${ProxyAddress}:${ProxyHttpPort}"
+            $ProxyPort = "$ProxyHttpPort"
             if (-Not (check_http_proxy_up $Proxy)) {
                 $Proxy = ""
             }
@@ -545,7 +551,16 @@ function CheckSetGlobalProxy() {
                 if (!$Proxy) {
                     $Proxy = "127.0.0.1:7890"
                 }
-                if (-Not (check_http_proxy_up $Proxy)) {
+                if (check_http_proxy_up $Proxy) {
+                    if ($Proxy.Contains("://")) {
+                        $ProxyProtocol = $Proxy.Split("://")[0]
+                        $Proxy = $Proxy.Split("://")[1]
+                    } else {
+                        $ProxyProtocol = "http"
+                    }
+                    $ProxyAddress = $Proxy.Split(":")[0]
+                    $ProxyPort = $Proxy.Split(":")[1]
+                } else {
                     $Proxy = ""
                 }
             } else {
@@ -555,22 +570,45 @@ function CheckSetGlobalProxy() {
     }
 
     if ($Proxy) {
-        $env:GLOBAL_PROXY_IP = $ProxyAddress
-        $env:GLOBAL_PROXY_MIXED_PORT = $ProxyMixedPort
-        $env:GLOBAL_PROXY_HTTP_PORT = $ProxyHttpPort
-
-        $env:HTTP_PROXY="http://${ProxyAddress}:${ProxyHttpPort}"
-        $env:HTTPS_PROXY="http://${ProxyAddress}:${ProxyHttpPort}"
-        $env:ALL_PROXY="http://${ProxyAddress}:${ProxyHttpPort}"
-        $env:NO_PROXY="localhost,127.0.0.1,::1"
-
-        if (-Not ([Environment]::GetEnvironmentVariable("HTTP_PROXY") -eq "$env:HTTP_PROXY")) {
-            [Environment]::SetEnvironmentVariable("HTTP_PROXY", $env:HTTP_PROXY, "User")
-            [Environment]::SetEnvironmentVariable("HTTPS_PROXY", $env:HTTPS_PROXY, "User")
-            [Environment]::SetEnvironmentVariable("ALL_PROXY", $env:ALL_PROXY, "User")
-            [Environment]::SetEnvironmentVariable("NO_PROXY", $env:NO_PROXY, "User")
+        # User environment variables
+        if (-Not ([Environment]::GetEnvironmentVariable("HTTP_PROXY") -eq "${ProxyProtocol}://${ProxyAddress}:${ProxyPort}")) {
+            $PSCommand = @"
+[Environment]::SetEnvironmentVariable('GLOBAL_PROXY_IP', '${ProxyAddress}', 'User');
+[Environment]::SetEnvironmentVariable('GLOBAL_PROXY_MIXED_PORT', '${ProxyMixedPort}', 'User');
+[Environment]::SetEnvironmentVariable('GLOBAL_PROXY_HTTP_PORT', '${ProxyHttpPort}', 'User');
+[Environment]::SetEnvironmentVariable('HTTP_PROXY', '${ProxyProtocol}://${ProxyAddress}:${ProxyPort}', 'User');
+[Environment]::SetEnvironmentVariable('HTTPS_PROXY', '${ProxyProtocol}://${ProxyAddress}:${ProxyPort}', 'User');
+[Environment]::SetEnvironmentVariable('ALL_PROXY', '${ProxyProtocol}://${ProxyAddress}:${ProxyPort}', 'User');
+[Environment]::SetEnvironmentVariable('NO_PROXY', 'localhost,127.0.0.1,::1', 'User')
+"@
+            $PSCommand = $PSCommand -Replace "`r`n"
+            Start-Process powershell "$PSCommand" -WindowStyle Hidden -Verb RunAs
         }
+
+        # Current session environment variables
+        $env:GLOBAL_PROXY_IP = "${ProxyAddress}"
+        $env:GLOBAL_PROXY_MIXED_PORT = "${ProxyMixedPort}"
+        $env:GLOBAL_PROXY_HTTP_PORT = "${ProxyHttpPort}"
+
+        $env:HTTP_PROXY = "${ProxyProtocol}://${ProxyAddress}:${ProxyPort}"
+        $env:HTTPS_PROXY = "${ProxyProtocol}://${ProxyAddress}:${ProxyPort}"
+        $env:ALL_PROXY = "${ProxyProtocol}://${ProxyAddress}:${ProxyPort}"
+        $env:NO_PROXY = "localhost,127.0.0.1,::1"
     } else {
+        # User environment variables
+        $PSCommand = @"
+[Environment]::SetEnvironmentVariable('GLOBAL_PROXY_IP', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('GLOBAL_PROXY_MIXED_PORT', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('GLOBAL_PROXY_HTTP_PORT', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('HTTP_PROXY', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('HTTPS_PROXY', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('ALL_PROXY', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('NO_PROXY', [NullString]::Value, 'User')
+"@
+        $PSCommand = $PSCommand -Replace "`r`n"
+        Start-Process powershell "$PSCommand" -WindowStyle Hidden -Verb RunAs
+
+        # Current session environment variables
         if ($env:GLOBAL_PROXY_IP) {Remove-Item "Env:\GLOBAL_PROXY_IP"}
         if ($env:GLOBAL_PROXY_MIXED_PORT) {Remove-Item "Env:\GLOBAL_PROXY_MIXED_PORT"}
         if ($env:GLOBAL_PROXY_HTTP_PORT) {Remove-Item "Env:\GLOBAL_PROXY_HTTP_PORT"}
@@ -579,22 +617,12 @@ function CheckSetGlobalProxy() {
         if ($env:HTTPS_PROXY) {Remove-Item "Env:\HTTPS_PROXY"}
         if ($env:ALL_PROXY) {Remove-Item "Env:\ALL_PROXY"}
         if ($env:NO_PROXY) {Remove-Item "Env:\NO_PROXY"}
-
-        [Environment]::SetEnvironmentVariable("HTTP_PROXY", '', "User")
-        [Environment]::SetEnvironmentVariable("HTTPS_PROXY", '', "User")
-        [Environment]::SetEnvironmentVariable("ALL_PROXY", '', "User")
-        [Environment]::SetEnvironmentVariable("NO_PROXY", '', "User")
-
-        [Environment]::SetEnvironmentVariable("HTTP_PROXY", [NullString]::Value, "User")
-        [Environment]::SetEnvironmentVariable("HTTPS_PROXY", [NullString]::Value, "User")
-        [Environment]::SetEnvironmentVariable("ALL_PROXY", [NullString]::Value, "User")
-        [Environment]::SetEnvironmentVariable("NO_PROXY", [NullString]::Value, "User")
     }
 
     # if (![string]::IsNullOrEmpty($Proxy)) {
     # if (![string]::IsNullOrWhiteSpace($Proxy)) {
     if ($Proxy) {
-        # Write-Host "HTTP_PROXY=$env:HTTP_PROXY`nHTTPS_PROXY=$env:HTTPS_PROXY`nNO_PROXY=$env:NO_PROXY`n" -ForegroundColor Yellow
+        # Write-Host "HTTP_PROXY=$env:HTTP_PROXY`nHTTPS_PROXY=$env:HTTPS_PROXY`nALL_PROXY=$env:ALL_PROXY`nNO_PROXY=$env:NO_PROXY`n" -ForegroundColor Yellow
         Write-Host "  ::" -ForegroundColor Green -NoNewline
         Write-Host " HTTP_PROXY" -ForegroundColor Magenta -NoNewline
         Write-Host "=" -ForegroundColor Cyan -NoNewline
@@ -604,6 +632,10 @@ function CheckSetGlobalProxy() {
         Write-Host "=" -ForegroundColor Cyan -NoNewline
         Write-Host "$env:HTTPS_PROXY" -ForegroundColor Yellow -NoNewline
 
+        Write-Host " ALL_PROXY" -ForegroundColor Magenta -NoNewline
+        Write-Host "=" -ForegroundColor Cyan -NoNewline
+        Write-Host "$env:ALL_PROXY" -ForegroundColor Yellow -NoNewline
+
         Write-Host " NO_PROXY" -ForegroundColor Magenta -NoNewline
         Write-Host "=" -ForegroundColor Cyan -NoNewline
         Write-Host "$env:NO_PROXY" -ForegroundColor Yellow
@@ -611,6 +643,12 @@ function CheckSetGlobalProxy() {
 }
 
 function setGlobalProxies {
+    if ([Environment]::GetEnvironmentVariable("GLOBAL_PROXY_IP")) {
+        $GLOBAL_PROXY_IP = [Environment]::GetEnvironmentVariable("GLOBAL_PROXY_IP")
+        $GLOBAL_PROXY_MIXED_PORT = [Environment]::GetEnvironmentVariable("GLOBAL_PROXY_MIXED_PORT")
+        $GLOBAL_PROXY_HTTP_PORT = [Environment]::GetEnvironmentVariable("GLOBAL_PROXY_HTTP_PORT")
+    }
+
     if (!$GLOBAL_PROXY_IP) {$GLOBAL_PROXY_IP="127.0.0.1"}
     if (!$GLOBAL_PROXY_MIXED_PORT) {$GLOBAL_PROXY_MIXED_PORT="7890"}
     if (!$GLOBAL_PROXY_HTTP_PORT) {$GLOBAL_PROXY_HTTP_PORT="7890"}
