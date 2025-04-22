@@ -599,16 +599,7 @@ fi
 # make sudo more user friendly
 # remove sudo timeout, make cache global, extend timeout
 if ! sudo test -f "/etc/sudoers.d/20-password-timeout-0-ppid-60min"; then
-    colorEcho "${BLUE}Making sudo more user friendly..."
-    sudo tee "/etc/sudoers.d/20-password-timeout-0-ppid-60min" <<-'EOF'
-Defaults passwd_timeout=0
-Defaults timestamp_type="global"
-
-# sudo only once for 60 minute
-Defaults timestamp_timeout=60
-EOF
-
-sudo chmod 440 "/etc/sudoers.d/20-password-timeout-0-ppid-60min"
+    setSudoTimeout
 fi
 
 # Rustdesk
