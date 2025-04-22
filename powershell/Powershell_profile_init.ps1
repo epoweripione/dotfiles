@@ -101,6 +101,9 @@ foreach ($TargetModule in $InstallModules) {
     }
 }
 
+## Fix error Authenticode issuer
+# Install-Module -Name PSWriteColor -Force -AcceptLicense -SkipPublisherCheck
+
 $EnableModules = @(
     "Find-String"
     "Posh-git"
