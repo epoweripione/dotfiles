@@ -112,7 +112,7 @@ if [[ -s "$HOME/.config/conky/hybrid/hybrid.conf" ]]; then
         CPU_HWMON_NAME=$(< "/sys/class/hwmon/${CPU_HWMON_DEVICE}/name")
 
     [[ -n "${CPU_HWMON_NAME}" ]] && \
-        sed -i "s|coretemp.0/hwmon/hwmon5|${CPU_HWMON_NAME}|g" "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
+        sed -i -r "s|coretemp.0/hwmon/hwmon[^[:space:]]+|${CPU_HWMON_NAME}|g" "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
 
     # GPU
     GPU_HWMON=$(grep -d skip . /sys/class/hwmon/hwmon[0-9]/* 2>/dev/null | grep 'GPU' | grep 'temp' | head -n1)
