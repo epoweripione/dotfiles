@@ -543,20 +543,20 @@ function set_global_proxy() {
 
     if [[ -n "${HTTP_ADDRESS}" ]]; then
         set_proxy "http://${HTTP_ADDRESS}"
-
-        colorEcho "${GREEN}  :: Now using ${FUCHSIA}http://${HTTP_ADDRESS} ${GREEN}for global proxy!"
     elif [[ -n "${SOCKS_ADDRESS}" ]]; then
         set_proxy "${SOCKS_PROTOCOL}://${SOCKS_ADDRESS}"
-
         set_curl_socks_proxy "${SOCKS_ADDRESS}"
-
-        colorEcho "${GREEN}  :: Now using ${FUCHSIA}${SOCKS_PROTOCOL}://${SOCKS_ADDRESS} ${GREEN}for global proxy!"
     fi
 
     # wget must use http proxy
-    if [[ -n "${HTTP_ADDRESS}" ]]; then
-        set_wget_proxy "${HTTP_ADDRESS}"
-        # colorEcho "${GREEN}  :: Now using ${FUCHSIA}${HTTP_ADDRESS} ${GREEN}for http proxy(wget etc.)!"
+    [[ -n "${HTTP_ADDRESS}" ]] && set_wget_proxy "${HTTP_ADDRESS}"
+
+    # msg for global proxy address
+    if [[ -n "${http_proxy}" ]]; then
+        colorEchoN "${GREEN}  :: ${FUCHSIA}http_proxy${CYAN}=${YELLOW}${http_proxy}"
+        colorEchoN " ${FUCHSIA}https_proxy${CYAN}=${YELLOW}${https_proxy}"
+        colorEcho " ${FUCHSIA}all_proxy${CYAN}=${YELLOW}${all_proxy}"
+        # colorEcho "${GREEN}  :: ${FUCHSIA}no_proxy${CYAN}=${YELLOW}${no_proxy}"
     fi
 
     return 0
