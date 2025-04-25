@@ -349,6 +349,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "jq"
         "yq"
         "vfox"
+        "sandboxie-plus-np"
+        "wsl2-distro-manager"
         # "trafficmonitor"
         "driverstoreexplorer"
         "spacesniffer"
