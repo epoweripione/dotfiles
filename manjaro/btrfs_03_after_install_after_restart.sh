@@ -132,9 +132,11 @@ sudo mkdir -p /etc/systemd/coredump.conf.d && \
 
 ## Snapper
 # skip snapshots from updatedb
-colorEcho "${BLUE}Disabling ${FUCHSIA}btrfs snapshots from updatedb${BLUE}..."
-if ! grep -q '.snapshots' /etc/updatedb.conf; then
-    sudo sed -i -e 's/PRUNENAMES = "/PRUNENAMES = ".snapshots /g' /etc/updatedb.conf
+if sudo test -f "/etc/updatedb.conf"; then
+    if ! grep -q '.snapshots' /etc/updatedb.conf; then
+        colorEcho "${BLUE}Disabling ${FUCHSIA}btrfs snapshots from updatedb${BLUE}..."
+        sudo sed -i -e 's/PRUNENAMES = "/PRUNENAMES = ".snapshots /g' /etc/updatedb.conf
+    fi
 fi
 
 # disable cron integration
@@ -155,9 +157,9 @@ fi
 ## to see snapshot size in snapper list, this will slow down snapshot list
 # sudo btrfs quota enable /
 
-colorEcho "${BLUE}Creating ${FUCHSIA}snapper config${BLUE}..."
 # /etc/conf.d/snapper
 if ! snapper list-configs 2>/dev/null | grep -q "root"; then
+    colorEcho "${BLUE}Creating snapper config ${FUCHSIA}root${BLUE}..."
     # Fix: `Creating config failed (creating btrfs subvolume .snapshots failed since it already exists)`
     sudo umount /.snapshots && sudo rm -r /.snapshots
 
@@ -169,6 +171,7 @@ if ! snapper list-configs 2>/dev/null | grep -q "root"; then
 fi
 
 if ! snapper list-configs 2>/dev/null | grep -q "home"; then
+    colorEcho "${BLUE}Creating snapper config ${FUCHSIA}home${BLUE}..."
     sudo umount /home/.snapshots && sudo rm -r /home/.snapshots
 
     sudo snapper -c home create-config /home
@@ -307,8 +310,8 @@ snapper list-configs
 
 # Access for non-root users
 # Set snapshot limits: only 5 hourly snapshots, 7 daily ones, no monthly and no yearly ones
-colorEcho "${BLUE}Setting ${FUCHSIA}snapper configs${BLUE}..."
-if ! sudo test -f "/etc/snapper/configs/root"; then
+if sudo test -f "/etc/snapper/configs/root"; then
+    colorEcho "${BLUE}Setting snapper configs ${FUCHSIA}root${BLUE}..."
     sudo sed -i -e 's/ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' \
             -e 's/TIMELINE_MIN_AGE=.*/TIMELINE_MIN_AGE="1800"/' \
             -e 's/TIMELINE_LIMIT_HOURLY=.*/TIMELINE_LIMIT_HOURLY="5"/' \
@@ -319,7 +322,8 @@ if ! sudo test -f "/etc/snapper/configs/root"; then
         /etc/snapper/configs/root
 fi
 
-if ! sudo test -f "/etc/snapper/configs/home"; then
+if sudo test -f "/etc/snapper/configs/home"; then
+    colorEcho "${BLUE}Setting snapper configs ${FUCHSIA}home${BLUE}..."
     sudo sed -i -e 's/ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' \
             -e 's/TIMELINE_MIN_AGE=.*/TIMELINE_MIN_AGE="1800"/' \
             -e 's/TIMELINE_LIMIT_HOURLY=.*/TIMELINE_LIMIT_HOURLY="5"/' \
@@ -349,10 +353,10 @@ sudo snapper -c home list
 # snapper -c root delete --sync 65
 # Note: When deleting a `pre` snapshot, you should always delete its corresponding `post` snapshot and vice versa.
 
-# install snap-pac-grub from AUR
+# [Pacman hook to update GRUB entries for grub-btrfs after snap-pac made snapshots](https://github.com/maximbaz/snap-pac-grub)
 colorEcho "${BLUE}Installing ${FUCHSIA}snap-pac-grub${BLUE} from AUR..."
 # mkdir -p "$HOME/aur" && export GNUPGHOME="$HOME/aur"
-yay -aS --sudoloop --noredownload --norebuild --noconfirm --noeditmenu snap-pac-grub
+yay -aS --sudoloop --noredownload --norebuild --noconfirm snap-pac-grub
 
 # GRUB bootsplash
 [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/grub-bootsplash.sh" ]] && source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/grub-bootsplash.sh"
