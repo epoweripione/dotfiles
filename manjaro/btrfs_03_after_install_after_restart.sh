@@ -167,6 +167,7 @@ if ! snapper list-configs 2>/dev/null | grep -q "root"; then
     sudo snapper -c root set-config NUMBER_LIMIT=6 NUMBER_LIMIT_IMPORTANT=4
 
     sudo btrfs subvolume delete /.snapshots
+    sudo btrfs subvolume create /@rootsnaps
     sudo mkdir -p /.snapshots && sudo mount /.snapshots
 fi
 
@@ -178,6 +179,7 @@ if ! snapper list-configs 2>/dev/null | grep -q "home"; then
     sudo snapper -c home set-config NUMBER_LIMIT=6 NUMBER_LIMIT_IMPORTANT=4
 
     sudo btrfs subvolume delete /home/.snapshots
+    sudo btrfs subvolume create /@homesnaps
     sudo mkdir -p /home/.snapshots && sudo mount /home/.snapshots
 fi
 
