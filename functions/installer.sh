@@ -164,6 +164,9 @@ function InstallSystemPackages() {
         fi
     done
 
+    # clear to the end of the line if use `colorEchoN`
+    [[ -n "${InstallList[*]}" ]] && tput el
+
     if [[ -n "${PackagesToInstall[*]}" ]]; then
         colorEcho "${BLUE}  Installing ${FUCHSIA}${PackagesToInstall[*]}${BLUE}..."
         if [[ "$(command -v yay)" ]]; then
