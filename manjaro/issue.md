@@ -189,3 +189,18 @@ git diff branch_1_name branch_2_name > patch_file.diff
 # Applying a Git patch file
 git apply patch_file.diff
 ```
+
+## [Switching Branches](https://wiki.manjaro.org/index.php/Switching_Branches)
+```bash
+# Which branch currently on
+pacman-mirrors -G
+
+# Changing to another branch: stable, testing or unstable
+sudo pacman-mirrors --api --set-branch stable
+
+# Rebuild the mirrorlist
+sudo pacman-mirrors -i -c Taiwan,China -m rank
+
+# Update cache & packages
+sudo --noconfirm pacman -Syy && sudo --noconfirm pacman -Syu
+```
