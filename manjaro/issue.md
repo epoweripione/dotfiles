@@ -116,14 +116,15 @@ sudo sed -i -e 's/^#Experimental.*/Experimental = true/' -e 's/^#KernelExperimen
 
 ## [Baloo still crashing](https://forum.manjaro.org/t/baloo-still-crashing/130024)
 ```bash
-balooctl disable && balooctl purge && balooctl enable
-balooctl status
+# [Baloo](https://wiki.archlinux.org/title/Baloo)
+balooctl6 disable && balooctl6 purge && balooctl6 enable
+balooctl6 status
 ```
 
 ## [Disable Baloo - the file indexing and file search framework for KDE Plasma](https://askubuntu.com/questions/1267830/what-does-baloo-file-extractor-do)
 ## File search in Dolphin works after disabling Baloo, but file search in KRunner does not work anymore
 ## System Settings→Search→File Search→Disable File Search
-`balooctl disable && balooctl purge`
+`balooctl6 disable && balooctl6 purge`
 
 ## [Reinstall GRUB](https://wiki.manjaro.org/index.php/GRUB/Restore_the_GRUB_Bootloader/en#Reinstall_GRUB)
 ```bash
