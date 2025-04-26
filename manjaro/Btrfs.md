@@ -418,6 +418,7 @@ df -h /home
 
 ### [btrfs-clone](https://github.com/mwilck/btrfs-clone)
 ```bash
+yay --noconfirm -S btrfs-clone-git 
 # btrfs-clone [options] <mount-point-of-existing-FS> <mount-point-of-new-FS>
 
 # Check old mount
