@@ -375,16 +375,16 @@ function UpdateScoop {
     }
 
     # update installed scoop apps
-    scoop config aria2-enabled false
-    scoop update *
-    scoop update * -g
-
     scoop config aria2-enabled true
     scoop update *
     scoop update * -g
 
-    # cleanup
     scoop config aria2-enabled false
+    scoop update *
+    scoop update * -g
+
+    # cleanup
+    scoop config aria2-enabled true
     scoop cleanup *
     scoop cleanup * -g
 }
