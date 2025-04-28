@@ -24,31 +24,42 @@ App_Installer_Reset
 
 # pacapt - An Arch's pacman-like package manager for some Unices
 # https://github.com/icy/pacapt
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}pacapt${BLUE}..."
+INSTALLER_APP_NAME="pacapt"
+INSTALLER_GITHUB_REPO="icy/pacapt"
 
-INSTALLER_CHECK_URL="https://api.github.com/repos/icy/pacapt/releases/latest"
-App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+INSTALLER_INSTALL_NAME="pacapt"
 
-if [[ -x "$(command -v pacapt)" ]]; then
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     ECHO_TYPE="Updating"
-    INSTALLER_VER_CURRENT=$(pacapt -V | grep 'version' | cut -d"'" -f2)
 else
-    INSTALLER_VER_CURRENT="0.0.0"
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
     ECHO_TYPE="Installing"
 fi
 
-# termux: PREFIX="/data/data/com.termux/files/usr"
-if [[ -z "${PREFIX}" ]]; then
-    PREFIX="/usr/local"
-    INSTALL_PACMAN_TO="/usr/bin"
-else
-    INSTALL_PACMAN_TO="${PREFIX}/bin"
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+
+    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
+    fi
 fi
 
-[[ "$(readlink -f /usr/bin/pacman)" == "/usr/bin/pacapt" ]] && \
-    sudo rm -f "/usr/bin/pacman" && sudo rm -f "/usr/bin/pacapt"
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    # termux: PREFIX="/data/data/com.termux/files/usr"
+    if [[ -z "${PREFIX}" ]]; then
+        PREFIX="/usr/local"
+        INSTALL_PACMAN_TO="/usr/bin"
+    else
+        INSTALL_PACMAN_TO="${PREFIX}/bin"
+    fi
 
-if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+    [[ "$(readlink -f /usr/bin/pacman)" == "/usr/bin/pacapt" ]] && \
+        sudo rm -f "/usr/bin/pacman" && sudo rm -f "/usr/bin/pacapt"
+
     colorEcho "${BLUE}  ${ECHO_TYPE} ${FUCHSIA}pacapt ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
     INSTALLER_DOWNLOAD_FILE="${WORKDIR}/pacapt"
