@@ -334,6 +334,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "tlpui"
         ## System
         "filelight"
+        "gparted"
         "inotify-tools"
         "peek"
         "redshift"
