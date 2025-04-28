@@ -27,8 +27,8 @@ fi
 if [[ -n "${OS_PACKAGE_MANAGER}" && "${OS_PACKAGE_MANAGER}" != "pacman" ]]; then
     PACMAN_STYLE_COMMAND="pacapt"
 
-    PACATPR_SUPPORT_PM=(apk dpkg dnf homebrew macports portage xbps zypper)
-    [[ " ${PACATPR_SUPPORT_PM[*]} " == *" ${OS_PACKAGE_MANAGER} "* ]] && PACMAN_STYLE_COMMAND="pacaptr"
+    PACAPTR_SUPPORT_PM=(apk dpkg dnf homebrew macports portage xbps zypper)
+    [[ " ${PACAPTR_SUPPORT_PM[*]} " == *" ${OS_PACKAGE_MANAGER} "* ]] && PACMAN_STYLE_COMMAND="pacaptr"
 
     [[ "$(uname -o 2>/dev/null)" == "Android" ]] && PACMAN_STYLE_COMMAND="pacapt"
     # [[ -x "/data/data/com.termux/files/usr/bin/apt-get" ]] && PACMAN_STYLE_COMMAND="pacapt"
