@@ -897,22 +897,24 @@ function App_Installer_Install() {
     # scheme:[//authority][/path][?query][#fragment]
     INSTALLER_DOWNLOAD_FILE=$(awk -F"/" '{print $NF}' <<<"${INSTALLER_DOWNLOAD_URL}")
     INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE%%[?#]*}"
+    if [[ -z "${INSTALLER_DOWNLOAD_FILE}" ]]; then
+        [[ -n "${INSTALLER_INSTALL_NAME}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_INSTALL_NAME}" || INSTALLER_DOWNLOAD_FILE="${INSTALLER_APP_NAME}"
 
-    # execute filename in archive
-    if [[ -n "${INSTALLER_INSTALL_NAME}" ]]; then
-        [[ -z "${INSTALLER_DOWNLOAD_FILE}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_INSTALL_NAME}"
-        [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
-    else
-        [[ -z "${INSTALLER_DOWNLOAD_FILE}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_APP_NAME}"
-        [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_APP_NAME}"
+        [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE}.${INSTALLER_ARCHIVE_EXT}"
     fi
-
-    # full filename
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"
 
     # archive file extension
     [[ -z "${INSTALLER_ARCHIVE_EXT}" ]] && App_Installer_Get_Archive_File_Extension "${INSTALLER_DOWNLOAD_FILE}"
-    [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE}.${INSTALLER_ARCHIVE_EXT}"
+
+    # full download filename
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"
+
+    # execute filename in archive file
+    if [[ -n "${INSTALLER_INSTALL_NAME}" ]]; then
+        [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
+    else
+        [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_APP_NAME}"
+    fi
 
     # download & extract file
     if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
