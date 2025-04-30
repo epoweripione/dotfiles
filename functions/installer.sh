@@ -552,12 +552,15 @@ function App_Installer_Download() {
     local download_url=$1
     local download_filename=$2
     local github_url="https://github.com"
-    local remote_filename
 
     [[ -z "${download_url}" ]] && colorEcho "${FUCHSIA}Download URL${RED} can't empty!" && return 1
 
-    remote_filename=$(echo "${download_url}" | awk -F"/" '{print $NF}')
-    [[ -z "${download_filename}" ]] && download_filename="${remote_filename}"
+    if [[ -z "${download_filename}" ]]; then
+        # extract filename from URL
+        # scheme:[//authority][/path][?query][#fragment]
+        download_filename=$(awk -F"/" '{print $NF}' <<<"${download_url}")
+        download_filename="${download_filename%%[?#]*}"
+    fi
 
     # Download
     [[ -n "${GITHUB_DOWNLOAD_URL}" ]] && download_url="${download_url//${github_url}/${GITHUB_DOWNLOAD_URL}}"
@@ -581,13 +584,17 @@ function App_Installer_Download_Extract() {
     local download_filename=$2
     local workdir=$3
     local github_url="https://github.com"
-    local remote_filename archive_ext_list archive_ext TargetExt
+    local archive_ext_list archive_ext TargetExt
     local curl_rtn_code extract_rtn_code
 
     [[ -z "${download_url}" ]] && colorEcho "${FUCHSIA}Download URL${RED} can't empty!" && return 1
 
-    remote_filename=$(echo "${download_url}" | awk -F"/" '{print $NF}')
-    [[ -z "${download_filename}" ]] && download_filename="${remote_filename}"
+    if [[ -z "${download_filename}" ]]; then
+        # extract filename from URL
+        # scheme:[//authority][/path][?query][#fragment]
+        download_filename=$(awk -F"/" '{print $NF}' <<<"${download_url}")
+        download_filename="${download_filename%%[?#]*}"
+    fi
 
     [[ -z "${workdir}" ]] && workdir="$(pwd)"
 
@@ -626,7 +633,7 @@ function App_Installer_Download_Extract() {
             ".7z"
         )
         for TargetExt in "${archive_ext_list[@]}"; do
-            if echo "${remote_filename}" | grep -q "${TargetExt}$"; then
+            if grep -q "${TargetExt}$" <<<"${download_filename}"; then
                 archive_ext="${TargetExt}"
                 break
             fi
@@ -886,16 +893,25 @@ function App_Installer_Install() {
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
     [[ -z "${WORKDIR}" ]] && WORKDIR="$(pwd)"
 
-    # download filename & execute filename in archive
+    # extract filename from URL
+    # scheme:[//authority][/path][?query][#fragment]
+    INSTALLER_DOWNLOAD_FILE=$(awk -F"/" '{print $NF}' <<<"${INSTALLER_DOWNLOAD_URL}")
+    INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE%%[?#]*}"
+
+    # execute filename in archive
     if [[ -n "${INSTALLER_INSTALL_NAME}" ]]; then
-        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
+        [[ -z "${INSTALLER_DOWNLOAD_FILE}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_INSTALL_NAME}"
         [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_INSTALL_NAME}"
     else
-        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_APP_NAME}"
+        [[ -z "${INSTALLER_DOWNLOAD_FILE}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_APP_NAME}"
         [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_APP_NAME}"
     fi
 
-    [[ -z "${INSTALLER_ARCHIVE_EXT}" ]] && App_Installer_Get_Archive_File_Extension "${INSTALLER_DOWNLOAD_URL}"
+    # full filename
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"
+
+    # archive file extension
+    [[ -z "${INSTALLER_ARCHIVE_EXT}" ]] && App_Installer_Get_Archive_File_Extension "${INSTALLER_DOWNLOAD_FILE}"
     [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE}.${INSTALLER_ARCHIVE_EXT}"
 
     # download & extract file
@@ -1306,12 +1322,15 @@ function downloadDecryptFile() {
     local download_filename=$2
     local encrypt_keyfile=$3
     local decrypt_filename=$4
-    local remote_filename SaltedStartLine
+    local SaltedStartLine
 
     [[ -z "${download_url}" ]] && colorEcho "${FUCHSIA}Download URL${RED} can't empty!" && return 1
 
-    remote_filename=$(echo "${download_url}" | awk -F"/" '{print $NF}')
-    [[ -z "${download_filename}" ]] && download_filename="${remote_filename}"
+    if [[ -z "${download_filename}" ]]; then
+        # scheme:[//authority][/path][?query][#fragment]
+        download_filename=$(awk -F"/" '{print $NF}' <<<"${download_url}")
+        download_filename="${download_filename%%[?#]*}"
+    fi
 
     # Download
     colorEcho "${BLUE}Downloading ${FUCHSIA}${download_url}${BLUE} to ${ORANGE}${download_filename}${BLUE}..."
