@@ -51,7 +51,8 @@ if (Test-Path "$env:USERPROFILE\.proxy.env.ps1") {
 
 # naive
 foreach ($TargetUrl in ${NAIVEPROXY_URL}) {
-    $NaiveArgs = "--listen=""socks://127.0.0.1:${NAIVEPROXY_PORT}"" --proxy=""${TargetUrl}"" --log=""$env:USERPROFILE\naive.${NAIVEPROXY_PORT}.log"""
+    # $NaiveArgs = "--listen=""socks://127.0.0.1:${NAIVEPROXY_PORT}"" --proxy=""${TargetUrl}"" --log=""$env:USERPROFILE\naive.${NAIVEPROXY_PORT}.log"""
+    $NaiveArgs = "--listen=""socks://127.0.0.1:${NAIVEPROXY_PORT}"" --proxy=""${TargetUrl}"""
 
     Start-Process -FilePath "${NaiveCMD}" `
         -ArgumentList "${NaiveArgs}" `
