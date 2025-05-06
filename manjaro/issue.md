@@ -61,6 +61,37 @@ grub-mkconfig -o /boot/grub/grub.cfg
 # Type `exit` to leave the chroot and reboot
 ```
 
+## [System rollback the 'Arch Way'](https://wiki.archlinux.org/title/Snapper#Restoring_/_to_its_previous_snapshot)
+```bash
+# Boot from the Manjaro USB in Live mode
+
+# Mount the toplevel subvolume (subvolid=5). That is, omit any subvolid or subvol mount flags.
+# example: an encrypted device map labelled `cryptdev`...
+sudo mount /dev/mapper/<cryptdev> /mnt
+# or
+sudo mount -o subvolid=5 /dev/<device-id> /mnt
+
+## Move the broken @ subvolume out of the way ...
+# sudo mv /mnt/@ /mnt/@.broken
+## Or simply delete the subvolume ...
+sudo btrfs subvolume delete /mnt/@
+
+# Find the number of the snapshot that you want to recover ...
+sudo grep -r '<date>' /mnt/@rootsnaps/*/info.xml
+
+# Create a read-write snapshot of the read-only snapshot taken by Snapper ...
+sudo btrfs subvolume snapshot /mnt/@rootsnaps/<number>/snapshot /mnt/@
+# Where `number` is the snapshot you wish to restore as the new @
+
+# Set the default subvolume for the (mounted) filesystem
+btrfs subvolume set-default /mnt/@
+
+# Unmount /mnt
+sudo umount /mnt
+
+# Reboot and rollback
+```
+
 ## Failed to find module 'xxx'
 Find the entry in the module lists and remove it:
 
