@@ -27,8 +27,9 @@ DESKTOP_DIR=$(xdg-user-dir DESKTOP)
 [[ ! -d "${MANUAL_INSTALL_DIR}" ]] && mkdir -p "${MANUAL_INSTALL_DIR}"
 
 # [GoldenDict++OCR](https://autoptr.top/gdocr/GoldenDict-OCR-Deployment/)
-INSTALLER_ARCHIVE_FILENAME=$(find "${MANUAL_INSTALL_APP_STORE}" -type f -iname "goldendict*.tar.gz" -print0 | sort -r | head -n1)
+INSTALLER_ARCHIVE_FILENAME="$(find "${MANUAL_INSTALL_APP_STORE}" -maxdepth 1 -type f -iname "goldendict*.tar.gz" | sort -r | head -n1)"
 if [[ -f "${INSTALLER_ARCHIVE_FILENAME}" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}GoldenDict++OCR${BLUE}..."
     [[ -d "${MANUAL_INSTALL_DIR}/GoldenDict++OCR" ]] && sudo rm -rf "${MANUAL_INSTALL_DIR}/GoldenDict++OCR" || true
 
     sudo tar -xzf "${INSTALLER_ARCHIVE_FILENAME}" -C "${MANUAL_INSTALL_DIR}" && \
@@ -66,14 +67,18 @@ fi
 
 
 # [xDroid](https://www.linzhuotech.com/Product/download)
-INSTALLER_ARCHIVE_FILENAME=$(find "${MANUAL_INSTALL_APP_STORE}" -type f -iname 'xdroid*.tar.xz' -print0 | sort -r | head -n1)
+INSTALLER_ARCHIVE_FILENAME="$(find "${MANUAL_INSTALL_APP_STORE}" -maxdepth 1 -type f -iname 'xdroid*.tar.xz' | sort -r | head -n1)"
 INSTALLER_FILENAME=""
 if [[ -f "${INSTALLER_ARCHIVE_FILENAME}" ]]; then
-    if sudo tar -xJf "${INSTALLER_ARCHIVE_FILENAME}" -C "${MANUAL_INSTALL_DIR}"; then
-        INSTALLER_FILENAME=$(find "${MANUAL_INSTALL_DIR}" -type f -iname 'xdroid*.run' -print0 | sort -r | head -n1)
-    fi
+    sudo tar -xJf "${INSTALLER_ARCHIVE_FILENAME}" -C "${MANUAL_INSTALL_DIR}"
 fi
 
+INSTALLER_FILENAME="$(find "${MANUAL_INSTALL_DIR}" -maxdepth 1 -type f -iname 'xdroid*.run' | sort -r | head -n1)"
 if [[ -n "${INSTALLER_FILENAME}" && -f "${INSTALLER_FILENAME}" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}Linux Headers${BLUE}..."
+    LinuxKernel=$(pacman -Qsq "^linux" | grep "^linux[0-9]*[-rt]*$")
+    sudo pacman --noconfirm --needed -S "${LinuxKernel}" "${LinuxKernel}-headers"
+
+    colorEcho "${BLUE}Installing ${FUCHSIA}xDroid${BLUE}..."
     "${INSTALLER_FILENAME}"
 fi
