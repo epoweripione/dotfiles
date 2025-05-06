@@ -78,6 +78,8 @@ AppSnapperInstallList=(
     # "limine"
     # "limine-mkinitcpio-hook"
     # "limine-snapper-sync"
+    # [snapper-rollback - Script for rolling back to a previous snapper-managed BTRFS snapshot](https://github.com/jrabinow/snapper-rollback)
+    "snapper-rollback"
 )
 InstallSystemPackages "" "${AppSnapperInstallList[@]}"
 
@@ -254,6 +256,12 @@ done
 #     fi
 # done
 
+## Fix `@rootsnaps`, `@homesnaps` not mount at boot
+# source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/btrfs_remount_service.sh"
+if ! sudo crontab -l 2>/dev/null | grep -q '@reboot mount -a' 2>/dev/null; then
+    (sudo crontab -l 2>/dev/null || true; echo "@reboot mount -a") | sudo crontab -
+fi
+
 sudo systemctl daemon-reload
 # sudo systemctl restart local-fs.target
 # systemctl list-unit-files -t mount
@@ -359,6 +367,22 @@ sudo snapper -c home list
 colorEcho "${BLUE}Installing ${FUCHSIA}snap-pac-grub${BLUE} from AUR..."
 # mkdir -p "$HOME/aur" && export GNUPGHOME="$HOME/aur"
 yay -aS --sudoloop --noredownload --norebuild --noconfirm snap-pac-grub
+
+## [snapper-rollback - Script for rolling back to a previous snapper-managed BTRFS snapshot](https://github.com/jrabinow/snapper-rollback)
+# yay --noconfirm -S snapper-rollback
+## Usage:
+## list of snapshots:
+# snapper -c root list
+## rollback to a snapshot:
+# snapper-rollback <snapshot-id> --dry-run
+if ! sudo test -f "/etc/snapper-rollback.conf"; then
+    colorEcho "${BLUE}Setting ${FUCHSIA}snapper-rollback.conf${BLUE}..."
+    sudo sed -i "s/^subvol_snapshots =.*/subvol_snapshots = @rootsnaps/" "/etc/snapper-rollback.conf"
+
+    ROOT_DEV=$(df -hT | grep '/$' | awk '{print $1}')
+    # ROOT_DEV=$(sudo mount | grep -E '/[[:space:]]+' | awk '{print $1}')
+    sudo sed -i "s|^#dev =.*|dev = ${ROOT_DEV}|" "/etc/snapper-rollback.conf"
+fi
 
 # GRUB bootsplash
 [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/grub-bootsplash.sh" ]] && source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/grub-bootsplash.sh"
