@@ -170,6 +170,9 @@ sudo pacman --noconfirm -R p7zip 2>/dev/null # replace `p7zip` with `extra/7zip`
 # sudo pacman --noconfirm -R konsole 2>/dev/null
 # sudo pacman --noconfirm --needed -S "konsole-osc52"
 
+# Electron binary
+# Electron22 for `clouddm-personal-bin`
+yay --noconfirm --needed -S aur/electron22-bin
 # Electron30 for `dbgate`
 yay --noconfirm --needed -S aur/electron30-bin
 
@@ -244,6 +247,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "dbeaver-plugin-batik"
         "dbeaver-plugin-office"
         "dbeaver-plugin-svg-format"
+        "aur/clouddm-personal-bin"
+        "aur/drawdb-client-git"
         "wireshark-qt"
         "visual-studio-code-bin"
         "aur/xpipe"
@@ -261,6 +266,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "aria2"
         "filezilla"
         "archlinuxcn/qbittorrent-enhanced-git"
+        "aur/imfile-bin"
         ## Docker
         "docker"
         "docker-compose"
@@ -283,14 +289,16 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "slirp4netns"
         "socat"
         "sniffnet"
-        "aur/linuxqq-nt-bwrap"
+        # "aur/linuxqq-nt-bwrap"
+        "aur/linuxqq-appimage"
         # "aur/deepin-wine-qq"
-        "aur/deepin-wine-tim"
+        # "aur/deepin-wine-tim"
         "aur/wechat-universal-bwrap"
         # "aur/deepin-wine-wechat"
         # "archlinuxcn/wine-wechat-setup"
         # "archlinuxcn/wine-for-wechat"
         "aur/wemeet-bin"
+        "aur/dingtalk-bin"
         ## Markdown
         "vnote-git"
         #"typora"
@@ -377,6 +385,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "zed"
         ## Android emulator
         # "xdroid-bin"
+        # "archlinuxcn/bottles"
         ## [Manjaro-tools](https://wiki.manjaro.org/index.php/Manjaro-tools)
         "manjaro-tools-base"
         "manjaro-tools-pkg"
@@ -409,6 +418,18 @@ for TargetApp in "${AppFlatpakInstallList[@]}"; do
     colorEcho "${BLUE}Installing ${FUCHSIA}${TargetApp}${BLUE}..."
     flatpak install --or-update -y "${TargetRemote}" "${TargetApp}"
 done
+
+# [Bottles can't find programs / "Installers"](https://github.com/bottlesdevs/Bottles/issues/3761#issuecomment-2671905155)
+# in preferences, download `dxvk`
+if [[ -f "/usr/share/applications/com.usebottles.bottles.desktop" ]]; then
+    if ! grep -q "^Exec=PERSONAL_DEPENDENCIES=" "/usr/share/applications/com.usebottles.bottles.desktop"; then
+        sudo sed -i -e 's|^Exec=|Exec=PERSONAL_DEPENDENCIES=https://github.com/bottlesdevs/dependencies/raw/main PERSONAL_COMPONENTS=https://github.com/bottlesdevs/components/raw/main PERSONAL_INSTALLERS=https://github.com/bottlesdevs/programs/raw/main |g' "/usr/share/applications/com.usebottles.bottles.desktop"
+    fi
+fi
+# PERSONAL_DEPENDENCIES=https://github.com/bottlesdevs/dependencies/raw/main \
+#     PERSONAL_COMPONENTS=https://github.com/bottlesdevs/components/raw/main \
+#     PERSONAL_INSTALLERS=https://github.com/bottlesdevs/programs/raw/main \
+#     flatpak run com.usebottles.bottles
 
 ## RDP Server
 ## http://www.xrdp.org/
