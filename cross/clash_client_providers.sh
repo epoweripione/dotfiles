@@ -288,8 +288,8 @@ function formatYAMLFile() {
     sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${subscribeFile}"
     sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${subscribeFile}"
 
-    sed -ri 's/name:\s+([^,"\{\}]+)/name: "\1"/' "${subscribeFile}"
-    sed -ri 's/password:\s+([^,"\{\}]+)/password: "\1"/' "${subscribeFile}"
+    sed -ri 's/name:\s+([^,"\{\}]+)/name: "\1"/g' "${subscribeFile}"
+    sed -ri 's/password:\s+([^,"\{\}]+)/password: "\1"/g' "${subscribeFile}"
 
     # IPV6
     sed -ri "/name:/ s/[\"【]*(${IPV6RegExp})[\"】]*/\"\[\1\]\"/g" "${subscribeFile}"
@@ -920,7 +920,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
         case "${TARGET_OPTION}" in
             *private*)
                 # Add `targetfile` & `private` field to proxies
-                TARGET_PROXIES=$(sed "s/\bname\b:/targetfile: ${TARGET_FILE}, private: true, name:/g" <<<"${TARGET_PROXIES}")
+                TARGET_PROXIES=$(sed -r "s/([[:space:]\{,]+)name:/\1targetfile: ${TARGET_FILE}, private: true, name:/g" <<<"${TARGET_PROXIES}")
 
                 [[ -n "${PROXIES_PRIVATE}" ]] && \
                     PROXIES_PRIVATE=$(echo -e "${PROXIES_PRIVATE}\n${TARGET_PROXIES}") || \
@@ -928,7 +928,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 ;;
             *)
                 # Delete duplicate proxies, Add `targetfile` field to proxies
-                TARGET_PROXIES=$(sort -u <<<"${TARGET_PROXIES}" | sed "s/\bname\b:/targetfile: ${TARGET_FILE}, name:/g")
+                TARGET_PROXIES=$(sort -u <<<"${TARGET_PROXIES}" | sed -r "s/([[:space:]\{,]+)name:/\1targetfile: ${TARGET_FILE}, name:/g")
 
                 [[ -n "${PROXIES_PUBLIC}" ]] && \
                     PROXIES_PUBLIC=$(echo -e "${PROXIES_PUBLIC}\n${TARGET_PROXIES}") || \
