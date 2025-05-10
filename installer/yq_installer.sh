@@ -19,51 +19,24 @@ fi
 
 App_Installer_Reset
 
-# yq
-# https://github.com/mikefarah/yq
+# [yq - a portable command-line YAML, JSON, XML, CSV, TOML and properties processor](https://github.com/mikefarah/yq)
 INSTALLER_APP_NAME="yq"
+INSTALLER_GITHUB_REPO="mikefarah/yq"
 
-if [[ -x "$(command -v yq)" ]]; then
+INSTALLER_INSTALL_NAME="yq"
+
+INSTALLER_ARCHIVE_EXT="tar.gz"
+INSTALLER_ARCHIVE_EXEC_NAME="yq_*"
+
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
-    INSTALLER_VER_CURRENT=$(yq -V | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
-
-    INSTALLER_CHECK_URL="https://api.github.com/repos/mikefarah/yq/releases/latest"
-    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
-    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
-        INSTALLER_IS_INSTALL="no"
-    fi
-fi
-
-if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-
-    OS_TYPE=$(uname | sed 's/.*/\L&/')
-    [[ -z "${OS_INFO_ARCH}" ]] && get_arch
-
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/yq.tar.gz" 
-    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/mikefarah/yq/releases/download/v${INSTALLER_VER_REMOTE}/yq_${OS_TYPE}_${OS_INFO_ARCH}.tar.gz"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
-        tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}" && \
-            sudo cp -f "${WORKDIR}"/yq_* "/usr/local/bin/yq"
-            sudo chmod +x "/usr/local/bin/yq"
-    fi
+if ! App_Installer_Install; then
+    colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
 cd "${CURRENT_DIR}" || exit
