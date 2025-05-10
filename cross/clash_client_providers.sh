@@ -1114,7 +1114,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 if grep -Eq '^awk' <<<"${TARGET_FILTER}"; then
                     CONTENT_TAG=$(awk "${TARGET_FILTER//awk/}" <<<"${GROUP_PROXIES_ALL}")
                 else
-                    if grep -Eq "\!" <<<"${TARGET_FILTER}"; then
+                    if grep -Eq '!' <<<"${TARGET_FILTER}"; then
                         CONTENT_TAG=$(grep -Ev "${TARGET_FILTER//\!/}" <<<"${GROUP_PROXIES_ALL}")
                     else
                         CONTENT_TAG=$(grep -E "${TARGET_FILTER}" <<<"${GROUP_PROXIES_ALL}")
@@ -1272,7 +1272,7 @@ while read -r READLINE || [[ "${READLINE}" ]]; do
                 if grep -Eq '^awk' <<<"${TARGET_FILTER}"; then
                     CONTENT_TAG=$(awk "${TARGET_FILTER//awk/}" <<<"${CONTENT_TAG}")
                 else
-                    if grep -Eq "\!" <<<"${TARGET_FILTER}"; then
+                    if grep -Eq '!' <<<"${TARGET_FILTER}"; then
                         CONTENT_TAG=$(grep -Ev "${TARGET_FILTER//\!/}" <<<"${CONTENT_TAG}")
                     else
                         CONTENT_TAG=$(grep -E "${TARGET_FILTER}" <<<"${CONTENT_TAG}")
