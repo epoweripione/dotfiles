@@ -1124,7 +1124,7 @@ function App_Installer_Get_Installed_Version() {
 
     if [[ -z "${INSTALLER_VER_CURRENT}" ]]; then
         versionFile="${binaryFile}.version"
-        [[ -f "${versionFile}" ]] && INSTALLER_VER_CURRENT=$(head -n1 "${versionFile}")
+        [[ -f "${versionFile}" ]] && INSTALLER_VER_CURRENT=$(sudo head -n1 "${versionFile}")
     fi
 
     # Get version from binary
