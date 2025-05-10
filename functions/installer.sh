@@ -538,7 +538,11 @@ function App_Installer_Get_Remote_URL() {
     # Filter more than one file
     match_cnt=$(wc -l <<<"${match_urls}")
     if [[ ${match_cnt} -gt 1 ]] && [[ -n "${multi_match_filter}" ]]; then
-        match_result=$(grep -Ei "${multi_match_filter}" <<<"${match_urls}")
+        if grep -Eq "\!" <<<"${multi_match_filter}"; then
+            match_result=$(grep -Eiv "${multi_match_filter//\!/}" <<<"${match_urls}")
+        else
+            match_result=$(grep -Ei "${multi_match_filter}" <<<"${match_urls}")
+        fi
         [[ -n "${match_result}" ]] && match_urls="${match_result}"
     fi
 
@@ -932,18 +936,18 @@ function App_Installer_Install() {
                 if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
                     INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
                         -not \( -name "*.${INSTALLER_ARCHIVE_EXT}" -or -name "${INSTALLER_ZSH_COMP_FILE}" \
-                                -or -name "*.[[:digit:]]" -or -name "*completion*" -or -path "*completion*" \) )
+                                -or -name "*completion*" -or -path "*completion*" \) )
                 else
                     INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not \( -name "*.${INSTALLER_ARCHIVE_EXT}" -or -name "*.[[:digit:]]" -or -name "*completion*" -or -path "*completion*" \) )
+                        -not \( -name "*.${INSTALLER_ARCHIVE_EXT}" -or -name "*completion*" -or -path "*completion*" \) )
                 fi
             else
                 if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
                     INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not \( -name "${INSTALLER_ZSH_COMP_FILE}" -or -name "*.[[:digit:]]" -or -name "*completion*" -or -path "*completion*" \) )
+                        -not \( -name "${INSTALLER_ZSH_COMP_FILE}" -or -name "*completion*" -or -path "*completion*" \) )
                 else
                     INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not \( -name "*.[[:digit:]]" -or -name "*completion*" -or -path "*completion*" \) )
+                        -not \( -name "*completion*" -or -path "*completion*" \) )
                 fi
             fi
 
@@ -997,6 +1001,11 @@ function App_Installer_Install() {
             finded_file="${INSTALLER_ARCHIVE_EXEC_DIR}/${exec_name}"
             [[ ! -f "${finded_file}" ]] && continue
 
+            # check if file is executable or shell script or starts with a shebang
+            if ! file -i "${finded_file}" 2>/dev/null | grep -Eiq "executable|shellscript"; then
+                ! head -n1 "${finded_file}" 2>/dev/null | grep -q '^#!' && continue
+            fi
+
             [[ -n "${INSTALLER_INSTALL_NAME}" ]] && install_filename="${INSTALLER_INSTALL_NAME}" || install_filename="${exec_name}"
 
             sudo cp -f "${finded_file}" "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
@@ -1026,6 +1035,7 @@ function App_Installer_Install() {
                 install_files=$(find "${INSTALLER_ARCHIVE_ROOT}" -type f -name "*.${i}")
                 while read -r finded_file; do
                     [[ ! -f "${finded_file}" ]] && continue
+                    ! file -i "${finded_file}" | grep -q "text" && continue
                     install_filename=$(basename "${finded_file}")
                     sudo cp -f "${finded_file}" "${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
                         colorEcho "${GREEN}  Installed: ${YELLOW}${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
@@ -1216,7 +1226,8 @@ function installPrebuiltBinary() {
     fi
 
     INSTALLER_APP_NAME="${binary_name}"
-    [[ -z "${file_match_pattern}" ]] && INSTALLER_INSTALL_NAME="${binary_name}"
+    # [[ -z "${file_match_pattern}" ]] && INSTALLER_INSTALL_NAME="${binary_name}"
+    [[ -z "${INSTALLER_INSTALL_NAME}" ]] && INSTALLER_INSTALL_NAME="${binary_name}"
 
     # github releases: https://api.github.com/repos/${remote_url}/releases/latest
     [[ "${remote_url}" =~ ^(https?://|ftp://) ]] || INSTALLER_GITHUB_REPO="${remote_url}"
