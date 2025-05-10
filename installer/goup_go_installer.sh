@@ -79,8 +79,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         # Install
         if [[ -s "${INSTALLER_DOWNLOAD_FILE}" ]]; then
             sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
-                sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
-                [[ -n "${INSTALLER_VER_FILE}" ]] && echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null || true
+                sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
         fi
     fi
 fi

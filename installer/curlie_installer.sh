@@ -28,11 +28,11 @@ INSTALLER_ARCHIVE_EXT="tar.gz"
 
 INSTALLER_INSTALL_NAME="curlie"
 
-INSTALLER_VER_FILE="${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}.version"
+INSTALLER_VERSION_TO_FILE="yes"
 
 if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
-    [[ -s "${INSTALLER_VER_FILE}" ]] && INSTALLER_VER_CURRENT=$(head -n1 "${INSTALLER_VER_FILE}")
+    App_Installer_Get_Installed_Version "${INSTALLER_INSTALL_NAME}"
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi

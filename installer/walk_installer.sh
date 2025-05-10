@@ -26,13 +26,11 @@ INSTALLER_GITHUB_REPO="antonmedv/walk"
 
 INSTALLER_INSTALL_NAME="walk"
 
-INSTALLER_VER_FILE="${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}.version"
+INSTALLER_VERSION_TO_FILE="yes"
 
 if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
-    # INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -V 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    [[ -s "${INSTALLER_VER_FILE}" ]] && INSTALLER_VER_CURRENT=$(head -n1 "${INSTALLER_VER_FILE}")
-    INSTALLER_EXEC_FULLNAME=$(readlink -f "$(which ${INSTALLER_INSTALL_NAME})")
+    App_Installer_Get_Installed_Version "${INSTALLER_INSTALL_NAME}"
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi

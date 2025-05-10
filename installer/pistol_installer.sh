@@ -26,10 +26,11 @@ INSTALLER_GITHUB_REPO="doronbehar/pistol"
 
 INSTALLER_INSTALL_NAME="pistol"
 
-if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" && -x "$(command -v go)" ]]; then
+INSTALLER_VERSION_TO_FILE="yes"
+
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
-    INSTALLER_VER_FILE="$(which ${INSTALLER_INSTALL_NAME}).version"
-    [[ -s "${INSTALLER_VER_FILE}" ]] && INSTALLER_VER_CURRENT=$(head -n1 "${INSTALLER_VER_FILE}")
+    App_Installer_Get_Installed_Version "${INSTALLER_INSTALL_NAME}"
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
@@ -56,10 +57,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
         go install "github.com/doronbehar/pistol/cmd/pistol@latest"
 
-        if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
-            INSTALLER_VER_FILE="$(which ${INSTALLER_INSTALL_NAME}).version"
-            echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null || true
-        fi
+        App_Installer_Update_Installed_Version "${INSTALLER_INSTALL_NAME}" "${INSTALLER_VER_REMOTE}"
     fi
 fi
 

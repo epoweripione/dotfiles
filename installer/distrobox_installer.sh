@@ -51,10 +51,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${WORKDIR}/get-distrobox.sh" "https://raw.githubusercontent.com/89luca89/distrobox/main/install" && \
         sudo bash "${WORKDIR}/get-distrobox.sh"
 
-    if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
-        INSTALLER_VER_FILE="$(which ${INSTALLER_INSTALL_NAME}).version"
-        echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null || true
-    fi
+    App_Installer_Update_Installed_Version "${INSTALLER_INSTALL_NAME}" "${INSTALLER_VER_REMOTE}"
 fi
 
 

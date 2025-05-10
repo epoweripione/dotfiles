@@ -30,7 +30,6 @@ INSTALLER_INSTALL_NAME="gping"
 
 if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
-    [[ -s "${INSTALLER_VER_FILE}" ]] && INSTALLER_VER_CURRENT=$(head -n1 "${INSTALLER_VER_FILE}")
     INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
