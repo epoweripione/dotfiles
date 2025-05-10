@@ -849,6 +849,9 @@ function App_Installer_Reset() {
 
     INSTALLER_INSTALL_LOGFILE="$HOME/.dotfiles.installer.log"
 
+    INSTALLER_VERSION_TO_FILE="no"
+    INSTALLER_INSTALL_VERSIONFILE="$HOME/.dotfiles.installer.version"
+
     INSTALLER_ALL_DOWNLOAD_URLS=""
 
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
@@ -1008,7 +1011,13 @@ function App_Installer_Install() {
         # man pages, zsh completions
         if [[ "${app_installed}" == "yes" ]]; then
             # write version to file
-            [[ -n "${INSTALLER_VER_FILE}" ]] && echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null || true
+            if [[ "${INSTALLER_VERSION_TO_FILE}" == "yes" ]]; then
+                if [[ -n "${INSTALLER_INSTALL_NAME}" ]]; then
+                    App_Installer_Update_Installed_Version "${INSTALLER_INSTALL_NAME}" "${INSTALLER_VER_REMOTE}"
+                else
+                    App_Installer_Update_Installed_Version "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}"
+                fi
+            fi
 
             # man pages (man1..man8)
             for ((i=1; i <= 8; ++i)); do
@@ -1108,16 +1117,50 @@ function App_Installer_Get_Installed_Version() {
     binaryFile=$(which "${appBinary}" 2>/dev/null)
     [[ -z "${binaryFile}" ]] && INSTALLER_VER_CURRENT="0.0.0" && return 1
 
-    INSTALLER_VER_CURRENT=$(${appBinary} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -V 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    # Get version from version file
+    if [[ -f "${INSTALLER_INSTALL_VERSIONFILE}" ]]; then
+        INSTALLER_VER_CURRENT=$(grep -E "${appBinary}[[:space:]]+" "${INSTALLER_INSTALL_VERSIONFILE}" 2>/dev/null | awk '{print $2}' | head -n1)
+    fi
 
     if [[ -z "${INSTALLER_VER_CURRENT}" ]]; then
         versionFile="${binaryFile}.version"
-        [[ -s "${versionFile}" ]] && INSTALLER_VER_CURRENT=$(head -n1 "${versionFile}")
+        [[ -f "${versionFile}" ]] && INSTALLER_VER_CURRENT=$(head -n1 "${versionFile}")
+    fi
+
+    # Get version from binary
+    if [[ -z "${INSTALLER_VER_CURRENT}" ]]; then
+        INSTALLER_VER_CURRENT=$(${appBinary} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -V 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     fi
 
     [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT="0.0.0" && return 1
+
+    return 0
+}
+
+# Update installed app version
+function App_Installer_Update_Installed_Version() {
+    local appBinary=$1
+    local appVersion=$2
+    local versionFile
+
+    [[ -z "${appBinary}" ]] && return 1
+    [[ -z "${appVersion}" ]] && return 1
+
+    binaryFile=$(which "${appBinary}" 2>/dev/null)
+    [[ -z "${binaryFile}" ]] && return 1
+
+    if [[ -n "${INSTALLER_INSTALL_VERSIONFILE}" ]]; then
+        if grep -Eq "${appBinary}[[:space:]]+" "${INSTALLER_INSTALL_VERSIONFILE}" 2>/dev/null; then
+            sed -i "s|${appBinary}[[:space:]]\+.*|${appBinary} ${appVersion}|" "${INSTALLER_INSTALL_VERSIONFILE}"
+        else
+            echo "${appBinary} ${appVersion}" >> "${INSTALLER_INSTALL_VERSIONFILE}"
+        fi
+    else
+        versionFile="${binaryFile}.version"
+        echo "${appVersion}" | sudo tee "${versionFile}" >/dev/null
+    fi
 
     return 0
 }
