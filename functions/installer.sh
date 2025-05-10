@@ -1002,7 +1002,8 @@ function App_Installer_Install() {
             [[ ! -f "${finded_file}" ]] && continue
 
             # check if file is executable or shell script or starts with a shebang
-            if ! file -i "${finded_file}" 2>/dev/null | grep -Eiq "executable|shellscript"; then
+            # if ! file -i "${finded_file}" 2>/dev/null | grep -Eiq "application|executable|binary|sharedlib|shellscript"; then
+            if file -i "${finded_file}" 2>/dev/null | grep -Eiq "text"; then
                 ! head -n1 "${finded_file}" 2>/dev/null | grep -q '^#!' && continue
             fi
 
