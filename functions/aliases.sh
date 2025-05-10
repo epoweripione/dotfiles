@@ -129,6 +129,8 @@ if [[ -x "$(command -v docker)" ]]; then
     alias docker-oneapi='docker run -d --name one-api -p 3000:3000 -e TZ=Asia/Shanghai -v $HOME/one-api:/data justsong/one-api'
     # https://github.com/drawdb-io/drawdb
     alias docker-drawdb='docker run -d --name drawdb -p 80:80 -e TZ=Asia/Shanghai -v $HOME/drawdb:/var/www/html ghcr.io/drawdb-io/drawdb'
+    # https://github.com/VERT-sh/VERT
+    alias docker-vert='docker run -d --name vert -p 80:80 -e TZ=Asia/Shanghai ghcr.io/vert-sh/vert'
 fi
 
 
