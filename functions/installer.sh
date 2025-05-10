@@ -538,7 +538,7 @@ function App_Installer_Get_Remote_URL() {
     # Filter more than one file
     match_cnt=$(wc -l <<<"${match_urls}")
     if [[ ${match_cnt} -gt 1 ]] && [[ -n "${multi_match_filter}" ]]; then
-        if grep -Eq "\!" <<<"${multi_match_filter}"; then
+        if grep -Eq '!' <<<"${multi_match_filter}"; then
             match_result=$(grep -Eiv "${multi_match_filter//\!/}" <<<"${match_urls}")
         else
             match_result=$(grep -Ei "${multi_match_filter}" <<<"${match_urls}")
@@ -873,7 +873,7 @@ function App_Installer_Install() {
     #
     # Check `installer/zoxide_installer.sh` or `installer/ncdu_installer.sh` or `installer/earthly_installer.sh` or `installer/lazygit_installer.sh` as example
     local remote_url=$1
-    local exec_list exec_name app_installed finded_file install_files install_filename
+    local exec_list exec_name app_installed finded_file finded_cnt install_files install_filename
     local addon_download addon_name addon_url addon_file addon_dir addon_installed
 
     [[ "${INSTALLER_IS_INSTALL}" != "yes" ]] && return 0
@@ -949,6 +949,12 @@ function App_Installer_Install() {
                     INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
                         -not \( -name "*completion*" -or -path "*completion*" \) )
                 fi
+            fi
+
+            # Maybe more than one files
+            finded_cnt=$(wc -l <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
+            if [[ ${finded_cnt} -gt 1 ]]; then
+                INSTALLER_ARCHIVE_EXEC_NAME=$(grep -Ev '\.[[:digit:]]+$' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}" | head -n1)
             fi
 
             if [[ -f "${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
@@ -1133,13 +1139,13 @@ function App_Installer_Get_Installed_Version() {
         INSTALLER_VER_CURRENT=$(grep -E "${appBinary}[[:space:]]+" "${INSTALLER_INSTALL_VERSIONFILE}" 2>/dev/null | awk '{print $2}' | head -n1)
     fi
 
-    if [[ -z "${INSTALLER_VER_CURRENT}" ]]; then
+    if [[ -z "${INSTALLER_VER_CURRENT}" || "${INSTALLER_VER_CURRENT}" == "0.0.0" ]]; then
         versionFile="${binaryFile}.version"
         [[ -f "${versionFile}" ]] && INSTALLER_VER_CURRENT=$(sudo head -n1 "${versionFile}")
     fi
 
     # Get version from binary
-    if [[ -z "${INSTALLER_VER_CURRENT}" ]]; then
+    if [[ -z "${INSTALLER_VER_CURRENT}" || "${INSTALLER_VER_CURRENT}" == "0.0.0" ]]; then
         INSTALLER_VER_CURRENT=$(${appBinary} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
         [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
         [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -V 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
