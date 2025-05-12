@@ -272,6 +272,8 @@ function formatYAMLFile() {
     local subscribeFile=$1
     local GroupStartLine RuleStartLine
 
+    colorEcho "${BLUE}    Formating YAML file ${FUCHSIA}${subscribeFile}${BLUE}..."
+
     # add Double quotes to `path`, `User-Agent`...
     sed -ri 's/(ALPN|Alpn|alpn|HOST|Host|host|PATH|Path|path):\s+([^,"\{\}\[]+)/\1: "\2"/g' "${subscribeFile}"
 
@@ -308,6 +310,30 @@ function formatYAMLFile() {
     [[ -z "${RuleStartLine}" || ${RuleStartLine} -le ${GroupStartLine} ]] && RuleStartLine=$(wc -l "${subscribeFile}" | awk '{print $1}')
     if [[ ${GroupStartLine} -lt ${RuleStartLine} ]]; then
         sed -ri "${GroupStartLine},${RuleStartLine} s|^\s*-\s+([^\"]+)$|      - \"\1\"|g" "${subscribeFile}"
+    fi
+}
+
+# Check & fix invalid YAML format
+function fixInvalidYAMLFile() {
+    local subscribeFile=$1
+    local InvalidFile="no"
+
+    ## Fix: invalid leading UTF-8 octet
+    ## https://stackoverflow.com/questions/12999651/how-to-remove-non-utf-8-characters-from-text-file
+    ## https://stackoverflow.com/questions/29465612/how-to-detect-invalid-utf8-unicode-binary-in-a-text-file
+    # echo -ne '\uFFFD' | hexdump -C
+    # python3 -c 'print("\uFFFD".encode("utf8"))'
+    if grep -q -axv '.*' "${subscribeFile}" 2>/dev/null; then
+        InvalidFile="yes"
+    elif grep -q -P "\x{fffd}/u" "${subscribeFile}" 2>/dev/null; then
+        InvalidFile="yes"
+    fi
+
+    if [[ "${InvalidFile}" == "yes" ]]; then
+        colorEcho "${BLUE}    Fixing ${FUCHSIA}invalid leading UTF-8 octet${BLUE}..."
+        iconv -f utf-8 -t utf-8 -c "${subscribeFile}" > "${subscribeFile}.tmp" && \
+            rm "${subscribeFile}" && \
+            mv "${subscribeFile}.tmp" "${subscribeFile}"
     fi
 }
 
@@ -961,13 +987,27 @@ echo "${PROXIES_PROXY_ALL}" | tee -a "${PROXIES_OUTPUT_TEMP}" >/dev/null
 echo '' >> "${PROXIES_OUTPUT_TEMP}"
 echo 'proxy-groups:' >> "${PROXIES_OUTPUT_TEMP}"
 
+# Check & fix invalid YAML format
+fixInvalidYAMLFile "${PROXIES_OUTPUT_TEMP}"
+
 # Format the proxies temp file contents into YAML format
 formatYAMLFile "${PROXIES_OUTPUT_TEMP}"
+
+# Check & fix invalid YAML format
+fixInvalidYAMLFile "${PROXIES_OUTPUT_TEMP}"
 
 # Rename duplicate proxies in yaml file
 processDuplicateProxies "${PROXIES_OUTPUT_TEMP}"
 
+# Check & fix invalid YAML format
+fixInvalidYAMLFile "${PROXIES_OUTPUT_TEMP}"
+
+# Save to `/tmp` directory for debug
+colorEcho "${BLUE}  Saving proxies to ${FUCHSIA}/tmp/proxies_all-${TARGET_CONFIG_NAME}${BLUE}..."
+cp -f "${PROXIES_OUTPUT_TEMP}" "/tmp/proxies_all-${TARGET_CONFIG_NAME}"
+
 # Get all proxies
+colorEcho "${BLUE}  Getting proxies from ${FUCHSIA}${PROXIES_OUTPUT_TEMP}${BLUE}..."
 PROXIES_PROXY_ALL=""
 PROXY_START_LINE=$(grep -Ean "^proxies:" "${PROXIES_OUTPUT_TEMP}" | cut -d: -f1)
 GROUP_START_LINE=$(grep -Ean "^proxy-groups:" "${PROXIES_OUTPUT_TEMP}" | cut -d: -f1)
@@ -1321,24 +1361,8 @@ if [[ ${GROUP_OTHER_BALANCE_LINE} -gt 0 ]]; then
     sed -i "/^#otherbalance/d" "${TARGET_CONFIG_FILE}"
 fi
 
-## Fix: invalid leading UTF-8 octet
-## https://stackoverflow.com/questions/12999651/how-to-remove-non-utf-8-characters-from-text-file
-## https://stackoverflow.com/questions/29465612/how-to-detect-invalid-utf8-unicode-binary-in-a-text-file
-# echo -ne '\uFFFD' | hexdump -C
-# python3 -c 'print("\uFFFD".encode("utf8"))'
-INVALID_FILE="no"
-if grep -q -axv '.*' "${TARGET_CONFIG_FILE}" 2>/dev/null; then
-    INVALID_FILE="yes"
-elif grep -q -P "\x{fffd}/u" "${TARGET_CONFIG_FILE}" 2>/dev/null; then
-    INVALID_FILE="yes"
-fi
-
-if [[ "${INVALID_FILE}" == "yes" ]]; then
-    colorEcho "${BLUE}    Fixing ${FUCHSIA}invalid leading UTF-8 octet${BLUE}..."
-    iconv -f utf-8 -t utf-8 -c "${TARGET_CONFIG_FILE}" > "${TARGET_CONFIG_FILE}.tmp" && \
-        rm "${TARGET_CONFIG_FILE}" && \
-        mv "${TARGET_CONFIG_FILE}.tmp" "${TARGET_CONFIG_FILE}"
-fi
+# Check & fix invalid YAML format
+fixInvalidYAMLFile "${TARGET_CONFIG_FILE}"
 
 ## delete not exist proxies
 ## PROXY_LIST=$(yq e ".proxies[].name" "${TARGET_CONFIG_FILE}")
