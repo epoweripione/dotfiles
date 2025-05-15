@@ -1236,8 +1236,14 @@ function installPrebuiltBinary() {
     # [[ -z "${file_match_pattern}" ]] && INSTALLER_INSTALL_NAME="${binary_name}"
     [[ -z "${INSTALLER_INSTALL_NAME}" ]] && INSTALLER_INSTALL_NAME="${binary_name}"
 
-    # github releases: https://api.github.com/repos/${remote_url}/releases/latest
-    [[ "${remote_url}" =~ ^(https?://|ftp://) ]] || INSTALLER_GITHUB_REPO="${remote_url}"
+    if [[ "${remote_url}" =~ ^(https?://|ftp://) ]]; then
+        INSTALLER_CHECK_URL="${remote_url}"
+    else
+        # github releases
+        INSTALLER_GITHUB_REPO="${remote_url}"
+        remote_url="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
+        INSTALLER_CHECK_URL="${remote_url}"
+    fi
 
     # remote version
     if [[ -z "${INSTALLER_VER_REMOTE}" ]]; then
@@ -1254,17 +1260,11 @@ function installPrebuiltBinary() {
         fi
     fi
 
-    [[ -n "${file_match_pattern}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${file_match_pattern}"
+    INSTALLER_ARCHIVE_EXEC_NAME="${binary_name}*"
 
-    if [[ "${remote_url}" =~ ^(https?://|ftp://) ]]; then
-        if App_Installer_Get_Remote_URL "${remote_url}" "${file_match_pattern}" "${version_match_pattern}" "${multi_match_filter}"; then
-            [[ "${INSTALLER_DOWNLOAD_URL}" =~ ^(https?://|ftp://) ]] || INSTALLER_DOWNLOAD_URL="${remote_url}${INSTALLER_DOWNLOAD_URL}"
-            if App_Installer_Install "${remote_url}"; then
-                binary_installed="yes"
-            fi
-        fi
-    else
-        if App_Installer_Install; then
+    if App_Installer_Get_Remote_URL "${remote_url}" "${file_match_pattern}" "${version_match_pattern}" "${multi_match_filter}"; then
+        [[ "${INSTALLER_DOWNLOAD_URL}" =~ ^(https?://|ftp://) ]] || INSTALLER_DOWNLOAD_URL="${remote_url}${INSTALLER_DOWNLOAD_URL}"
+        if App_Installer_Install "${remote_url}"; then
             binary_installed="yes"
         fi
     fi
