@@ -390,6 +390,9 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "manjaro-tools-base"
         "manjaro-tools-pkg"
         "manjaro-tools-iso"
+        ## copies the content of a file into your clipboard
+        # xclip -selection clipboard -i < file.txt
+        "xclip"
     )
 fi
 InstallSystemPackages "" "${AppManjaroInstallList[@]}"
