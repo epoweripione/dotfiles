@@ -395,9 +395,9 @@ function App_Installer_Get_Remote_Version() {
     fi
 
     [[ -z "${INSTALLER_VER_REMOTE}" && -n "${version_match_pattern}" ]] && \
-        INSTALLER_VER_REMOTE=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        INSTALLER_VER_REMOTE=$(grep -Eo "${version_match_pattern}" <<<"${INSTALLER_REMOTE_CONTENT}" | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | sort -rV | head -n1)
 
-    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | head -n1)
+    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_REMOTE_CONTENT}" | sort -rV | head -n1)
 
     [[ -n "${INSTALLER_VER_REMOTE}" ]] && return 0 || return 1
 }
