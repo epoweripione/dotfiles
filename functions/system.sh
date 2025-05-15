@@ -390,3 +390,88 @@ function mountReadonlyNTFSDrive() {
     # sudo findmnt
     # sudo umount "${NTFSMountPath}"
 }
+
+# Build GLIBC latest version
+# fix: version `GLIBC_x.xx' not found
+function buildGLIBC() {
+    local GLIBC_REMOTE_VERSION=$1
+    local GLIBC_CURRENT_VERSION GLIBC_FILE GLIBC_URL GLIBC_BUILD_DIR GLIBC_INSTALL_DIR
+
+    if [[ -z "${GLIBC_REMOTE_VERSION}" ]]; then
+        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}GLIBC${BLUE}..."
+        INSTALLER_CHECK_URL="http://ftp.gnu.org/gnu/glibc/"
+        App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}" "glibc-.*\.tar\.gz"
+        GLIBC_REMOTE_VERSION="${INSTALLER_VER_REMOTE}"
+    fi
+
+    GLIBC_CURRENT_VERSION=$(ldd --version | awk 'NR==1{print $NF}')
+    if version_le "${GLIBC_REMOTE_VERSION}" "${GLIBC_CURRENT_VERSION}"; then
+        colorEcho "${FUCHSIA}${GLIBC_CURRENT_VERSION}${RED} already installed or has a compatible version!"
+        return 1
+    fi
+
+    [[ -z "${OS_PACKAGE_MANAGER}" ]] && get_os_package_manager
+
+    if [[ -x "$(command -v pacman)" ]]; then
+        PackagesList=(
+            "build-essential"
+            "libssl-dev"
+            "libgdbm-dev"
+            "libdb-dev"
+            "libexpat-dev"
+            "libncurses5-dev"
+            "libbz2-dev"
+            "zlib1g-dev"
+            "gawk"
+            "bison"
+        )
+        InstallSystemPackages "${BLUE}Checking Pre-requisite packages for ${FUCHSIA}GLIBC${BLUE}..." "${PackagesList[@]}"
+    fi
+
+    if [[ "${OS_PACKAGE_MANAGER}" == "dnf" ]]; then
+        sudo dnf -y groupinstall "Development Tools"
+    fi
+
+    GLIBC_FILE="/tmp/glibc-${GLIBC_REMOTE_VERSION}.tar.gz"
+    GLIBC_URL="http://ftp.gnu.org/gnu/glibc/${GLIBC_FILE}"
+
+    GLIBC_BUILD_DIR="/tmp/glibc-${GLIBC_REMOTE_VERSION}"
+    GLIBC_INSTALL_DIR="/opt/glibc-${GLIBC_REMOTE_VERSION}"
+
+    if [[ -d "${GLIBC_INSTALL_DIR}" ]]; then
+        colorEcho "${FUCHSIA}${GLIBC_INSTALL_DIR}${RED} already exist!"
+        return 1
+    fi
+
+    colorEcho "${BLUE}Downloading ${FUCHSIA}GLIBC${BLUE} from ${ORANGE}${GLIBC_URL}${BLUE}..."
+    [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
+    [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
+    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${GLIBC_FILE}" "${GLIBC_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "$${GLIBC_FILE}" "${GLIBC_URL}"
+    curl_rtn_code=$?
+    if [[ ${curl_rtn_code} -eq 0 ]]; then
+        tar -xzf "${GLIBC_FILE}" -C "/tmp"
+    fi
+
+    cd "${GLIBC_BUILD_DIR}" || return 1
+    colorEcho "${BLUE}Building ${FUCHSIA}GLIBC ${ORANGE}${GLIBC_REMOTE_VERSION}${BLUE}..."
+    mkdir build && \
+        cd build && \
+        ../configure --prefix="${GLIBC_INSTALL_DIR}" >/dev/null && \
+        make -j"$(nproc)" >/dev/null && \
+        sudo make install >/dev/null
+
+    if [[ -d "${GLIBC_INSTALL_DIR}/lib" ]]; then
+        colorEcho "${FUCHSIA}GLIBC ${ORANGE}${GLIBC_REMOTE_VERSION}${GREEN} successfully compiled to ${YELLOW}${GLIBC_INSTALL_DIR}/lib${GREEN}!"
+    fi
+
+    ## Update the system with the path of the new library
+    # if [[ -d "${GLIBC_INSTALL_DIR}/lib" ]]; then
+    #     # export LD_LIBRARY_PATH=${GLIBC_INSTALL_DIR}/lib:${LD_LIBRARY_PATH}
+    #     echo "${GLIBC_INSTALL_DIR}/lib" | sudo tee "/etc/ld.so.conf.d/glibc-${GLIBC_REMOTE_VERSION}.conf" >/dev/null
+    #     sudo ldconfig
+    #     colorEcho "${FUCHSIA}${GLIBC_INSTALL_DIR}${GREEN} successfully installed!"
+    # fi
+
+    # Cleanup
+    rm -rf "${GLIBC_BUILD_DIR}" && rm -f "${GLIBC_FILE}"
+}
