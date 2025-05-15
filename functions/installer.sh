@@ -468,7 +468,7 @@ function App_Installer_Get_Remote_URL() {
     # Default match pattern & filter
     if [[ -z "${file_match_pattern}" ]]; then
         if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
-            file_match_pattern="\.${INSTALLER_ARCHIVE_EXT//./\.}"
+            file_match_pattern="\.${INSTALLER_ARCHIVE_EXT//./\\\.}"
         else
             file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
         fi
@@ -882,6 +882,8 @@ function App_Installer_Install() {
     local remote_url=$1
     local exec_list exec_name app_installed finded_file finded_cnt install_files install_filename
     local addon_download addon_name addon_url addon_file addon_dir addon_installed
+    local find_exclude exclude_opts
+    local exclude_cond=()
 
     [[ "${INSTALLER_IS_INSTALL}" != "yes" ]] && return 0
 
@@ -937,31 +939,34 @@ function App_Installer_Install() {
 
         [[ -z "${INSTALLER_ARCHIVE_ROOT}" || ! -d "${INSTALLER_ARCHIVE_ROOT}" ]] && INSTALLER_ARCHIVE_ROOT="${INSTALLER_ARCHIVE_EXEC_DIR}"
 
+        # find exclude condition
+        find_exclude='-name "*completion*" -or -path "*completion*"'
+        [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && find_exclude="${find_exclude} -or -name \"*.${INSTALLER_ARCHIVE_EXT}\""
+        [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]] && find_exclude="${find_exclude} -or -name \"${INSTALLER_ZSH_COMP_FILE}\""
+
+        [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
+        if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" exclude_cond <<<"${find_exclude}" 2>/dev/null; then
+            while read -r exclude_opts; do
+                exclude_cond+=("${exclude_opts}")
+            done < <(tr ' ' '\n'<<<"${find_exclude}")
+        fi
+
         # wildchar match
         if grep -q '\*' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}"; then
-            if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
-                if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
-                    INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not \( -name "*.${INSTALLER_ARCHIVE_EXT}" -or -name "${INSTALLER_ZSH_COMP_FILE}" \
-                                -or -name "*completion*" -or -path "*completion*" \) )
-                else
-                    INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not \( -name "*.${INSTALLER_ARCHIVE_EXT}" -or -name "*completion*" -or -path "*completion*" \) )
-                fi
-            else
-                if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
-                    INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not \( -name "${INSTALLER_ZSH_COMP_FILE}" -or -name "*completion*" -or -path "*completion*" \) )
-                else
-                    INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                        -not \( -name "*completion*" -or -path "*completion*" \) )
-                fi
-            fi
+            INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
+                -not \( "${exclude_cond[@]}" \) )
 
             # Maybe more than one files
             finded_cnt=$(wc -l <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
             if [[ ${finded_cnt} -gt 1 ]]; then
-                INSTALLER_ARCHIVE_EXEC_NAME=$(grep -Ev '\.[[:digit:]]+$' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}" | head -n1)
+                [[ -n "${INSTALLER_INSTALL_NAME}" ]] && install_filename="${INSTALLER_INSTALL_NAME}" || install_filename="${INSTALLER_APP_NAME}"
+                INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${install_filename}" \
+                    -not \( "${exclude_cond[@]}" \) )
+
+                finded_cnt=$(wc -l <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
+                if [[ ${finded_cnt} -gt 1 ]]; then
+                    INSTALLER_ARCHIVE_EXEC_NAME=$(grep -Ev '\.[[:digit:]]+$|\.*sh|\.d' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}" | head -n1)
+                fi
             fi
 
             if [[ -f "${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
@@ -995,6 +1000,20 @@ function App_Installer_Install() {
                 else
                     INSTALLER_ARCHIVE_EXEC_NAME="${INSTALLER_APP_NAME}"
                 fi
+            fi
+
+            if [[ ! -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
+                INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}*" \
+                    -not \( "${exclude_cond[@]}" \) )
+
+                # Maybe more than one files
+                finded_cnt=$(wc -l <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
+                if [[ ${finded_cnt} -gt 1 ]]; then
+                    INSTALLER_ARCHIVE_EXEC_NAME=$(grep -Ev '\.[[:digit:]]+$|\.*sh|\.d' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}" | head -n1)
+                fi
+
+                INSTALLER_ARCHIVE_EXEC_DIR=$(dirname "${INSTALLER_ARCHIVE_EXEC_NAME}")
+                INSTALLER_ARCHIVE_EXEC_NAME=$(basename "${INSTALLER_ARCHIVE_EXEC_NAME}")
             fi
         fi
         [[ -z "${exec_list[*]}" ]] && exec_list=("${INSTALLER_ARCHIVE_EXEC_NAME}")
@@ -1117,7 +1136,7 @@ function App_Installer_Install() {
                 fi
             done
         else
-            colorEcho "${RED}  Can't find ${FUCHSIA}${INSTALLER_ARCHIVE_EXEC_NAME}${RED} in ${YELLOW}${INSTALLER_DOWNLOAD_FILE}!"
+            colorEcho "${RED}  Can't find ${FUCHSIA}${INSTALLER_ARCHIVE_EXEC_NAME}${RED} in ${YELLOW}${INSTALLER_DOWNLOAD_FILE}${RED}!"
             echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} Can't find ${INSTALLER_ARCHIVE_EXEC_NAME} in ${INSTALLER_DOWNLOAD_FILE}" >> "${INSTALLER_INSTALL_LOGFILE}"
             echo "" >> "${INSTALLER_INSTALL_LOGFILE}"
             return 1
@@ -1245,9 +1264,11 @@ function installPrebuiltBinary() {
 
         if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
             if ! grep -q "${INSTALLER_ARCHIVE_EXT//./\\\.}" <<<"${file_match_pattern}"; then
-                file_match_pattern="${file_match_pattern}\.${INSTALLER_ARCHIVE_EXT//./\.}"
+                file_match_pattern="${file_match_pattern}\.${INSTALLER_ARCHIVE_EXT//./\\\.}"
             fi
         fi
+
+        file_match_pattern="${file_match_pattern//\*/.*}"
     fi
 
     INSTALLER_APP_NAME="${binary_name}"
