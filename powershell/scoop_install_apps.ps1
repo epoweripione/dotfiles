@@ -230,6 +230,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "vscode"
         # "wechatdevtools"
         "bruno"
+        "git-filter-repo"
+        "git-sizer"
         "gitbutler"
         "insomnia"
         "reqable"
