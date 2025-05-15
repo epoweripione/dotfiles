@@ -468,7 +468,7 @@ function App_Installer_Get_Remote_URL() {
     # Default match pattern & filter
     if [[ -z "${file_match_pattern}" ]]; then
         if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
-            file_match_pattern="\.${INSTALLER_ARCHIVE_EXT//./\\\.}"
+            file_match_pattern="\.${INSTALLER_ARCHIVE_EXT//./\\.}"
         else
             file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
         fi
@@ -1264,7 +1264,7 @@ function installPrebuiltBinary() {
 
         if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
             if ! grep -q "${INSTALLER_ARCHIVE_EXT//./\\\.}" <<<"${file_match_pattern}"; then
-                file_match_pattern="${file_match_pattern}\.${INSTALLER_ARCHIVE_EXT//./\\\.}"
+                file_match_pattern="${file_match_pattern}\.${INSTALLER_ARCHIVE_EXT//./\\.}"
             fi
         fi
 
