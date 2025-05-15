@@ -466,7 +466,14 @@ function App_Installer_Get_Remote_URL() {
     fi
 
     # Default match pattern & filter
-    [[ -z "${file_match_pattern}" ]] && file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
+    if [[ -z "${file_match_pattern}" ]]; then
+        if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
+            file_match_pattern="\.${INSTALLER_ARCHIVE_EXT//./\.}"
+        else
+            file_match_pattern="\.zip|\.bz|\.gz|\.xz|\.tbz|\.tgz|\.txz|\.7z"
+        fi
+    fi
+
     [[ -z "${multi_match_filter}" ]] && multi_match_filter="musl|static"
 
     # Get download urls
@@ -1230,6 +1237,17 @@ function installPrebuiltBinary() {
         file_match_pattern=$(awk -F'#' '{print $4}' <<<"${binary_url_pattern}")
         version_match_pattern=$(awk -F'#' '{print $5}' <<<"${binary_url_pattern}")
         multi_match_filter=$(awk -F'#' '{print $6}' <<<"${binary_url_pattern}")
+    fi
+
+    # file match pattern with archive_file_extension
+    if [[ -n "${file_match_pattern}" ]]; then
+        grep -q '\*$' <<<"${file_match_pattern}" || file_match_pattern="${file_match_pattern}*"
+
+        if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
+            if ! grep -q "${INSTALLER_ARCHIVE_EXT//./\\\.}" <<<"${file_match_pattern}"; then
+                file_match_pattern="${file_match_pattern}\.${INSTALLER_ARCHIVE_EXT//./\.}"
+            fi
+        fi
     fi
 
     INSTALLER_APP_NAME="${binary_name}"
