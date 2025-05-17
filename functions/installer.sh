@@ -1048,7 +1048,10 @@ function App_Installer_Install() {
                 ! head -n1 "${finded_file}" 2>/dev/null | grep -q '^#!' && continue
             fi
 
-            [[ -n "${INSTALLER_INSTALL_NAME}" ]] && install_filename="${INSTALLER_INSTALL_NAME}" || install_filename="${exec_name}"
+            install_filename="${exec_name}"
+            if [[ -n "${INSTALLER_INSTALL_NAME}" ]]; then
+                [[ ${#exec_list[@]} -eq 1 ]] && install_filename="${INSTALLER_INSTALL_NAME}"
+            fi
 
             sudo cp -f "${finded_file}" "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
                 sudo chmod +x "${INSTALLER_INSTALL_PATH}/${install_filename}" && \
