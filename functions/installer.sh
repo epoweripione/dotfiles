@@ -869,6 +869,33 @@ function App_Installer_Reset() {
     [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 }
 
+# find executable file in archive
+function App_Installer_find_executable() {
+    local find_dir=$1
+    local file_pattern=$2
+
+    if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
+        if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
+            INSTALLER_ARCHIVE_EXEC_NAME=$(find "${find_dir}" -type f -name "${file_pattern}" \
+                -not \( -name "*.${INSTALLER_ARCHIVE_EXT}" -or -name "${INSTALLER_ZSH_COMP_FILE}" \
+                        -or -name "*completion*" -or -path "*completion*" \) )
+        else
+            INSTALLER_ARCHIVE_EXEC_NAME=$(find "${find_dir}" -type f -name "${file_pattern}" \
+                -not \( -name "*.${INSTALLER_ARCHIVE_EXT}" -or -name "*completion*" -or -path "*completion*" \) )
+        fi
+    else
+        if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
+            INSTALLER_ARCHIVE_EXEC_NAME=$(find "${find_dir}" -type f -name "${file_pattern}" \
+                -not \( -name "${INSTALLER_ZSH_COMP_FILE}" -or -name "*completion*" -or -path "*completion*" \) )
+        else
+            INSTALLER_ARCHIVE_EXEC_NAME=$(find "${find_dir}" -type f -name "${file_pattern}" \
+                -not \( -name "*completion*" -or -path "*completion*" \) )
+        fi
+    fi
+
+    return 0
+}
+
 # Install app from github releases or given url
 function App_Installer_Install() {
     # Usage:
@@ -882,8 +909,6 @@ function App_Installer_Install() {
     local remote_url=$1
     local exec_list exec_name app_installed finded_file finded_cnt install_files install_filename
     local addon_download addon_name addon_url addon_file addon_dir addon_installed
-    local find_exclude exclude_opts
-    local exclude_cond=()
 
     [[ "${INSTALLER_IS_INSTALL}" != "yes" ]] && return 0
 
@@ -939,30 +964,14 @@ function App_Installer_Install() {
 
         [[ -z "${INSTALLER_ARCHIVE_ROOT}" || ! -d "${INSTALLER_ARCHIVE_ROOT}" ]] && INSTALLER_ARCHIVE_ROOT="${INSTALLER_ARCHIVE_EXEC_DIR}"
 
-        # find exclude condition
-        find_exclude='-name "*completion*" -or -path "*completion*"'
-        [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && find_exclude="${find_exclude} -or -name \"*.${INSTALLER_ARCHIVE_EXT}\""
-        [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]] && find_exclude="${find_exclude} -or -name \"${INSTALLER_ZSH_COMP_FILE}\""
-
-        [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
-        if ! IFS=" " read -r "${READ_ARRAY_OPTS[@]}" exclude_cond <<<"${find_exclude}" 2>/dev/null; then
-            while read -r exclude_opts; do
-                exclude_cond+=("${exclude_opts}")
-            done < <(tr ' ' '\n'<<<"${find_exclude}")
-        fi
-
         # wildchar match
         if grep -q '\*' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}"; then
-            INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}" \
-                -not \( "${exclude_cond[@]}" \) )
-
+            App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_ARCHIVE_EXEC_NAME}"
             # Maybe more than one files
             finded_cnt=$(wc -l <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
             if [[ ${finded_cnt} -gt 1 ]]; then
                 [[ -n "${INSTALLER_INSTALL_NAME}" ]] && install_filename="${INSTALLER_INSTALL_NAME}" || install_filename="${INSTALLER_APP_NAME}"
-                INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${install_filename}" \
-                    -not \( "${exclude_cond[@]}" \) )
-
+                App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${install_filename}"
                 finded_cnt=$(wc -l <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
                 if [[ ${finded_cnt} -gt 1 ]]; then
                     INSTALLER_ARCHIVE_EXEC_NAME=$(grep -Ev '\.[[:digit:]]+$|\.*sh|\.d' <<<"${INSTALLER_ARCHIVE_EXEC_NAME}" | head -n1)
@@ -1003,9 +1012,7 @@ function App_Installer_Install() {
             fi
 
             if [[ ! -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
-                INSTALLER_ARCHIVE_EXEC_NAME=$(find "${INSTALLER_ARCHIVE_EXEC_DIR}" -type f -name "${INSTALLER_ARCHIVE_EXEC_NAME}*" \
-                    -not \( "${exclude_cond[@]}" \) )
-
+                App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_ARCHIVE_EXEC_NAME}"
                 # Maybe more than one files
                 finded_cnt=$(wc -l <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
                 if [[ ${finded_cnt} -gt 1 ]]; then
