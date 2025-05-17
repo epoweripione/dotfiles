@@ -1013,6 +1013,8 @@ function App_Installer_Install() {
 
             if [[ ! -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
                 App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_ARCHIVE_EXEC_NAME}"
+                [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && \
+                    App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_ARCHIVE_EXEC_NAME}*"
                 # Maybe more than one files
                 finded_cnt=$(wc -l <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
                 if [[ ${finded_cnt} -gt 1 ]]; then
@@ -1164,7 +1166,10 @@ function App_Installer_Get_Installed_Version() {
 
     [[ -z "${appBinary}" ]] && colorEcho "${FUCHSIA}App binary name${RED} can't empty!" && return 1
 
-    binaryFile=$(which "${appBinary}" 2>/dev/null)
+    [[ -n "${INSTALLER_INSTALL_PATH}" ]] && binaryFile="${INSTALLER_INSTALL_PATH}/${appBinary}"
+    if ! sudo test -f "${binaryFile}"; then
+        binaryFile=$(which "${appBinary}" 2>/dev/null)
+    fi
     [[ -z "${binaryFile}" ]] && INSTALLER_VER_CURRENT="0.0.0" && return 1
 
     # Get version from version file
@@ -1178,6 +1183,12 @@ function App_Installer_Get_Installed_Version() {
     fi
 
     # Get version from binary
+    if [[ -z "${INSTALLER_VER_CURRENT}" || "${INSTALLER_VER_CURRENT}" == "0.0.0" ]]; then
+        INSTALLER_VER_CURRENT=$(${binaryFile} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${binaryFile} -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${binaryFile} -V 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    fi
+
     if [[ -z "${INSTALLER_VER_CURRENT}" || "${INSTALLER_VER_CURRENT}" == "0.0.0" ]]; then
         INSTALLER_VER_CURRENT=$(${appBinary} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
         [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
