@@ -66,7 +66,7 @@ net.ipv4.tcp_fin_timeout = 30
 # short keepalive time
 net.ipv4.tcp_keepalive_time = 1200
 # outbound port range
-net.ipv4.ip_local_port_range = 10000 65000
+net.ipv4.ip_local_port_range = 10000 65535
 # max SYN backlog
 net.ipv4.tcp_max_syn_backlog = 4096
 # max timewait sockets held by system simultaneously
@@ -108,7 +108,7 @@ fi
 
 # ulimit -n
 
-sysctl -p
+sudo sysctl -p
 
 echo -n "Reboot now?[Y/n]:"
 read -r IS_REBOOT
