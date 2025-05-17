@@ -47,7 +47,9 @@ fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-    installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_INSTALL_NAME}" "cargo"
+    if ! installPrebuiltBinary "${INSTALLER_INSTALL_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}#${INSTALLER_INSTALL_NAME}*"; then
+        installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_INSTALL_NAME}" "cargo"
+    fi
 
     curl "${CURL_DOWNLOAD_OPTS[@]}" "https://raw.githubusercontent.com/eza-community/eza/main/completions/zsh/_eza" \
         | sudo tee "${INSTALLER_ZSH_FUNCTION_PATH}/_eza" >/dev/null
