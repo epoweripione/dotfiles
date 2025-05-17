@@ -55,7 +55,7 @@ if [[ -x "$(command -v pacman)" ]]; then
     [[ -z "${OS_PACKAGE_MANAGER}" ]] && get_os_package_manager
     if [[ "${OS_PACKAGE_MANAGER}" == "dnf" ]]; then
         if checkPackageNeedInstall "epel-release"; then
-            sudo dnf install epel-release && sudo dnf upgrade
+            sudo dnf -y install epel-release && sudo dnf -y upgrade
         fi
     fi
 
