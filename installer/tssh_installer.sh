@@ -35,7 +35,20 @@ else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-if ! App_Installer_Install; then
+if App_Installer_Install; then
+    if ! grep -q "PromptThemeLayout" "$HOME/.tssh.conf" 2>/dev/null; then
+        echo 'PromptThemeLayout = table' >> "$HOME/.tssh.conf"
+    fi
+
+    if [[ ! -f "$HOME/.ssh/password" ]]; then
+        tee "$HOME/.ssh/password" >/dev/null <<-'EOF'
+Host *
+  EnableDragFile Yes
+  EnableZmodem Yes
+  EnableOSC52 Yes
+EOF
+    fi
+else
     colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
