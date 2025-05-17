@@ -31,31 +31,10 @@ INSTALLER_INSTALL_NAME="fx"
 
 if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
-    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    App_Installer_Get_Installed_Version "${INSTALLER_INSTALL_NAME}"
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
-
-## Install nodejs
-# if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-#     [[ ! -x "$(command -v node)" && "$(command -v mise)" ]] && mise use --global nodejs@lts
-#     [[ ! -x "$(command -v node)" && "$(command -v asdf)" ]] && asdf_App_Install nodejs lts
-
-#     if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
-#         NPM_PREFIX=$(npm config get prefix 2>/dev/null)
-#         if [[ ! -d "${NPM_PREFIX}" ]]; then
-#             [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]] && \
-#                 source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh"
-#         fi
-#     fi
-# fi
-
-
-## Install fx
-# if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
-#     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-#     npm install -g fx
-# fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
