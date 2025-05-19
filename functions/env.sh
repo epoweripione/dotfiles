@@ -21,7 +21,7 @@ export GIT_CLONE_DEFAULT_OPTION
 
 # curl & axel default options
 export INSTALLER_CHECK_CURL_OPTION=${INSTALLER_CHECK_CURL_OPTION:-"-fsL --connect-timeout 5"}
-export INSTALLER_DOWNLOAD_CURL_OPTION=${INSTALLER_DOWNLOAD_CURL_OPTION:-"-fSL --connect-timeout 5"}
+export INSTALLER_DOWNLOAD_CURL_OPTION=${INSTALLER_DOWNLOAD_CURL_OPTION:-"-fSL --progress-bar --connect-timeout 5"}
 export INSTALLER_DOWNLOAD_AXEL_OPTION=${INSTALLER_DOWNLOAD_AXEL_OPTION:-"--num-connections=5 --timeout=30 --alternate"}
 
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options

@@ -201,7 +201,7 @@ function Get_Installer_CURL_Options() {
             done < <(tr ' ' '\n'<<<"${INSTALLER_DOWNLOAD_CURL_OPTION}")
         fi
     fi
-    [[ -z "${CURL_DOWNLOAD_OPTS[*]}" ]] && CURL_DOWNLOAD_OPTS=(-fSL)
+    [[ -z "${CURL_DOWNLOAD_OPTS[*]}" ]] && CURL_DOWNLOAD_OPTS=(-fSL --progress-bar)
 
     return 0
 }
