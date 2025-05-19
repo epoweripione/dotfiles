@@ -24,6 +24,17 @@ fi
 WSL_USERPROFILE=""
 if check_os_wsl; then
     WSL_USERPROFILE=$(wslpath "$(wslvar USERPROFILE 2>/dev/null)")
+    ## [Share Environment Vars between WSL and Windows](https://devblogs.microsoft.com/commandline/share-environment-vars-between-wsl-and-windows/)
+    # [Environment]::SetEnvironmentVariable("WSLENV", $env:WSLENV + "USERPROFILE/p:APPDATA/p:", [System.EnvironmentVariableTarget]::User)
+    if [[ -z "${WSL_USERPROFILE}" || "${WSL_USERPROFILE}" == "." ]]; then
+        [[ -n "${USERPROFILE}" ]] && WSL_USERPROFILE="${USERPROFILE}"
+    fi
+
+    if [[ -z "${WSL_USERPROFILE}" || "${WSL_USERPROFILE}" == "." ]]; then
+        while read -r FindDir; do
+            [[ -d "${FindDir}/.config" || -d "${FindDir}/scoop" ]] && WSL_USERPROFILE="${FindDir}" && break
+        done < <(find "/c/Users/" -mindepth 1 -maxdepth 1 -type d)
+    fi
 fi
 
 # Replace `clash` with `clash-meta`

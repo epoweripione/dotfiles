@@ -302,12 +302,12 @@ fi
 
 
 if [[ "$(uname -r)" =~ "WSL2" || "$(uname -r)" =~ "microsoft" ]]; then
-    # WSL2
-    # Fix "Invalid argument" when executing Windows commands
-    CMD_DIR=$(dirname "$(which ipconfig.exe)")
-    IP_LIST=$(cd "${CMD_DIR}" && ipconfig.exe | grep -a "IPv4" \
-                | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
-                | grep -Ev "^0\.|^127\.|^172\.")
+    ## WSL2
+    ## Fix "Invalid argument" when executing Windows commands
+    # CMD_DIR=$(dirname "$(which ipconfig.exe)")
+    # IP_LIST=$(cd "${CMD_DIR}" && ipconfig.exe | grep -a "IPv4" \
+    #             | grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' \
+    #             | grep -Ev "^0\.|^127\.|^172\.")
     ## [Accessing network applications with WSL](https://learn.microsoft.com/en-us/windows/wsl/networking)
     ## [Advanced settings configuration in WSL](https://learn.microsoft.com/en-us/windows/wsl/wsl-config)
     ## networkingMode=NAT using `host IP`

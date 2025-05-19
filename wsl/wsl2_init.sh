@@ -129,6 +129,12 @@ if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
     sudo apt update
 fi
 
+## [Share Environment Vars between WSL and Windows](https://devblogs.microsoft.com/commandline/share-environment-vars-between-wsl-and-windows/)
+## cmd
+# setx WSLENV USERPROFILE/p:APPDATA/p:
+## powershell
+# [Environment]::SetEnvironmentVariable("WSLENV", $env:WSLENV + "USERPROFILE/p:APPDATA/p:", [System.EnvironmentVariableTarget]::User)
+
 # [wslu - A collection of utilities for WSL](https://github.com/wslutilities/wslu)
 if [[ ! -x "$(command -v wslfetch)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}wslu${BLUE}..."

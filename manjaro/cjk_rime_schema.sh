@@ -29,7 +29,18 @@ fi
 
 WSL_APPDATA=""
 if check_os_wsl; then
-    WSL_APPDATA=$(wslpath "$(wslvar APPDATA 2>/dev/null)")
+    WSL_APPDATA=$(wslpath "$(wslvar APPDATA 2>/dev/null)" 2>/dev/null)
+    ## [Share Environment Vars between WSL and Windows](https://devblogs.microsoft.com/commandline/share-environment-vars-between-wsl-and-windows/)
+    # [Environment]::SetEnvironmentVariable("WSLENV", $env:WSLENV + "USERPROFILE/p:APPDATA/p:", [System.EnvironmentVariableTarget]::User)
+    if [[ -z "${WSL_APPDATA}" || "${WSL_APPDATA}" == "." ]]; then
+        [[ -n "${APPDATA}" ]] && WSL_APPDATA="${APPDATA}"
+    fi
+
+    if [[ -z "${WSL_APPDATA}" || "${WSL_APPDATA}" == "." ]]; then
+        while read -r FindDir; do
+            [[ -d "${FindDir}/AppData/Roaming/Rime" ]] && WSL_APPDATA="${FindDir}/AppData/Roaming/Rime" && break
+        done < <(find "/c/Users/" -mindepth 1 -maxdepth 1 -type d)
+    fi
 fi
 
 # Build rime schema base on `rime_ice`
