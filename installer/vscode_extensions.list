@@ -1,229 +1,121 @@
-# Look & Feel
-ms-ceintl.vscode-language-pack-zh-hans
-vscode-icons-team.vscode-icons
-miguelsolorio.fluent-icons
-idleberg.icon-fonts
-zhuangtongfa.material-theme
-freecodecamp.freecodecamp-dark-vscode-theme
-tds.taptap-vscode-theme
-daltonmenezes.aura-theme
-# Editing
-aaron-bond.better-comments
-bmewburn.vscode-intelephense-client
-christian-kohler.npm-intellisense
+adpyke.js-unicode-preview
+ahmadalli.vscode-nginx-conf
+angular.ng-template
+apollographql.vscode-apollo
+aykutsarac.jsoncrack-vscode
+bierner.markdown-footnotes
+bierner.markdown-mermaid
+bradlc.vscode-tailwindcss
+burkeholland.simple-react-snippets
+chouzz.vscode-innosetup
 christian-kohler.path-intellisense
-esbenp.prettier-vscode
-fernandoescolar.vscode-solution-explorer
-oderwat.indent-rainbow
-streetsidesoftware.code-spell-checker
-visualstudioexptteam.vscodeintellicode
-tabnine.tabnine-vscode
-lacroixdavid1.vscode-format-context-menu
-wix.vscode-import-cost
-sysoev.language-stylus
-mrmlnc.vscode-attrs-sorter
-kamikillerto.vscode-colorize
-# Language support
-## C/C++
-ms-vscode.cpptools
-austin.code-gnu-global
-## C#
-ms-vscode.csharp
-craigthomas.supersharp
-jchannon.csharpextensions
-jorgeserrano.vscode-csharp-snippets
-leopotam.csharpfixformat
-## Core
-doggy8088.netcore-extension-pack
-doggy8088.netcore-snippets
-## dotnet
-formulahendry.dotnet
-formulahendry.dotnet-test-explorer
-jmrog.vscode-nuget-package-manager
-schneiderpat.aspnet-helper
-tintoy.msbuild-project-tools
-alefragnani.project-manager
-## Database
-ms-mssql.mssql
-mtxr.sqltools
-ckolkman.vscode-postgres
-oracle.oracledevtools
-## Dart/Flutter
+circlecodesolution.ccs-flutter-color
+codezombiech.gitignore
+cweijan.dbclient-jdbc
+cweijan.vscode-database-client2
+daltonmenezes.aura-theme
 dart-code.dart-code
 dart-code.flutter
-nash.awesome-flutter-snippets
-gornivv.vscode-flutter-files
-alexisvt.flutter-snippets
-## GO
-golang.go
-fr-str.vscode-postfix-go-fr
-## HTML/CSS
-ms-vscode.brackets-pack
-thekalinga.bootstrap4-vscode
-abusaidm.html-snippets
-clinyong.vscode-css-modules
-syler.sass-indented
-sidthesloth.html5-boilerplate
-stylelint.vscode-stylelint
-vincaslt.highlight-matching-tag
-bradlc.vscode-tailwindcss
-## JAVA
-redhat.java
-vscjava.vscode-java-debug
-vscjava.vscode-java-dependency
-vscjava.vscode-java-pack
-vscjava.vscode-java-test
-vscjava.vscode-maven
-## Javascript
-chenxsan.vscode-standardjs
+davidanson.vscode-markdownlint
 dbaeumer.vscode-eslint
-octref.vetur
-xabikos.javascriptsnippets
-msjsdiag.vscode-react-native
-## Typescript
-stringham.move-ts
-## Angular
-angular.ng-template
-johnpapa.angular2
-cyrilletuzi.angular-schematics
-mikael.angular-beastcode
-metatype.copilot-vscode
-cipchk.ng-alain-extension-pack
-# https://github.com/ng-alain/extension-pack/
-# cipchk.ng-zorro-vscode
-# cipchk.ng-alain-vscode
-cyrilletuzi.angular-schematics
-infinity1207.angular2-switcher
-nrwl.angular-console
-## ionic
-loiane.ionic-extension-pack
-msjsdiag.cordova-tools
-## Rest API Client
-rangav.vscode-thunder-client
-## Svelte
-svelte.svelte-vscode
-ardenivanov.svelte-intellisense
-fivethree.vscode-svelte-snippets
-resvelte.resvelte
-## Vue
-octref.vetur
-johnsoncodehk.volar
-dariofuzinato.vue-peek
-abdelaziz18003.quasar-snippets
-## kubernete/docker
-ms-kubernetes-tools.vscode-kubernetes-tools
-ms-azuretools.vscode-docker
-mindaro.mindaro
-## latex
-james-yu.latex-workshop
-## Markdown
-marp-team.marp-vscode
-evilz.vscode-reveal
-yzhang.markdown-all-in-one
-bierner.markdown-mermaid
-bierner.markdown-emoji
-bierner.markdown-footnotes
-devhawk.markdown-sup
-gera2ld.markmap-vscode
-mushan.vscode-paste-image
-DavidAnson.vscode-markdownlint
-shd101wyy.markdown-preview-enhanced
-orangex4.better-markdown-latex-shortcuts
-darkriszty.markdown-table-prettify
-yzane.markdown-pdf
-## caddy
-matthewpi.caddyfile-support
-## nginx
-shanoor.vscode-nginx
-## Node
-christian-kohler.npm-intellisense
-leizongmin.node-module-intellisense
-## PHP
-felixfbecker.php-intellisense
-ikappas.composer
-ikappas.phpcs
-felixfbecker.php-debug
-junstyle.php-cs-fixer
-## plsql
-xyz.plsql-language
-## python
-ms-python.anaconda-extension-pack
-ms-python.python
-## powershell
-ms-vscode.powershell
-## ruby
-rebornix.ruby
-## rust
-rust-lang.rust-analyzer
-bungcip.better-toml
-serayuzgur.crates
-## snippets
-tahabasri.snippets
-## cht.sh snippets
-vscode-snippet.snippet
-## linux/shell/vim
-vscodevim.vim
-timonwong.shellcheck
-## XML/JSON/GraphQL/YAML
-dotjoshjohnson.xml
-eriklynd.json-tools
-mohsen1.prettify-json
-kumar-harsh.graphql-for-vscode
-redhat.vscode-yaml
-# Vesion Control
-johnstoncode.svn-scm
-codezombiech.gitignore
+docker.docker
 donjayamanne.githistory
 eamodio.gitlens
-mhutchie.git-graph
-pflannery.vscode-versionlens
-# Remote
-ms-vscode-remote.vscode-remote-extensionpack
-ms-vscode-remote.remote-wsl
-ms-vsliveshare.vsliveshare
-# Debug & Test
+ecmel.vscode-html-css
+editorconfig.editorconfig
+esbenp.prettier-vscode
+fill-labs.dependi
 formulahendry.code-runner
-humao.rest-client
-hediet.debug-visualizer
-usernamehw.errorlens
-# Extra functionality
-bukas.gbktoutf8
-steoates.autoimport
-wakatime.vscode-wakatime
-# Designer & Components
-iceworks-team.iceworks
-# AI
-bito.bito
-# Extra tools
-ms-toolsai.jupyter
-# shan.code-settings-sync
-anseki.vscode-color
-grapecity.gc-excelviewer
+gera2ld.markmap-vscode
+github.copilot
+github.copilot-chat
+github.github-vscode-theme
+golang.go
+gornivv.vscode-flutter-files
 gruntfuggly.todo-tree
-vsls-contrib.codetour
-joelday.docthis
-k--kato.docomment
-mkxml.vscode-filesize
-doggy8088.quicktype-refresh
-wayou.vscode-todo-highlight
-obkoro1.korofileheader
-kisstkondoros.vscode-gutter-preview
-tomoki1207.pdf
-chouzz.vscode-better-align
-tyriar.sort-lines
-russell.any-rule
+hangxingliu.vscode-systemd-support
+hediet.debug-visualizer
 hediet.vscode-drawio
-redhat.vscode-extension-bpmn-editor
-# eighthundreds.vscode-drawio
-parthr2031.colorful-comments
+holmescn.vscode-wordcount-cjk
+ionide.ionide-fsharp
+isopodlabs.regedit-explorer
+james-yu.latex-workshop
+johnpapa.angular2
+k--kato.docomment
+kamikillerto.vscode-colorize
+lokalise.i18n-ally
+marp-team.marp-vscode
+marscode.marscode-extension
+marufhassan.flutter-snippets
+matthewpi.caddyfile-support
 mechatroner.rainbow-csv
+medo64.code-point
+mhutchie.git-graph
+miguelsolorio.fluent-icons
 mqycn.huile8
-wscats.search
-chouzz.vscode-innosetup
+ms-azuretools.vscode-containers
+ms-ceintl.vscode-language-pack-zh-hans
+ms-dotnettools.csdevkit
+ms-dotnettools.csharp
+ms-dotnettools.dotnet-interactive-vscode
+ms-dotnettools.dotnet-maui
+ms-dotnettools.vscode-dotnet-runtime
+ms-dotnettools.vscodeintellicode-csharp
+ms-kubernetes-tools.vscode-kubernetes-tools
+ms-python.debugpy
+ms-python.python
+ms-python.vscode-pylance
+ms-toolsai.jupyter
+ms-toolsai.jupyter-keymap
+ms-toolsai.jupyter-renderers
+ms-toolsai.vscode-jupyter-cell-tags
+ms-toolsai.vscode-jupyter-slideshow
+ms-vscode-remote.remote-containers
+ms-vscode-remote.remote-ssh
+ms-vscode-remote.remote-ssh-edit
+ms-vscode-remote.remote-wsl
+ms-vscode-remote.vscode-remote-extensionpack
+ms-vscode.js-debug-nightly
+ms-vscode.powershell
+ms-vscode.remote-explorer
+ms-vscode.remote-server
+ms-windows-ai-studio.windows-ai-studio
+nixon.env-cmd-file-syntax
+nromanov.dotnet-meteor
+oderwat.indent-rainbow
+patcx.vscode-nuget-gallery
+pbkit.vscode-pbkit
+pflannery.vscode-versionlens
+pomdtr.excalidraw-editor
+pranaygp.vscode-css-peek
+quicktype.quicktype
+rangav.vscode-thunder-client
+redhat.vscode-extension-bpmn-editor
+redhat.vscode-xml
+redhat.vscode-yaml
+ritwickdey.liveserver
+robert-brunhage.flutter-riverpod-snippets
+rodrigorahman.flutter-dart-utils
+russell.any-rule
+rust-lang.rust-analyzer
+shd101wyy.markdown-preview-enhanced
+sidthesloth.html5-boilerplate
+simonhe.common-intellisense
+streetsidesoftware.code-spell-checker
+svelte.svelte-vscode
+svenzhao.var-translation
+tabnine.tabnine-vscode
+tamasfe.even-better-toml
+telesoho.vscode-markdown-paste-image
+timonwong.shellcheck
+tintoy.msbuild-project-tools
+tldraw-org.tldraw-vscode
 unbug.codelf
-grapecity.gc-excelviewer
-tyriar.vscode-terminal-here
-jeff-hykin.polacode-2019
-ryu1kn.partial-diff
-mrmlnc.vscode-duplicate
-adpyke.codesnap
+vscode-icons-team.vscode-icons
+vscode-snippet.snippet
+vue.volar
+wangguixuan.var-translate-en
+xyz.plsql-language
+yzhang.markdown-all-in-one
+zhuangtongfa.material-theme
+zhuyuanxiang.pangu-markdown-vscode
