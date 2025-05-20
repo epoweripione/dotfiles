@@ -119,20 +119,28 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
     ## config
     # bash
-    if ! grep -q "oh-my-posh --init" "$HOME/.bashrc" 2>/dev/null; then
+    if ! grep -q "oh-my-posh init" "$HOME/.bashrc" 2>/dev/null; then
+        sed -i '/oh-my-posh --init/d' "$HOME/.bashrc"
+
         {
             echo ''
-            echo '# eval "$(oh-my-posh --init --shell bash --config ~/.poshthemes/powerlevel10k_rainbow.omp.json)"'
-            echo 'eval "$(oh-my-posh --init --shell bash --config ~/.poshthemes/powerlevel10k_my.omp.json)"'
+            echo 'if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then'
+            echo '  # eval "$(oh-my-posh init bash --config ~/.poshthemes/powerlevel10k_my.omp.json)"'
+            echo '  eval "$(oh-my-posh init bash --config ~/.poshthemes/atomic_my.omp.json)"'
+            echo 'fi'
         } >> "$HOME/.bashrc"
     fi
 
     # zsh
-    if ! grep -q "oh-my-posh --init" "$HOME/.zshrc" 2>/dev/null; then
+    if ! grep -q "oh-my-posh init" "$HOME/.zshrc" 2>/dev/null; then
+        sed -i '/oh-my-posh --init/d' "$HOME/.zshrc"
+
         {
             echo ''
-            echo '# eval "$(oh-my-posh --init --shell zsh --config ~/.poshthemes/powerlevel10k_rainbow.omp.json)"'
-            echo 'eval "$(oh-my-posh --init --shell zsh --config ~/.poshthemes/powerlevel10k_my.omp.json)"'
+            echo 'if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then'
+            echo '  # eval "$(oh-my-posh init zsh --config ~/.poshthemes/powerlevel10k_my.omp.json)"'
+            echo '  eval "$(oh-my-posh init bash --config ~/.poshthemes/atomic_my.omp.json)"'
+            echo 'fi'
         } >> "$HOME/.zshrc"
     fi
 fi
