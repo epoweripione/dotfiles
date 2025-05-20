@@ -47,7 +47,7 @@ else
     colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
 fi
 
-# colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+# colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
 # INSTALLER_CHECK_URL="https://api.github.com/repos/schollz/croc/releases/latest"
 # App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"

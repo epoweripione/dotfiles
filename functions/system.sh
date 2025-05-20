@@ -398,7 +398,7 @@ function buildGLIBC() {
     local GLIBC_CURRENT_VERSION GLIBC_FILE GLIBC_URL GLIBC_BUILD_DIR GLIBC_INSTALL_DIR
 
     if [[ -z "${GLIBC_REMOTE_VERSION}" ]]; then
-        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}GLIBC${BLUE}..."
+        colorEcho "${BLUE}Checking ${FUCHSIA}GLIBC${BLUE}..."
         INSTALLER_CHECK_URL="http://ftp.gnu.org/gnu/glibc/"
         App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}" "glibc-.*\.tar\.gz"
         GLIBC_REMOTE_VERSION="${INSTALLER_VER_REMOTE}"

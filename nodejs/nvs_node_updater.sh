@@ -63,7 +63,7 @@ fi
 
 
 if [[ -x "$(command -v pnpm)" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}pnpm${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}pnpm${BLUE}..."
     INSTALLER_CHECK_URL="https://api.github.com/repos/pnpm/pnpm/releases/latest"
     App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 

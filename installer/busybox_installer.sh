@@ -23,7 +23,7 @@ App_Installer_Reset
 INSTALLER_APP_NAME="busybox"
 INSTALLER_INSTALL_NAME="busybox"
 
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" -N https://www.busybox.net/downloads/ \
     | grep -Eo 'busybox-([0-9]{1,}\.)+[0-9]{1,}' | sort -rV | head -n1 | cut -d'-' -f2)
 

@@ -66,7 +66,7 @@ else
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
     case "${OS_INFO_TYPE}" in
         darwin)
             INSTALLER_CHECK_URL="${FLUTTER_STORAGE_BASE_URL}/flutter_infra_release/releases/releases_macos.json"

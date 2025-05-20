@@ -36,7 +36,7 @@ fi
 
 # INSTALLER_VER_REMOTE="1.2.9"
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
     INSTALLER_CHECK_URL="https://raw.githubusercontent.com/he3-app/homebrew-he3/main/Casks/he3.rb"
     App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}" "version.*"

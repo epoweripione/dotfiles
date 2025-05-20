@@ -92,7 +92,7 @@ fi
 
 # https://github.com/zyedidia/micro
 if [[ -x "$(command -v micro)" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}Micro editor${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}Micro editor${BLUE}..."
 
     INSTALLER_CHECK_URL="https://api.github.com/repos/zyedidia/micro/releases/latest"
 
@@ -106,7 +106,7 @@ fi
 
 
 if [[ -d "$HOME/.jabba" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}jabba${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}jabba${BLUE}..."
     if type 'jabba' 2>/dev/null | grep -q 'function'; then
         :
     else

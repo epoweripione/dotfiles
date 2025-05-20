@@ -24,7 +24,7 @@ INSTALLER_APP_NAME="axel"
 INSTALLER_INSTALL_NAME="axel"
 INSTALLER_GITHUB_REPO="axel-download-accelerator/axel"
 
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
 App_Installer_Get_Installed_Version "${INSTALLER_APP_NAME}"

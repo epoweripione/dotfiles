@@ -23,7 +23,7 @@ App_Installer_Reset
 INSTALLER_APP_NAME="nano"
 INSTALLER_INSTALL_NAME="nano"
 
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" -N https://www.nano-editor.org/download.php \
     | grep -Eo -m1 'nano-([0-9]{1,}\.)+[0-9]{1,}' | head -n1 | cut -d'-' -f2)
 DIST_VERSION=$(echo "${INSTALLER_VER_REMOTE}" | cut -d'.' -f1)

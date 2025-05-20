@@ -76,7 +76,7 @@ if [[ ${curl_download_status} -eq 0 ]]; then
 fi
 
 # Install crictl (required for kubeadm / Kubelet Container Runtime Interface (CRI))
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}crictl${BLUE}..."
+colorEcho "${BLUE}Checking ${FUCHSIA}crictl${BLUE}..."
 INSTALLER_CHECK_URL="https://api.github.com/repos/kubernetes-sigs/cri-tools/releases/latest"
 CRICTL_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
 
@@ -101,7 +101,7 @@ if [[ -n "${INSTALLER_DOWNLOAD_URL}" ]]; then
 fi
 
 # Install kubeadm, kubelet, kubectl and add a kubelet systemd service:
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}kubeadm, kubelet, kubectl${BLUE}..."
+colorEcho "${BLUE}Checking ${FUCHSIA}kubeadm, kubelet, kubectl${BLUE}..."
 K8S_LATEST_RELEASE="$(curl "${CURL_CHECK_OPTS[@]}" https://dl.k8s.io/release/stable.txt)"
 
 K8S_VERSION=${1:-"${K8S_LATEST_RELEASE}"}
@@ -201,7 +201,7 @@ fi
 
 # Install calicoctl
 # https://projectcalico.docs.tigera.io/maintenance/clis/calicoctl/install
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}calicoctl${BLUE}..."
+colorEcho "${BLUE}Checking ${FUCHSIA}calicoctl${BLUE}..."
 INSTALLER_CHECK_URL="https://api.github.com/repos/projectcalico/calico/releases/latest"
 CALICO_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
 

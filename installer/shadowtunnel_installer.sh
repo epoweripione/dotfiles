@@ -31,7 +31,7 @@ App_Installer_Reset
 
 # shadowtunnel
 # https://github.com/snail007/shadowtunnel
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}shadowtunnel${BLUE}..."
+colorEcho "${BLUE}Checking ${FUCHSIA}shadowtunnel${BLUE}..."
 
 INSTALLER_CHECK_URL="https://api.github.com/repos/snail007/shadowtunnel/releases/latest"
 App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"

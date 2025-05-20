@@ -427,7 +427,7 @@ function App_Installer_Get_Remote_URL() {
 
     # Get app version
     if [[ -z "${INSTALLER_REMOTE_CONTENT}" ]]; then
-        [[ -n "${INSTALLER_APP_NAME}" ]] && colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+        [[ -n "${INSTALLER_APP_NAME}" ]] && colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
         App_Installer_Get_Remote_Version "${remote_url}" "${version_match_pattern}"
     fi
 
@@ -1307,7 +1307,7 @@ function installPrebuiltBinary() {
 
     # remote version
     if [[ -z "${INSTALLER_VER_REMOTE}" ]]; then
-        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+        colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
         App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
     fi
 

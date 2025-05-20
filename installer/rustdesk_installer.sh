@@ -109,7 +109,7 @@ if [[ "${OS_RELEASE_ID}" == "manjaro" ]]; then
     fi
 
     if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+        colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
         # INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases"
         # INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r 'map(select(.prerelease)) | first | .tag_name' | cut -d'v' -f2)

@@ -76,7 +76,7 @@ while read -r line; do
 
     # Get app latest version
     if [[ -n "${VERSION_PATTERN}" ]]; then
-        colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${APP_NAME}${BLUE}..."
+        colorEcho "${BLUE}Checking ${FUCHSIA}${APP_NAME}${BLUE}..."
         App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}" "${VERSION_PATTERN}"
     fi
 

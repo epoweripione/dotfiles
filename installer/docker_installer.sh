@@ -136,7 +136,7 @@ if [[ "${CLI_BUILDX_BUILTIN}" == "no" ]]; then
 fi
 
 if [[ -n "${INSTALLER_VER_CURRENT}" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}buildx${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}buildx${BLUE}..."
     INSTALLER_CHECK_URL="https://api.github.com/repos/docker/buildx/releases/latest"
     App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
     if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
@@ -192,7 +192,7 @@ if [[ "${CLI_COMPOSE_BUILTIN}" == "no" ]]; then
 fi
 
 if [[ -n "${INSTALLER_VER_CURRENT}" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}docker-compose${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}docker-compose${BLUE}..."
     INSTALLER_CHECK_URL="https://api.github.com/repos/docker/compose/releases/latest"
     App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
     if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
@@ -250,7 +250,7 @@ if [[ -x "$(command -v ctop)" ]]; then
     INSTALLER_VER_CURRENT=$(ctop -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 fi
 
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}ctop${BLUE}..."
+colorEcho "${BLUE}Checking ${FUCHSIA}ctop${BLUE}..."
 INSTALLER_CHECK_URL="https://api.github.com/repos/bcicen/ctop/releases/latest"
 App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then

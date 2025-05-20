@@ -19,7 +19,7 @@ fi
 
 App_Installer_Reset
 
-colorEcho "${BLUE}Checking latest version for ${FUCHSIA}Lua & LuaRocks${BLUE}..."
+colorEcho "${BLUE}Checking ${FUCHSIA}Lua & LuaRocks${BLUE}..."
 
 if [[ -x "$(command -v apt)" ]]; then
     sudo apt -y install build-essential libreadline-dev

@@ -138,7 +138,7 @@ function mise_App_Update() {
 
     while read -r InstalledApp; do
         [[ -z "${InstalledApp}" ]] && continue
-        colorEcho "${BLUE}  Checking latest version for ${FUCHSIA}${InstalledApp}${BLUE}..."
+        colorEcho "${BLUE}  Checking ${FUCHSIA}${InstalledApp}${BLUE}..."
 
         appInstallStatus=0
         allVersion=""
@@ -211,7 +211,7 @@ function asdf_App_Install() {
         colorEcho "${FUCHSIA}asdf plugin${RED} name can't empty!" && \
         return 1
 
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}asdf plugin ${ORANGE}${appName}${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}asdf plugin ${ORANGE}${appName}${BLUE}..."
     # List All in Short-name Repository
     allPlugin=$(asdf plugin list all 2>/dev/null | awk '{print $1}')
     if [[ -z "${allPlugin}" ]]; then
@@ -327,7 +327,7 @@ function asdf_App_Update() {
 
     while read -r InstalledApp; do
         [[ -z "${InstalledApp}" ]] && continue
-        colorEcho "${BLUE}  Checking latest version for ${FUCHSIA}${InstalledApp}${BLUE}..."
+        colorEcho "${BLUE}  Checking ${FUCHSIA}${InstalledApp}${BLUE}..."
 
         appInstallStatus=0
         allVersion=""

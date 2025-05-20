@@ -44,7 +44,7 @@ else
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
     INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" \
                             -N "${DOWNLOAD_DOMAIN}/server/minio/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}" \
                             | grep -Po -m1 'RELEASE\.[0-9+TZ:-]{2,}' | head -n1)
@@ -85,7 +85,7 @@ else
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking latest version for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
     INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" \
                             -N "${DOWNLOAD_DOMAIN}/client/mc/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}" \
                             | grep -Po -m1 'RELEASE\.[0-9+TZ:-]{2,}' | head -n1)
