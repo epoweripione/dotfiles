@@ -33,7 +33,7 @@ installPrebuiltBinary "${INSTALLER_BINARY_NAME}#${INSTALLER_GITHUB_REPO}#${INSTA
 
 if [[ -x "$(command -v ${INSTALLER_BINARY_NAME})" ]]; then
     if ! grep -q "vmr completion zsh" "$HOME/.zshrc" 2>/dev/null; then
-        vmr install-self
+        "${INSTALLER_INSTALL_PATH}/vmr" install-self
 
         # shell completion
         echo -e '\n# vmr completion\nsource <(vmr completion zsh)' >> "$HOME/.zshrc"
