@@ -86,6 +86,7 @@ setGlobalProxies
 
 # Custom WSL settings
 colorEcho "${BLUE}Custom WSL settings..."
+# [Advanced settings configuration in WSL](https://learn.microsoft.com/en-us/windows/wsl/wsl-config)
 # make drives mounted at /c or /e instead of /mnt/c and /mnt/e.
 if ! grep -q "automount" /etc/wsl.conf 2>/dev/null; then
     sudo tee /etc/wsl.conf >/dev/null <<-'EOF'
@@ -95,8 +96,14 @@ root = /
 options = "metadata,umask=22,fmask=11"
 mountFsTab = false
 
+[interop]
+enabled = true
+appendWindowsPath = false
+
 [boot]
 systemd = true
+command = export PATH="$PATH:/c/Windows/System32"
+# command = export PATH="$PATH:/c/Users/${USERPROFILE}/AppData/Local/Programs/Microsoft VS Code/bin"
 EOF
 fi
 
