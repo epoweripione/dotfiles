@@ -168,8 +168,8 @@ $env:POSH_GIT_ENABLED = $true
 # Uninstall-Module oh-my-posh -AllVersions
 # scoop install oh-my-posh
 $env:POSH_THEMES_PATH = Resolve-Path "$(scoop prefix oh-my-posh)\themes\"
-if (Test-Path "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json") {
-    oh-my-posh init pwsh --config "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json" | Invoke-Expression
+if (Test-Path "$env:USERPROFILE\Documents\PowerShell\PoshThemes\atomic_my.omp.json") {
+    oh-my-posh init pwsh --config "$env:USERPROFILE\Documents\PowerShell\PoshThemes\atomic_my.omp.json" | Invoke-Expression
 } else {
     oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\powerlevel10k_rainbow.omp.json" | Invoke-Expression
 }
@@ -177,10 +177,18 @@ if (Test-Path "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my
 
 # Add-Content $PROFILE '$env:POSH_GIT_ENABLED = $true'
 $THEME_DIR = "$HOME\Documents\PowerShell\PoshThemes"
-$THEME_FILE = "$THEME_DIR\powerlevel10k_my.omp.json"
 if (-Not (Test-Path $THEME_DIR)) {New-Item -path $THEME_DIR -type Directory | Out-Null}
+
+$THEME_FILE = "$THEME_DIR\powerlevel10k_my.omp.json"
 if (-Not (Test-Path $THEME_FILE)) {
     $DOWNLOAD_URL = "https://raw.githubusercontent.com/epoweripione/dotfiles/main/powershell/themes/powerlevel10k_my.omp.json"
+    $p = New-Object System.Net.WebClient
+    $p.DownloadFile($DOWNLOAD_URL, $THEME_FILE)
+}
+
+$THEME_FILE = "$THEME_DIR\atomic_my.omp.json"
+if (-Not (Test-Path $THEME_FILE)) {
+    $DOWNLOAD_URL = "https://raw.githubusercontent.com/epoweripione/dotfiles/main/powershell/themes/atomic_my.omp.json"
     $p = New-Object System.Net.WebClient
     $p.DownloadFile($DOWNLOAD_URL, $THEME_FILE)
 }

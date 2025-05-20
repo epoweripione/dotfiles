@@ -74,8 +74,8 @@ $env:POSH_GIT_ENABLED = $true
 # Uninstall-Module oh-my-posh -AllVersions
 # scoop install oh-my-posh
 $env:POSH_THEMES_PATH = Resolve-Path "$(scoop prefix oh-my-posh)\themes\"
-if (Test-Path "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json") {
-    oh-my-posh init pwsh --config "$env:USERPROFILE\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json" | Invoke-Expression
+if (Test-Path "$env:USERPROFILE\Documents\PowerShell\PoshThemes\atomic_my.omp.json") {
+    oh-my-posh init pwsh --config "$env:USERPROFILE\Documents\PowerShell\PoshThemes\atomic_my.omp.json" | Invoke-Expression
 } else {
     oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\powerlevel10k_rainbow.omp.json" | Invoke-Expression
 }
