@@ -17,12 +17,12 @@
           "foreground": "#e4e4e4",
           "powerline_symbol": "\ue0b0",
           "properties": {
-            "folder_icon": " \uf07b ",
+            "folder_icon": "\uf07b",
             "home_icon": "\ue617",
             "style": "full"
           },
           "style": "powerline",
-          "template": " \uf07b\uea9c {{ .Path }} ",
+          "template": " \uf07b {{ .Path }} ",
           "type": "path"
         },
         {
@@ -36,7 +36,7 @@
           "foreground": "#000000",
           "powerline_symbol": "\ue0b0",
           "properties": {
-            "branch_icon": "\uf126 ",
+            "branch_icon": " \uf126 ",
             "fetch_stash_count": true,
             "fetch_status": true,
             "fetch_upstream_icon": true,
@@ -59,7 +59,9 @@
           "invert_powerline": true,
           "powerline_symbol": "\ue0b2",
           "properties": {
-            "fetch_version": true
+            "fetch_version": true,
+            "npm_icon": "<#cc3a3a>\ue5fa</>",
+            "yarn_icon": " <#348cba>\ue6a7</>"
           },
           "style": "powerline",
           "template": " {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }} \ue718 ",

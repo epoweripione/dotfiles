@@ -15,7 +15,7 @@
           "style": "diamond",
           "leading_diamond": "\u256d\u2500\ue0b6",
           "template": " {{.Icon}} ",
-          "trailing_diamond": "\ue0b4 ",
+          "trailing_diamond": "\ue0b4",
           "type": "os"
         },
         {
@@ -23,28 +23,28 @@
           "foreground": "#ffffff",
           "style": "diamond",
           "template": " \uf120 {{ .Name }} ",
-          "trailing_diamond": "\ue0b4 ",
+          "trailing_diamond": "\ue0b4",
           "type": "shell"
         },
         {
           "background": "#ef5350",
           "foreground": "#FFFB38",
           "style": "diamond",
-          "template": " \uf0ad  ",
-          "trailing_diamond": "\ue0b4 ",
+          "template": " \uf0ad ",
+          "trailing_diamond": "\ue0b4",
           "type": "root"
         },
         {
           "background": "#FF9248",
           "foreground": "#2d3436",
           "properties": {
-            "folder_icon": " \uf07b ",
+            "folder_icon": "\uf07b",
             "home_icon": "\ue617",
             "style": "full"
           },
           "style": "diamond",
           "template": " \uf07b {{ .Path }} ",
-          "trailing_diamond": "\ue0b4 ",
+          "trailing_diamond": "\ue0b4",
           "type": "path"
         },
         {
@@ -57,14 +57,14 @@
           ],
           "foreground": "#011627",
           "properties": {
-            "branch_icon": "\ue725 ",
+            "branch_icon": " \uf126 ",
             "fetch_status": true,
             "fetch_upstream_icon": true,
             "native_fallback": true
           },
           "style": "diamond",
           "template": " {{ .UpstreamIcon }}{{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }}<#ef5350> \uf046 {{ .Staging.String }}</>{{ end }} ",
-          "trailing_diamond": "\ue0b4 ",
+          "trailing_diamond": "\ue0b4",
           "type": "git"
         }
       ],
@@ -79,7 +79,7 @@
           "foreground": "#3C873A",
           "properties": {
             "fetch_package_manager": true,
-            "npm_icon": " <#cc3a3a>\ue5fa</> ",
+            "npm_icon": "<#cc3a3a>\ue5fa</>",
             "yarn_icon": " <#348cba>\ue6a7</>"
           },
           "style": "diamond",
