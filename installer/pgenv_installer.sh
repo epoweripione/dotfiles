@@ -25,7 +25,7 @@ else
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking update for ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+    colorEcho "${BLUE}Updating ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
     Git_Clone_Update_Branch "${INSTALLER_GITHUB_REPO}" "$HOME/.pgenv"
 fi
 

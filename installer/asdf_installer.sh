@@ -29,7 +29,7 @@ else
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking update for ${FUCHSIA}asdf${BLUE}..."
+    colorEcho "${BLUE}Updating ${FUCHSIA}asdf${BLUE}..."
     Git_Clone_Update_Branch "asdf-vm/asdf" "$HOME/.asdf"
 fi
 
