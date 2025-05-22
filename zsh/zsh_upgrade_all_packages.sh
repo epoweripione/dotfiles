@@ -169,6 +169,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "dasel"
         "duf"
         "dust"
+        "edit#microsoft/edit#xz#edit*"
         "erdtree"
         # "exa"
         "eza"
