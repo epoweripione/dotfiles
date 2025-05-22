@@ -46,11 +46,16 @@ if [[ "$(command -v ${INSTALLER_BINARY_NAME})" ]]; then
     if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         mise complete --shell zsh | sudo tee "/usr/local/share/zsh/site-functions/_mise" >/dev/null
 
-        [[ -s "$HOME/.tool-versions" ]] && cd "$HOME" && mise install --yes
+        [[ -s "$HOME/.tool-versions" ]] && cd "$HOME" && mise install --yes >/dev/null 2>&1 && rm -f "$HOME/.tool-versions"
+
+        # [Usage CLI](https://usage.jdx.dev/)
+        [[ "$(command -v usage)" ]] || mise use --global usage
     fi
 fi
 
 # mise plugins ls-remote
+# mise plugins install <PLUGIN>
+# mise plugins uninstall <PLUGIN>
 # mise ls
 # mise ls-remote <PLUGIN>
 # mise latest <RUNTIME>
