@@ -19,25 +19,20 @@ fi
 
 App_Installer_Reset
 
-# oh-my-posh: A prompt theme engine for any shell
-# https://github.com/JanDeDobbeleer/oh-my-posh
-INSTALLER_APP_NAME="oh-my-posh"
+# [oh-my-posh: A prompt theme engine for any shell](https://github.com/JanDeDobbeleer/oh-my-posh)
 INSTALLER_GITHUB_REPO="JanDeDobbeleer/oh-my-posh"
+INSTALLER_BINARY_NAME="oh-my-posh"
+INSTALLER_MATCH_PATTERN="posh*"
 
-INSTALLER_INSTALL_PATH="/usr/local/bin"
-INSTALLER_INSTALL_NAME="oh-my-posh"
-
-INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
-
-if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+if [[ -x "$(command -v ${INSTALLER_BINARY_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
-    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_VER_CURRENT=$(${INSTALLER_BINARY_NAME} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
+    colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_BINARY_NAME}${BLUE}..."
 
     INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
     App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
@@ -47,74 +42,19 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
-    [[ -z "${OS_INFO_ARCH}" ]] && get_arch
+    INSTALLER_ADDON_FILES=(
+        "${INSTALLER_BINARY_NAME}-themes.zip#https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/themes.zip#"
+    )
 
-    case "${OS_INFO_TYPE}" in
-        linux)
-            case "${OS_INFO_ARCH}" in
-                arm | arm64)
-                    INSTALLER_FILE_NAME="posh-${OS_INFO_TYPE}-arm"
-                    ;;
-                *)
-                    INSTALLER_FILE_NAME="posh-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
-                    ;;
-            esac
-            ;;
-        darwin)
-            INSTALLER_FILE_NAME="posh-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
-            ;;
-        windows)
-            INSTALLER_FILE_NAME="posh-${OS_INFO_TYPE}-${OS_INFO_ARCH}.exe"
-            ;;
-    esac
+    if installPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"; then
+        if [[ -f "${WORKDIR}/${INSTALLER_BINARY_NAME}-themes.zip" ]]; then
+            colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_BINARY_NAME} ${YELLOW}themes${BLUE}..."
+            mkdir -p "$HOME/.poshthemes"
 
-    [[ -z "${INSTALLER_FILE_NAME}" ]] && INSTALLER_IS_INSTALL="no"
-fi
+            unzip -qo "${WORKDIR}/${INSTALLER_BINARY_NAME}-themes.zip" -d "$HOME/.poshthemes" && chmod u+rw "$HOME"/.poshthemes/*.json
 
-if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-
-    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
-        sudo mv -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
-            sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
-    fi
-
-    # themes
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}themes${BLUE}..."
-    mkdir -p "$HOME/.poshthemes"
-
-    [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/powershell/themes/powerlevel10k_my.omp.json" ]] && \
-        cp -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/powershell/themes/powerlevel10k_my.omp.json" "$HOME/.poshthemes"
-
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/themes.zip"
-    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/themes.zip"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
-        unzip -qo "${INSTALLER_DOWNLOAD_FILE}" -d "$HOME/.poshthemes" && \
-            chmod u+rw "$HOME"/.poshthemes/*.json
+            cp -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/powershell/themes/"*.omp.json "$HOME/.poshthemes" 2>/dev/null
+        fi
     fi
 
     ## config
