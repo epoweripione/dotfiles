@@ -739,15 +739,15 @@ function Archive_File_Extract() {
             ;;
         ".bz2" | ".bz")
             cd "${workdir}" || return 1
-            bzip2 -df "${filename}" || extract_rtn_code=$?
+            bzip2 -dkf "${filename}" || extract_rtn_code=$?
             ;;
         ".gz")
             cd "${workdir}" || return 1
-            gzip -df "${filename}" || extract_rtn_code=$?
+            gzip -dkf "${filename}" || extract_rtn_code=$?
             ;;
         ".xz")
             cd "${workdir}" || return 1
-            xz -df "${filename}" || extract_rtn_code=$?
+            xz -dkf "${filename}" || extract_rtn_code=$?
             ;;
         ".7z")
             7z e "${filename}" -o"${workdir}" || extract_rtn_code=$?
@@ -1016,8 +1016,6 @@ function App_Installer_Install() {
                 app_installed="yes" && \
                 colorEcho "${GREEN}  Installed: ${YELLOW}${INSTALLER_INSTALL_PATH}/${install_filename}" && \
                 echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${INSTALLER_INSTALL_PATH}/${install_filename}" >> "${INSTALLER_INSTALL_LOGFILE}"
-
-            rm -f "${finded_file}"
         done
 
         # man pages, zsh completions
@@ -1074,34 +1072,42 @@ function App_Installer_Install() {
                 addon_url=$(awk -F# '{print $2}' <<<"${addon_download}")
                 addon_file=$(awk -F# '{print $3}' <<<"${addon_download}")
 
-                addon_dir=$(dirname "${addon_file}")
-                if [[ ! -d "${addon_dir}" ]]; then
-                    if ! mkdir -p "${addon_dir}" 2>/dev/null; then
-                        if ! sudo mkdir -p "${addon_dir}" 2>/dev/null; then
-                            colorEcho "${RED}  Failed to create directory ${YELLOW}${addon_dir}${RED} for ${FUCHSIA}${addon_name}${RED}!"
-                            echo "[$(date +%FT%T%:z)] Failed to create directory ${addon_dir} for ${addon_name}" >> "${INSTALLER_INSTALL_LOGFILE}"
-                            continue
+                if [[ -z "${addon_file}" ]]; then
+                    colorEcho "${BLUE}  Downloading ${FUCHSIA}${addon_name}${BLUE}..."
+                    if App_Installer_Download "${addon_url}" "${WORKDIR}/${addon_name}"; then
+                        colorEcho "${GREEN}  Downloaded: ${YELLOW}${addon_name}" && \
+                        echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${addon_name}" >> "${INSTALLER_INSTALL_LOGFILE}"
+                    fi
+                else
+                    addon_dir=$(dirname "${addon_file}")
+                    if [[ ! -d "${addon_dir}" ]]; then
+                        if ! mkdir -p "${addon_dir}" 2>/dev/null; then
+                            if ! sudo mkdir -p "${addon_dir}" 2>/dev/null; then
+                                colorEcho "${RED}  Failed to create directory ${YELLOW}${addon_dir}${RED} for ${FUCHSIA}${addon_name}${RED}!"
+                                echo "[$(date +%FT%T%:z)] Failed to create directory ${addon_dir} for ${addon_name}" >> "${INSTALLER_INSTALL_LOGFILE}"
+                                continue
+                            fi
                         fi
                     fi
-                fi
 
-                colorEcho "${BLUE}  Installing ${FUCHSIA}${addon_name}${BLUE}..."
-                if App_Installer_Download "${addon_url}" "${WORKDIR}/${addon_name}"; then
-                    addon_installed="no"
-                    if cp -f "${WORKDIR}/${addon_name}" "${addon_file}" 2>/dev/null; then
-                        addon_installed="yes"
-                    else
-                        if sudo cp -f "${WORKDIR}/${addon_name}" "${addon_file}" 2>/dev/null; then
+                    colorEcho "${BLUE}  Installing ${FUCHSIA}${addon_name}${BLUE}..."
+                    if App_Installer_Download "${addon_url}" "${WORKDIR}/${addon_name}"; then
+                        addon_installed="no"
+                        if cp -f "${WORKDIR}/${addon_name}" "${addon_file}" 2>/dev/null; then
                             addon_installed="yes"
+                        else
+                            if sudo cp -f "${WORKDIR}/${addon_name}" "${addon_file}" 2>/dev/null; then
+                                addon_installed="yes"
+                            fi
                         fi
-                    fi
 
-                    if [[ "${addon_installed}" == "yes" ]]; then
-                        colorEcho "${GREEN}  Installed: ${YELLOW}${addon_file}" && \
-                        echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${addon_file}" >> "${INSTALLER_INSTALL_LOGFILE}"
-                    else
-                        colorEcho "${RED}  Failed to copy ${YELLOW}${addon_name}${RED} to ${FUCHSIA}${addon_file}${RED}!"
-                        echo "[$(date +%FT%T%:z)] Failed to copy ${addon_name} to ${addon_file}" >> "${INSTALLER_INSTALL_LOGFILE}"
+                        if [[ "${addon_installed}" == "yes" ]]; then
+                            colorEcho "${GREEN}  Installed: ${YELLOW}${addon_file}" && \
+                            echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} ${addon_file}" >> "${INSTALLER_INSTALL_LOGFILE}"
+                        else
+                            colorEcho "${RED}  Failed to copy ${YELLOW}${addon_name}${RED} to ${FUCHSIA}${addon_file}${RED}!"
+                            echo "[$(date +%FT%T%:z)] Failed to copy ${addon_name} to ${addon_file}" >> "${INSTALLER_INSTALL_LOGFILE}"
+                        fi
                     fi
                 fi
             done
@@ -1292,12 +1298,13 @@ function App_Installer_Clear_Cache() {
         fi
     done <<<"${app_addons}"
 
-    find "${INSTALLER_DOWNLOAD_CACHE_DIR}" -type f -not -name "*.json" -print0 | while IFS= read -r -d '' finded_file; do
+    find "${INSTALLER_DOWNLOAD_CACHE_DIR}" -type f -not \( -name "*.json" -or -name "*.sha256" \) -print0 | while IFS= read -r -d '' finded_file; do
         finded_name=$(basename "${finded_file}")
         [[ -z "${finded_name}" ]] && continue
 
         if [[ " ${keep_files[*]} " != *" ${finded_name} "* ]]; then
             rm -f "${finded_file}"
+            [[ -f "${finded_file}.sha256" ]] && rm -f "${finded_file}.sha256"
             colorEcho "${RED}Deleted: ${YELLOW}${finded_file}"
         fi
     done
