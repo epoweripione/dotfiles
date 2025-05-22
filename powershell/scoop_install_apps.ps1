@@ -220,6 +220,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "krita"
         "obs-studio"
         "xpipe"
+        "edit"
         # "geany"
         # "geany-plugins"
         # "notepad3"
