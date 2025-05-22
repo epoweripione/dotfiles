@@ -25,9 +25,7 @@ INSTALLER_BINARY_NAME="mise"
 
 INSTALLER_ARCHIVE_EXT="tar.gz"
 
-installPrebuiltBinary "${INSTALLER_BINARY_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}#${INSTALLER_BINARY_NAME}*"
-
-if [[ "$(command -v ${INSTALLER_BINARY_NAME})" ]]; then
+if installPrebuiltBinary "${INSTALLER_BINARY_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}#${INSTALLER_BINARY_NAME}*"; then
     sed -i -e '/^# rtx$/d' -e '/rtx activate bash/d' "$HOME/.bashrc"
     sed -i -e '/^# rtx$/d' -e '/rtx activate zsh/d' "$HOME/.zshrc"
     [[ -f "/usr/local/share/zsh/site-functions/_rtx" ]] && sudo rm -f "/usr/local/share/zsh/site-functions/_rtx"
