@@ -35,6 +35,12 @@ export GITHUB_RAW_URL=${GITHUB_RAW_URL:-"https://raw.githubusercontent.com"}
 # https://docs.github.com/cn/rest/overview/resources-in-the-rest-api#rate-limiting
 [[ -n "${GITHUB_API_TOKEN}" ]] && export GITHUB_API_TOKEN
 
+# App installer download cache directory `${HOME}/AppCache`
+if [[ -n "${INSTALLER_DOWNLOAD_CACHE_DIR}" ]]; then
+    export INSTALLER_DOWNLOAD_CACHE_DIR
+    [[ ! -d "${INSTALLER_DOWNLOAD_CACHE_DIR}" ]] && mkdir -p "${INSTALLER_DOWNLOAD_CACHE_DIR}"
+fi
+
 # sbin
 [[ -d "/sbin" && ":$PATH:" != *":/sbin:"* ]] && export PATH=/sbin:$PATH
 [[ -d "/usr/sbin" && ":$PATH:" != *":/usr/sbin:"* ]] && export PATH=/usr/sbin:$PATH
