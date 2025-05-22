@@ -341,6 +341,7 @@ function App_Installer_Get_Remote_Version() {
 
     INSTALLER_VER_REMOTE=""
     INSTALLER_REMOTE_CONTENT=""
+    [[ -z "${INSTALLER_CHECK_URL}" ]] && INSTALLER_CHECK_URL="${remote_url}"
 
     [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 
@@ -494,6 +495,9 @@ function App_Installer_Get_Remote_URL() {
 
     # All download urls
     INSTALLER_ALL_DOWNLOAD_URLS=$(sort -u <<<"${match_urls}")
+    INSTALLER_FILENAME_PATTERN="${file_match_pattern}"
+    INSTALLER_VERSION_PATTERN="${version_match_pattern}"
+    INSTALLER_MULITPLE_PATTERN="${multi_match_filter}"
 
     # Get urls which match running platform
     [[ -z "${OS_INFO_MATCH_TYPE}" ]] && App_Installer_Get_OS_Info_Match_Cond
@@ -562,16 +566,24 @@ function App_Installer_Get_Remote_URL() {
 function App_Installer_Download() {
     local download_url=$1
     local download_filename=$2
+    local workdir
     local github_url="https://github.com"
 
     [[ -z "${download_url}" ]] && colorEcho "${FUCHSIA}Download URL${RED} can't empty!" && return 1
+
+    workdir=$(dirname "${download_filename}")
+    [[ -z "${workdir}" ]] && workdir="$(pwd)"
 
     if [[ -z "${download_filename}" ]]; then
         # extract filename from URL
         # scheme:[//authority][/path][?query][#fragment]
         download_filename=$(awk -F"/" '{print $NF}' <<<"${download_url}")
-        download_filename="${download_filename%%[?#]*}"
+        download_filename="${workdir}/${download_filename%%[?#]*}"
     fi
+
+    # Load downloaded file from cache
+    App_Installer_Load_from_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${download_filename}" && return 0
+    [[ -f "${download_filename}" ]] && rm -f "${download_filename}"
 
     # Download
     [[ -n "${GITHUB_DOWNLOAD_URL}" ]] && download_url="${download_url//${github_url}/${GITHUB_DOWNLOAD_URL}}"
@@ -595,19 +607,24 @@ function App_Installer_Download_Extract() {
     local download_filename=$2
     local workdir=$3
     local github_url="https://github.com"
-    local archive_ext_list archive_ext TargetExt
-    local curl_rtn_code extract_rtn_code
+    local curl_rtn_code
 
     [[ -z "${download_url}" ]] && colorEcho "${FUCHSIA}Download URL${RED} can't empty!" && return 1
+
+    [[ -z "${workdir}" ]] && workdir="$(pwd)"
 
     if [[ -z "${download_filename}" ]]; then
         # extract filename from URL
         # scheme:[//authority][/path][?query][#fragment]
         download_filename=$(awk -F"/" '{print $NF}' <<<"${download_url}")
-        download_filename="${download_filename%%[?#]*}"
+        download_filename="${workdir}/${download_filename%%[?#]*}"
     fi
 
-    [[ -z "${workdir}" ]] && workdir="$(pwd)"
+    # Load downloaded file from cache
+    if App_Installer_Load_from_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${download_filename}"; then
+        Archive_File_Extract "${download_filename}" "${workdir}" && return 0
+    fi
+    [[ -f "${download_filename}" ]] && rm -f "${download_filename}"
 
     # Download
     [[ -n "${GITHUB_DOWNLOAD_URL}" ]] && download_url="${download_url//${github_url}/${GITHUB_DOWNLOAD_URL}}"
@@ -623,69 +640,8 @@ function App_Installer_Download_Extract() {
     fi
 
     # Extract
-    extract_rtn_code=0
     if [[ ${curl_rtn_code} -eq 0 ]]; then
-        archive_ext=""
-        archive_ext_list=(
-            ".tar.bz2"
-            ".tar.bz"
-            ".tar.gz"
-            ".tar.xz"
-            ".tbz2"
-            ".tbz"
-            ".tgz"
-            ".txz"
-            ".tar"
-            ".bz2"
-            ".bz"
-            ".gz"
-            ".xz"
-            ".zip"
-            ".7z"
-        )
-        for TargetExt in "${archive_ext_list[@]}"; do
-            if grep -q "${TargetExt}$" <<<"${download_filename}"; then
-                archive_ext="${TargetExt}"
-                break
-            fi
-        done
-
-        case "${archive_ext}" in
-            ".zip")
-                unzip -qo "${download_filename}" -d "${workdir}" || extract_rtn_code=$?
-                ;;
-            ".tar.bz2" | ".tar.bz" | ".tbz2" | ".tbz")
-                tar -xjf "${download_filename}" -C "${workdir}" || extract_rtn_code=$?
-                ;;
-            ".tar.gz" | ".tgz")
-                tar -xzf "${download_filename}" -C "${workdir}" || extract_rtn_code=$?
-                ;;
-            ".tar.xz" | ".txz")
-                tar -xJf "${download_filename}" -C "${workdir}" || extract_rtn_code=$?
-                ;;
-            ".tar")
-                tar -xf "${download_filename}" -C "${workdir}" || extract_rtn_code=$?
-                ;;
-            ".bz2" | ".bz")
-                cd "${workdir}" || return 1
-                bzip2 -df "${download_filename}" || extract_rtn_code=$?
-                ;;
-            ".gz")
-                cd "${workdir}" || return 1
-                gzip -df "${download_filename}" || extract_rtn_code=$?
-                ;;
-            ".xz")
-                cd "${workdir}" || return 1
-                xz -df "${download_filename}" || extract_rtn_code=$?
-                ;;
-            ".7z")
-                7z e "${download_filename}" -o"${workdir}" || extract_rtn_code=$?
-                ;;
-        esac
-    fi
-
-    if [[ ${curl_rtn_code} -eq 0 && ${extract_rtn_code} -eq 0 ]]; then
-        return 0
+        Archive_File_Extract "${download_filename}" "${workdir}" && return 0 || return 1
     else
         return 1
     fi
@@ -759,13 +715,11 @@ function Archive_File_Extract() {
         ".7z"
     )
     for TargetExt in "${archive_ext_list[@]}"; do
-        if echo "${filename}" | grep -q "${TargetExt}$"; then
+        if grep -q "${TargetExt}$" <<<"${filename}"; then
             archive_ext="${TargetExt}"
             break
         fi
     done
-
-    [[ -z "${archive_ext}" ]] && return 1
 
     case "${archive_ext}" in
         ".zip")
@@ -850,6 +804,10 @@ function App_Installer_Reset() {
 
     INSTALLER_ZSH_COMP_FILE=""
     INSTALLER_ZSH_COMP_INSTALL=""
+
+    INSTALLER_FILENAME_PATTERN=""
+    INSTALLER_VERSION_PATTERN=""
+    INSTALLER_MULITPLE_PATTERN=""
 
     INSTALLER_CHOICE="N"
     INSTALLER_FROM_GITHUB_RELEASE="no"
@@ -1147,6 +1105,11 @@ function App_Installer_Install() {
                     fi
                 fi
             done
+
+            # Save downloaded file to cache
+            if [[ -n "${INSTALLER_DOWNLOAD_CACHE_DIR}" ]]; then
+                App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
+            fi
         else
             colorEcho "${RED}  Can't find ${FUCHSIA}${INSTALLER_ARCHIVE_EXEC_NAME}${RED} in ${YELLOW}${INSTALLER_DOWNLOAD_FILE}${RED}!"
             echo "[$(date +%FT%T%:z)] ${INSTALLER_APP_NAME} Can't find ${INSTALLER_ARCHIVE_EXEC_NAME} in ${INSTALLER_DOWNLOAD_FILE}" >> "${INSTALLER_INSTALL_LOGFILE}"
@@ -1158,6 +1121,186 @@ function App_Installer_Install() {
         colorEcho "${RED}  Download failed from ${ORANGE}${INSTALLER_DOWNLOAD_URL}${RED}!"
         return 1
     fi
+
+    return 0
+}
+
+# Save downloaded file to cache
+function App_Installer_Save_to_Cache() {
+    local app_name=$1
+    local app_version=$2
+    local app_file=$3
+    local app_info_file app_filename app_json app_options json_app_name json_app_options current_dir
+    local filename_pattern version_pattern multiple_pattern
+    local url_protocol url_domain url_download addon_url addon_name
+
+    [[ -z "${app_name}" ]] && return 0
+    [[ -z "${app_version}" ]] && return 0
+    [[ -z "${app_file}" || ! -f "${app_file}" ]] && return 0
+
+    [[ -z "${INSTALLER_DOWNLOAD_CACHE_DIR}" || ! -d "${INSTALLER_DOWNLOAD_CACHE_DIR}" ]] && return 0
+    [[ -z "${INSTALLER_ALL_DOWNLOAD_URLS}" ]] && return 0
+
+    app_filename=$(basename "${app_file}")
+    [[ -f "${INSTALLER_DOWNLOAD_CACHE_DIR}/${app_filename}" ]] && return 0
+
+    current_dir=$(pwd)
+    app_info_file="${INSTALLER_DOWNLOAD_CACHE_DIR}/apps.json"
+
+    [[ ! -f "${app_info_file}" ]] && echo -e '[]' | tee "${app_info_file}" >/dev/null
+    app_json="$(cat "${app_info_file}")"
+
+    # App info
+    json_app_name=$(jq -r ".[] | select(.name == \"${app_name}\").name//empty" <<< "${app_json}")
+    [[ -z "${json_app_name}" ]] && app_json=$(jq -r ". += [{\"name\": \"${app_name}\"}]" <<< "${app_json}")
+
+    [[ -n "${INSTALLER_CHECK_URL}" ]] && \
+        app_json=$(jq -r "(.[] | select(.name == \"${app_name}\")).source |= \"${INSTALLER_CHECK_URL}\"" <<< "${app_json}")
+
+    if [[ -n "${INSTALLER_GITHUB_REPO}" ]]; then
+        app_json=$(jq -r "(.[] | select(.name == \"${app_name}\")).repository |= \"${INSTALLER_GITHUB_REPO}\"" <<< "${app_json}")
+        app_options="${INSTALLER_GITHUB_REPO}"
+        filename_pattern="jq=.assets[].browser_download_url"
+        version_pattern="jq=.tag_name"
+    else
+        app_options="${app_name}"
+        filename_pattern="${INSTALLER_FILENAME_PATTERN}"
+        version_pattern="${INSTALLER_VERSION_PATTERN}"
+    fi
+    multiple_pattern="${INSTALLER_MULITPLE_PATTERN}"
+
+    app_options="${app_options}#${INSTALLER_CHECK_URL}#${INSTALLER_ARCHIVE_EXT}#${filename_pattern}#${version_pattern}#${multiple_pattern}"
+    json_app_options=$(sed 's/[\\\"]/\\&/g' <<<"${app_options}")
+    app_json=$(jq -r "(.[] | select(.name == \"${app_name}\")).options |= \"${json_app_options}\"" <<< "${app_json}")
+
+    # App version
+    app_json=$(jq -r "(.[] | select(.name == \"${app_name}\")).version |= \"${app_version}\"" <<< "${app_json}")
+
+    # App download URLs
+    INSTALLER_ALL_DOWNLOAD_URLS=$(sort -u <<<"${INSTALLER_ALL_DOWNLOAD_URLS}")
+    if grep -q "^/" <<<"${INSTALLER_ALL_DOWNLOAD_URLS}"; then
+        url_protocol=$(awk -F/ '{print $1}' <<<"${INSTALLER_CHECK_URL}")
+        url_domain=$(awk -F/ '{print $3}' <<<"${INSTALLER_CHECK_URL}")
+        INSTALLER_ALL_DOWNLOAD_URLS=$(sed "s|^|${url_protocol}//${url_domain}|" <<<"${INSTALLER_ALL_DOWNLOAD_URLS}")
+    fi
+
+    app_json=$(jq -r "(.[] | select(.name == \"${app_name}\")).urls |= []" <<< "${app_json}")
+    while read -r url_download; do
+        [[ -z "${url_download}" ]] && continue
+        app_json=$(jq -r "(.[] | select(.name == \"${app_name}\")).urls += [\"${url_download}\"]" <<< "${app_json}")
+    done <<<"${INSTALLER_ALL_DOWNLOAD_URLS}"
+
+    # App additional downloads
+    app_json=$(jq -r "(.[] | select(.name == \"${app_name}\")).addons |= []" <<< "${app_json}")
+    for addon_url in "${INSTALLER_ADDON_FILES[@]}"; do
+        [[ -z "${addon_url}" ]] && continue
+        app_json=$(jq -r "(.[] | select(.name == \"${app_name}\")).addons += [\"${addon_url}\"]" <<< "${app_json}")
+    done
+
+    # Copy downloaded file to cache
+    colorEcho "${CYAN}  Cached: ${YELLOW}${INSTALLER_DOWNLOAD_CACHE_DIR}/${app_filename}"
+    if cp -f "${app_file}" "${INSTALLER_DOWNLOAD_CACHE_DIR}" 2>/dev/null; then
+        [[ -x "$(command -v sha256sum)" ]] && \
+            cd "${INSTALLER_DOWNLOAD_CACHE_DIR}" && \
+            sha256sum "${app_filename}" > "${app_filename}.sha256" 2>/dev/null && \
+            cd "${current_dir}" || return 0
+    fi
+
+    # Copy downloaded addon files to cache
+    for addon_url in "${INSTALLER_ADDON_FILES[@]}"; do
+        [[ -z "${addon_url}" ]] && continue
+        addon_name=$(awk -F# '{print $1}' <<<"${addon_url}")
+        if [[ -f "${WORKDIR}/${addon_name}" ]]; then
+            colorEcho "${CYAN}  Cached: ${YELLOW}${INSTALLER_DOWNLOAD_CACHE_DIR}/${addon_name}"
+            if cp -f "${WORKDIR}/${addon_name}" "${INSTALLER_DOWNLOAD_CACHE_DIR}/${addon_name}" 2>/dev/null; then
+                [[ -x "$(command -v sha256sum)" ]] && \
+                    cd "${INSTALLER_DOWNLOAD_CACHE_DIR}" && \
+                    sha256sum "${addon_name}" > "${addon_name}.sha256" 2>/dev/null && \
+                    cd "${current_dir}" || return 0
+            fi
+        fi
+    done
+
+    echo "${app_json}" > "${app_info_file}"
+
+    return 0
+}
+
+# Load downloaded file from cache
+function App_Installer_Load_from_Cache() {
+    local app_name=$1
+    local app_version=$2
+    local app_file=$3
+    local download_filename app_info_file json_app_version
+
+    [[ -z "${app_name}" ]] && return 1
+    [[ -z "${app_version}" ]] && return 1
+    [[ -z "${app_file}" ]] && return 1
+
+    [[ -z "${INSTALLER_DOWNLOAD_CACHE_DIR}" || ! -d "${INSTALLER_DOWNLOAD_CACHE_DIR}" ]] && return 1
+
+    app_info_file="${INSTALLER_DOWNLOAD_CACHE_DIR}/apps.json"
+    [[ ! -f "${app_info_file}" ]]  && return 1
+
+    json_app_version=$(jq -r ".[] | select(.name == \"${app_name}\").version//empty" "${app_info_file}")
+    version_gt "${app_version}" "${json_app_version}" && return 1
+
+    download_filename=$(basename "${app_file}")
+    [[ ! -f "${INSTALLER_DOWNLOAD_CACHE_DIR}/${download_filename}" ]] && return 1
+
+    colorEcho "${CYAN}  From cache ${ORANGE}${INSTALLER_DOWNLOAD_CACHE_DIR}/${download_filename}"
+    cp -f "${INSTALLER_DOWNLOAD_CACHE_DIR}/${download_filename}" "${app_file}" 2>/dev/null || return 1
+
+    return 0
+}
+
+# Clear old version downloaded file from cache
+function App_Installer_Clear_Cache() {
+    local app_info_file app_urls app_addons url app_filename addon_name finded_file finded_name
+    local keep_files=()
+
+    [[ -z "${INSTALLER_DOWNLOAD_CACHE_DIR}" || ! -d "${INSTALLER_DOWNLOAD_CACHE_DIR}" ]] && return 1
+
+    app_info_file="${INSTALLER_DOWNLOAD_CACHE_DIR}/apps.json"
+    [[ ! -f "${app_info_file}" ]]  && return 1
+
+    app_urls=$(jq -r ".[] | .urls[]" "${app_info_file}")
+    [[ -z "${app_urls}" ]] && return 1
+
+    while read -r url; do
+        [[ -z "${url}" ]] && continue
+
+        app_filename=$(awk -F"/" '{print $NF}' <<<"${url}")
+        app_filename="${app_filename%%[?#]*}"
+        [[ -z "${app_filename}" ]] && continue
+
+        if [[ -f "${INSTALLER_DOWNLOAD_CACHE_DIR}/${app_filename}" ]]; then
+            keep_files+=("${app_filename}")
+        fi
+    done <<<"${app_urls}"
+
+    # additional downloads
+    app_addons=$(jq -r ".[] | select(has(\"addons\")) | .addons[]" "${app_info_file}")
+    while read -r url; do
+        [[ -z "${url}" ]] && continue
+
+        addon_name=$(awk -F# '{print $1}' <<<"${url}")
+        [[ -z "${addon_name}" ]] && continue
+
+        if [[ -f "${INSTALLER_DOWNLOAD_CACHE_DIR}/${addon_name}" ]]; then
+            keep_files+=("${addon_name}")
+        fi
+    done <<<"${app_addons}"
+
+    find "${INSTALLER_DOWNLOAD_CACHE_DIR}" -type f -not -name "*.json" -print0 | while IFS= read -r -d '' finded_file; do
+        finded_name=$(basename "${finded_file}")
+        [[ -z "${finded_name}" ]] && continue
+
+        if [[ " ${keep_files[*]} " != *" ${finded_name} "* ]]; then
+            rm -f "${finded_file}"
+            colorEcho "${RED}Deleted: ${YELLOW}${finded_file}"
+        fi
+    done
 
     return 0
 }
@@ -1190,12 +1333,14 @@ function App_Installer_Get_Installed_Version() {
         INSTALLER_VER_CURRENT=$(${binaryFile} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
         [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${binaryFile} -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
         [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${binaryFile} -V 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${binaryFile} version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     fi
 
     if [[ -z "${INSTALLER_VER_CURRENT}" || "${INSTALLER_VER_CURRENT}" == "0.0.0" ]]; then
         INSTALLER_VER_CURRENT=$(${appBinary} --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
         [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
         [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} -V 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT=$(${appBinary} version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
     fi
 
     [[ -z "${INSTALLER_VER_CURRENT}" ]] && INSTALLER_VER_CURRENT="0.0.0" && return 1
