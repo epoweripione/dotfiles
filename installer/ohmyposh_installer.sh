@@ -48,7 +48,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
     if installPrebuiltBinary "${INSTALLER_BINARY_NAME}" "${INSTALLER_GITHUB_REPO}" "${INSTALLER_MATCH_PATTERN}"; then
         if [[ -f "${WORKDIR}/${INSTALLER_BINARY_NAME}-themes.zip" ]]; then
-            colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_BINARY_NAME} ${YELLOW}themes${BLUE}..."
+            colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_BINARY_NAME} themes to ${YELLOW}~/.poshthemes${BLUE}..."
             mkdir -p "$HOME/.poshthemes"
 
             unzip -qo "${WORKDIR}/${INSTALLER_BINARY_NAME}-themes.zip" -d "$HOME/.poshthemes" && chmod u+rw "$HOME"/.poshthemes/*.json
@@ -79,7 +79,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
             echo ''
             echo 'if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then'
             echo '  # eval "$(oh-my-posh init zsh --config ~/.poshthemes/powerlevel10k_my.omp.json)"'
-            echo '  eval "$(oh-my-posh init bash --config ~/.poshthemes/atomic_my.omp.json)"'
+            echo '  eval "$(oh-my-posh init zsh --config ~/.poshthemes/atomic_my.omp.json)"'
             echo 'fi'
         } >> "$HOME/.zshrc"
     fi
