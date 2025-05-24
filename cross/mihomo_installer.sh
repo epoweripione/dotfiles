@@ -81,7 +81,8 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
             [[ -s "$HOME/.config/mihomo/geoip.dat" ]] && sudo cp -f "$HOME/.config/mihomo/geoip.dat" "/srv/clash/geoip.dat"
             [[ -s "$HOME/.config/mihomo/geosite.dat" ]] && sudo cp -f "$HOME/.config/mihomo/geosite.dat" "/srv/clash/geosite.dat"
 
-            systemctl is-enabled "mihomo" >/dev/null 2>&1 && sudo systemctl restart "mihomo"
+            # Restart mihomo service if enabled & wait for 3 seconds to make sure proxies are loaded
+            systemctl is-enabled "mihomo" >/dev/null 2>&1 && sudo systemctl restart "mihomo" && sleep 3
         fi
     fi
 fi
