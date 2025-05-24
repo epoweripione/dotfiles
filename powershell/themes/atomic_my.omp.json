@@ -30,16 +30,15 @@
           "background": "#ef5350",
           "foreground": "#FFFB38",
           "style": "diamond",
-          "template": " \uf0ad ",
+          "template": " {{ if .SSHSession }}\ueba9 {{ if .Root }}\uf0e7 {{ else }}{{ .UserName }}{{ end }}@{{ .HostName }}{{ else }}{{ if .Root }}\uf0e7{{ end }}{{ end }}",
           "trailing_diamond": "\ue0b4",
-          "type": "root"
+          "type": "session"
         },
         {
           "background": "#FF9248",
           "foreground": "#2d3436",
           "properties": {
             "folder_icon": "\uf07b",
-            "home_icon": "\ue617",
             "style": "full"
           },
           "style": "diamond",
@@ -86,6 +85,38 @@
           "leading_diamond": "\ue0b6",
           "template": " \ue718 {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }} ",
           "type": "node"
+        },
+        {
+          "background": "#ffffff",
+          "foreground": "#ce092f",
+          "style": "diamond",
+          "leading_diamond": "\ue0b6",
+          "template": " \ue753 {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
+          "type": "angular"
+        },
+        {
+          "background": "#ffffff",
+          "foreground": "#81a1c1",
+          "style": "diamond",
+          "leading_diamond": "\ue0b6",
+          "template": " \ue7ba {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
+          "type": "react"
+        },
+        {
+          "background": "#ffffff",
+          "foreground": "#00B4FF",
+          "style": "diamond",
+          "leading_diamond": "\ue0b6",
+          "template": " \uea6a {{.Full}}{{ if .HasVite }} \ueb29 {{ .Vite.Version }}{{ end }} ",
+          "type": "quasar"
+        },
+        {
+          "background": "#ffffff",
+          "foreground": "#1976d2",
+          "style": "diamond",
+          "leading_diamond": "\ue0b6",
+          "template": " \ue697 {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
+          "type": "svelte"
         },
         {
           "background": "#306998",
@@ -136,6 +167,14 @@
           "type": "rust"
         },
         {
+          "background": "#f3f0ec",
+          "foreground": "#925837",
+          "style": "diamond",
+          "leading_diamond": "\ue0b6",
+          "template": " \ue8BB {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
+          "type": "tauri"
+        },
+        {
           "background": "#ffad55",
           "foreground": "#342311",
           "style": "diamond",
@@ -158,14 +197,6 @@
           "leading_diamond": "\ue0b6",
           "template": " \ue28e {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
           "type": "flutter"
-        },
-        {
-          "background": "#ffffff",
-          "foreground": "#ce092f",
-          "style": "diamond",
-          "leading_diamond": "\ue0b6",
-          "template": " \ue753 {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
-          "type": "angular"
         },
         {
           "background": "#ffffff",
@@ -197,6 +228,14 @@
           "style": "diamond",
           "leading_diamond": "\ue0b6",
           "template": " \ue791 {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
+          "type": "ruby"
+        },
+        {
+          "background": "#ffffff",
+          "foreground": "#f6553c",
+          "style": "diamond",
+          "leading_diamond": "\ue0b6",
+          "template": " \ue755 {{ if .Error }}{{ .Error }}{{ else }}{{ .Full }}{{ end }} ",
           "type": "ruby"
         },
         {
@@ -306,6 +345,6 @@
       "type": "prompt"
     }
   ],
-  "console_title_template": "{{ if eq .PWD \"~\" }}~{{ else }}.../{{ base .PWD }}{{ end }}@{{ .HostName }} >_{{ .Shell }} #{{ .UserName }}",
+  "console_title_template": "{{ .HostName }} :: {{ if eq .PWD \"~\" }}~{{ else }}{{ dir .PWD | abbrev 10 }}{{ base .PWD }}{{ end }} :: {{ .UserName }} :: {{ .Shell }}",
   "version": 3
 }
