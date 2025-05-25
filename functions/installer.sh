@@ -1001,9 +1001,12 @@ function App_Installer_Install() {
             [[ ! -f "${finded_file}" ]] && continue
 
             # check if file is executable or shell script or starts with a shebang
-            # if ! file -i "${finded_file}" 2>/dev/null | grep -Eiq "application|executable|binary|sharedlib|shellscript"; then
-            if file -i "${finded_file}" 2>/dev/null | grep -Eiq "text"; then
-                ! head -n1 "${finded_file}" 2>/dev/null | grep -q '^#!' && continue
+            # if ! file -Lb "${finded_file}" 2>/dev/null | grep -Eiq "application|executable|binary|sharedlib|shellscript"; then
+            # [Comparison of executable file formats](https://en.wikipedia.org/wiki/Comparison_of_executable_file_formats)
+            if ! file -Lb "${finded_file}" 2>/dev/null | grep -Eiq 'ELF|Mach-O'; then
+                if file -Lbi "${finded_file}" 2>/dev/null | grep -Eiq "text"; then
+                    ! head -n1 "${finded_file}" 2>/dev/null | grep -q '^#!' && continue
+                fi
             fi
 
             install_filename="${exec_name}"
@@ -1036,7 +1039,7 @@ function App_Installer_Install() {
                 install_files=$(find "${INSTALLER_ARCHIVE_ROOT}" -type f -name "*.${i}")
                 while read -r finded_file; do
                     [[ ! -f "${finded_file}" ]] && continue
-                    ! file -i "${finded_file}" | grep -q "text" && continue
+                    ! file -Lbi "${finded_file}" | grep -q "text" && continue
                     install_filename=$(basename "${finded_file}")
                     sudo cp -f "${finded_file}" "${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
                         colorEcho "${GREEN}  Installed: ${YELLOW}${INSTALLER_MANPAGE_PATH}/man${i}/${install_filename}" && \
@@ -1322,6 +1325,8 @@ function App_Installer_Get_Installed_Version() {
     [[ -n "${INSTALLER_INSTALL_PATH}" ]] && binaryFile="${INSTALLER_INSTALL_PATH}/${appBinary}"
     if ! sudo test -f "${binaryFile}"; then
         binaryFile=$(which "${appBinary}" 2>/dev/null)
+        sudo test -f "${binaryFile}" && binaryFile=$(readlink -f "${appBinary}" 2>/dev/null)
+        [[ -n "${binaryFile}" && "$(basename "${binaryFile}")" != "${appBinary}" ]] && binaryFile=""
     fi
     [[ -z "${binaryFile}" ]] && INSTALLER_VER_CURRENT="0.0.0" && return 1
 
