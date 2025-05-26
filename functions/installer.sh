@@ -805,6 +805,7 @@ function App_Installer_Reset() {
     INSTALLER_ZSH_COMP_FILE=""
     INSTALLER_ZSH_COMP_INSTALL=""
 
+    INSTALLER_MATCH_PATTERN=""
     INSTALLER_FILENAME_PATTERN=""
     INSTALLER_VERSION_PATTERN=""
     INSTALLER_MULITPLE_PATTERN=""
@@ -971,8 +972,12 @@ function App_Installer_Install() {
 
             if [[ ! -f "${INSTALLER_ARCHIVE_EXEC_DIR}/${INSTALLER_ARCHIVE_EXEC_NAME}" ]]; then
                 App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_ARCHIVE_EXEC_NAME}"
-                [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && \
-                    App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_ARCHIVE_EXEC_NAME}*"
+
+                [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" && -n "${INSTALLER_MATCH_PATTERN}" ]] && \
+                    App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_MATCH_PATTERN//.*/*}"
+
+                [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" && -n "${INSTALLER_FILENAME_PATTERN}" ]] && \
+                    App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_FILENAME_PATTERN//.*/*}"
                 # Maybe more than one files
                 finded_cnt=$(wc -l <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
                 if [[ ${finded_cnt} -gt 1 ]]; then
@@ -1139,7 +1144,7 @@ function App_Installer_Save_to_Cache() {
     local app_name=$1
     local app_version=$2
     local app_file=$3
-    local app_info_file app_filename app_json app_options json_app_name json_app_options current_dir
+    local app_info_file app_filename app_json app_options json_app_name json_app_version json_app_options current_dir
     local filename_pattern version_pattern multiple_pattern
     local url_protocol url_domain url_download addon_url addon_name
 
@@ -1151,12 +1156,21 @@ function App_Installer_Save_to_Cache() {
     [[ -z "${INSTALLER_ALL_DOWNLOAD_URLS}" ]] && return 0
 
     app_filename=$(basename "${app_file}")
-    [[ -f "${INSTALLER_DOWNLOAD_CACHE_DIR}/${app_filename}" ]] && return 0
 
     current_dir=$(pwd)
     app_info_file="${INSTALLER_DOWNLOAD_CACHE_DIR}/apps.json"
 
     [[ ! -f "${app_info_file}" ]] && echo -e '[]' | tee "${app_info_file}" >/dev/null
+
+    # Cached app version
+    json_app_version=$(jq -r ".[] | select(.name == \"${app_name}\").version//empty" "${app_info_file}")
+    [[ -z "${json_app_version}" ]] && json_app_version="0.0.0"
+
+    # Check if app is already cached
+    if version_le "${app_version}" "${json_app_version}"; then
+        [[ -f "${INSTALLER_DOWNLOAD_CACHE_DIR}/${app_filename}" ]] && return 0
+    fi
+
     app_json="$(cat "${app_info_file}")"
 
     # App info
@@ -1207,12 +1221,13 @@ function App_Installer_Save_to_Cache() {
     done
 
     # Copy downloaded file to cache
-    colorEcho "${CYAN}  Cached: ${YELLOW}${INSTALLER_DOWNLOAD_CACHE_DIR}/${app_filename}"
     if cp -f "${app_file}" "${INSTALLER_DOWNLOAD_CACHE_DIR}" 2>/dev/null; then
         [[ -x "$(command -v sha256sum)" ]] && \
             cd "${INSTALLER_DOWNLOAD_CACHE_DIR}" && \
             sha256sum "${app_filename}" > "${app_filename}.sha256" 2>/dev/null && \
             cd "${current_dir}" || return 0
+
+        colorEcho "${CYAN}  Cached: ${YELLOW}${INSTALLER_DOWNLOAD_CACHE_DIR}/${app_filename}"
     fi
 
     # Copy downloaded addon files to cache
@@ -1220,12 +1235,13 @@ function App_Installer_Save_to_Cache() {
         [[ -z "${addon_url}" ]] && continue
         addon_name=$(awk -F# '{print $1}' <<<"${addon_url}")
         if [[ -f "${WORKDIR}/${addon_name}" ]]; then
-            colorEcho "${CYAN}  Cached: ${YELLOW}${INSTALLER_DOWNLOAD_CACHE_DIR}/${addon_name}"
             if cp -f "${WORKDIR}/${addon_name}" "${INSTALLER_DOWNLOAD_CACHE_DIR}/${addon_name}" 2>/dev/null; then
                 [[ -x "$(command -v sha256sum)" ]] && \
                     cd "${INSTALLER_DOWNLOAD_CACHE_DIR}" && \
                     sha256sum "${addon_name}" > "${addon_name}.sha256" 2>/dev/null && \
                     cd "${current_dir}" || return 0
+
+                colorEcho "${CYAN}  Cached: ${YELLOW}${INSTALLER_DOWNLOAD_CACHE_DIR}/${addon_name}"
             fi
         fi
     done
@@ -1477,7 +1493,7 @@ function installPrebuiltBinary() {
         fi
     fi
 
-    INSTALLER_ARCHIVE_EXEC_NAME="${binary_name}*"
+    [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" ]] && INSTALLER_ARCHIVE_EXEC_NAME="${binary_name}*"
 
     if App_Installer_Get_Remote_URL "${remote_url}" "${file_match_pattern}" "${version_match_pattern}" "${multi_match_filter}"; then
         [[ "${INSTALLER_DOWNLOAD_URL}" =~ ^(https?://|ftp://) ]] || INSTALLER_DOWNLOAD_URL="${remote_url}${INSTALLER_DOWNLOAD_URL}"
