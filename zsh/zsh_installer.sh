@@ -68,6 +68,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         git
         zip
         unzip
+        zstd
         # autojump
         # autojump-zsh
         bind-utils
