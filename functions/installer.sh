@@ -1525,7 +1525,7 @@ function installBuildBinary() {
     local install_method=$3
     local install_url=$4
     local update_binary="no"
-    local binary_full binary_go
+    local binary_full binary_go current_dir
 
     [[ -z "${binary_name}" ]] && binary_name="${app_name}"
 
@@ -1549,26 +1549,28 @@ function installBuildBinary() {
                 [[ -x "$(command -v go)" ]] && install_method="go"
                 ;;
         esac
-    else
-        if [[ -z "${install_method}" ]]; then
-            if [[ -x "$(command -v cargo)" ]]; then
-                install_method="cargo"
-            elif [[ -x "$(command -v brew)" ]]; then
-                install_method="brew"
-            fi
-
-            [[ -n "${install_url}" && -x "$(command -v go)" ]] && install_method="go"
-        fi
     fi
+
+    if [[ -z "${install_method}" ]]; then
+        if [[ -x "$(command -v cargo)" ]]; then
+            install_method="cargo"
+        elif [[ -x "$(command -v brew)" ]]; then
+            install_method="brew"
+        fi
+
+        [[ -n "${install_url}" && -x "$(command -v go)" ]] && install_method="go"
+    fi
+
+    if [[ ! -x "$(command -v "${install_method}")" ]]; then
+        colorEcho "${FUCHSIA}${install_method}${RED} is not installed!"
+        return 1
+    fi
+
+    current_dir=$(pwd)
 
     case "${install_method}" in
         cargo)
             # Install via rust cargo from source on crates.io
-            if [[ ! -x "$(command -v cargo)" ]]; then
-                colorEcho "${FUCHSIA}${install_method}${RED} is not installed!"
-                return 1
-            fi
-
             if [[ -x "$(command -v cargo-binstall)" ]]; then
                 if ! cargo binstall --no-confirm "${app_name}" 2>/dev/null; then
                     cargo install "${app_name}"
@@ -1579,11 +1581,6 @@ function installBuildBinary() {
             ;;
         brew)
             # Install via Homebrew
-            if [[ ! -x "$(command -v brew)" ]]; then
-                colorEcho "${FUCHSIA}${install_method}${RED} is not installed!"
-                return 1
-            fi
-
             if [[ "${update_binary}" == "yes" ]]; then
                 brew upgrade "${app_name}"
             else
@@ -1592,12 +1589,23 @@ function installBuildBinary() {
             ;;
         go)
             # Install via go
-            if [[ ! -x "$(command -v go)" ]]; then
-                colorEcho "${FUCHSIA}${install_method}${RED} is not installed!"
-                return 1
-            fi
-
             go install "${install_url}"
+            ;;
+        zig)
+            # Install via zig
+            if [[ -d "${install_url}" ]]; then
+                cd "${install_url}" || return 0
+
+                if zig build --release=fast -Dstrip; then
+                    if [[ -f "${install_url}/zig-out/bin/${binary_name}" ]]; then
+                        [[ -z "${INSTALLER_INSTALL_PATH}" ]] && INSTALLER_INSTALL_PATH="/usr/local/bin"
+                        [[ -z "${binary_full}" ]] && binary_full="${INSTALLER_INSTALL_PATH}/${binary_name}"
+                        sudo install -m0755 "${install_url}/zig-out/bin/${binary_name}" "${binary_full}"
+                    fi
+                fi
+
+                cd "${current_dir}" || return 0
+            fi
             ;;
     esac
 }
