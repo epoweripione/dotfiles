@@ -660,6 +660,7 @@ function App_Installer_Get_Archive_File_Extension() {
         ".tar.bz"
         ".tar.gz"
         ".tar.xz"
+        ".tar.zst"
         ".tbz2"
         ".tbz"
         ".tgz"
@@ -670,6 +671,7 @@ function App_Installer_Get_Archive_File_Extension() {
         ".gz"
         ".xz"
         ".zip"
+        ".zst"
         ".7z"
     )
     for TargetExt in "${archive_ext_list[@]}"; do
@@ -702,6 +704,7 @@ function Archive_File_Extract() {
         ".tar.bz"
         ".tar.gz"
         ".tar.xz"
+        ".tar.zst"
         ".tbz2"
         ".tbz"
         ".tgz"
@@ -712,6 +715,7 @@ function Archive_File_Extract() {
         ".gz"
         ".xz"
         ".zip"
+        ".zst"
         ".7z"
     )
     for TargetExt in "${archive_ext_list[@]}"; do
@@ -734,6 +738,9 @@ function Archive_File_Extract() {
         ".tar.xz" | ".txz")
             tar -xJf "${filename}" -C "${workdir}" || extract_rtn_code=$?
             ;;
+        ".tar.zst")
+            tar -I zstd -xf "${filename}" -C "${workdir}" || extract_rtn_code=$?
+            ;;
         ".tar")
             tar -xf "${filename}" -C "${workdir}" || extract_rtn_code=$?
             ;;
@@ -748,6 +755,9 @@ function Archive_File_Extract() {
         ".xz")
             cd "${workdir}" || return 1
             xz -dkf "${filename}" || extract_rtn_code=$?
+            ;;
+        ".zst")
+            zstd -dq "${filename}" --output-dir-flat "${workdir}" || extract_rtn_code=$?
             ;;
         ".7z")
             7z e "${filename}" -o"${workdir}" || extract_rtn_code=$?
@@ -849,6 +859,27 @@ function App_Installer_find_executable() {
         else
             INSTALLER_ARCHIVE_EXEC_NAME=$(find "${find_dir}" -type f -name "${file_pattern}" \
                 -not \( -name "*completion*" -or -path "*completion*" \) )
+        fi
+    fi
+
+    # Maybe regex expression, use `fd` to find executable file
+    if [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" && -x "$(command -v fd)" ]]; then
+        if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
+            if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
+                INSTALLER_ARCHIVE_EXEC_NAME=$(fd --type f "${file_pattern}" "${find_dir}" \
+                    --exclude='*completion*' --exclude="*\.${INSTALLER_ARCHIVE_EXT//./\\.}" --exclude="${INSTALLER_ZSH_COMP_FILE}")
+            else
+                INSTALLER_ARCHIVE_EXEC_NAME=$(fd --type f "${file_pattern}" "${find_dir}" \
+                    --exclude='*completion*' --exclude="*\.${INSTALLER_ARCHIVE_EXT//./\\.}")
+            fi
+        else
+            if [[ -n "${INSTALLER_ZSH_COMP_FILE}" ]]; then
+                INSTALLER_ARCHIVE_EXEC_NAME=$(fd --type f "${file_pattern}" "${find_dir}" \
+                    --exclude='*completion*' --exclude="${INSTALLER_ZSH_COMP_FILE}")
+            else
+                INSTALLER_ARCHIVE_EXEC_NAME=$(fd --type f "${file_pattern}" "${find_dir}" \
+                    --exclude='*completion*')
+            fi
         fi
     fi
 
@@ -974,10 +1005,17 @@ function App_Installer_Install() {
                 App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_ARCHIVE_EXEC_NAME}"
 
                 [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" && -n "${INSTALLER_MATCH_PATTERN}" ]] && \
-                    App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_MATCH_PATTERN//.*/*}"
+                    App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_MATCH_PATTERN}"
 
                 [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" && -n "${INSTALLER_FILENAME_PATTERN}" ]] && \
-                    App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_FILENAME_PATTERN//.*/*}"
+                    App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_FILENAME_PATTERN}"
+
+                [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" && -n "${INSTALLER_INSTALL_NAME}" ]] && \
+                    App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_INSTALL_NAME}.*"
+
+                [[ -z "${INSTALLER_ARCHIVE_EXEC_NAME}" && -n "${INSTALLER_APP_NAME}" ]] && \
+                    App_Installer_find_executable "${INSTALLER_ARCHIVE_EXEC_DIR}" "${INSTALLER_APP_NAME}.*"
+
                 # Maybe more than one files
                 finded_cnt=$(wc -l <<<"${INSTALLER_ARCHIVE_EXEC_NAME}")
                 if [[ ${finded_cnt} -gt 1 ]]; then
