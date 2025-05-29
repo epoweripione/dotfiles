@@ -163,12 +163,12 @@ function mise_App_Update() {
         fi
 
         if [[ -n "${matchVersion}" ]]; then
-            allVersion=$(mise ls-remote "${InstalledApp}" 2>/dev/null | grep "${matchVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+            allVersion=$(mise ls-remote "${InstalledApp}" 2>/dev/null | grep "${matchVersion}" 2>/dev/null | grep -Ev 'alpha|beta|rc|-mach|_[0-9]+$')
         else
-            allVersion=$(mise ls-remote "${InstalledApp}" 2>/dev/null | grep -E '([0-9]{1,}\.)+[0-9]{1,}' 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+            allVersion=$(mise ls-remote "${InstalledApp}" 2>/dev/null | grep -E '([0-9]{1,}\.)+[0-9]{1,}' 2>/dev/null | grep -Ev 'alpha|beta|rc|-mach|_[0-9]+$')
         fi
 
-        [[ -z "${allVersion}" ]] && allVersion=$(mise ls-remote "${InstalledApp}" 2>/dev/null | grep -Ev 'alpha|beta|rc|_[0-9]+$')
+        [[ -z "${allVersion}" ]] && allVersion=$(mise ls-remote "${InstalledApp}" 2>/dev/null | grep -Ev 'alpha|beta|rc|-mach|_[0-9]+$')
         [[ -n "${allVersion}" ]] && latestVersion=$(sort -rV <<<"${allVersion}" | head -n1)
 
         [[ -z "${latestVersion}" ]] && continue
