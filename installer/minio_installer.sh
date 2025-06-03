@@ -58,13 +58,13 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
     INSTALLER_DOWNLOAD_URL="${DOWNLOAD_DOMAIN}/server/minio/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}/${INSTALLER_INSTALL_NAME}"
 
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-    curl_download_status=$?
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
             sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 fi
 
@@ -99,13 +99,13 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
     INSTALLER_DOWNLOAD_URL="${DOWNLOAD_DOMAIN}/client/mc/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}/${INSTALLER_INSTALL_NAME}"
 
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-    curl_download_status=$?
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
             sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 fi
 

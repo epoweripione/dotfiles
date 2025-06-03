@@ -55,7 +55,6 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
 
     if [[ "${OS_PACKAGE_MANAGER}" == "dpkg" ]]; then
-        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/mita.deb"
         case "${OS_INFO_ARCH}" in
             amd64)
                 INSTALLER_FILE_NAME="mita_${INSTALLER_VER_REMOTE}_${OS_INFO_ARCH}.deb"
@@ -65,7 +64,6 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
                 ;;
         esac
     elif [[ "${OS_PACKAGE_MANAGER}" == "dnf" ]]; then
-        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/mita.rpm"
         case "${OS_INFO_ARCH}" in
             amd64)
                 INSTALLER_FILE_NAME="mita-${INSTALLER_VER_REMOTE}-1.x86_64.rpm"
@@ -76,27 +74,21 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         esac
     fi
 
-    curl_download_status=1
     if [[ -n "${INSTALLER_FILE_NAME}" ]]; then
         colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+
         INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
-        curl_download_status=$?
-        if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-            INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-            colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-            axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-            curl_download_status=$?
-        fi
-    fi
+        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
+            if [[ "${OS_PACKAGE_MANAGER}" == "dpkg" ]]; then
+                sudo dpkg -i "${INSTALLER_DOWNLOAD_FILE}"
+            elif [[ "${OS_PACKAGE_MANAGER}" == "dnf" ]]; then
+                sudo rpm -Uvh --force "${INSTALLER_DOWNLOAD_FILE}"
+            fi
 
-    if [[ ${curl_download_status} -eq 0 ]]; then
-        if [[ "${OS_PACKAGE_MANAGER}" == "dpkg" ]]; then
-            sudo dpkg -i "${INSTALLER_DOWNLOAD_FILE}"
-        elif [[ "${OS_PACKAGE_MANAGER}" == "dnf" ]]; then
-            sudo rpm -Uvh --force "${INSTALLER_DOWNLOAD_FILE}"
+            # Save downloaded file to cache
+            App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
         fi
     fi
 fi

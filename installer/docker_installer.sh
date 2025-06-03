@@ -49,8 +49,12 @@ fi
 
 ## Docker
 # https://github.com/docker/docker-install
+DOCKER_FIRST_INSTALL="no"
 if [[ ! -x "$(command -v docker)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}Docker${BLUE}..."
+
+    DOCKER_FIRST_INSTALL="yes"
+
     if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
         curl "${CURL_DOWNLOAD_OPTS[@]}" https://get.docker.com -o "${WORKDIR}/get-docker.sh" && \
             sudo bash "${WORKDIR}/get-docker.sh" --mirror Aliyun
@@ -155,25 +159,18 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         INSTALLER_FILE_NAME="buildx-v${INSTALLER_VER_REMOTE}.${OS_INFO_TYPE}-${OS_INFO_ARCH}"
     fi
 
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/docker-buildx"
     INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/docker/buildx/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         [[ "${CLI_PLUGINS_DIR}" != "$HOME/.docker/cli-plugins" && -f "$HOME/.docker/cli-plugins/docker-buildx" ]] && \
             rm -f "$HOME/.docker/cli-plugins/docker-buildx"
 
         sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${CLI_PLUGINS_DIR}/docker-buildx" && \
             sudo chmod a+x "${CLI_PLUGINS_DIR}/docker-buildx"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "buildx" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 fi
 
@@ -211,25 +208,18 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     # fi
     INSTALLER_FILE_NAME="docker-compose-${OS_INFO_TYPE}-$(uname -m)"
 
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/docker-compose"
     INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/docker/compose/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         [[ "${CLI_PLUGINS_DIR}" != "$HOME/.docker/cli-plugins" && -f "$HOME/.docker/cli-plugins/docker-compose" ]] && \
             rm -f "$HOME/.docker/cli-plugins/docker-compose"
 
         sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${CLI_PLUGINS_DIR}/docker-compose" && \
             sudo chmod a+x "${CLI_PLUGINS_DIR}/docker-compose"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "docker-compose" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 
     ## Compose V2
@@ -259,24 +249,18 @@ fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}ctop ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+
     INSTALLER_FILE_NAME="ctop-${INSTALLER_VER_REMOTE}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
 
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/ctop"
     INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/bcicen/ctop/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         sudo mv -f "${INSTALLER_DOWNLOAD_FILE}" "/usr/local/bin/ctop" && \
             sudo chmod +x "/usr/local/bin/ctop"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "ctop" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 fi
 
@@ -290,7 +274,7 @@ fi
 
 
 # docker mirrors
-if [[ "${INSTALLER_IS_INSTALL}" == "yes" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
+if [[ "${DOCKER_FIRST_INSTALL}" == "yes" && -x "$(command -v docker)" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
     dockerClearMirrors
     # dockerSetMirrors
 

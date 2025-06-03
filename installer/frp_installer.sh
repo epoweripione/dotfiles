@@ -57,23 +57,18 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         sudo pkill -f "frps"
     fi
 
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/frp.tar.gz"
-    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/fatedier/frp/releases/download/v${INSTALLER_VER_REMOTE}/frp_${INSTALLER_VER_REMOTE}_${OS_INFO_TYPE}_${OS_INFO_ARCH}.tar.gz"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
+    INSTALLER_FILE_NAME="frp_${INSTALLER_VER_REMOTE}_${OS_INFO_TYPE}_${OS_INFO_ARCH}.tar.gz"
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/fatedier/frp/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
 
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}" && \
             sudo mkdir -p "/srv/frp" && \
             sudo cp -rf "${WORKDIR}"/frp_*/* "/srv/frp"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 
     [[ -d "/srv/backup_frp" ]] && sudo cp -f /srv/backup_frp/*.ini "/srv/frp"

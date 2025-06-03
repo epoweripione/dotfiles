@@ -62,26 +62,21 @@ App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
 # Cassowary
 colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-INSTALLER_DOWNLOAD_FILE="${WORKDIR}/cassowary-${INSTALLER_VER_REMOTE}-py3-none-any.whl"
-INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/cassowary-${INSTALLER_VER_REMOTE}-py3-none-any.whl"
 
-colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-curl_download_status=$?
+INSTALLER_FILE_NAME="cassowary-${INSTALLER_VER_REMOTE}-py3-none-any.whl"
 
-if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-    INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-    curl_download_status=$?
-fi
+INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/${INSTALLER_GITHUB_REPO}/releases/download/${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
 
-if [[ ${curl_download_status} -eq 0 ]]; then
+INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
     sudo pacman --noconfirm --needed -S freerdp libvirt-python
 
     python3 -m pip install --user -U PyQt5
 
     pip install "${INSTALLER_DOWNLOAD_FILE}"
+
+    # Save downloaded file to cache
+    App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
 fi
 
 # $HOME/.config/casualrdh/config.json

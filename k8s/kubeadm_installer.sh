@@ -49,6 +49,8 @@ if [[ -x "$(command -v pacman)" ]]; then
     InstallSystemPackages "${BLUE}Checking Pre-requisite packages for ${FUCHSIA}kubeadm${BLUE}..." "${PackagesList[@]}"
 fi
 
+App_Installer_Reset
+
 # Kubeadm: Aggregator for issues filed against kubeadm
 # https://github.com/kubernetes/kubeadm
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/
@@ -64,15 +66,18 @@ sudo mkdir -p "/etc/systemd/system/kubelet.service.d"
 # Install CNI plugins (required for most pod network):
 INSTALLER_CHECK_URL="https://api.github.com/repos/containernetworking/plugins/releases/latest"
 CNI_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
-INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/containernetworking/plugins/releases/download/${CNI_VERSION}/cni-plugins-${OS_INFO_TYPE}-${OS_INFO_ARCH}-${CNI_VERSION}.tgz"
-INSTALLER_DOWNLOAD_FILE="${WORKDIR}/cni-plugins.tgz"
+
+INSTALLER_FILE_NAME="cni-plugins-${OS_INFO_TYPE}-${OS_INFO_ARCH}-${CNI_VERSION}.tgz"
+INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/containernetworking/plugins/releases/download/${CNI_VERSION}/${INSTALLER_FILE_NAME}"
 
 colorEcho "${BLUE}Installing ${FUCHSIA}CNI plugins ${YELLOW}${CNI_VERSION}${BLUE}..."
-colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-curl_download_status=$?
-if [[ ${curl_download_status} -eq 0 ]]; then
+
+INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
     sudo tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "${CNI_INSTALL_PATH}"
+
+    # Save downloaded file to cache
+    App_Installer_Save_to_Cache "cni-plugins" "${CNI_VERSION}" "${INSTALLER_DOWNLOAD_FILE}"
 fi
 
 # Install crictl (required for kubeadm / Kubelet Container Runtime Interface (CRI))
@@ -80,8 +85,8 @@ colorEcho "${BLUE}Checking ${FUCHSIA}crictl${BLUE}..."
 INSTALLER_CHECK_URL="https://api.github.com/repos/kubernetes-sigs/cri-tools/releases/latest"
 CRICTL_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
 
-INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/kubernetes-sigs/cri-tools/releases/download/${CRICTL_VERSION}/crictl-${CRICTL_VERSION}-${OS_INFO_TYPE}-${OS_INFO_ARCH}.tar.gz"
-INSTALLER_DOWNLOAD_FILE="${WORKDIR}/crictl.tar.gz"
+INSTALLER_FILE_NAME="crictl-${CRICTL_VERSION}-${OS_INFO_TYPE}-${OS_INFO_ARCH}.tar.gz"
+INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/kubernetes-sigs/cri-tools/releases/download/${CRICTL_VERSION}/${INSTALLER_FILE_NAME}"
 
 if [[ -x "$(command -v crictl)" ]]; then
     INSTALLER_VER_CURRENT=v$(crictl --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
@@ -92,19 +97,21 @@ fi
 
 if [[ -n "${INSTALLER_DOWNLOAD_URL}" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}crictl ${YELLOW}${CRICTL_VERSION}${BLUE}..."
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-    curl_download_status=$?
-    if [[ ${curl_download_status} -eq 0 ]]; then
+
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         sudo tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "${INSTALLER_INSTALL_PATH}"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "crictl" "${CRICTL_VERSION}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 fi
 
 # Install kubeadm, kubelet, kubectl and add a kubelet systemd service:
 colorEcho "${BLUE}Checking ${FUCHSIA}kubeadm, kubelet, kubectl${BLUE}..."
 K8S_LATEST_RELEASE="$(curl "${CURL_CHECK_OPTS[@]}" https://dl.k8s.io/release/stable.txt)"
-
 K8S_VERSION=${1:-"${K8S_LATEST_RELEASE}"}
+
 INSTALLER_DOWNLOAD_URL="https://storage.googleapis.com/kubernetes-release/release/${K8S_VERSION}/bin/${OS_INFO_TYPE}/${OS_INFO_ARCH}"
 
 if [[ -x "$(command -v kubeadm)" ]]; then
@@ -115,15 +122,51 @@ if [[ -x "$(command -v kubeadm)" ]]; then
 fi
 
 if [[ -n "${INSTALLER_DOWNLOAD_URL}" ]]; then
-    colorEcho "${BLUE}Installing ${FUCHSIA}kubeadm, kubelet, kubectl ${YELLOW}${K8S_VERSION}${BLUE}..."
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    cd "${WORKDIR}" && \
-        curl "${CURL_DOWNLOAD_OPTS[@]}" --remote-name-all "${INSTALLER_DOWNLOAD_URL}"/{kubeadm,kubelet,kubectl} && \
-        sudo cp -f {kubeadm,kubelet,kubectl} "${INSTALLER_INSTALL_PATH}" && \
-        sudo chmod +x "${INSTALLER_INSTALL_PATH}"/{kubeadm,kubelet,kubectl}
+    # colorEcho "${BLUE}Installing ${FUCHSIA}kubeadm, kubelet, kubectl ${YELLOW}${K8S_VERSION}${BLUE}..."
+    # colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
+    # cd "${WORKDIR}" && \
+    #     curl "${CURL_DOWNLOAD_OPTS[@]}" --remote-name-all "${INSTALLER_DOWNLOAD_URL}"/{kubeadm,kubelet,kubectl} && \
+    #     sudo cp -f {kubeadm,kubelet,kubectl} "${INSTALLER_INSTALL_PATH}" && \
+    #     sudo chmod +x "${INSTALLER_INSTALL_PATH}"/{kubeadm,kubelet,kubectl}
+
+    INSTALLER_INSTALL_NAME="kubeadm"
+    colorEcho "${BLUE}Installing ${FUCHSIA}${INSTALLER_INSTALL_NAME} ${YELLOW}${K8S_VERSION}${BLUE}..."
+    INSTALLER_FILE_NAME="${INSTALLER_INSTALL_NAME}-${K8S_VERSION}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}/${INSTALLER_INSTALL_NAME}" "${INSTALLER_DOWNLOAD_FILE}"; then
+        sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}" && \
+            sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_INSTALL_NAME}" "${K8S_VERSION}" "${INSTALLER_DOWNLOAD_FILE}"
+    fi
+
+    INSTALLER_INSTALL_NAME="kubelet"
+    colorEcho "${BLUE}Installing ${FUCHSIA}${INSTALLER_INSTALL_NAME} ${YELLOW}${K8S_VERSION}${BLUE}..."
+    INSTALLER_FILE_NAME="${INSTALLER_INSTALL_NAME}-${K8S_VERSION}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}/${INSTALLER_INSTALL_NAME}" "${INSTALLER_DOWNLOAD_FILE}"; then
+        sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}" && \
+            sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_INSTALL_NAME}" "${K8S_VERSION}" "${INSTALLER_DOWNLOAD_FILE}"
+    fi
+
+    INSTALLER_INSTALL_NAME="kubectl"
+    colorEcho "${BLUE}Installing ${FUCHSIA}${INSTALLER_INSTALL_NAME} ${YELLOW}${K8S_VERSION}${BLUE}..."
+    INSTALLER_FILE_NAME="${INSTALLER_INSTALL_NAME}-${K8S_VERSION}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}/${INSTALLER_INSTALL_NAME}" "${INSTALLER_DOWNLOAD_FILE}"; then
+        sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}" && \
+            sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_INSTALL_NAME}" "${K8S_VERSION}" "${INSTALLER_DOWNLOAD_FILE}"
+    fi
 fi
 
-if [[ ! -s "/etc/systemd/system/kubelet.service" ]]; then
+if [[ ! -f "/etc/systemd/system/kubelet.service" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}kubelet${BLUE} service..."
     INSTALLER_CHECK_URL="https://api.github.com/repos/kubernetes/release/releases/latest"
     KUBELET_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
@@ -176,8 +219,8 @@ sudo systemctl enable --now kubelet
 
 # Krew is the package manager for kubectl plugins
 # https://github.com/kubernetes-sigs/krew
-colorEcho "${BLUE}Installing ${FUCHSIA}krew${BLUE}..."
 if [[ ! -x "$(command -v kubectl-krew)" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}krew${BLUE}..."
     (
         set -x; cd "$(mktemp -d)" &&
         OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
@@ -206,7 +249,6 @@ INSTALLER_CHECK_URL="https://api.github.com/repos/projectcalico/calico/releases/
 CALICO_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" | jq -r '.tag_name//empty' 2>/dev/null)
 
 INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/projectcalico/calico/releases/download/${CALICO_VERSION}/calicoctl-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
-INSTALLER_DOWNLOAD_FILE="${WORKDIR}/calicoctl"
 
 if [[ -x "$(command -v kubectl-calico)" ]]; then
     INSTALLER_VER_CURRENT=v$(kubectl-calico version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
@@ -217,11 +259,14 @@ fi
 
 if [[ -n "${INSTALLER_DOWNLOAD_URL}" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}calicoctl ${YELLOW}${CALICO_VERSION}${BLUE}..."
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-    curl_download_status=$?
-    if [[ ${curl_download_status} -eq 0 ]]; then
+
+    INSTALLER_FILE_NAME="calicoctl-${CALICO_VERSION}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/kubectl-calico" && sudo chmod +x "${INSTALLER_INSTALL_PATH}/kubectl-calico"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "calicoctl" "${CALICO_VERSION}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 fi
 

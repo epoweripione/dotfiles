@@ -38,15 +38,15 @@ PIP_PACKAGE_NAME="pyfunky"
 if [[ ! -s "$HOME/.local/share/funky/funky.sh" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}funky shell Integrate script${BLUE}..."
 
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/funky.sh"
     INSTALLER_DOWNLOAD_URL="https://raw.githubusercontent.com/bbugyi200/funky/master/scripts/shell/funky.sh"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/funky.sh"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         mkdir -p "$HOME/.local/share/funky" && \
             cp -f "${INSTALLER_DOWNLOAD_FILE}" "$HOME/.local/share/funky/funky.sh"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 fi
 

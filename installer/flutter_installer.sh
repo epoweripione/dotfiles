@@ -160,11 +160,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${INSTALLER_FILE_PATH}" ]]; then
     # INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"
 
     INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_URL##*/}"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-
-    curl_download_status=$?
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         [[ -d "$HOME/flutter" ]] && rm -rf "$HOME/flutter"
 
         if echo "${INSTALLER_DOWNLOAD_FILE}" | grep -q '.tar.xz$'; then
@@ -172,6 +168,9 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${INSTALLER_FILE_PATH}" ]]; then
         elif echo "${INSTALLER_DOWNLOAD_FILE}" | grep -q '.zip$'; then
             unzip -qo "${INSTALLER_DOWNLOAD_FILE}" -d "$HOME"
         fi
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 fi
 

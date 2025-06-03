@@ -82,23 +82,16 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
     colorEcho "${BLUE}  ${ECHO_TYPE} ${FUCHSIA}pacaptr ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/pacaptr.tar.gz"
     INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/rami3l/pacaptr/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         sudo tar -xzf "${INSTALLER_DOWNLOAD_FILE}" -C "${WORKDIR}" && \
             sudo mv "${WORKDIR}/pacaptr" "${INSTALLER_INSTALL_PATH}"
             sudo chmod +x "${INSTALLER_INSTALL_PATH}/pacaptr" && \
             sudo ln -sv "${INSTALLER_INSTALL_PATH}/pacaptr" "/usr/bin/pacman" || true
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 fi

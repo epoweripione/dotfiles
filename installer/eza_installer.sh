@@ -33,20 +33,7 @@ else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-[[ ! -x "$(command -v cargo)" && ! -x "$(command -v brew)" ]] && INSTALLER_IS_INSTALL="no"
-
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
-
-    INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
-    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
-    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
-        INSTALLER_IS_INSTALL="no"
-    fi
-fi
-
-if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
     if ! installPrebuiltBinary "${INSTALLER_INSTALL_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}#${INSTALLER_INSTALL_NAME}*"; then
         installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_INSTALL_NAME}" "cargo"
     fi

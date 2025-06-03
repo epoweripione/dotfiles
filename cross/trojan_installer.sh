@@ -51,21 +51,16 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
     systemctl is-enabled trojan >/dev/null 2>&1 && sudo systemctl stop trojan
 
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/trojan.tar.xz"
-    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/trojan-gfw/trojan/releases/download/v${INSTALLER_VER_REMOTE}/trojan-${INSTALLER_VER_REMOTE}-${OS_INFO_TYPE}-${OS_INFO_ARCH}.tar.xz"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
+    INSTALLER_FILE_NAME="trojan-${INSTALLER_VER_REMOTE}-${OS_INFO_TYPE}-${OS_INFO_ARCH}.tar.xz"
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
+    INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/trojan-gfw/trojan/releases/download/v${INSTALLER_VER_REMOTE}/${INSTALLER_FILE_NAME}"
 
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         sudo tar -xJf "${INSTALLER_DOWNLOAD_FILE}" -C "/srv"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 
     if [[ ! -s "/etc/systemd/system/trojan.service" ]]; then

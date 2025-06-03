@@ -62,22 +62,17 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
     colorEcho "${BLUE}  ${ECHO_TYPE} ${FUCHSIA}pacapt ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/pacapt"
+    INSTALLER_FILE_NAME="pacapt"
+
     INSTALLER_DOWNLOAD_URL="${GITHUB_DOWNLOAD_URL:-https://github.com}/icy/pacapt/raw/ng/pacapt"
-    colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-    sudo curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
 
-    curl_download_status=$?
-    if [[ ${curl_download_status} -gt 0 && -n "${GITHUB_DOWNLOAD_URL}" ]]; then
-        INSTALLER_DOWNLOAD_URL="${INSTALLER_DOWNLOAD_URL//${GITHUB_DOWNLOAD_URL}/https://github.com}"
-        colorEcho "${BLUE}  From ${ORANGE}${INSTALLER_DOWNLOAD_URL}"
-        axel "${AXEL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}" || curl "${CURL_DOWNLOAD_OPTS[@]}" -o "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_DOWNLOAD_URL}"
-        curl_download_status=$?
-    fi
-
-    if [[ ${curl_download_status} -eq 0 ]]; then
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
+    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
         sudo mv -f "${INSTALLER_DOWNLOAD_FILE}" "${PREFIX}/bin/pacapt" && \
             sudo chmod 755 "${PREFIX}/bin/pacapt" && \
             sudo ln -sv "${PREFIX}/bin/pacapt" "${INSTALL_PACMAN_TO}/pacman" || true
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     fi
 fi
