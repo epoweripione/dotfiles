@@ -1255,6 +1255,7 @@ function App_Installer_Save_to_Cache() {
     app_json=$(jq -r "(.[] | select(.name == \"${app_name}\")).addons |= []" <<< "${app_json}")
     for addon_url in "${INSTALLER_ADDON_FILES[@]}"; do
         [[ -z "${addon_url}" ]] && continue
+        ! grep -q '#' <<<"${addon_url}" && continue
         app_json=$(jq -r "(.[] | select(.name == \"${app_name}\")).addons += [\"${addon_url}\"]" <<< "${app_json}")
     done
 
@@ -1284,7 +1285,11 @@ function App_Installer_Save_to_Cache() {
         fi
     done
 
+    # Save JSON to file
     echo "${app_json}" > "${app_info_file}"
+
+    # Replace `$HOME` with `~`
+    sed -i "s|$HOME|~|g" "${app_info_file}"
 
     return 0
 }
