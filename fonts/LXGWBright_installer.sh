@@ -66,6 +66,16 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     done
     # Batch install
     if [[ ${INSTALLER_DOWNLOAD_COUNT} -eq ${#INSTALLER_DOWNLOAD_URLS[@]} ]]; then
+        # Save downloaded file to cache
+        INSTALLER_ALL_DOWNLOAD_URLS=$(IFS=$'\n'; echo "${INSTALLER_DOWNLOAD_URLS[*]}")
+        INSTALLER_ADDON_FILES=()
+        for download_url in "${INSTALLER_DOWNLOAD_URLS[@]}"; do
+            INSTALLER_DOWNLOAD_FILE="$(awk -F"/" '{print $NF}' <<<"${download_url}")"
+            INSTALLER_ADDON_FILES+=("${INSTALLER_DOWNLOAD_FILE%%[?#]*}")
+        done
+        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"
+
+        # Install fonts
         install_fonts=$(find "${WORKDIR}" -type f \( -name "*.ttf" -o -name "*.ttc" \))
         while read -r finded_font; do
             [[ -f "${finded_font}" ]] && sudo mv -f "${finded_font}" "${INSTALLER_INSTALL_PATH}"
