@@ -26,6 +26,10 @@ INSTALLER_GITHUB_REPO="eza-community/eza"
 INSTALLER_ARCHIVE_EXT="zip"
 INSTALLER_INSTALL_NAME="eza"
 
+INSTALLER_ADDON_FILES=(
+    "_eza#https://raw.githubusercontent.com/eza-community/eza/main/completions/zsh/_eza#${INSTALLER_ZSH_FUNCTION_PATH}/_eza"
+)
+
 if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
     INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -v 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
@@ -35,11 +39,11 @@ fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     if ! installPrebuiltBinary "${INSTALLER_INSTALL_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}#${INSTALLER_INSTALL_NAME}*"; then
-        installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_INSTALL_NAME}" "cargo"
+        if installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_INSTALL_NAME}" "cargo"; then
+            curl "${CURL_DOWNLOAD_OPTS[@]}" "https://raw.githubusercontent.com/eza-community/eza/main/completions/zsh/_eza" \
+                | sudo tee "${INSTALLER_ZSH_FUNCTION_PATH}/_eza" >/dev/null
+        fi
     fi
-
-    curl "${CURL_DOWNLOAD_OPTS[@]}" "https://raw.githubusercontent.com/eza-community/eza/main/completions/zsh/_eza" \
-        | sudo tee "${INSTALLER_ZSH_FUNCTION_PATH}/_eza" >/dev/null
 fi
 
 # INSTALLER_ADDON_FILES=(
