@@ -387,6 +387,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "ollama"
         "chatbox-ce"
         "cherry-studio"
+        "cursor"
         "uv"
         "bun"
         ## epower
