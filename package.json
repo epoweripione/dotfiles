@@ -2,12 +2,12 @@
   "dependencies": {
     "html-to-text": "^9.0.5",
     "minimist": "^1.2.8",
-    "puppeteer": "^24.9.0",
+    "puppeteer": "^24.10.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.27.3",
+    "@babel/core": "^7.27.4",
     "@babel/preset-env": "^7.27.2",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
@@ -21,7 +21,7 @@
     "cz-emoji": "^1.3.1",
     "cz-git": "^1.11.1",
     "cz-relax": "^0.2.1",
-    "eslint": "^9.27.0",
+    "eslint": "^9.28.0",
     "husky": "^9.1.7",
     "lodash": "^4.17.21",
     "memfs": "^4.17.2",
