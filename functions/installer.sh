@@ -1191,6 +1191,8 @@ function App_Installer_Save_to_Cache() {
     [[ -z "${app_file}" || ! -f "${app_file}" ]] && return 0
 
     [[ -z "${INSTALLER_DOWNLOAD_CACHE_DIR}" || ! -d "${INSTALLER_DOWNLOAD_CACHE_DIR}" ]] && return 0
+
+    [[ -z "${INSTALLER_ALL_DOWNLOAD_URLS}" && -n "${INSTALLER_DOWNLOAD_URL}" ]] && INSTALLER_ALL_DOWNLOAD_URLS="${INSTALLER_DOWNLOAD_URL}"
     [[ -z "${INSTALLER_ALL_DOWNLOAD_URLS}" ]] && return 0
 
     app_filename=$(basename "${app_file}")
