@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<title>汉字转拼音</title>
+		<!-- https://github.com/ZiQiangWang/zh_CN -->
+		<script type="text/javascript" src="https://unpkg.com/zh_cn/dist/zh_cn.min.js"></script>
+		<style>
+			html {
+				font-size: 16px;
+				line-height: 1.5;
+			}
+
+			#wrap {
+				display: flex;
+				justify-content: space-between;
+				margin: 8px;
+			}
+
+			#hanzi-pinyin .syncScrTxt {
+				font-size: 1.5rem;
+				width: 48%;
+				resize: horizontal;
+				min-width: 20%;
+				height: 70vh;
+			}
+
+			#hanzi-pinyin #inputText {
+				border: 1px solid #a9a9a9;
+				overflow: auto;
+			}
+
+			#hanzi-pinyin #outputText {
+				resize: none;
+				flex: 1;
+			}
+
+			textarea {
+				line-height: 1.5;
+			}
+
+			.infoWrap {
+				display: flex;
+				justify-content: space-evenly;
+			}
+
+			.info {
+				font-size: 1rem;
+				font-weight: bold;
+			}
+
+			#syncScrBtnRender {
+				border: 1px;
+				background: lightgreen;
+				padding: 0.2rem;
+				border-radius: 4px;
+				margin: 0.5rem;
+				display: inline-block;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="hanzi-pinyin"></div>
+		<div>
+            <input type="radio" name="styleOption" value="STYLE_NORMAL">STYLE_NORMAL
+            <input type="radio" name="styleOption" value="STYLE_TONE" checked>STYLE_TONE
+            <input type="radio" name="styleOption" value="STYLE_TONE_NUM">STYLE_TONE_NUM
+            <input type="radio" name="styleOption" value="STYLE_FIRST_LETTER">STYLE_FIRST_LETTER
+			<label for="syncScrBtn" id="syncScrBtnRender">sync scroll</label>
+			<input type="checkbox" id="syncScrBtn" checked style="font-size:1rem" />
+		</div>
+
+		<script>
+			const textInput = '';
+			const htmlInnerHTML =`
+<div class="infoWrap">
+	<span class="info">汉字</span>
+	<span class="info">拼音</span>
+</div>
+<div id="wrap">
+	<textarea id="inputText" class="syncScrTxt"></textarea>
+	<textarea id="outputText" readonly class="syncScrTxt"></textarea>
+</div>
+`;
+		</script>
+
+		<script>
+			window.onload = () => {
+				let syncScrTxt = document.getElementsByClassName('syncScrTxt'),
+					syncScrBtn = document.getElementById('syncScrBtn');
+
+				function fillinputText() {
+					let innerHTML = document.getElementById("hanzi-pinyin");
+					if(innerHTML.innerHTML.trim() === '') innerHTML.innerHTML = htmlInnerHTML;
+
+					let inputText = document.getElementById('inputText');
+					if (inputText.value === '') inputText.value = textInput;
+					inputText.addEventListener('input', afterinputText);
+
+					afterinputText();
+					checkIfBindScr();
+				}
+
+				function afterinputText() {
+					let inputText = document.querySelector('#hanzi-pinyin #inputText'),
+						outputText = document.querySelector('#hanzi-pinyin #outputText');
+					show(inputText, outputText, null);
+				}
+
+				function pinyinStyleChange(src) {
+					let inputText = document.querySelector('#hanzi-pinyin #inputText'),
+						outputText = document.querySelector('#hanzi-pinyin #outputText');
+					show(inputText, outputText, src.value);
+				}
+
+				function syncScroll(ev) {
+					let ele = ev.target;
+					if (!delay) {
+						clearTimeout(timer);
+						delay = true;
+						if (ele.className === 'syncScrTxt') {
+							let scrRatio = ele.scrollTop / ele.scrollHeight;
+							for (let j = 0; j < syncScrTxt.length; j++) {
+								if (syncScrTxt[j] === ele) continue;
+								syncScrTxt[j].scrollTo({
+									top: syncScrTxt[j].scrollHeight * scrRatio,
+								});
+							}
+						}
+						timer = setTimeout(() => {
+							delay = false;
+						}, 30);
+					}
+				}
+
+				function bindScr(syncScrTxt) {
+					for (let i = 0; i < syncScrTxt.length; i++) {
+						let ele = syncScrTxt[i];
+						ele.addEventListener('scroll', syncScroll);
+					}
+				}
+
+				function unbindScr(syncScrTxt) {
+					for (let i = 0; i < syncScrTxt.length; i++) {
+						let ele = syncScrTxt[i];
+						ele.removeEventListener('scroll', syncScroll);
+					}
+				}
+
+				function toggleSyncScroll(ev) {
+					if (ev.target.checked) {
+						bindScr(syncScrTxt);
+					} else {
+						unbindScr(syncScrTxt);
+					}
+				}
+
+				function show(inputText, outputText, outputStyle) {
+                    if (!outputStyle) {
+                        let outputStyles = document.getElementsByName('styleOption');
+                        for (let i = 0; i < outputStyles.length; i++) {
+                            if(outputStyles[i].checked) {
+                                outputStyle = outputStyles[i].value;
+                                break;
+                            }
+                        }
+                    }
+
+                    let hanzi = inputText.value.trim();
+                    let pinyin = [];
+                    if (hanzi) {
+                        pinyin = zh(hanzi, {
+                            style: zh[outputStyle] || zh.STYLE_TONE,
+                        });
+                    }
+
+                    if (pinyin.length > 0) {
+                        // console.log('拼音：', pinyin);
+                        outputText.value = pinyin.join(' ');
+                    }
+				}
+
+				function checkIfBindScr() {
+					let checked = syncScrBtn.checked;
+					if (checked) {
+						bindScr(syncScrTxt);
+					} else {
+						unbindScr(syncScrTxt);
+					}
+				}
+
+                for (let i = 0; i < document.getElementsByName('styleOption').length; i++) {
+                    document.getElementsByName('styleOption')[i].addEventListener('change', function() {
+                        pinyinStyleChange(this);
+                    });
+                }
+
+				syncScrBtn.addEventListener('change', toggleSyncScroll);
+				fillinputText();
+				checkIfBindScr();
+			};
+		</script>
+	</body>
+</html>
