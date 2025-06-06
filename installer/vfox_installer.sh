@@ -25,9 +25,11 @@ INSTALLER_BINARY_NAME="vfox"
 
 INSTALLER_ARCHIVE_EXT="tar.gz"
 
-INSTALLER_ADDON_FILES=(
-    "_vfox#https://raw.githubusercontent.com/version-fox/vfox/main/completions/zsh_autocomplete#${INSTALLER_ZSH_FUNCTION_PATH}/_vfox"
-)
+# INSTALLER_ADDON_FILES=(
+#     "_vfox#https://raw.githubusercontent.com/version-fox/vfox/main/completions/zsh_autocomplete#${INSTALLER_ZSH_FUNCTION_PATH}/_vfox"
+# )
+INSTALLER_ZSH_COMP_FILE="zsh_autocomplete"
+INSTALLER_ZSH_COMP_INSTALL="_vfox"
 
 if installPrebuiltBinary "${INSTALLER_BINARY_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}"; then
     # Hook vfox to Shell
