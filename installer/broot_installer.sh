@@ -19,8 +19,7 @@ fi
 
 App_Installer_Reset
 
-# Broot: A new way to see and navigate directory trees
-# https://github.com/Canop/broot
+# [Broot: A new way to see and navigate directory trees](https://github.com/Canop/broot)
 INSTALLER_APP_NAME="broot"
 INSTALLER_GITHUB_REPO="Canop/broot"
 
@@ -93,7 +92,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -n "${INSTALLER_ARCHIVE_EXEC_DIR}" ]
         FONT_FILE=$(find "${WORKDIR}" -type f -name "vscode.ttf")
         if [[ -s "${FONT_FILE}" ]]; then
             mkdir -p "$HOME/.local/share/fonts" && \
-                cp -f "${FONT_FILE}" "$HOME/.local/share/fonts"
+                mv -f "${FONT_FILE}" "$HOME/.local/share/fonts"
         fi
     else
         colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
@@ -102,7 +101,7 @@ fi
 
 # Shell completion
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v broot)" ]]; then
-    [[ ! -s "$HOME/.config/broot/launcher/bash/br" ]] && broot --install
+    [[ ! -f "$HOME/.config/broot/launcher/bash/br" ]] && broot --install
 
     # if [[ -s "$HOME/.config/broot/conf.hjson" ]]; then
     #     sed -i "s/# icon_theme: vscode/icon_theme: vscode/" "$HOME/.config/broot/conf.hjson"
