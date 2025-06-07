@@ -275,11 +275,17 @@ fi
 
 # docker mirrors
 if [[ "${DOCKER_FIRST_INSTALL}" == "yes" && -x "$(command -v docker)" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    dockerClearMirrors
-    # dockerSetMirrors
-
-    dockerSetProxy
-    # dockerSetContainerProxy
+    # `.dotfiles.env.local`: DOCKER_MIRROR_LIST=(...)
+    if [[ -z "${DOCKER_MIRROR_LIST[*]}" ]]; then
+        # Use proxy server
+        dockerClearMirrors
+        dockerSetProxy
+    else
+        # Use mirrors
+        dockerClearProxy
+        setMirrorDocker
+        dockerSetMirrors
+    fi
 fi
 
 cd "${CURRENT_DIR}" || exit
