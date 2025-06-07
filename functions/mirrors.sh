@@ -118,12 +118,6 @@ function setMirrorNodejs() {
         unset ELECTRON_BUILDER_BINARIES_MIRROR
         unset ELECTRON_MIRROR
         unset NODEJS_ORG_MIRROR
-        unset npm_config_better_sqlite3_binary_host
-        unset npm_config_gl_binary_host
-        unset npm_config_keytar_binary_host
-        unset npm_config_robotjs_binary_host
-        unset npm_config_sharp_binary_host
-        unset npm_config_sharp_libvips_binary_host
         unset NVM_NODEJS_ORG_MIRROR
         unset NWJS_URLBASE
         unset OPERADRIVER_CDNURL
@@ -140,6 +134,13 @@ function setMirrorNodejs() {
         unset SAUCECTL_INSTALL_BINARY_MIRROR
         unset SENTRYCLI_CDNURL
         unset SWC_BINARY_SITE
+        # binary_host
+        unset better_sqlite3_binary_host
+        unset gl_binary_host
+        unset keytar_binary_host
+        unset robotjs_binary_host
+        unset sharp_binary_host
+        unset sharp_libvips_binary_host
     fi
 
     if [[ "${MIRROR_NODEJS_REGISTRY}" == "https://registry.npmmirror.com" ]]; then
@@ -150,12 +151,6 @@ function setMirrorNodejs() {
         export ELECTRON_BUILDER_BINARIES_MIRROR='https://cdn.npmmirror.com/binaries/electron-builder-binaries/'
         export ELECTRON_MIRROR='https://cdn.npmmirror.com/binaries/electron/'
         export NODEJS_ORG_MIRROR='https://cdn.npmmirror.com/binaries/node'
-        export npm_config_better_sqlite3_binary_host='https://cdn.npmmirror.com/binaries/better-sqlite3'
-        export npm_config_gl_binary_host='https://cdn.npmmirror.com/binaries/gl'
-        export npm_config_keytar_binary_host='https://cdn.npmmirror.com/binaries/keytar'
-        export npm_config_robotjs_binary_host='https://cdn.npmmirror.com/binaries/robotjs'
-        export npm_config_sharp_binary_host='https://cdn.npmmirror.com/binaries/sharp'
-        export npm_config_sharp_libvips_binary_host='https://cdn.npmmirror.com/binaries/sharp-libvips'
         export NVM_NODEJS_ORG_MIRROR='https://cdn.npmmirror.com/binaries/node'
         export NWJS_URLBASE='https://cdn.npmmirror.com/binaries/nwjs/v'
         export OPERADRIVER_CDNURL='https://cdn.npmmirror.com/binaries/operadriver'
@@ -172,6 +167,13 @@ function setMirrorNodejs() {
         export SAUCECTL_INSTALL_BINARY_MIRROR='https://cdn.npmmirror.com/binaries/saucectl'
         export SENTRYCLI_CDNURL='https://cdn.npmmirror.com/binaries/sentry-cli'
         export SWC_BINARY_SITE='https://cdn.npmmirror.com/binaries/node-swc'
+        # binary_host
+        export better_sqlite3_binary_host='https://cdn.npmmirror.com/binaries/better-sqlite3'
+        export gl_binary_host='https://cdn.npmmirror.com/binaries/gl'
+        export keytar_binary_host='https://cdn.npmmirror.com/binaries/keytar'
+        export robotjs_binary_host='https://cdn.npmmirror.com/binaries/robotjs'
+        export sharp_binary_host='https://cdn.npmmirror.com/binaries/sharp'
+        export sharp_libvips_binary_host='https://cdn.npmmirror.com/binaries/sharp-libvips'
     fi
 }
 
@@ -373,12 +375,6 @@ function unsetMirrorAll() {
     unset ELECTRON_BUILDER_BINARIES_MIRROR
     unset ELECTRON_MIRROR
     unset NODEJS_ORG_MIRROR
-    unset npm_config_better_sqlite3_binary_host
-    unset npm_config_gl_binary_host
-    unset npm_config_keytar_binary_host
-    unset npm_config_robotjs_binary_host
-    unset npm_config_sharp_binary_host
-    unset npm_config_sharp_libvips_binary_host
     unset NVM_NODEJS_ORG_MIRROR
     unset NWJS_URLBASE
     unset OPERADRIVER_CDNURL
@@ -395,6 +391,13 @@ function unsetMirrorAll() {
     unset SAUCECTL_INSTALL_BINARY_MIRROR
     unset SENTRYCLI_CDNURL
     unset SWC_BINARY_SITE
+    # binary_host
+    unset better_sqlite3_binary_host
+    unset gl_binary_host
+    unset keytar_binary_host
+    unset robotjs_binary_host
+    unset sharp_binary_host
+    unset sharp_libvips_binary_host
     # npm config
     if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]]; then
         "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" RESET

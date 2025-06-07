@@ -67,12 +67,6 @@ if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
     unset ELECTRON_BUILDER_BINARIES_MIRROR
     unset ELECTRON_MIRROR
     unset NODEJS_ORG_MIRROR
-    unset npm_config_better_sqlite3_binary_host
-    unset npm_config_gl_binary_host
-    unset npm_config_keytar_binary_host
-    unset npm_config_robotjs_binary_host
-    unset npm_config_sharp_binary_host
-    unset npm_config_sharp_libvips_binary_host
     unset NVM_NODEJS_ORG_MIRROR
     unset NWJS_URLBASE
     unset OPERADRIVER_CDNURL
@@ -89,6 +83,13 @@ if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
     unset SAUCECTL_INSTALL_BINARY_MIRROR
     unset SENTRYCLI_CDNURL
     unset SWC_BINARY_SITE
+    # binary_host
+    unset better_sqlite3_binary_host
+    unset gl_binary_host
+    unset keytar_binary_host
+    unset robotjs_binary_host
+    unset sharp_binary_host
+    unset sharp_libvips_binary_host
 fi
 
 

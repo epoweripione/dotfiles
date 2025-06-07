@@ -36,12 +36,6 @@ if (($ConfigAction -eq "AUTO") -and $UseMirror) {
     [System.Environment]::SetEnvironmentVariable("ELECTRON_BUILDER_BINARIES_MIRROR", 'https://cdn.npmmirror.com/binaries/electron-builder-binaries/', 'User')
     [System.Environment]::SetEnvironmentVariable("ELECTRON_MIRROR", 'https://cdn.npmmirror.com/binaries/electron/', 'User')
     [System.Environment]::SetEnvironmentVariable("NODEJS_ORG_MIRROR", 'https://cdn.npmmirror.com/binaries/node', 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_better_sqlite3_binary_host", 'https://cdn.npmmirror.com/binaries/better-sqlite3', 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_gl_binary_host", 'https://cdn.npmmirror.com/binaries/gl', 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_keytar_binary_host", 'https://cdn.npmmirror.com/binaries/keytar', 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_robotjs_binary_host", 'https://cdn.npmmirror.com/binaries/robotjs', 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_sharp_binary_host", 'https://cdn.npmmirror.com/binaries/sharp', 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_sharp_libvips_binary_host", 'https://cdn.npmmirror.com/binaries/sharp-libvips', 'User')
     [System.Environment]::SetEnvironmentVariable("NVM_NODEJS_ORG_MIRROR", 'https://cdn.npmmirror.com/binaries/node', 'User')
     [System.Environment]::SetEnvironmentVariable("NWJS_URLBASE", 'https://cdn.npmmirror.com/binaries/nwjs/v', 'User')
     [System.Environment]::SetEnvironmentVariable("OPERADRIVER_CDNURL", 'https://cdn.npmmirror.com/binaries/operadriver', 'User')
@@ -58,6 +52,13 @@ if (($ConfigAction -eq "AUTO") -and $UseMirror) {
     [System.Environment]::SetEnvironmentVariable("SAUCECTL_INSTALL_BINARY_MIRROR", 'https://cdn.npmmirror.com/binaries/saucectl', 'User')
     [System.Environment]::SetEnvironmentVariable("SENTRYCLI_CDNURL", 'https://cdn.npmmirror.com/binaries/sentry-cli', 'User')
     [System.Environment]::SetEnvironmentVariable("SWC_BINARY_SITE", 'https://cdn.npmmirror.com/binaries/node-swc', 'User')
+    # binary_host
+    [System.Environment]::SetEnvironmentVariable("better_sqlite3_binary_host", 'https://cdn.npmmirror.com/binaries/better-sqlite3', 'User')
+    [System.Environment]::SetEnvironmentVariable("gl_binary_host", 'https://cdn.npmmirror.com/binaries/gl', 'User')
+    [System.Environment]::SetEnvironmentVariable("keytar_binary_host", 'https://cdn.npmmirror.com/binaries/keytar', 'User')
+    [System.Environment]::SetEnvironmentVariable("robotjs_binary_host", 'https://cdn.npmmirror.com/binaries/robotjs', 'User')
+    [System.Environment]::SetEnvironmentVariable("sharp_binary_host", 'https://cdn.npmmirror.com/binaries/sharp', 'User')
+    [System.Environment]::SetEnvironmentVariable("sharp_libvips_binary_host", 'https://cdn.npmmirror.com/binaries/sharp-libvips', 'User')
 }
 
 if ($ConfigAction -eq "RESET") {
@@ -81,12 +82,6 @@ if ($ConfigAction -eq "RESET") {
     [System.Environment]::SetEnvironmentVariable("ELECTRON_BUILDER_BINARIES_MIRROR", [NullString]::Value, 'User')
     [System.Environment]::SetEnvironmentVariable("ELECTRON_MIRROR", [NullString]::Value, 'User')
     [System.Environment]::SetEnvironmentVariable("NODEJS_ORG_MIRROR", [NullString]::Value, 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_better_sqlite3_binary_host", [NullString]::Value, 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_gl_binary_host", [NullString]::Value, 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_keytar_binary_host", [NullString]::Value, 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_robotjs_binary_host", [NullString]::Value, 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_sharp_binary_host", [NullString]::Value, 'User')
-    [System.Environment]::SetEnvironmentVariable("npm_config_sharp_libvips_binary_host", [NullString]::Value, 'User')
     [System.Environment]::SetEnvironmentVariable("NVM_NODEJS_ORG_MIRROR", [NullString]::Value, 'User')
     [System.Environment]::SetEnvironmentVariable("NWJS_URLBASE", [NullString]::Value, 'User')
     [System.Environment]::SetEnvironmentVariable("OPERADRIVER_CDNURL", [NullString]::Value, 'User')
@@ -103,6 +98,13 @@ if ($ConfigAction -eq "RESET") {
     [System.Environment]::SetEnvironmentVariable("SAUCECTL_INSTALL_BINARY_MIRROR", [NullString]::Value, 'User')
     [System.Environment]::SetEnvironmentVariable("SENTRYCLI_CDNURL", [NullString]::Value, 'User')
     [System.Environment]::SetEnvironmentVariable("SWC_BINARY_SITE", [NullString]::Value, 'User')
+    # binary_host
+    [System.Environment]::SetEnvironmentVariable("better_sqlite3_binary_host", [NullString]::Value, 'User')
+    [System.Environment]::SetEnvironmentVariable("gl_binary_host", [NullString]::Value, 'User')
+    [System.Environment]::SetEnvironmentVariable("keytar_binary_host", [NullString]::Value, 'User')
+    [System.Environment]::SetEnvironmentVariable("robotjs_binary_host", [NullString]::Value, 'User')
+    [System.Environment]::SetEnvironmentVariable("sharp_binary_host", [NullString]::Value, 'User')
+    [System.Environment]::SetEnvironmentVariable("sharp_libvips_binary_host", [NullString]::Value, 'User')
 }
 
 npm config list
