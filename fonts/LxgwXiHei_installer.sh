@@ -24,6 +24,8 @@ INSTALLER_APP_NAME="LXGW XiHei/霞鶩晰黑/LXGW 晰ゴシック"
 INSTALLER_GITHUB_REPO="lxgw/LxgwXiHei"
 INSTALLER_INSTALL_NAME="LxgwXiHei"
 
+INSTALLER_MATCH_PATTERN="LXGWXiHei*"
+
 INSTALLER_INSTALL_PATH="/usr/share/fonts/${INSTALLER_INSTALL_NAME}"
 INSTALLER_VER_FILE="${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}.version"
 
@@ -75,7 +77,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"
 
         # Install fonts
-        install_fonts=$(find "${WORKDIR}" -type f \( -name "*.ttf" -o -name "*.ttc" \))
+        install_fonts=$(find "${WORKDIR}" -type f -iname "${INSTALLER_MATCH_PATTERN}" -a \( -name "*.ttf" -o -name "*.ttc" \))
         while read -r finded_font; do
             [[ -f "${finded_font}" ]] && sudo mv -f "${finded_font}" "${INSTALLER_INSTALL_PATH}"
         done <<<"${install_fonts}"
