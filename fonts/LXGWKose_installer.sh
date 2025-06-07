@@ -55,8 +55,8 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     [[ ! -d "${INSTALLER_INSTALL_PATH}" ]] && sudo mkdir -p "${INSTALLER_INSTALL_PATH}"
     # Batch download
     INSTALLER_DOWNLOAD_URLS=(
-        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/XiaolaiSC-Regular.ttf"
-        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/XiaolaiMonoSC-Regular.ttf"
+        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/Xiaolai-Regular.ttf"
+        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/XiaolaiMono-Regular.ttf"
     )
     INSTALLER_DOWNLOAD_COUNT=0
     for download_url in "${INSTALLER_DOWNLOAD_URLS[@]}"; do
@@ -84,6 +84,10 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
         sudo chmod -R 744 "${INSTALLER_INSTALL_PATH}"
         echo "${INSTALLER_VER_REMOTE}" | sudo tee "${INSTALLER_VER_FILE}" >/dev/null
+
+        # Delete old files
+        sudo test -f "${INSTALLER_INSTALL_PATH}/XiaolaiSC-Regular.ttf" && sudo rm -f "${INSTALLER_INSTALL_PATH}/XiaolaiSC-Regular.ttf"
+        sudo test -f "${INSTALLER_INSTALL_PATH}/XiaolaiMonoSC-Regular.ttf" && sudo rm -f "${INSTALLER_INSTALL_PATH}/XiaolaiMonoSC-Regular.ttf"
 
         # update font cache
         colorEcho "${BLUE}  Updating ${FUCHSIA}fontconfig cache${BLUE}..."
