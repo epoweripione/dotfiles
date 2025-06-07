@@ -38,23 +38,14 @@ CONFIG_ACTION=${1:-"AUTO"}
 
 # Change npm registry to npmmirror
 if [[ "${CONFIG_ACTION}" == "AUTO" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    colorEcho "${BLUE}Change npm registry to npmmirror.com..."
-    npm config set registry "${MIRROR_NODEJS_REGISTRY:-"https://registry.npmmirror.com"}"
+    setMirrorNodejs
 
-    # echo "disturl=${MIRROR_NODEJS_DISTURL:-"https://npmmirror.com/dist"}" >> "$HOME/.npmrc" # node-gyp
-    # echo "sass_binary_site=${MIRROR_NODEJS_SASS_BINARY_SITE:-"https://npmmirror.com/mirrors/node-sass"}" >> "$HOME/.npmrc" # node-sass
-    # echo "electron_mirror=${MIRROR_NODEJS_ELECTRON_MIRROR:-"https://npmmirror.com/mirrors/electron/"}" >> "$HOME/.npmrc" # electron
-    # # echo "puppeteer_download_host=${MIRROR_NODEJS_PUPPETEER_DOWNLOAD_HOST:-"https://npmmirror.com/mirrors"}" >> "$HOME/.npmrc" # puppeteer
-    # echo "puppeteer_download_base_url=${MIRROR_NODEJS_PUPPETEER_DOWNLOAD_BASE_URL:-"https://cdn.npmmirror.com/binaries/chrome-for-testing"}" >> "$HOME/.npmrc" # puppeteer
-    # echo "chromedriver_cdnurl=${MIRROR_NODEJS_CHROMEDRIVER_CDNURL:-"https://npmmirror.com/mirrors/chromedriver"}" >> "$HOME/.npmrc" # chromedriver
-    # echo "operadriver_cdnurl=${MIRROR_NODEJS_OPERADRIVER_CDNURL:-"https://npmmirror.com/mirrors/operadriver"}" >> "$HOME/.npmrc" # operadriver
-    # echo "phantomjs_cdnurl=${MIRROR_NODEJS_PHANTOMJS_CDNURL:-"https://npmmirror.com/mirrors/phantomjs"}" >> "$HOME/.npmrc" # phantomjs
-    # echo "selenium_cdnurl=${MIRROR_NODEJS_SELENIUM_CDNURL:-"https://npmmirror.com/mirrors/selenium"}" >> "$HOME/.npmrc" # selenium
-    # echo "node_inspector_cdnurl=${MIRROR_NODEJS_NODE_INSPECTOR_CDNURL:-"https://npmmirror.com/mirrors/node-inspector"}" >> "$HOME/.npmrc" # node-inspector
+    colorEcho "${BLUE}Change npm registry to ${FUCHSIA}${MIRROR_NODEJS_REGISTRY:-"https://registry.npmmirror.com"}${BLUE}..."
+    npm config set registry "${MIRROR_NODEJS_REGISTRY:-"https://registry.npmmirror.com"}"
 fi
 
 if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
-    colorEcho "${BLUE}Reset npm registry (npmjs.org)..."
+    colorEcho "${BLUE}Reset npm registry to ${FUCHSIA} https://registry.npmjs.org${BLUE}..."
     npm config set registry https://registry.npmjs.org/
 
     npm config delete disturl
@@ -66,6 +57,38 @@ if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
     npm config delete phantomjs_cdnurl
     npm config delete selenium_cdnurl
     npm config delete node_inspector_cdnurl
+
+    unset MIRROR_NODEJS_REGISTRY
+
+    unset CHROMEDRIVER_CDNURL
+    unset COREPACK_NPM_REGISTRY
+    unset CYPRESS_DOWNLOAD_PATH_TEMPLATE
+    unset EDGEDRIVER_CDNURL
+    unset ELECTRON_BUILDER_BINARIES_MIRROR
+    unset ELECTRON_MIRROR
+    unset NODEJS_ORG_MIRROR
+    unset npm_config_better_sqlite3_binary_host
+    unset npm_config_gl_binary_host
+    unset npm_config_keytar_binary_host
+    unset npm_config_robotjs_binary_host
+    unset npm_config_sharp_binary_host
+    unset npm_config_sharp_libvips_binary_host
+    unset NVM_NODEJS_ORG_MIRROR
+    unset NWJS_URLBASE
+    unset OPERADRIVER_CDNURL
+    unset PHANTOMJS_CDNURL
+    unset PLAYWRIGHT_DOWNLOAD_HOST
+    unset PRISMA_ENGINES_MIRROR
+    unset PUPPETEER_CHROME_DOWNLOAD_BASE_URL
+    unset PUPPETEER_CHROME_HEADLESS_SHELL_DOWNLOAD_BASE_URL
+    unset PUPPETEER_DOWNLOAD_BASE_URL
+    unset PUPPETEER_DOWNLOAD_HOST
+    unset RE2_DOWNLOAD_MIRROR
+    unset RE2_DOWNLOAD_SKIP_PATH
+    unset SASS_BINARY_SITE
+    unset SAUCECTL_INSTALL_BINARY_MIRROR
+    unset SENTRYCLI_CDNURL
+    unset SWC_BINARY_SITE
 fi
 
 
@@ -83,36 +106,6 @@ if [[ -x "$(command -v pnpm)" ]]; then
         mkdir -p "$HOME/.pnpm-store"
         pnpm config set store-dir "$HOME/.pnpm-store"
     fi
-
-    # if [[ "${CONFIG_ACTION}" == "AUTO" && "${THE_WORLD_BLOCKED}" == "true" ]]; then
-    #     colorEcho "${BLUE}Change pnpm registry to npmmirror.com..."
-    #     pnpm config set registry https://registry.npmmirror.com
-
-    #     pnpm config set disturl https://npmmirror.com/dist # node-gyp
-    #     pnpm config set sass_binary_site https://npmmirror.com/mirrors/node-sass # node-sass
-    #     pnpm config set electron_mirror https://npmmirror.com/mirrors/electron/ # electron
-    #     pnpm config set puppeteer_download_base_url https://cdn.npmmirror.com/binaries/chrome-for-testing # puppeteer
-    #     pnpm config set chromedriver_cdnurl https://npmmirror.com/mirrors/chromedriver # chromedriver
-    #     pnpm config set operadriver_cdnurl https://npmmirror.com/mirrors/operadriver # operadriver
-    #     pnpm config set phantomjs_cdnurl https://npmmirror.com/mirrors/phantomjs # phantomjs
-    #     pnpm config set selenium_cdnurl https://npmmirror.com/mirrors/selenium # selenium
-    #     pnpm config set node_inspector_cdnurl https://npmmirror.com/mirrors/node-inspector # node-inspector
-    # fi
-
-    # if [[ "${CONFIG_ACTION}" == "RESET" ]]; then
-    #     colorEcho "${BLUE}Reset pnpm registry (npmjs.org)..."
-    #     pnpm config set registry https://registry.npmjs.org/
-
-    #     pnpm config delete disturl
-    #     pnpm config delete sass_binary_site
-    #     pnpm config delete electron_mirror
-    #     pnpm config delete puppeteer_download_base_url
-    #     pnpm config delete chromedriver_cdnurl
-    #     pnpm config delete operadriver_cdnurl
-    #     pnpm config delete phantomjs_cdnurl
-    #     pnpm config delete selenium_cdnurl
-    #     pnpm config delete node_inspector_cdnurl
-    # fi
 fi
 
 

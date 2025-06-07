@@ -108,6 +108,71 @@ function setMirrorNodejs() {
         export NVS_NODEJS_ORG_MIRROR=${NVS_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"}
         nvs remote node "${NVS_NODEJS_ORG_MIRROR}"
     fi
+
+    # [NPM Binary mirror](https://github.com/cnpm/binary-mirror-config/blob/master/package.json)
+    if [[ -z "${MIRROR_NODEJS_REGISTRY}" ]]; then
+        unset CHROMEDRIVER_CDNURL
+        unset COREPACK_NPM_REGISTRY
+        unset CYPRESS_DOWNLOAD_PATH_TEMPLATE
+        unset EDGEDRIVER_CDNURL
+        unset ELECTRON_BUILDER_BINARIES_MIRROR
+        unset ELECTRON_MIRROR
+        unset NODEJS_ORG_MIRROR
+        unset npm_config_better_sqlite3_binary_host
+        unset npm_config_gl_binary_host
+        unset npm_config_keytar_binary_host
+        unset npm_config_robotjs_binary_host
+        unset npm_config_sharp_binary_host
+        unset npm_config_sharp_libvips_binary_host
+        unset NVM_NODEJS_ORG_MIRROR
+        unset NWJS_URLBASE
+        unset OPERADRIVER_CDNURL
+        unset PHANTOMJS_CDNURL
+        unset PLAYWRIGHT_DOWNLOAD_HOST
+        unset PRISMA_ENGINES_MIRROR
+        unset PUPPETEER_CHROME_DOWNLOAD_BASE_URL
+        unset PUPPETEER_CHROME_HEADLESS_SHELL_DOWNLOAD_BASE_URL
+        unset PUPPETEER_DOWNLOAD_BASE_URL
+        unset PUPPETEER_DOWNLOAD_HOST
+        unset RE2_DOWNLOAD_MIRROR
+        unset RE2_DOWNLOAD_SKIP_PATH
+        unset SASS_BINARY_SITE
+        unset SAUCECTL_INSTALL_BINARY_MIRROR
+        unset SENTRYCLI_CDNURL
+        unset SWC_BINARY_SITE
+    fi
+
+    if [[ "${MIRROR_NODEJS_REGISTRY}" == "https://registry.npmmirror.com" ]]; then
+        export CHROMEDRIVER_CDNURL='https://cdn.npmmirror.com/binaries/chromedriver'
+        export COREPACK_NPM_REGISTRY='https://registry.npmmirror.com'
+        export CYPRESS_DOWNLOAD_PATH_TEMPLATE='https://cdn.npmmirror.com/binaries/cypress/${version}/${platform}-${arch}/cypress.zip'
+        export EDGEDRIVER_CDNURL='https://npmmirror.com/mirrors/edgedriver'
+        export ELECTRON_BUILDER_BINARIES_MIRROR='https://cdn.npmmirror.com/binaries/electron-builder-binaries/'
+        export ELECTRON_MIRROR='https://cdn.npmmirror.com/binaries/electron/'
+        export NODEJS_ORG_MIRROR='https://cdn.npmmirror.com/binaries/node'
+        export npm_config_better_sqlite3_binary_host='https://cdn.npmmirror.com/binaries/better-sqlite3'
+        export npm_config_gl_binary_host='https://cdn.npmmirror.com/binaries/gl'
+        export npm_config_keytar_binary_host='https://cdn.npmmirror.com/binaries/keytar'
+        export npm_config_robotjs_binary_host='https://cdn.npmmirror.com/binaries/robotjs'
+        export npm_config_sharp_binary_host='https://cdn.npmmirror.com/binaries/sharp'
+        export npm_config_sharp_libvips_binary_host='https://cdn.npmmirror.com/binaries/sharp-libvips'
+        export NVM_NODEJS_ORG_MIRROR='https://cdn.npmmirror.com/binaries/node'
+        export NWJS_URLBASE='https://cdn.npmmirror.com/binaries/nwjs/v'
+        export OPERADRIVER_CDNURL='https://cdn.npmmirror.com/binaries/operadriver'
+        export PHANTOMJS_CDNURL='https://cdn.npmmirror.com/binaries/phantomjs'
+        export PLAYWRIGHT_DOWNLOAD_HOST='https://cdn.npmmirror.com/binaries/playwright'
+        export PRISMA_ENGINES_MIRROR='https://cdn.npmmirror.com/binaries/prisma'
+        export PUPPETEER_CHROME_DOWNLOAD_BASE_URL='https://cdn.npmmirror.com/binaries/chrome-for-testing'
+        export PUPPETEER_CHROME_HEADLESS_SHELL_DOWNLOAD_BASE_URL='https://cdn.npmmirror.com/binaries/chrome-for-testing'
+        export PUPPETEER_DOWNLOAD_BASE_URL='https://cdn.npmmirror.com/binaries/chrome-for-testing'
+        export PUPPETEER_DOWNLOAD_HOST='https://cdn.npmmirror.com/binaries/chrome-for-testing'
+        export RE2_DOWNLOAD_MIRROR='https://cdn.npmmirror.com/binaries/node-re2'
+        export RE2_DOWNLOAD_SKIP_PATH='true'
+        export SASS_BINARY_SITE='https://cdn.npmmirror.com/binaries/node-sass'
+        export SAUCECTL_INSTALL_BINARY_MIRROR='https://cdn.npmmirror.com/binaries/saucectl'
+        export SENTRYCLI_CDNURL='https://cdn.npmmirror.com/binaries/sentry-cli'
+        export SWC_BINARY_SITE='https://cdn.npmmirror.com/binaries/node-swc'
+    fi
 }
 
 # nodejs: nodejs/nvm_node_installer.sh, nodejs/nvs_node_installer.sh
@@ -298,17 +363,39 @@ function unsetMirrorAll() {
     unset RUBY_GEM_SOURCE_MIRROR
     # nodejs
     unset MIRROR_NODEJS_REGISTRY
-    unset MIRROR_NODEJS_DISTURL
-    unset MIRROR_NODEJS_SASS_BINARY_SITE
-    unset MIRROR_NODEJS_ELECTRON_MIRROR
-    unset MIRROR_NODEJS_PUPPETEER_DOWNLOAD_BASE_URL
-    unset MIRROR_NODEJS_CHROMEDRIVER_CDNURL
-    unset MIRROR_NODEJS_OPERADRIVER_CDNURL
-    unset MIRROR_NODEJS_PHANTOMJS_CDNURL
-    unset MIRROR_NODEJS_SELENIUM_CDNURL
-    unset MIRROR_NODEJS_NODE_INSPECTOR_CDNURL
     unset NVM_NODEJS_ORG_MIRROR
     unset NVS_NODEJS_ORG_MIRROR
+    # NPM Binary mirror
+    unset CHROMEDRIVER_CDNURL
+    unset COREPACK_NPM_REGISTRY
+    unset CYPRESS_DOWNLOAD_PATH_TEMPLATE
+    unset EDGEDRIVER_CDNURL
+    unset ELECTRON_BUILDER_BINARIES_MIRROR
+    unset ELECTRON_MIRROR
+    unset NODEJS_ORG_MIRROR
+    unset npm_config_better_sqlite3_binary_host
+    unset npm_config_gl_binary_host
+    unset npm_config_keytar_binary_host
+    unset npm_config_robotjs_binary_host
+    unset npm_config_sharp_binary_host
+    unset npm_config_sharp_libvips_binary_host
+    unset NVM_NODEJS_ORG_MIRROR
+    unset NWJS_URLBASE
+    unset OPERADRIVER_CDNURL
+    unset PHANTOMJS_CDNURL
+    unset PLAYWRIGHT_DOWNLOAD_HOST
+    unset PRISMA_ENGINES_MIRROR
+    unset PUPPETEER_CHROME_DOWNLOAD_BASE_URL
+    unset PUPPETEER_CHROME_HEADLESS_SHELL_DOWNLOAD_BASE_URL
+    unset PUPPETEER_DOWNLOAD_BASE_URL
+    unset PUPPETEER_DOWNLOAD_HOST
+    unset RE2_DOWNLOAD_MIRROR
+    unset RE2_DOWNLOAD_SKIP_PATH
+    unset SASS_BINARY_SITE
+    unset SAUCECTL_INSTALL_BINARY_MIRROR
+    unset SENTRYCLI_CDNURL
+    unset SWC_BINARY_SITE
+    # npm config
     if [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]]; then
         "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" RESET
     fi
