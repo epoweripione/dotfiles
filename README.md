@@ -93,9 +93,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
       - [https://mirrors.ustc.edu.cn/homebrew-core.git](https://mirrors.ustc.edu.cn/homebrew-core.git)
       - [https://mirrors.ustc.edu.cn/homebrew-cask.git](https://mirrors.ustc.edu.cn/homebrew-cask.git)
     + [Docker Registry](/installer/docker_installer.sh)
-      - [https://docker.mirrors.sjtug.sjtu.edu.cn](https://docker.mirrors.sjtug.sjtu.edu.cn)
-      - [https://docker.nju.edu.cn/](https://docker.nju.edu.cn/)
-      - [https://hub-mirror.c.163.com](https://hub-mirror.c.163.com)
+      - DOCKER_MIRROR_LIST=(...)
     + [Nodejs](/nodejs/nvm_node_installer.sh)
       - [https://npmmirror.com/](https://npmmirror.com/)
     + [Go](/installer/goup_go_installer.sh)
@@ -235,17 +233,6 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 
     # nodejs
     MIRROR_NODEJS_REGISTRY="https://registry.npmmirror.com"
-
-    MIRROR_NODEJS_DISTURL="https://npmmirror.com/dist"
-    MIRROR_NODEJS_SASS_BINARY_SITE="https://npmmirror.com/mirrors/node-sass"
-    MIRROR_NODEJS_ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-    # MIRROR_NODEJS_PUPPETEER_DOWNLOAD_HOST="https://npmmirror.com/mirrors"
-    MIRROR_NODEJS_PUPPETEER_DOWNLOAD_BASE_URL="https://cdn.npmmirror.com/binaries/chrome-for-testing"
-    MIRROR_NODEJS_CHROMEDRIVER_CDNURL="https://npmmirror.com/mirrors/chromedriver"
-    MIRROR_NODEJS_OPERADRIVER_CDNURL="https://npmmirror.com/mirrors/operadriver"
-    MIRROR_NODEJS_PHANTOMJS_CDNURL="https://npmmirror.com/mirrors/phantomjs"
-    MIRROR_NODEJS_SELENIUM_CDNURL="https://npmmirror.com/mirrors/selenium"
-    MIRROR_NODEJS_NODE_INSPECTOR_CDNURL="https://npmmirror.com/mirrors/node-inspector"
 
     # nvm
     NVM_NODEJS_ORG_MIRROR="https://npmmirror.com/mirrors/node"
