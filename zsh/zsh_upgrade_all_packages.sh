@@ -154,6 +154,16 @@ if [[ -x "$(command -v cargo-binstall)" ]]; then
     [[ -f "${AppInstaller}" ]] && source "${AppInstaller}"
 fi
 
+if [[ -x "$(command -v cargo-install-update)" ]]; then
+    colorEcho "${BLUE}Updating installed binary by ${FUCHSIA}Rust Cargo${BLUE}..."
+    cargo install-update --all
+else
+    if [[ -x "$(command -v cargo-binstall)" ]]; then
+        colorEcho "${BLUE}Updating installed binary by ${FUCHSIA}Rust Cargo${BLUE}..."
+        cargo binstall --no-confirm $(cargo install --list | egrep '^[a-z0-9_-]+ v[0-9.]+:$' | cut -f1 -d' ')
+    fi
+fi
+
 # Always install & update apps
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
