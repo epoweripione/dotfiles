@@ -42,4 +42,11 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     else
         curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
     fi
+
+    if [[ -x "$(command -v cargo-binstall)" ]]; then
+        # [cargo-update: checking and applying updates to installed executables](https://github.com/nabijaczleweli/cargo-update)
+        cargo binstall --no-confirm cargo-update
+        # [cargo-run-bin: Build, cache, and run CLI tools scoped in Cargo.toml rather than installing globally](https://github.com/dustinblackman/cargo-run-bin)
+        cargo binstall --no-confirm cargo-run-bin
+    fi
 fi
