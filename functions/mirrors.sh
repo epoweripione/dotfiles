@@ -74,15 +74,19 @@ function setMirrorFlutter() {
 
 # rustup & cargo
 function setMirrorRust() {
+    local cargoConfig
+
     export RUSTUP_DIST_SERVER=${RUSTUP_DIST_SERVER:-"https://rsproxy.cn"}
     export RUSTUP_UPDATE_ROOT=${RUSTUP_UPDATE_ROOT:-"https://rsproxy.cn/rustup"}
 
     # cargo
+    [[ -n "${CARGO_HOME}" ]] && cargoConfig="${CARGO_HOME}/config.toml" || cargoConfig="$HOME/.cargo/config.toml"
+
     MIRROR_RUST_CARGO=${MIRROR_RUST_CARGO:-"rsproxy-sparse"}
-    if [[ ! -s "$HOME/.cargo/config.toml" ]]; then
-        mkdir -p "$HOME/.cargo"
-        cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/cargo.toml" "$HOME/.cargo/config.toml"
-        sed -i -e "s|'crates-io-sparse'|'${MIRROR_RUST_CARGO}'|g" -e "s|# replace-with|replace-with|g" "$HOME/.cargo/config.toml"
+    if [[ ! -f "${cargoConfig}" ]]; then
+        mkdir -p "$(dirname "${cargoConfig}")"
+        cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/cargo.toml" "${cargoConfig}"
+        sed -i -e "s|'crates-io-sparse'|'${MIRROR_RUST_CARGO}'|g" -e "s|# replace-with|replace-with|g" "${cargoConfig}"
     fi
 }
 

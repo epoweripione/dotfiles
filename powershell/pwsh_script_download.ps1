@@ -66,14 +66,17 @@ if ($?) {
     Expand-Archive -Path ".\dotfiles.zip" -DestinationPath .
     Rename-Item -Path ".\dotfiles-main" -NewName ".\dotfiles"
 
+    # Conda
     if (-Not (Test-Path "~\.condarc")) {
         Copy-Item -Path ".\dotfiles\conf\condarc" -Destination "~\.condarc"
     }
 
+    # PIP
     if (-Not (Test-Path "~\.pip")) {
         Copy-Item -Path ".\dotfiles\conf\pip" -Destination "~\.pip"
     }
 
+    # Rust Cargo
     if (-Not (Test-Path "~\.cargo")) {
         New-Item -path "~\.cargo" -type Directory | Out-Null
     }
@@ -83,6 +86,15 @@ if ($?) {
         (Get-Content "~\.cargo\config.toml").Replace("crates-io-sparse","rsproxy-sparse").Replace("# replace-with","replace-with") | Set-Content "~\.cargo\config.toml"
     }
 
+    if (Test-Path "$env:CARGO_HOME") {
+        if (-Not (Test-Path "$env:CARGO_HOME\config.toml")) {
+            Copy-Item -Path ".\dotfiles\conf\cargo.toml" -Destination "$env:CARGO_HOME\config.toml"
+
+            (Get-Content "$env:CARGO_HOME\config.toml").Replace("crates-io-sparse","rsproxy-sparse").Replace("# replace-with","replace-with") | Set-Content "$env:CARGO_HOME\config.toml"
+        }
+    }
+
+    # Custom scripts
     $PWSH_DIR = "~\Documents\PowerShell\Scripts"
     if (-Not (Test-Path "$PWSH_DIR")) {New-Item -path "$PWSH_DIR" -type Directory | Out-Null}
     # Copy-Item -Path ".\dotfiles\powershell\*" -Destination "$PWSH_DIR" -Recurse -Force -Confirm:$false
@@ -91,6 +103,7 @@ if ($?) {
     Copy-Item -Path ".\dotfiles\wsl\windows_terminal_profile.jsonc" -Destination "$PWSH_DIR"
     Copy-Item -Path ".\dotfiles\cross\hosts_accelerate_cn.list" -Destination "$PWSH_DIR"
 
+    # PowerShell themes
     $CONFIG_DIR = "~\.config"
     if (-Not (Test-Path "$CONFIG_DIR")) {
         New-Item -path "$CONFIG_DIR" -type Directory | Out-Null
@@ -106,9 +119,12 @@ if ($?) {
     #     -Replace '"type": "git",','"type": "poshgit",' `
     #     | Set-Content -Path "~\Documents\PowerShell\PoshThemes\powerlevel10k_my.omp.json"
 
+    # WSL background images
     $IMAGE_DIR = "~\Pictures"
     Copy-Item -Path ".\dotfiles\wsl\*.jpg" -Destination "$IMAGE_DIR"
 
+    # Clean up
+    Write-Host "Cleaning up..." -ForegroundColor Blue
     Remove-Item -Path ".\dotfiles" -Recurse -Force -Confirm:$false
     Remove-Item -Path ".\dotfiles.zip" -Force -Confirm:$false
 } else {
