@@ -6,21 +6,21 @@
 function check_os_wsl() {
     local os_wsl
 
-    os_wsl=$(uname -r)
+    os_wsl=$(uname -r 2>/dev/null)
     [[ "${os_wsl}" =~ "WSL" || "${os_wsl}" =~ "microsoft" || "${os_wsl}" =~ "Microsoft" ]] && return 0 || return 1
 }
 
 function check_os_wsl1() {
     local os_wsl
 
-    os_wsl=$(uname -r)
+    os_wsl=$(uname -r 2>/dev/null)
     [[ "${os_wsl}" =~ "Microsoft" ]] && return 0 || return 1
 }
 
 function check_os_wsl2() {
     local os_wsl
 
-    os_wsl=$(uname -r)
+    os_wsl=$(uname -r 2>/dev/null)
     [[ "${os_wsl}" =~ "WSL2" || "${os_wsl}" =~ "microsoft" ]] && return 0 || return 1
 }
 
@@ -38,7 +38,7 @@ function check_os_arch() {
 function get_os_type() {
     local osname ostype
 
-    osname=$(uname)
+    osname=$(uname 2>/dev/null)
     case "$osname" in
         Darwin)
             ostype="darwin"
@@ -61,7 +61,7 @@ function get_os_type() {
 function get_os_release() {
     local osname os_release
 
-    osname=$(uname)
+    osname=$(uname 2>/dev/null)
     case "$osname" in
         Darwin)
             os_release='macos'
@@ -101,7 +101,7 @@ function get_os_release() {
 function get_os_release_type() {
     local osname
 
-    osname=$(uname)
+    osname=$(uname 2>/dev/null)
     case "$osname" in
         Darwin)
             osname='macOS'
@@ -137,7 +137,7 @@ function get_os_release_type() {
 function get_os_desktop() {
     local osdesktop
 
-    [[ -x "$(command -v wmctrl)" ]] && osdesktop=$(wmctrl -m)
+    [[ -x "$(command -v wmctrl)" ]] && osdesktop=$(wmctrl -m 2>/dev/null)
 
     [[ -z "${osdesktop}" ]] && osdesktop=${XDG_CURRENT_DESKTOP}
 
@@ -154,7 +154,7 @@ function get_os_desktop() {
 function get_arch() {
 	local architecture spruce_type
 
-    architecture=$(uname -m)
+    architecture=$(uname -m 2>/dev/null)
 	case "$architecture" in
 		amd64 | x86_64)
 			spruce_type='amd64'
@@ -203,7 +203,7 @@ function get_arch() {
 function get_sysArch() {
 	local architecture VDIS
 
-    architecture=$(uname -m)
+    architecture=$(uname -m 2>/dev/null)
     case "$architecture" in
         amd64 | x86_64)
             VDIS="64"
@@ -323,9 +323,10 @@ function get_cpu_arch_level() {
 }
 
 function get_os_icon() {
-    local OS_ICON OS_RELEASE_ID
+    local osname OS_ICON OS_RELEASE_ID
 
-    case $(uname) in
+    osname=$(uname 2>/dev/null)
+    case "$osname" in
         Darwin)
             OS_ICON=$'\uF179'
             ;;
@@ -488,7 +489,7 @@ function check_release_package_manager() {
     local value=$2
     local release='' systemPackage='' osname
 
-    osname=$(uname)
+    osname=$(uname 2>/dev/null)
     if [[ -f /etc/redhat-release ]]; then
         if grep -Eqi "fedora" /etc/redhat-release 2>/dev/null; then
             release="fedora"
@@ -557,9 +558,9 @@ function get_os_virtualized() {
 
     # systemd-detect-virt --list
     if [[ -x "$(command -v systemd-detect-virt)" ]]; then
-        virtualEnv=$(systemd-detect-virt)
+        virtualEnv=$(systemd-detect-virt 2>/dev/null)
     elif [[ -x "$(command -v hostnamectl)" ]]; then
-        virtualEnv=$(hostnamectl | grep -i 'virtualization' | cut -d':' -f2 | sed 's/\s//g')
+        virtualEnv=$(hostnamectl 2>/dev/null | grep -i 'virtualization' | cut -d':' -f2 | sed 's/\s//g')
     fi
 
     [[ -z "${virtualEnv}" ]] && virtualEnv="none"
@@ -572,9 +573,9 @@ function check_os_virtualized() {
 
     # systemd-detect-virt --list
     if [[ -x "$(command -v systemd-detect-virt)" ]]; then
-        virtualEnv=$(systemd-detect-virt)
+        virtualEnv=$(systemd-detect-virt 2>/dev/null)
     elif [[ -x "$(command -v hostnamectl)" ]]; then
-        virtualEnv=$(hostnamectl | grep -i 'virtualization' | cut -d':' -f2 | sed 's/\s//g')
+        virtualEnv=$(hostnamectl 2>/dev/null | grep -i 'virtualization' | cut -d':' -f2 | sed 's/\s//g')
     fi
 
     [[ -z "${virtualEnv}" ]] && virtualEnv="none"
@@ -588,9 +589,9 @@ function check_wsl_windows_exe() {
     local appPath=$1
     local wslPath
 
-    os_wsl=$(uname -r)
+    os_wsl=$(uname -r 2>/dev/null)
     if check_os_wsl; then
-        wslPath=$(wslpath -w "${appPath}")
+        wslPath=$(wslpath -w "${appPath}" 2>/dev/null)
         # C:\Users\user01\scoop\shims\flutter
         if [[ "${wslPath}" =~ ':\\' ]]; then
             return 0
