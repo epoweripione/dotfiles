@@ -221,15 +221,16 @@ function GitLogPretty {
     git log --graph --pretty='%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all
 }
 
-function UpdateScoop {
+function UpdateInstalledApps {
     # Github mirror
     if (${GITHUB_HUB_URL}) {
         git config --global url."${GITHUB_HUB_URL}/".insteadOf "https://github.com/"
         # git config --global url."${GITHUB_HUB_URL}/".insteadOf "ssh://git@github.com/"
     }
 
-    # update scoop
     $CurrentDir = Get-Location
+
+    # reset scoop repository
     if(!$env:SCOOP_HOME) {
         $env:SCOOP_HOME = Resolve-Path (scoop prefix scoop)
     }
@@ -237,8 +238,18 @@ function UpdateScoop {
 
     Set-Location -Path $ScoopRoot
     git reset --hard | Out-Null
+
+    # reset scoop buckets repository
+    $ScoopBucketPath = "$env:UserProfile\scoop\buckets"
+    $ScoopBuckets = scoop bucket list 6>&1 | Select-Object -ExpandProperty Name
+    foreach ($Bucket in $ScoopBuckets) {
+        Set-Location -Path "${ScoopBucketPath}\${Bucket}"
+        git reset --hard | Out-Null
+    }
+
     Set-Location -Path $CurrentDir
 
+    # update scoop
     scoop update
 
     # reset Github mirror
@@ -278,6 +289,20 @@ function UpdateScoop {
     scoop config aria2-enabled true
     scoop cleanup *
     scoop cleanup * -g
+
+    # pip
+    if (Get-Command -Name "cargo" -ErrorAction SilentlyContinue) {
+        Write-Host
+        Write-Color -Text "Updating pip packages..." -Color Cyan
+        UpdateOutdatedPipPackages
+    }
+
+    # cargo
+    if (Get-Command -Name "cargo" -ErrorAction SilentlyContinue) {
+        Write-Host
+        Write-Color -Text "Updating installed binary by ", "Rust Cargo", "..." -Color Cyan,Magenta,Cyan
+        cargo install-update --all
+    }
 }
 
 function SearchScoopBucket {
@@ -397,7 +422,7 @@ function UpdateOutdatedPipPackages {
     python -m pip install -U pip
 
     # conda
-    if (Get-Command -Name "conda") {
+    if (Get-Command -Name "conda" -ErrorAction SilentlyContinue) {
         conda update -y --all
     }
 
@@ -412,7 +437,7 @@ Set-Alias glola GitLogPretty -option AllScope
 Set-Alias gst GitStat -option AllScope
 Set-Alias myip GetMyIp -option AllScope
 Set-Alias pls PrettyLS -option AllScope
-Set-Alias suu UpdateScoop -option AllScope
+Set-Alias suu UpdateInstalledApps -option AllScope
 Set-Alias ssb SearchScoopBucket -option AllScope
 Set-Alias ums UpdateMyScript -option AllScope
 Set-Alias hosts EditHosts -option AllScope
