@@ -43,7 +43,10 @@ fi
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     if App_Installer_Get_Remote_URL "${INSTALLER_CHECK_URL}" "ncdu-${INSTALLER_VER_REMOTE//./\\.}\.tar\.gz" "ncdu-.*\.tar\.gz"; then
         INSTALLER_DOWNLOAD_URL="https://dev.yorhel.nl/download/${INSTALLER_DOWNLOAD_URL}"
-        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${WORKDIR}/${INSTALLER_APP_NAME}.tar.gz" "${WORKDIR}"; then
+
+        INSTALLER_DOWNLOAD_FILE=$(awk -F"/" '{print $NF}' <<<"${INSTALLER_DOWNLOAD_URL}")
+        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE%%[?#]*}"
+        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
             mv "${WORKDIR}/${INSTALLER_APP_NAME}-"* "${WORKDIR}/${INSTALLER_APP_NAME}"
             [[ -f "${WORKDIR}/${INSTALLER_APP_NAME}/build.zig" ]] && INSTALLER_INSTALL_METHOD="build"
         fi
@@ -76,6 +79,9 @@ if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
             make && \
             sudo install -m0755 zig-out/bin/ncdu "${INSTALLER_INSTALL_PATH}" &&
             sudo install -m0644 ncdu.1 "${INSTALLER_MANPAGE_PATH}/man1"
+
+        # Save downloaded file to cache
+        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
     else
         INSTALLER_INSTALL_METHOD="no"
     fi

@@ -133,8 +133,9 @@ if [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
         InstallSystemPackages "" "${PackagesList[@]}"
     fi
 
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
     if App_Installer_Get_Remote_URL "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" "${INSTALLER_INSTALL_NAME}-.*\.${INSTALLER_ARCHIVE_EXT}"; then
-        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "" "${WORKDIR}"; then
+        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
             # Install
             [[ -n "${INSTALLER_ARCHIVE_EXEC_DIR}" ]] && INSTALLER_ARCHIVE_EXEC_DIR=$(find "${WORKDIR}" -type d -name "${INSTALLER_ARCHIVE_EXEC_DIR}")
             [[ -z "${INSTALLER_ARCHIVE_EXEC_DIR}" || ! -d "${INSTALLER_ARCHIVE_EXEC_DIR}" ]] && INSTALLER_ARCHIVE_EXEC_DIR=${WORKDIR}
@@ -145,6 +146,9 @@ if [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
                     sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
                     sudo ln -sv "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" "/usr/local/bin/nu" || true
             fi
+
+            # Save downloaded file to cache
+            App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
         fi
     fi
 fi

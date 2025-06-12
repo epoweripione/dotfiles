@@ -77,8 +77,9 @@ fi
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
 
+    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_FILE_NAME}"
     if App_Installer_Get_Remote_URL "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" "${INSTALLER_INSTALL_NAME}-.*\.${INSTALLER_ARCHIVE_EXT}"; then
-        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "" "${WORKDIR}"; then
+        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
             # Install
             [[ -n "${INSTALLER_ARCHIVE_EXEC_DIR}" ]] && INSTALLER_ARCHIVE_EXEC_DIR=$(find "${WORKDIR}" -type d -name "${INSTALLER_ARCHIVE_EXEC_DIR}")
             [[ -z "${INSTALLER_ARCHIVE_EXEC_DIR}" || ! -d "${INSTALLER_ARCHIVE_EXEC_DIR}" ]] && INSTALLER_ARCHIVE_EXEC_DIR=${WORKDIR}
@@ -86,6 +87,9 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
             if [[ -d "${INSTALLER_ARCHIVE_EXEC_DIR}" ]]; then
                 cd  "${INSTALLER_ARCHIVE_EXEC_DIR}" && sudo make install && sudo make setuid
             fi
+
+            # Save downloaded file to cache
+            App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
         fi
     fi
 fi

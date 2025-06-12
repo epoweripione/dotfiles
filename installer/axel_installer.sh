@@ -48,13 +48,18 @@ if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
     InstallSystemPackages "" "${PackagesList[@]}"
 
     if App_Installer_Get_Remote_URL "https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest" "axel-.*\.tar\.gz"; then
-        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${WORKDIR}/${INSTALLER_APP_NAME}.tar.gz" "${WORKDIR}"; then
+        INSTALLER_DOWNLOAD_FILE=$(awk -F"/" '{print $NF}' <<<"${INSTALLER_DOWNLOAD_URL}")
+        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE%%[?#]*}"
+        if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
             colorEcho "${BLUE}  Compiling ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
             mv "${WORKDIR}/${INSTALLER_APP_NAME}-"* "${WORKDIR}/${INSTALLER_APP_NAME}" && \
                 cd "${WORKDIR}/${INSTALLER_APP_NAME}" && \
                 ./configure >/dev/null && \
                 make >/dev/null && \
                 sudo make install >/dev/null
+
+            # Save downloaded file to cache
+            App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
         else
             colorEcho "${RED}  Install ${FUCHSIA}${INSTALLER_APP_NAME}${RED} failed!"
         fi
