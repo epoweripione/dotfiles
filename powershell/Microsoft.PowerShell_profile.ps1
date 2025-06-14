@@ -298,7 +298,15 @@ function UpdateInstalledApps {
     }
 
     # cargo
-    if (Get-Command -Name "cargo" -ErrorAction SilentlyContinue) {
+    if (Get-Command -Name "cargo-binstall" -ErrorAction SilentlyContinue) {
+        Write-Host
+        Write-Color -Text "Updating installed binary by ", "Rust Cargo", "..." -Color Cyan,Magenta,Cyan
+        cargo install --list |
+            Select-String -Pattern "^([a-z0-9_-]+)\s+(v[0-9.]+).*:$" |
+            ForEach-Object {
+                cargo binstall --no-confirm $($_.Matches.Groups[1].Value)
+            }
+    } elseif (Get-Command -Name "cargo-install-update" -ErrorAction SilentlyContinue) {
         Write-Host
         Write-Color -Text "Updating installed binary by ", "Rust Cargo", "..." -Color Cyan,Magenta,Cyan
         cargo install-update --all
