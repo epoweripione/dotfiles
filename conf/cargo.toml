@@ -25,5 +25,30 @@ registry = "https://rsproxy.cn/crates.io-index"
 [source.rsproxy-sparse]
 registry = "sparse+https://rsproxy.cn/index/"
 
+# fix: error: registry index was not found in any configuration using `cargo-install-update`
+[registries.tuna]
+index = "https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git"
+
+[registries.tuna-sparse]
+index = "sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/"
+
+[registries.ustc]
+index = "git://mirrors.ustc.edu.cn/crates.io-index"
+
+[registries.ustc-sparse]
+index = "sparse+https://mirrors.ustc.edu.cn/crates.io-index/"
+
+[registries.sjtu]
+index = "https://mirrors.sjtug.sjtu.edu.cn/git/crates.io-index/"
+
+[registries.sjtu-sparse]
+index = "sparse+https://mirrors.sjtug.sjtu.edu.cn/crates.io-index/"
+
+[registries.rsproxy]
+index = "https://rsproxy.cn/crates.io-index"
+
+[registries.rsproxy-sparse]
+index = "sparse+https://rsproxy.cn/index/"
+
 [net]
 git-fetch-with-cli = true
