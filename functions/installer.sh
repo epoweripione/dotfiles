@@ -675,7 +675,7 @@ function App_Installer_Get_Archive_File_Extension() {
         ".7z"
     )
     for TargetExt in "${archive_ext_list[@]}"; do
-        if echo "${filename}" | grep -q "${TargetExt}$"; then
+        if grep -q "${TargetExt}$" <<<"${filename}"; then
             archive_ext="${TargetExt}"
             break
         fi
@@ -926,19 +926,21 @@ function App_Installer_Install() {
 
     # extract filename from URL
     # scheme:[//authority][/path][?query][#fragment]
-    INSTALLER_DOWNLOAD_FILE=$(awk -F"/" '{print $NF}' <<<"${INSTALLER_DOWNLOAD_URL}")
-    INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE%%[?#]*}"
     if [[ -z "${INSTALLER_DOWNLOAD_FILE}" ]]; then
-        [[ -n "${INSTALLER_INSTALL_NAME}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_INSTALL_NAME}" || INSTALLER_DOWNLOAD_FILE="${INSTALLER_APP_NAME}"
+        INSTALLER_DOWNLOAD_FILE=$(awk -F"/" '{print $NF}' <<<"${INSTALLER_DOWNLOAD_URL}")
+        INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE%%[?#]*}"
+        if [[ -z "${INSTALLER_DOWNLOAD_FILE}" ]]; then
+            [[ -n "${INSTALLER_INSTALL_NAME}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_INSTALL_NAME}" || INSTALLER_DOWNLOAD_FILE="${INSTALLER_APP_NAME}"
 
-        [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE}.${INSTALLER_ARCHIVE_EXT}"
+            [[ -n "${INSTALLER_ARCHIVE_EXT}" ]] && INSTALLER_DOWNLOAD_FILE="${INSTALLER_DOWNLOAD_FILE}.${INSTALLER_ARCHIVE_EXT}"
+        fi
+
+        # full download filename
+        INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"
     fi
 
     # archive file extension
     [[ -z "${INSTALLER_ARCHIVE_EXT}" ]] && App_Installer_Get_Archive_File_Extension "${INSTALLER_DOWNLOAD_FILE}"
-
-    # full download filename
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE}"
 
     # execute filename in archive file
     if [[ -n "${INSTALLER_INSTALL_NAME}" ]]; then
