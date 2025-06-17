@@ -244,6 +244,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "curlie"
         "distrobox"
         "dog"
+        "dysk"
         "fq"
         "fx"
         "git-lfs"
