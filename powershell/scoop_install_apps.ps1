@@ -225,6 +225,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "geany-plugins"
         # "notepad3"
         "notepadplusplus"
+        "notepads-np"
         # "lapce"
         "lite-xl-addons" # https://lite-xl.com/en/tutorials/system-fonts
         # "pulsar"
