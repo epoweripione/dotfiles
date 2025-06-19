@@ -1473,6 +1473,9 @@ function installPrebuiltBinary() {
 
     [[ -z "${binary_name}" ]] && colorEcho "${FUCHSIA}Binary name${RED} can't empty!" && return 1
 
+    # Update only
+    [[ "${IS_UPDATE_ONLY}" == "yes" && ! "$(command -v "${binary_name}")" ]] && return 0
+
     # Reset ENV vars if there is an application installed before
     [[ -n "${INSTALLER_APP_NAME}" || "${INSTALLER_IS_INSTALL}" != "yes" ]] && App_Installer_Reset
 
