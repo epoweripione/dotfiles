@@ -1214,6 +1214,7 @@ function App_Installer_Save_to_Cache() {
     fi
 
     app_json="$(cat "${app_info_file}")"
+    [[ -z "${app_json}" ]] && app_json="[]"
 
     # App info
     json_app_name=$(jq -r ".[] | select(.name == \"${app_name}\").name//empty" <<< "${app_json}")
