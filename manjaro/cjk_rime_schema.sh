@@ -97,7 +97,7 @@ for Target in "${SCHEMA_LIST[@]}"; do
     if [[ -n "${DOWNLOAD_SUB_DIR}" ]]; then
         [[ -d "${SCHEMA_SAVE_DIR}" ]] && rm -rf "${SCHEMA_SAVE_DIR}"
 
-        if grep -q '\/\*' <<<"${DOWNLOAD_SUB_DIR}"; then
+        if grep -q '/\*' <<<"${DOWNLOAD_SUB_DIR}"; then
             mkdir -p "${SCHEMA_SAVE_DIR}"
 
             for dir in $(fd --type d --full-path --glob "**/${DOWNLOAD_SUB_DIR}" "${SCHEMA_DOWNLOAD_DIR}"); do

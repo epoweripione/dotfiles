@@ -43,7 +43,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     INSTALLER_CHECK_URL="https://dystroy.org/dysk/install/"
     INSTALLER_REMOTE_CONTENT=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" 2>/dev/null)
     if [[ -n "${INSTALLER_REMOTE_CONTENT}" ]]; then
-        if App_Installer_Get_Remote_URL "${INSTALLER_CHECK_URL}" 'download\/.*\/dysk' '([0-9]{1,}\.)+[0-9]{1,}'; then
+        if App_Installer_Get_Remote_URL "${INSTALLER_CHECK_URL}" 'download/.*/dysk' '([0-9]{1,}\.)+[0-9]{1,}'; then
             [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
             [[ -z "${OS_INFO_ARCH}" ]] && get_arch
             INSTALLER_FILE_NAME="${INSTALLER_APP_NAME}-${INSTALLER_VER_REMOTE}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
