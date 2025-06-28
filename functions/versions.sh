@@ -128,11 +128,11 @@ function mise_App_Update() {
 
     if [[ "${appName}" == "all" ]]; then
         colorEcho "${BLUE}Checking update for all installed ${FUCHSIA}mise plugins${BLUE}..."
-        mise plugins update
+        mise plugins update 2>/dev/null
         InstalledPlugins=$(mise ls 2>/dev/null | awk '{print $1}')
     else
         colorEcho "${BLUE}Checking update for ${FUCHSIA}mise plugin ${ORANGE}${appName}${BLUE}..."
-        mise plugins update "${appName}"
+        mise plugins update "${appName}" 2>/dev/null
         InstalledPlugins="${appName}"
     fi
 
