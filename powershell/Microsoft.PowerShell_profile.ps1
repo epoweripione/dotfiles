@@ -297,6 +297,25 @@ function UpdateInstalledApps {
         UpdateOutdatedPipPackages
     }
 
+    ## micromamba
+    # if (Get-Command -Name "micromamba" -ErrorAction SilentlyContinue) {
+    #     Write-Host
+    #     Write-Color -Text "Updating micromamba packages..." -Color Cyan
+    #     $env:MAMBA_ROOT_PREFIX="$env:UserProfile\micromamba"
+    #     # micromamba create -n default
+    #     micromamba activate default
+    #     micromamba self-update
+    #     micromamba update -y --all
+    #     micromamba deactivate
+    # }
+
+    # npm
+    if (Get-Command -Name "npm" -ErrorAction SilentlyContinue) {
+        Write-Host
+        Write-Color -Text "Updating npm packages..." -Color Cyan
+        npm update --location=global
+    }
+
     # cargo
     if (Get-Command -Name "cargo-binstall" -ErrorAction SilentlyContinue) {
         Write-Host
@@ -471,6 +490,11 @@ if (Get-Command "zoxide" -ErrorAction SilentlyContinue) {
 # https://github.com/version-fox/vfox
 if (Get-Command "vfox" -ErrorAction SilentlyContinue) {
     Invoke-Expression "$(vfox activate pwsh)"
+}
+
+# micromamba
+if($env:MAMBA_EXE) {
+    (& $env:MAMBA_EXE 'shell' 'hook' -s 'powershell') | Out-String | Invoke-Expression
 }
 
 ## https://starship.rs/
