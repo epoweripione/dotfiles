@@ -17,8 +17,7 @@
                 "split": "down",
                 "splitMode": "duplicate"
             },
-            "id": "User.splitPane.10B260D2",
-            "keys": "alt+h"
+            "id": "User.splitPane.10B260D2"
         },
         {
             "command": 
@@ -27,25 +26,35 @@
                 "split": "right",
                 "splitMode": "duplicate"
             },
-            "id": "User.splitPane.FEF0D40B",
-            "keys": "alt+v"
-        },
-        {
-            "command": "unbound",
-            "keys": "alt+enter"
+            "id": "User.splitPane.FEF0D40B"
         }
     ],
     "alwaysOnTop": false,
     "alwaysShowNotificationIcon": false,
     "alwaysShowTabs": true,
     "confirmCloseAllTabs": true,
-    "copyFormatting": "all",
+    "copyFormatting": "none",
     "copyOnSelect": true,
     "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
     "disableAnimations": false,
     "focusFollowMouse": true,
     "initialCols": 120,
     "initialRows": 30,
+    "keybindings": 
+    [
+        {
+            "id": null,
+            "keys": "alt+enter"
+        },
+        {
+            "id": "User.splitPane.10B260D2",
+            "keys": "alt+h"
+        },
+        {
+            "id": "User.splitPane.FEF0D40B",
+            "keys": "alt+v"
+        }
+    ],
     "launchMode": "maximized",
     "minimizeToNotificationArea": false,
     "newTabMenu": 
@@ -317,7 +326,6 @@
     "showTabsInTitlebar": true,
     "showTerminalTitleInTitlebar": true,
     "snapToGridOnResize": true,
-    "startOnUserLogin": false,
     "startupActions": null,
     "tabSwitcherMode": "inOrder",
     "tabWidthMode": "equal",

@@ -4,8 +4,6 @@
 	"window.density.editorTabHeight": "compact",
 
 	"explorer.confirmDelete": false,
-
-	"workbench.colorTheme": "Aura Soft Dark (Soft Text)",
 	"workbench.iconTheme": "vscode-icons",
 	"workbench.productIconTheme": "fluent-icons",
 	"workbench.list.horizontalScrolling": true,
@@ -26,12 +24,8 @@
 	"editor.autoClosingBrackets": "always",
 	"editor.autoClosingQuotes": "always",
 
-	"diffEditor.hideUnchangedRegions.enabled": true,
-
 	"extensions.closeExtensionDetailsOnViewChange": true,
 	"extensions.ignoreRecommendations": true,
-
-	"oneDarkPro.bold": true,
 
 	"files.eol": "\n",
 	"files.exclude": {
@@ -45,10 +39,8 @@
 	"terminal.integrated.copyOnSelection": true,
 	"terminal.integrated.tabs.enabled": true,
 
-	// https://juejin.cn/post/7022720509875847182
-	// npm i -D eslint eslint-config-airbnb-base eslint-plugin-import eslint-plugin-typescript eslint-plugin-vue husky sass stylelint stylelint-config-standard stylelint-scss typescript @typescript-eslint/eslint-plugin @typescript-eslint/parser vue-eslint-parser
 	"editor.codeActionsOnSave": {
-			"source.fixAll": true,
+		"source.fixAll": "explicit"
 	},
 	"eslint.validate": [
 			"typescript",
@@ -89,23 +81,29 @@
 			"editor.tabSize": 2,
 			"editor.defaultFormatter": "vscode.json-language-features"
 	},
-
-	"dart.flutterSdkPath": "~\\scoop\\apps\\flutter\\current",
-
+	"dart.flutterSdkPath": "C:\\Users\\LiangMS\\scoop\\apps\\flutter\\current",
 	"vs-kubernetes": {
-		"vscode-kubernetes.minikube-path.windows": "~\\.vs-kubernetes\\tools\\minikube\\windows-amd64\\minikube.exe",
-		"vscode-kubernetes.kubectl-path.windows": "~\\.vs-kubernetes\\tools\\kubectl\\kubectl.exe"
+		"vscode-kubernetes.minikube-path.windows": "C:\\Users\\LiangMS\\.vs-kubernetes\\tools\\minikube\\windows-amd64\\minikube.exe",
+		"vscode-kubernetes.kubectl-path.windows": "C:\\Users\\LiangMS\\.vs-kubernetes\\tools\\kubectl\\kubectl.exe"
 	},
 
-	//go install -v golang.org/x/tools/cmd/goimports@latest
 	"go.useLanguageServer": true,
 	"go.toolsManagement.autoUpdate": true,
+	"go.formatTool": "gofumpt",
 	"[go]": {
 			"editor.defaultFormatter": "golang.go"
 	},
 
 	"[xml]": {
-			"editor.defaultFormatter": "DotJoshJohnson.xml"
+			"editor.defaultFormatter": "redhat.vscode-xml"
+	},
+
+	"[python]": {
+		"editor.formatOnType": true
+	},
+
+	"[toml]": {
+		"editor.defaultFormatter": "tamasfe.even-better-toml"
 	},
 
 	"redhat.telemetry.enabled": true,
@@ -117,6 +115,10 @@
 	"prettier.tabWidth": 4,
 	"prettier.printWidth": 120,
 
+	"markdown.copyFiles.destination": {
+		"*.md": "assets/${documentBaseName}-${fileName}"
+	},
+
 	"markdown.extension.print.theme": "dark",
 	"markdown-preview-enhanced.enableExtendedTableSyntax": true,
 	"markdown-preview-enhanced.enableHTML5Embed": true,
@@ -127,8 +129,6 @@
 
 	"powershell.integratedConsole.showOnStartup": false,
 	"powershell.promptToUpdatePowerShell": false,
-
-	"tabnine.experimentalAutoImports": true,
 
 	"vsicons.dontShowNewVersionMessage": true,
 
@@ -144,6 +144,8 @@
 			"2015",
 			"2016",
 			"2034",
+			"2097",
+			"2098",
 			"2119",
 			"2120",
 			"2126",
@@ -151,5 +153,19 @@
 			"2142",
 			"2145",
 			"2219"
+	],
+	"yaml.maxItemsComputed": 50000,
+	"git.openRepositoryInParentFolders": "never",
+	"tabnine.experimentalAutoImports": true,
+	"database-client.autoSync": true,
+	"workbench.colorTheme": "GitHub Dark",
+	"docker.extension.dockerEngineAvailabilityPrompt": false,
+	"js-unicode-preview.languages": [
+		"json",
+		"jsonc",
+		"javascript",
+		"javascriptreact",
+		"typescript",
+		"typescriptreact"
 	]
 }
