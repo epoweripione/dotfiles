@@ -246,6 +246,8 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "distrobox"
         "dog"
         "dysk"
+        # [F2 - Command-Line Batch Renaming](https://github.com/ayoisaiah/f2)
+        "f2#ayoisaiah/f2#tar.gz#f2*"
         "fq"
         "fx"
         "gdu#dundee/gdu#tgz#gdu*"
@@ -256,6 +258,8 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "httpstat"
         "hyperfine"
         # "noxdir#crumbyte/noxdir#tar.gz#noxdir*"
+        # [Logdy - terminal logs in web browser](https://github.com/logdyhq/logdy-core)
+        "logdy#logdyhq/logdy-core##logdy*"
         "lsd"
         "nali"
         "ncdu"
@@ -271,6 +275,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "re-txt"
         "restic"
         "sd"
+        "somo"
         # "starship"
         "tig"
         "usql"
