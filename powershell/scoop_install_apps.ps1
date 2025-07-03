@@ -343,6 +343,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "smartmontools"
         "smartsystemmenu"
         "twinkle-tray"
+        "trippy"
         "usql"
         "wget"
         "win32yank"

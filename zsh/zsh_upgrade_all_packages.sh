@@ -278,6 +278,10 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "somo"
         # "starship"
         "tig"
+        # [tldx - Domain Availability Research Tool](https://github.com/brandonyoungdev/tldx)
+        "tldx#brandonyoungdev/tldx#tar.gz#tldx*"
+        # [Trippy - A network diagnostic tool](https://github.com/fujiapple852/trippy)
+        "trip#fujiapple852/trippy#tar.gz#trippy*"
         "usql"
         "uv"
         "vfox"
