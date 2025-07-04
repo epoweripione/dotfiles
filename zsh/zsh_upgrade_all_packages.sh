@@ -324,6 +324,7 @@ if [[ -z "${AppUpdateOnlyList[*]}" ]]; then
         "xray"
         "flutter"
         # "tabby"
+        "unhide"
     )
 fi
 for Target in "${AppUpdateOnlyList[@]}"; do
