@@ -27,7 +27,7 @@ INSTALLER_INSTALL_NAME="unhide"
 
 if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
-    INSTALLER_VER_CURRENT=$(sudo ${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_VER_CURRENT=$(sudo ${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eio "${INSTALLER_INSTALL_NAME}\s+[0-9.]+" | awk '{print $2}')
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
@@ -64,6 +64,9 @@ if [[ -f "${WORKDIR}/${INSTALLER_APP_NAME}/build_all.sh" ]]; then
         "sockstat"
     )
     InstallSystemPackages "" "${PackagesList[@]}"
+
+    # Fix version
+    sed -ri "s/([Uu]+nhide)\s+[0-9.]+/\1 ${INSTALLER_VER_REMOTE}/g" "${WORKDIR}/${INSTALLER_APP_NAME}/unhide-linux.c"
 
     cd "${WORKDIR}/${INSTALLER_APP_NAME}" && \
         ./build_all.sh && \
