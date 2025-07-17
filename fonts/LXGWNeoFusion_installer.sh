@@ -55,10 +55,11 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     [[ ! -d "${INSTALLER_INSTALL_PATH}" ]] && sudo mkdir -p "${INSTALLER_INSTALL_PATH}"
     #Delete old font files
     [[ -d "/usr/share/fonts/LXGWNeoFusion" ]] && sudo rm -rf "/usr/share/fonts/LXGWNeoFusion"
+    [[ -f "${INSTALLER_INSTALL_PATH}/LXGWNeoXiHeiPlus.ttf" ]] && sudo rm -rf "${INSTALLER_INSTALL_PATH}/LXGWNeoXiHeiPlus.ttf"
     # Batch download
     INSTALLER_DOWNLOAD_URLS=(
         "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/LXGWNeoXiHei.ttf"
-        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/LXGWNeoXiHeiPlus.ttf"
+        # "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/LXGWNeoXiHeiPlus.ttf"
     )
     INSTALLER_DOWNLOAD_COUNT=0
     for download_url in "${INSTALLER_DOWNLOAD_URLS[@]}"; do
@@ -134,10 +135,11 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     [[ ! -d "${INSTALLER_INSTALL_PATH}" ]] && sudo mkdir -p "${INSTALLER_INSTALL_PATH}"
     #Delete old font files
     [[ -d "/usr/share/fonts/LXGWNeoFusion" ]] && sudo rm -rf "/usr/share/fonts/LXGWNeoFusion"
+    [[ -f "${INSTALLER_INSTALL_PATH}/LXGWNeoZhiSongPlus.ttf" ]] && sudo rm -rf "${INSTALLER_INSTALL_PATH}/LXGWNeoZhiSongPlus.ttf"
     # Batch download
     INSTALLER_DOWNLOAD_URLS=(
         "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/LXGWNeoZhiSong.ttf"
-        "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/LXGWNeoZhiSongPlus.ttf"
+        # "https://github.com/${INSTALLER_GITHUB_REPO}/releases/download/v${INSTALLER_VER_REMOTE}/LXGWNeoZhiSongPlus.ttf"
     )
     INSTALLER_DOWNLOAD_COUNT=0
     for download_url in "${INSTALLER_DOWNLOAD_URLS[@]}"; do
