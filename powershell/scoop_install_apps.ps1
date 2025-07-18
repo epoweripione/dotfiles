@@ -317,6 +317,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "winupdatesview"
         "ventoy"
         "curlie"
+        "doggo"
         "cht"
         "fzf"
         "ag"
