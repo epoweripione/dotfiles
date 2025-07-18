@@ -244,7 +244,8 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "cpufetch#Dr-Noob/cpufetch##cpufetch_*"
         "curlie"
         "distrobox"
-        "dog"
+        # "dog"
+        "doggo"
         "dysk"
         # [F2 - Command-Line Batch Renaming](https://github.com/ayoisaiah/f2)
         "f2#ayoisaiah/f2#tar.gz#f2*"
