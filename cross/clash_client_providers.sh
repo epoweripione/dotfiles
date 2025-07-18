@@ -307,6 +307,13 @@ function formatYAMLFile() {
     # other invalid characters
     sed -ri 's/[【】]+//g' "${subscribeFile}"
 
+    # remove empty `http-opts` and `h2-opts`
+    sed -ri 's/(http-opts|h2-opts):\s*\{\}\,\s*//g' "${subscribeFile}"
+
+    # 'http-opts.headers[Host]','h2-opts.headers[Host]' is a slice
+    sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
+    sed -ri '/h2-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
+
     # add Double quotes to `proxy-groups[].proxies`
     GroupStartLine=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
     [[ -z "${RuleStartLine}" ]] && GroupStartLine=$(wc -l "${subscribeFile}" | awk '{print $1}')
