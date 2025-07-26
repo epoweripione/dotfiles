@@ -200,8 +200,7 @@ if (-Not (Test-Path $THEME_FILE)) {
 Write-Host "Other powershell settings..." -ForegroundColor Blue
 @'
 
-## PSFzf
-## https://github.com/kelleyma49/PSFzf
+## [PSFzf](https://github.com/kelleyma49/PSFzf)
 ## Usage:
 ## Select Current Provider Path (default chord: Ctrl+t)
 ## Reverse Search Through PSReadline History (default chord: Ctrl+r)
@@ -221,9 +220,155 @@ Write-Host "Other powershell settings..." -ForegroundColor Blue
 # Get-ChildItem . -Recurse -Attributes Directory | Invoke-Fzf | Set-Location
 ## To edit a file:
 # Get-ChildItem . -Recurse -Attributes !Directory | Invoke-Fzf | % { notepad $_ }
+
+##-------------------------------------------PSFzf: fix the shell prompt offset issue-------------------------------------------
+##--------------------------------------------------------PSFzf.Base.ps1--------------------------------------------------------
+## [Invoking command history leaves blank lines the size of displayed history](https://github.com/kelleyma49/PSFzf/issues/227)
+# $PSFzfVersion = (Get-Module PSFzf).Version.ToString()
+# $PSFzfBase = "$env:USERPROFILE\Documents\PowerShell\Modules\PSFzf\${PSFzfVersion}\PSFzf.Base.ps1"
+$PSFzfDir = "$env:USERPROFILE\Documents\PowerShell\Modules\PSFzf"
+$PSFzfBase = (Get-ChildItem -Path "$PSFzfDir" `
+        -Filter "PSFzf.Base.ps1" -File -Recurse -ErrorAction SilentlyContinue -Force `
+    | Sort-Object -Descending | Select-Object -First 1).FullName
+if (Test-Path "$PSFzfBase") {
+    $FindString = Select-String -Path "$PSFzfBase" -Pattern '\[Microsoft\.PowerShell\.PSConsoleReadLine\]::InvokePrompt\(\)'
+    if ($FindString.Count -gt 0) {
+        (Get-Content -Path "$PSFzfBase" -Raw) `
+            -Replace '\[Microsoft\.PowerShell\.PSConsoleReadLine\]::InvokePrompt\(\)', `
+                '[Microsoft.PowerShell.PSConsoleReadLine]::InvokePrompt($null, [Console]::CursorTop)' `
+        | Set-Content -Path "$PSFzfBase"
+    }
+}
+Remove-Variable -Name PSFzfDir, PSFzfBase, FindString -ErrorAction SilentlyContinue
+##--------------------------------------------------------PSFzf.Base.ps1--------------------------------------------------------
+
+##----------------------------------------------------------PSFzf.psd1----------------------------------------------------------
+## [The shell prompt get offsets every time an item was accepted](https://github.com/kelleyma49/PSFzf/issues/202)
+# $PSFzfVersion = (Get-Module PSFzf).Version.ToString()
+# $PSFzfPsd = "$env:USERPROFILE\Documents\PowerShell\Modules\PSFzf\${PSFzfVersion}\PSFzf.psd1"
+$PSFzfDir = "$env:USERPROFILE\Documents\PowerShell\Modules\PSFzf"
+$PSFzfPsd = (Get-ChildItem -Path "$PSFzfDir" `
+        -Filter "PSFzf.psd1" -File -Recurse -ErrorAction SilentlyContinue -Force `
+    | Sort-Object -Descending | Select-Object -First 1).FullName
+if (Test-Path "$PSFzfPsd") {
+    $FindString = Select-String -Path "$PSFzfPsd" -Pattern "'Invoke-FzfPsReadlineHandlerProvider'"
+    $ReplaceString = "'Set-PsFzfOption', 'Invoke-FzfPsReadlineHandlerProvider'," + `
+        "`r`n               'Invoke-FzfPsReadlineHandlerHistory', 'Invoke-FzfPsReadlineHandlerSetLocation'," + `
+        "`r`n               'Invoke-FzfPsReadlineHandlerHistoryArgs', 'Invoke-TabCompletion'"
+    if ($FindString.Count -eq 0) {
+        (Get-Content -Path "$PSFzfPsd" -Raw) `
+            -Replace "'Set-PsFzfOption'", "$ReplaceString" `
+        | Set-Content -Path "$PSFzfPsd"
+    }
+}
+Remove-Variable -Name PSFzfDir, PSFzfPsd, FindString, ReplaceString -ErrorAction SilentlyContinue
+##----------------------------------------------------------PSFzf.psd1----------------------------------------------------------
+
+# Import Module PSFzf
 Import-Module PSFzf
 
-Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
+##-------------------------------------------PSFzf: fix the shell prompt offset issue-------------------------------------------
+# [The shell prompt get offsets every time an item was accepted](https://github.com/kelleyma49/PSFzf/issues/202)
+$env:FZF_DEFAULT_OPTS = "--height=50% --min-height=8 --layout=reverse --info=right --scrollbar='▐'"
+$env:FZF_CTRL_T_COMMAND = "fd --type f --strip-cwd-prefix --hidden --follow --exclude .git"
+$env:FZF_ALT_C_COMMAND = "fd --type d --strip-cwd-prefix --hidden --follow --exclude .git"
+# Refer to https://github.com/kelleyma49/PSFzf/issues/202#issuecomment-2495321758
+function SetCursorPostion {
+    param(
+        [int]$MinHeight = 3
+    )
+    $rawUI = (Get-Host).UI.RawUI
+    $matchs = [regex]::Matches($env:FZF_DEFAULT_OPTS, '--height=~?(\d+)(%?)').Groups
+    if ($null -eq $matchs) {
+        # if no --height option, set height to full screen
+        $fzfHeight = $rawUI.BufferSize.Height
+    } elseif ($matchs[2].Length -eq 0) {
+        # if set --height without %, set as the fixed height but at least 3
+        $fzfHeight = [Math]::Max([int]$matchs[1].Value, $MinHeight)
+    } else {
+        # if set --height with %, we need to considar --min-height
+        $fzfMinHeight = [regex]::Matches($env:FZF_DEFAULT_OPTS, '--min-height=(\d+)').Groups
+        if ($null -eq $fzfMinHeight) {
+        $fzfMinHeight = 10
+        } else {
+        $fzfMinHeight = [Math]::Max([int]$fzfMinHeight[1].Value, $MinHeight)
+        }
+        $fzfHeight = [Math]::Max([Math]::Truncate(($rawUI.BufferSize.Height - 1) * [int]$matchs[1].Value / 100), $fzfMinHeight)
+    }
+
+    $Global:PositionBeforePsfzf = $rawUI.CursorPosition
+    $Global:RepairedCursorPosition = $rawUI.CursorPosition
+    if ($Global:RepairedCursorPosition.Y -ge ($rawUI.BufferSize.Height - $FzfHeight)) {
+        # If the curosr position is too low to display Fzf UI, the prompt line will be shifted
+        $Global:RepairedCursorPosition.Y = $rawUI.BufferSize.Height - $FzfHeight - 1
+    }
+}
+
+Set-PSReadLineKeyHandler -Key Ctrl+t -ScriptBlock {
+    SetCursorPostion
+    Invoke-FzfPsReadlineHandlerProvider
+    $Global:RepairedCursorPosition = $null
+}
+
+Set-PSReadLineKeyHandler -Key Ctrl+r -ScriptBlock {
+    SetCursorPostion
+    Invoke-FzfPsReadlineHandlerHistory
+    $Global:RepairedCursorPosition = $null
+}
+
+Set-PSReadLineKeyHandler -Key Alt-c -ScriptBlock {
+    SetCursorPostion
+    Invoke-FzfPsReadlineHandlerSetLocation
+    $Global:RepairedCursorPosition = $null
+}
+
+Set-PSReadLineKeyHandler -Key Alt-a -ScriptBlock {
+    SetCursorPostion
+    Invoke-FzfPsReadlineHandlerHistoryArgs
+    $Global:RepairedCursorPosition = $null
+}
+
+Set-PSReadLineKeyHandler -Key Tab -ScriptBlock {
+    SetCursorPostion
+    Invoke-FzfTabCompletion
+    $Global:RepairedCursorPosition = $null
+}
+
+$Global:__OriginalPrompt = $function:Prompt
+function prompt {
+    # Place at beginning of function to avoid oh-my-posh get the wrong last error code
+    $out = $Global:__OriginalPrompt.Invoke()[0];
+
+    # Transient prompt
+    if ($out[-1] -eq "`b") {
+        return $out
+    }
+
+    # Replace \n to \r\n to avoid some bug
+    # $out = $out -replace "`n", "`r`n"
+    $out = $out -replace "`n", "`r`n"
+
+    # Reset the cursor to the correct shape
+    if ($Global:PsReadLineViMode -eq "i") {
+        $out += $PsReadLineViInsertModeCursor
+    } else {
+        $out += $PsReadLineViNormalModeCursor
+    }
+
+    # Repair the cursor position after PSReadline key handler
+    if ($null -ne $Global:RepairedCursorPosition) {
+        $rawUI = (Get-Host).UI.RawUI
+        $promptAndCommandHeight = $Global:PositionBeforePsfzf.Y - $rawUI.CursorPosition.Y
+        $Global:RepairedCursorPosition.X = 0
+        $Global:RepairedCursorPosition.Y -= $promptAndCommandHeight
+        $rawUI.CursorPosition = $Global:RepairedCursorPosition
+    }
+
+    return $out
+}
+##-------------------------------------------PSFzf: fix the shell prompt offset issue-------------------------------------------
+
+# Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
 
 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 Set-PsFzfOption -TabExpansion
@@ -433,6 +578,7 @@ function UpdateInstalledApps {
     if (Get-Command -Name "npm" -ErrorAction SilentlyContinue) {
         Write-Host
         Write-Color -Text "Updating npm packages..." -Color Cyan
+        npm install --location=global npm@latest
         npm update --location=global
     }
 
