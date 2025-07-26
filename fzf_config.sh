@@ -32,18 +32,19 @@ fi
 # use fd to generate input for fzf
 if [[ -x "$(command -v fd)" ]]; then
     # export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --no-ignore --exclude .git'
-    export FZF_DEFAULT_COMMAND="fd --type file --color=always"
+    export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git --color=always"
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="fd --type d --strip-cwd-prefix --hidden --follow --exclude .git --color=always"
 fi
 
 # export FZF_DEFAULT_OPTS="--ansi --multi $(fzf_sizer_preview_window_settings)"
-FZF_DEFAULT_OPTS="--ansi --multi"\
-" --bind='ctrl-j:preview-page-down,ctrl-k:preview-page-up,alt-j:preview-bottom,alt-k:preview-top'"\
-" --bind='tab:toggle+down,btab:toggle+up,shift-tab:toggle+up,ctrl-a:toggle-all,ctrl-s:toggle-sort'"\
-" --bind='?:toggle-preview,ctrl-space:toggle-preview,alt-w:toggle-preview-wrap,enter:accept'"\
-" --layout='reverse'"\
-" --preview-window='right,70%'"\
-" --height='70%'"
+FZF_DEFAULT_OPTS="--ansi --multi \
+--bind='ctrl-j:preview-page-down,ctrl-k:preview-page-up,alt-j:preview-bottom,alt-k:preview-top' \
+--bind='tab:toggle+down,btab:toggle+up,shift-tab:toggle+up,ctrl-a:toggle-all,ctrl-s:toggle-sort' \
+--bind='?:toggle-preview,ctrl-space:toggle-preview,alt-w:toggle-preview-wrap,enter:accept' \
+--layout='reverse' \
+--preview-window='right,70%' \
+--height='70%'"
 # FZF_DEFAULT_OPTS=$(cat <<- EOF
 # --ansi
 # --multi
@@ -101,9 +102,9 @@ if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]]; then
     # custom keybindings
     zstyle ':fzf-tab:*' fzf-bindings 'tab:toggle+down' 'btab:toggle+up' 'shift-tab:toggle+up' 'enter:accept' 'ctrl-a:toggle-all'
 
-    # preview directory's content with exa when completing cd
-    # zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
-    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -T --git-ignore --icons -L1 $realpath'
+    # preview directory's content with eza when completing cd
+    # zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -T --git-ignore --icons -L1 $realpath'
     zstyle ':fzf-tab:complete:cd:*' fzf-flags '--height=50%'
 
     if [[ -n "$TMUX" && -n "${TMUX_VERSION_320}" ]]; then
