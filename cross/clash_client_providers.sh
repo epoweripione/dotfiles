@@ -314,6 +314,9 @@ function formatYAMLFile() {
     sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
     sed -ri '/h2-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
 
+    # replace characters not conform
+    sed -i -e 's/":"/:/g' "${subscribeFile}"
+
     # add Double quotes to `proxy-groups[].proxies`
     GroupStartLine=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
     [[ -z "${RuleStartLine}" ]] && GroupStartLine=$(wc -l "${subscribeFile}" | awk '{print $1}')
