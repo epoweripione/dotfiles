@@ -323,6 +323,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "smplayer"
         "smplayer-skins"
         "smplayer-themes"
+        "vlc"
+        "vlc-plugins-all"
         # Video & Audio
         "kdenlive"
         ## Proxy
