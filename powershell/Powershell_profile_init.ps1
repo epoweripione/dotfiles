@@ -555,6 +555,9 @@ function UpdateInstalledApps {
     scoop cleanup *
     scoop cleanup * -g
 
+    # Module
+    Update-Module -All
+
     # pip
     if (Get-Command -Name "cargo" -ErrorAction SilentlyContinue) {
         Write-Host
