@@ -53,7 +53,9 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     fi
 
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-    curl -sSL https://install.python-poetry.org | python3 -
+    if ! poetry self update 2>/dev/null; then
+        curl -sSL https://install.python-poetry.org | python3 -
+    fi
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v poetry)" ]]; then
