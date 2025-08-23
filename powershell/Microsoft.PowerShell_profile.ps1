@@ -436,7 +436,9 @@ function UpdateInstalledApps {
     scoop cleanup * -g
 
     # Module
-    Update-Module -All
+    Write-Host
+    Write-Color -Text "Updating installed modules..." -Color Cyan
+    Update-Module
 
     # pip
     if (Get-Command -Name "cargo" -ErrorAction SilentlyContinue) {
