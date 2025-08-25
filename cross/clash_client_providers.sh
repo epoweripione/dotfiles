@@ -288,10 +288,17 @@ function formatYAMLFile() {
 
     sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${subscribeFile}"
     sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${subscribeFile}"
-    sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${subscribeFile}"
 
-    sed -ri 's/name:\s+([^,"\{\}]+)/name: "\1"/g' "${subscribeFile}"
-    sed -ri 's/password:\s+([^,"\{\}]+)/password: "\1"/g' "${subscribeFile}"
+    # sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${subscribeFile}"
+    sed -ri 's/grpc-service-name:\s+([^,"]+)/grpc-service-name: "\1"/' "${subscribeFile}"
+
+    # sed -ri 's/name:\s+([^,"\{\}]+)/name: "\1"/g' "${subscribeFile}"
+    sed -ri 's/name:\s+([^,"]+)/name: "\1"/g' "${subscribeFile}"
+
+    # sed -ri 's/password:\s+([^,"\{\}]+)/password: "\1"/g' "${subscribeFile}"
+    sed -ri 's/password:\s+([^,"]+)/password: "\1"/g' "${subscribeFile}"
+
+    sed -ri 's/(\}+)"/"\1/g' "${subscribeFile}"
 
     # IPV6
     sed -ri "/name:/ s/[\"【]*(${IPV6RegExp})[\"】]*/\"\[\1\]\"/g" "${subscribeFile}"
