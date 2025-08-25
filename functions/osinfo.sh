@@ -133,6 +133,25 @@ function get_os_release_type() {
     OS_INFO_RELEASE_TYPE=$osname
 }
 
+# Get OS release info: ID, VERSION_ID, VERSION_CODENAME
+function get_os_release_info() {
+
+    if [[ "$(command -v lsb_release)" ]]; then
+        # debian, ubuntu...
+        OS_RELEASE_ID=$(lsb_release --id --short 2>/dev/null | tr '[:upper:]' '[:lower:]')
+
+        # bookworm...
+        OS_RELEASE_CODENAME=$(lsb_release --codename --short 2>/dev/null)
+
+        # 11, 12...
+        OS_RELEASE_VER=$(lsb_release --release --short 2>/dev/null)
+    else
+        OS_RELEASE_ID=$(awk -F= '/^ID=/ {print $2}' /etc/os-release | tr '[:upper:]' '[:lower:]')
+        OS_RELEASE_CODENAME=$(awk -F= '/^VERSION_CODENAME=/ {print $2}' /etc/os-release)
+        OS_RELEASE_VER=$(awk -F= '/^VERSION_ID=/ {print $2}' /etc/os-release | tr -d '"')
+    fi
+}
+
 # Determine which desktop environment is installed from the shell: KDE,XFCE,GNOME...
 function get_os_desktop() {
     local osdesktop
