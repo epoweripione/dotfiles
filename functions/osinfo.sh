@@ -146,8 +146,8 @@ function get_os_release_info() {
         # 11, 12...
         OS_RELEASE_VER=$(lsb_release --release --short 2>/dev/null)
     else
-        OS_RELEASE_ID=$(awk -F= '/^ID=/ {print $2}' /etc/os-release | tr '[:upper:]' '[:lower:]')
-        OS_RELEASE_CODENAME=$(awk -F= '/^VERSION_CODENAME=/ {print $2}' /etc/os-release)
+        OS_RELEASE_ID=$(awk -F= '/^ID=/ {print $2}' /etc/os-release | tr '[:upper:]' '[:lower:]' | tr -d '"')
+        OS_RELEASE_CODENAME=$(awk -F= '/^VERSION_CODENAME=/ {print $2}' /etc/os-release | tr -d '"')
         OS_RELEASE_VER=$(awk -F= '/^VERSION_ID=/ {print $2}' /etc/os-release | tr -d '"')
     fi
 }
@@ -217,6 +217,25 @@ function get_arch() {
 	esac
 
     OS_INFO_ARCH=$spruce_type
+
+    # CPU architecture
+    OS_INFO_CPU_ARCH=$(lscpu | awk '/Architecture:/{print $2}' 2>/dev/null)
+    if [[ -z "${OS_INFO_CPU_ARCH}" ]]; then
+        case "${OS_INFO_ARCH}" in
+            amd64)
+                OS_INFO_CPU_ARCH="x86_64"
+                ;;
+            386)
+                OS_INFO_CPU_ARCH="x86"
+                ;;
+            arm64)
+                OS_INFO_CPU_ARCH="aarch64"
+                ;;
+            *)
+                OS_INFO_CPU_ARCH="${OS_INFO_ARCH}"
+                ;;
+        esac
+    fi
 }
 
 function get_sysArch() {
