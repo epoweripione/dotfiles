@@ -145,6 +145,7 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
 - `Debian` distro upgrade
   * [10 to 11](/linux/debian_upgrade_10_to_11.sh)
   * [11 to 12](/linux/debian_upgrade_11_to_12.sh)
+  * [12 to 13](/linux/debian_upgrade_12_to_13.sh)
 - `CentOS Stream` distro upgrade
   * [8 to 9](/linux/centos_stream_upgrade_8_to_9.sh)
 - Custom environment variables in `~/.dotfiles.env.local`
@@ -186,8 +187,8 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
     USE_MIRROR_WHEN_BLOCKED="true"
 
     # Debian
-    MIRROR_PACKAGE_MANAGER_APT="mirror.sjtu.edu.cn"
-    
+    MIRROR_PACKAGE_MANAGER_APT="mirrors.sustech.edu.cn"
+
     # Archlinux
     MIRROR_ARCHLINUX_CN="https://mirrors.sustech.edu.cn"
 
