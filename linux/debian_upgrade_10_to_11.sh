@@ -17,6 +17,34 @@ else
     fi
 fi
 
+# [How to upgrade Debian 11 to Debian 12 bookworm using CLI](https://www.cyberciti.biz/faq/update-upgrade-debian-11-to-debian-12-bookworm/)
+
+# Upgrade release info
+UPGRADE_RELEASE_VER="11"
+UPGRADE_RELEASE_CODENAME="bullseye"
+
+# current OS release info
+[[ -z "${OS_RELEASE_ID}" ]] && get_os_release_info
+
+if [[ "${OS_RELEASE_ID}" != "debian" || "${OS_RELEASE_VER}" != "10" || "${OS_RELEASE_CODENAME}" != "buster" ]]; then
+    colorEcho "${RED}This script is only for Debian 10 (buster) systems!"
+    exit 1
+fi
+
+# mirror site
+MIRROR_PACKAGE_MANAGER_APT="${MIRROR_PACKAGE_MANAGER_APT:-"deb.debian.org"}"
+
+## installed packages
+# dpkg -l
+# dpkg --get-selections '*'
+# apt list --installed
+
+## obsolete packages
+# apt list '?narrow(?installed, ?not(?origin(Debian)))'
+
+## package status
+# dpkg --audit
+
 # Check GRUB
 colorEcho "${BLUE}Getting ${FUCHSIA}GRUB menu entry${BLUE}..."
 [[ -x "$(command -v grub2-editenv)" ]] && grub2-editenv list
@@ -25,19 +53,58 @@ colorEcho "${BLUE}Getting ${FUCHSIA}GRUB menu entry${BLUE}..."
 
 # Update ALL existing installed packages
 colorEcho "${BLUE}Update ALL existing installed packages..."
-sudo apt update && sudo apt upgrade -y && sudo apt full-upgrade -y && sudo apt --purge autoremove -y
+sudo apt update && sudo apt upgrade -y && sudo apt full-upgrade -y && sudo apt autoclean -y && sudo apt --purge autoremove -y
+
+# Check System Status: Verify system integrity before upgrade
+sudo apt --fix-broken install
+sudo dpkg --configure -a
+
+# Hold some packages
+# [avoid an issue where mdadm is updated before systemd and shows an error that it cannot find systemd](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1111649)
+HOLD_PKGS=()
+
+for PKG in "${HOLD_PKGS[@]}"; do
+    if dpkg --get-selections '*' | grep -q "^${PKG}"; then
+        colorEcho "${BLUE}Hold ${FUCHSIA}${PKG}${BLUE} package..."
+        sudo apt-mark hold "${PKG}" 2>/dev/null
+    fi
+done
 
 # Reconfigure APT’s source-list files
-colorEcho "${BLUE}Reconfigure APT’s source-list files..."
-sudo sed -i 's|debian-security/ buster/updates|debian-security bullseye-security|' "/etc/apt/sources.list" && \
-    sudo sed -i 's|debian-security buster/updates|debian-security bullseye-security|' "/etc/apt/sources.list" && \
-    sudo sed -i 's|buster|bullseye|' "/etc/apt/sources.list"
+colorEcho "${BLUE}Reconfigure APT source-list files..."
+sudo cp /etc/apt/sources.list "/etc/apt/sources.list-${OS_RELEASE_VER}-${OS_RELEASE_CODENAME}.bak"
 
-[[ -s "/etc/apt/sources.list.d/docker.list" ]] && sudo sed -i 's|buster|bullseye|' "/etc/apt/sources.list.d/docker.list"
+sudo sed -i "s|debian-security/ ${OS_RELEASE_CODENAME}/updates|debian-security ${UPGRADE_RELEASE_CODENAME}-security|" "/etc/apt/sources.list" && \
+    sudo sed -i "s|debian-security ${OS_RELEASE_CODENAME}/updates|debian-security ${UPGRADE_RELEASE_CODENAME}-security|" "/etc/apt/sources.list" && \
+    sudo sed -i "s|${OS_RELEASE_CODENAME}|${UPGRADE_RELEASE_CODENAME}|" "/etc/apt/sources.list"
 
-# Updating the package list && Minimal system upgrade && Upgrading Debian 10 to Debian 11
-colorEcho "${BLUE}Updating the package list, Minimal system upgrade and Upgrading Debian 10 to Debian 11..."
+# 3rd-party repos
+sudo find /etc/apt/sources.list.d -type f -exec sed -i "s/${OS_RELEASE_CODENAME}/${UPGRADE_RELEASE_CODENAME}/g" {} \;
+
+# Updating the package list && Minimal system upgrade
+colorEcho "${BLUE}Updating the package list, Minimal system upgrade and Upgrading Debian ${OS_RELEASE_VER} to Debian ${UPGRADE_RELEASE_VER}..."
 sudo apt update && sudo apt upgrade --without-new-pkgs -y && sudo apt full-upgrade -y
+
+# Update unhold packages and clean up
+colorEcho "${BLUE}Update unhold packages and clean up..."
+for PKG in "${HOLD_PKGS[@]}"; do
+    if dpkg --get-selections '*' | grep -q "^${PKG}"; then
+        colorEcho "${BLUE}Unhold ${FUCHSIA}${PKG}${BLUE} package..."
+        sudo apt-mark unhold "${PKG}" 2>/dev/null
+    fi
+done
+
+# apt list --upgradable
+sudo apt update && sudo apt upgrade -y && sudo apt full-upgrade -y && sudo apt autoclean -y && sudo apt --purge autoremove -y
+
+# Verify System Version
+colorEcho "${BLUE}Verify ${FUCHSIA}System Version${BLUE}..."
+lsb_release -a
+cat /etc/*-release
+
+# Verify SSHD config file
+colorEcho "${BLUE}Verify ${FUCHSIA}SSHD config file${BLUE}..."
+sudo sshd -t
 
 # Check GRUB
 colorEcho "${BLUE}Getting ${FUCHSIA}GRUB menu entry${BLUE}..."
@@ -49,10 +116,11 @@ colorEcho "${BLUE}Getting ${FUCHSIA}GRUB menu entry${BLUE}..."
 # sudo systemctl reboot
 
 ## Restart WSL in PowerShell
-# Stop-Service -Name "LxssManager" && Start-Service -Name "LxssManager"
+# Stop-Service -Name "LxssManager" && Start-Service -Name "LxssManager" # WSL1
+# Stop-Service -Name "WslService" && Start-Service -Name "WslService" # WSL2
 
 ## verification
-# uname -a && cat /etc/*-release
+# uname -a && lsb_release -a && cat /etc/*-release
 # sudo journalctl
 
 ## Clean up outdated packages

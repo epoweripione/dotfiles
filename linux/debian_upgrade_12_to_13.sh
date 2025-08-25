@@ -21,12 +21,17 @@ fi
 # [Debian 13 trixie upgrade](https://gist.github.com/yorickdowne/3cecc7b424ce241b173510e36754af47)
 # [How to Upgrade Debian 12 Bookworm to Debian 13 Trixie](https://linuxconfig.org/how-to-upgrade-debian-to-latest-version)
 
-# Debian 13 release info
+# Upgrade release info
 UPGRADE_RELEASE_VER="13"
 UPGRADE_RELEASE_CODENAME="trixie"
 
 # current OS release info
 [[ -z "${OS_RELEASE_ID}" ]] && get_os_release_info
+
+if [[ "${OS_RELEASE_ID}" != "debian" || "${OS_RELEASE_VER}" != "12" || "${OS_RELEASE_CODENAME}" != "bookworm" ]]; then
+    colorEcho "${RED}This script is only for Debian 12 (Bookworm) systems!"
+    exit 1
+fi
 
 # mirror site
 MIRROR_PACKAGE_MANAGER_APT="${MIRROR_PACKAGE_MANAGER_APT:-"deb.debian.org"}"
@@ -146,8 +151,8 @@ colorEcho "${BLUE}Getting ${FUCHSIA}GRUB menu entry${BLUE}..."
 # sudo systemctl reboot
 
 ## Restart WSL in PowerShell
-# Stop-Service -Name "LxssManager" && Start-Service -Name "LxssManager" # Windows 10
-# Stop-Service -Name "WslService" && Start-Service -Name "WslService" # Windows 11
+# Stop-Service -Name "LxssManager" && Start-Service -Name "LxssManager" # WSL1
+# Stop-Service -Name "WslService" && Start-Service -Name "WslService" # WSL2
 
 ## verification
 # uname -a && lsb_release -a && cat /etc/*-release

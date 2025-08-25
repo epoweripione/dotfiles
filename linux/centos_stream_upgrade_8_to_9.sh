@@ -17,7 +17,20 @@ else
     fi
 fi
 
-[[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
+# Upgrade release info
+UPGRADE_RELEASE_VER="9"
+UPGRADE_REPO_VERSION="9.0-30"
+
+# current OS release info
+[[ -z "${OS_RELEASE_ID}" ]] && get_os_release_info
+[[ -z "${OS_INFO_ARCH}" ]] && get_arch
+
+if [[ "${OS_RELEASE_ID}" != "centos" || "${OS_RELEASE_VER}" != "8" || "${OS_INFO_CPU_ARCH}" != "x86_64" ]]; then
+    colorEcho "${RED}This script is only for CentOS 8 x86_64 systems!"
+    exit 1
+fi
+
+MIRROR_CENTOS_STREAM=${MIRROR_CENTOS_STREAM:-"http://mirror.stream.centos.org"}
 
 ## /etc/yum.repos.d/
 # dnf repolist
@@ -42,15 +55,14 @@ sudo package-cleanup --leaves
 sudo package-cleanup --orphans
 
 colorEcho "${BLUE}Installing new repos..."
-MIRROR_CENTOS_STREAM=${MIRROR_CENTOS_STREAM:-"http://mirror.stream.centos.org"}
 sudo dnf -y install \
-    "${MIRROR_CENTOS_STREAM}/9-stream/BaseOS/x86_64/os/Packages/centos-stream-repos-9.0-12.el9.noarch.rpm" \
-    "${MIRROR_CENTOS_STREAM}/9-stream/BaseOS/x86_64/os/Packages/centos-stream-release-9.0-12.el9.noarch.rpm" \
-    "${MIRROR_CENTOS_STREAM}/9-stream/BaseOS/x86_64/os/Packages/centos-gpg-keys-9.0-12.el9.noarch.rpm"
+    "${MIRROR_CENTOS_STREAM}/${UPGRADE_RELEASE_VER}-stream/BaseOS/${OS_INFO_CPU_ARCH}/os/Packages/centos-stream-repos-${UPGRADE_REPO_VERSION}.el${UPGRADE_RELEASE_VER}.noarch.rpm" \
+    "${MIRROR_CENTOS_STREAM}/${UPGRADE_RELEASE_VER}-stream/BaseOS/${OS_INFO_CPU_ARCH}/os/Packages/centos-stream-release-${UPGRADE_REPO_VERSION}.el${UPGRADE_RELEASE_VER}.noarch.rpm" \
+    "${MIRROR_CENTOS_STREAM}/${UPGRADE_RELEASE_VER}-stream/BaseOS/${OS_INFO_CPU_ARCH}/os/Packages/centos-gpg-keys-${UPGRADE_REPO_VERSION}.el${UPGRADE_RELEASE_VER}.noarch.rpm"
 
 colorEcho "${BLUE}Installing epel repos..."
-curl -o "${WORKDIR}/epel-release-latest-9.noarch.rpm" "https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm"
-curl -o "${WORKDIR}/epel-next-release-latest-9.noarch.rpm" "https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-9.noarch.rpm"
+curl -o "${WORKDIR}/epel-release-latest-${UPGRADE_RELEASE_VER}.noarch.rpm" "https://dl.fedoraproject.org/pub/epel/epel-release-latest-${UPGRADE_RELEASE_VER}.noarch.rpm"
+curl -o "${WORKDIR}/epel-next-release-latest-${UPGRADE_RELEASE_VER}.noarch.rpm" "https://dl.fedoraproject.org/pub/epel/epel-next-release-latest-${UPGRADE_RELEASE_VER}.noarch.rpm"
 sudo rpm -Uvh "${WORKDIR}"/*.rpm
 
 ## fix: Modular dependency problems
@@ -72,7 +84,7 @@ fi
 # disable subscription-manager
 sudo sed -i 's/enabled=1/enabled=0/' "/etc/yum/pluginconf.d/subscription-manager.conf"
 
-sudo dnf -y --releasever=9 --allowerasing --setopt=deltarpm=false swap python39-setuptools python3-setuptools
+sudo dnf -y --releasever=${UPGRADE_RELEASE_VER} --allowerasing --setopt=deltarpm=false swap python39-setuptools python3-setuptools
 
 colorEcho "${BLUE}Updating packages..."
 # fix: Found bdb_ro Packages database while attempting sqlite backend: using bdb_ro backend
@@ -85,10 +97,10 @@ sudo dnf -y clean all
 # rpm -qa kernel
 sudo rpm -e "$(rpm -q kernel)"
 
-colorEcho "${BLUE}Switch to Centos Stream 9..."
-sudo dnf -y --releasever=9 --allowerasing --setopt=deltarpm=false distro-sync
+colorEcho "${BLUE}Switch to Centos Stream ${UPGRADE_RELEASE_VER}..."
+sudo dnf -y --releasever=${UPGRADE_RELEASE_VER} --allowerasing --setopt=deltarpm=false distro-sync
 
-colorEcho "${BLUE}Installing Centos Stream 9 kernel..."
+colorEcho "${BLUE}Installing Centos Stream ${UPGRADE_RELEASE_VER} kernel..."
 sudo dnf -y install kernel kernel-core shim
 # ls -la /boot/loader/entries
 sudo grub2-mkconfig -o "/boot/grub2/grub.cfg"
