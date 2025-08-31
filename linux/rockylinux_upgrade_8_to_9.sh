@@ -17,7 +17,18 @@ else
     fi
 fi
 
-[[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
+# Upgrade release info
+UPGRADE_RELEASE_VER="9"
+UPGRADE_REPO_VERSION="9.6-1.3"
+
+# current OS release info
+[[ -z "${OS_RELEASE_ID}" ]] && get_os_release_info
+[[ -z "${OS_INFO_ARCH}" ]] && get_arch
+
+if [[ "${OS_RELEASE_ID}" != "rocky" || "${OS_RELEASE_VER}" != "9" || "${OS_INFO_CPU_ARCH}" != "x86_64" ]]; then
+    colorEcho "${RED}This script is only for Rocky Linux 9 x86_64 systems!"
+    exit 1
+fi
 
 ## /etc/yum.repos.d/
 # dnf repolist
@@ -28,21 +39,21 @@ fi
 colorEcho "${BLUE}Updating installed packages..."
 sudo dnf -y upgrade --refresh
 
-colorEcho "${BLUE}Adding ${FUCHSIA}Rocky Linux 9 Repositories${BLUE}..."
+colorEcho "${BLUE}Adding ${FUCHSIA}Rocky Linux ${UPGRADE_RELEASE_VER} Repositories${BLUE}..."
 # [Packages](https://download.rockylinux.org/pub/rocky/9/BaseOS/x86_64/os/Packages/r/)
-REPO_URL="https://download.rockylinux.org/pub/rocky/9/BaseOS/x86_64/os/Packages/r"
-RELEASE_PKG="rocky-release-9.5-1.3.el9.noarch.rpm"
-REPOS_PKG="rocky-repos-9.5-1.3.el9.noarch.rpm"
-GPG_KEYS_PKG="rocky-gpg-keys-9.5-1.3.el9.noarch.rpm"
+REPO_URL="https://download.rockylinux.org/pub/rocky/${UPGRADE_RELEASE_VER}/BaseOS/${OS_INFO_CPU_ARCH}/os/Packages/r"
+RELEASE_PKG="rocky-release-${UPGRADE_REPO_VERSION}.el${UPGRADE_RELEASE_VER}.noarch.rpm"
+REPOS_PKG="rocky-repos-${UPGRADE_REPO_VERSION}.el${UPGRADE_RELEASE_VER}.noarch.rpm"
+GPG_KEYS_PKG="rocky-gpg-keys-${UPGRADE_REPO_VERSION}.el${UPGRADE_RELEASE_VER}.noarch.rpm"
 
-sudo dnf -y install $REPO_URL/$RELEASE_PKG $REPO_URL/$REPOS_PKG $REPO_URL/$GPG_KEYS_PKG
+sudo dnf -y install "$REPO_URL/$RELEASE_PKG" "$REPO_URL/$REPOS_PKG" "$REPO_URL/$GPG_KEYS_PKG"
 
 colorEcho "${BLUE}Removing unnecessary packages..."
 sudo dnf -y remove rpmconf yum-utils epel-release
 sudo rm -rf /usr/share/redhat-logos
 
-colorEcho "${BLUE}Installing Rocky Linux 9 packages..."
-sudo dnf -y --releasever=9 --allowerasing --setopt=deltarpm=false distro-sync
+colorEcho "${BLUE}Installing Rocky Linux ${UPGRADE_RELEASE_VER} packages..."
+sudo dnf -y --releasever=${UPGRADE_RELEASE_VER} --allowerasing --setopt=deltarpm=false distro-sync
 
 ## Fix: conflict packages
 # sudo dnf -y remove valgrind iptables-ebtables
