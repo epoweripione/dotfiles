@@ -29,9 +29,9 @@ fi
 
 AppBootsplashInstallList=(
     # [Manjaro Bootsplash Manager](https://github.com/parov0z/bootsplash-manager)
-    "bootsplash-manager"
+    # "bootsplash-manager"
     "bootsplash-systemd"
-    "bootsplash-theme-manjaro"
+    # "bootsplash-theme-manjaro"
     "lightdm-settings"
     "lightdm-slick-greeter"
     "plymouth"
@@ -46,8 +46,8 @@ AppBootsplashInstallList=(
 )
 InstallSystemPackages "" "${AppBootsplashInstallList[@]}"
 
-if [[ ! -x "$(command -v bootsplash-manager)" ]]; then
-    colorEcho "${FUCHSIA}bootsplash-manager${RED} is not installed!"
+if [[ ! -x "$(command -v plymouth)" ]]; then
+    colorEcho "${FUCHSIA}plymouth${RED} is not installed!"
     exit 1
 fi
 
