@@ -2,7 +2,7 @@
   "dependencies": {
     "html-to-text": "^9.0.5",
     "minimist": "^1.2.8",
-    "puppeteer": "^24.17.0",
+    "puppeteer": "^24.17.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
@@ -24,8 +24,8 @@
     "eslint": "^9.34.0",
     "husky": "^9.1.7",
     "lodash": "^4.17.21",
-    "memfs": "^4.37.1",
-    "ts-loader": "^9.5.2",
+    "memfs": "^4.38.2",
+    "ts-loader": "^9.5.4",
     "typescript": "^5.9.2",
     "webpack": "^5.101.3"
   },
