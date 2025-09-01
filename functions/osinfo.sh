@@ -141,10 +141,10 @@ function get_os_release_info() {
         OS_RELEASE_ID=$(lsb_release --id --short 2>/dev/null | tr '[:upper:]' '[:lower:]')
 
         # buster, bookworm, trixie...
-        OS_RELEASE_CODENAME=$(lsb_release --codename --short 2>/dev/null)
+        OS_RELEASE_CODENAME=$(lsb_release --codename --short 2>/dev/null | cut -d'(' -f2 | cut -d')' -f1)
 
         # 11, 12, 13...
-        OS_RELEASE_VER=$(lsb_release --release --short 2>/dev/null)
+        OS_RELEASE_VER=$(lsb_release --release --short 2>/dev/null | cut -d'.' -f1)
     else
         # rhel, fedora, centos, rocky, almalinux...
         OS_RELEASE_ID=$(awk -F= '/^ID=/ {print $2}' /etc/os-release | tr '[:upper:]' '[:lower:]' | tr -d '"')
