@@ -25,20 +25,35 @@ fi
 # grep -Ei 'Forward|Authentication' "/etc/ssh/sshd_config"
 
 # /etc/ssh/ssh_config.d/
-SUB_CONFIG_FILE=""
+SSH_CONFIG_D="NO"
+SSH_CONFIG_FILE=""
+
+# ssh
 if systemctl is-enabled ssh >/dev/null 2>&1; then
-    [[ -d "/etc/ssh/ssh_config.d" ]] && SUB_CONFIG_FILE="/etc/ssh/ssh_config.d/00-only-ssh-login.conf"
+    sudo test -d "/etc/ssh/ssh_config.d" && SSH_CONFIG_FILE="/etc/ssh/ssh_config.d/00-only-ssh-login.conf"
 fi
 
-if systemctl is-enabled sshd >/dev/null 2>&1; then
-    [[ -d "/etc/ssh/sshd_config.d" ]] && SUB_CONFIG_FILE="/etc/ssh/sshd_config.d/00-only-ssh-login.conf"
-fi
-
-if [[ -n "${SUB_CONFIG_FILE}" && ! -f "${SUB_CONFIG_FILE}" ]]; then
+if ! sudo test -f "${SSH_CONFIG_FILE}"; then
     if [[ -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/ssh/00-only-ssh-login.conf" ]]; then
-        cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/ssh/00-only-ssh-login.conf" "${SUB_CONFIG_FILE}"
+        sudo cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/ssh/00-only-ssh-login.conf" "${SSH_CONFIG_FILE}"
+        SSH_CONFIG_D="YES"
     fi
-else
+fi
+
+# sshd
+if systemctl is-enabled sshd >/dev/null 2>&1; then
+    sudo test -d "/etc/ssh/sshd_config.d" && SSH_CONFIG_FILE="/etc/ssh/sshd_config.d/00-only-ssh-login.conf"
+fi
+
+if ! sudo test -f "${SSH_CONFIG_FILE}"; then
+    if [[ -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/ssh/00-only-ssh-login.conf" ]]; then
+        sudo cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/ssh/00-only-ssh-login.conf" "${SSH_CONFIG_FILE}"
+        SSH_CONFIG_D="YES"
+    fi
+fi
+
+# If no ssh/sshd config.d file, use the main config file
+if [[ "${SSH_CONFIG_D}" == "NO" ]]; then
     # Disable Password Authentication
     sudo sed -i 's/[#]*[ ]*PasswordAuthentication.*/PasswordAuthentication no/g' "/etc/ssh/sshd_config"
     sudo sed -i 's/[#]*[ ]*ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/g' "/etc/ssh/sshd_config"

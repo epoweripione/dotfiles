@@ -20,8 +20,13 @@ sudo journalctl --vacuum-size=1G
 ## sysctl.conf
 # https://klaver.it/linux/sysctl.conf
 # https://wsgzao.github.io/post/sysctl/
-if ! grep -q "# turn on bbr" /etc/sysctl.conf 2>/dev/null; then
-    sudo tee -a /etc/sysctl.conf >/dev/null <<-'EOF'
+SYSCTL_FILE="/etc/sysctl.conf"
+if ! sudo test -f "${SYSCTL_FILE}"; then
+    sudo test -d "/etc/sysctl.d/" && SYSCTL_FILE="/etc/sysctl.d/99-sysctl.conf"
+fi
+
+if ! sudo grep -q "# turn on bbr" "${SYSCTL_FILE}" 2>/dev/null; then
+    sudo tee -a "${SYSCTL_FILE}" >/dev/null <<-'EOF'
 
 # for high-latency network
 # net.ipv4.tcp_congestion_control = hybla
@@ -84,7 +89,7 @@ EOF
 fi
 
 # limits.conf
-if ! grep -q "\*               soft    nofile           512000" /etc/security/limits.conf 2>/dev/null; then
+if ! sudo grep -q "\*               soft    nofile           512000" /etc/security/limits.conf 2>/dev/null; then
     sudo tee -a /etc/security/limits.conf >/dev/null <<-'EOF'
 
 *               soft    nofile           512000
@@ -92,14 +97,14 @@ if ! grep -q "\*               soft    nofile           512000" /etc/security/li
 EOF
 fi
 
-if ! grep -q "session required pam_limits.so" /etc/pam.d/common-session 2>/dev/null; then
+if ! sudo grep -q "session required pam_limits.so" /etc/pam.d/common-session 2>/dev/null; then
     sudo tee -a /etc/pam.d/common-session >/dev/null <<-'EOF'
 
 session required pam_limits.so
 EOF
 fi
 
-if ! grep -q "ulimit -SHn 1024000" /etc/profile 2>/dev/null; then
+if ! sudo grep -q "ulimit -SHn 1024000" /etc/profile 2>/dev/null; then
     sudo tee -a /etc/profile >/dev/null <<-'EOF'
 
 ulimit -SHn 1024000
@@ -108,7 +113,11 @@ fi
 
 # ulimit -n
 
-sudo sysctl -p
+sudo sysctl -p 2>/dev/null
+
+if systemctl is-enabled systemd-sysctl >/dev/null 2>&1; then
+    sudo systemctl restart systemd-sysctl
+fi
 
 echo -n "Reboot now?[Y/n]:"
 read -r IS_REBOOT
