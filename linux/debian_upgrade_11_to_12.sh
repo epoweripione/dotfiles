@@ -32,6 +32,14 @@ if [[ "${OS_RELEASE_ID}" != "debian" || "${OS_RELEASE_VER}" != "11" || "${OS_REL
 fi
 
 # mirror site
+if [[ -z "${MIRROR_PACKAGE_MANAGER_APT}" && -f "/etc/apt/sources.list" ]]; then
+    MIRROR_PACKAGE_MANAGER_APT=$(grep '^deb' /etc/apt/sources.list 2>/dev/null | head -n1 | awk '{print $2}' | awk -F "/" '{print $3}')
+fi
+
+if [[ -z "${MIRROR_PACKAGE_MANAGER_APT}" && -f "/etc/apt/sources.list.d/debian.sources" ]]; then
+    MIRROR_PACKAGE_MANAGER_APT=$(grep '^URIs:' /etc/apt/sources.list.d/debian.sources 2>/dev/null | head -n1 | awk '{print $2}' | awk -F "/" '{print $3}')
+fi
+
 MIRROR_PACKAGE_MANAGER_APT="${MIRROR_PACKAGE_MANAGER_APT:-"deb.debian.org"}"
 
 ## installed packages
