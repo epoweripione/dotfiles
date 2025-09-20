@@ -198,15 +198,15 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         ## polybar: A fast and easy-to-use status bar
         ## scrot: command-line screenshot utility for X
         ## xcompmgr: Composite Window-effects manager for X.org
-        "picom"
-        "rofi"
-        "feh"
-        "inkscape"
-        "mate-power-manager"
-        "mpd"
-        "ncmpcpp"
-        "polybar"
-        "scrot"
+        # "picom"
+        # "rofi"
+        # "feh"
+        # "inkscape"
+        # "mate-power-manager"
+        # "mpd"
+        # "ncmpcpp"
+        # "polybar"
+        # "scrot"
         ## xmonad https://xmonad.org/
         # "xmonad"
         # "xmonad-contrib"
@@ -397,6 +397,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         ## copies the content of a file into your clipboard
         # xclip -selection clipboard -i < file.txt
         "xclip"
+        ## [WinBoat - Run Windows apps on 🐧 Linux with ✨ seamless integration](https://github.com/TibixDev/winboat)
+        "winboat"
     )
 fi
 InstallSystemPackages "" "${AppManjaroInstallList[@]}"
