@@ -306,6 +306,7 @@ function formatYAMLFile() {
     sed -ri -e 's/\"\[\"\[/\"\[/g' -e 's/\]\"\]\"/\]\"/g' "${subscribeFile}"
     sed -ri 's/(HOST|Host|host|PATH|Path|path):\s*\"【([^,"\{\}]+)】\"/\1: "\[\2\]"/g' "${subscribeFile}"
     sed -ri "s/([[:space:]\{,]+)name:\s+\"([^\",]+)\"([^\",]+)\"([^\",]*)\"([[:space:]\},]+)/\1name: \"\2\3\4\"\5/g" "${subscribeFile}"
+    sed -ri "s/([[:space:]\{,]+)name:\s+\"([^\",]+)\"([^\",]*)\"([[:space:]\},]+)/\1name: \"\2\3\"\4/g" "${subscribeFile}"
     sed -ri -e 's/\[\[/\[/g' -e 's/\]\]/\]/g' "${subscribeFile}"
 
     # empty slice
