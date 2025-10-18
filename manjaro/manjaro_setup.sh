@@ -398,7 +398,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # xclip -selection clipboard -i < file.txt
         "xclip"
         ## [WinBoat - Run Windows apps on 🐧 Linux with ✨ seamless integration](https://github.com/TibixDev/winboat)
-        "winboat"
+        "winboat-bin"
     )
 fi
 InstallSystemPackages "" "${AppManjaroInstallList[@]}"
