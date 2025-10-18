@@ -399,6 +399,10 @@ elif [[ -x "$(command -v conda)" ]]; then
     conda update -y --all
 fi
 
+if [[ "$(command -v pixi)" ]]; then
+    pixi self-update
+fi
+
 if [[ -d "$HOME/.nvm" && -s "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_updater.sh" ]]; then
     source "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_updater.sh"
 fi

@@ -648,6 +648,11 @@ if($env:MAMBA_EXE) {
     (& $env:MAMBA_EXE 'shell' 'hook' -s 'powershell') | Out-String | Invoke-Expression
 }
 
+# Pixi
+if (Get-Command "pixi" -ErrorAction SilentlyContinue) {
+    (& pixi completion --shell powershell) | Out-String | Invoke-Expression
+}
+
 ## https://starship.rs/
 # if (Get-Command "starship" -ErrorAction SilentlyContinue) {
 #     Invoke-Expression (&starship init powershell)
