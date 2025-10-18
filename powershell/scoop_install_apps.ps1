@@ -230,6 +230,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "obs-studio"
         "xpipe"
         "edit"
+        "zed"
         # "geany"
         # "geany-plugins"
         # "notepad3"
