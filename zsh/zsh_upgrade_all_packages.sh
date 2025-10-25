@@ -340,6 +340,10 @@ for Target in "${AppUpdateOnlyList[@]}"; do
     fi
 done
 
+# duckdb
+AppInstaller="${MY_SHELL_SCRIPTS}/db/duckdb_installer.sh"
+[[ -f "${AppInstaller}" ]] && source "${AppInstaller}"
+
 # Update fonts
 IS_UPDATE_ONLY="yes"
 if [[ -z "${FontUpdateList[*]}" ]]; then
