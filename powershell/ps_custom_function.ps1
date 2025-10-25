@@ -968,3 +968,24 @@ function Add-ExecutableTcpUdpFirewallRules {
 
     # Remove-NetFirewallRule -Description "$FirewallRuleDescription" -ErrorAction SilentlyContinue
 }
+
+function fixIPv6PrefixPolicies() {
+    if (-Not (isadmin)) {
+        Write-Warning "This script needs to be run As Admin!"
+        return
+    }
+
+    netsh interface ipv6 show prefixpolicies
+
+    netsh int ipv6 set prefix ::/96 50 0
+    netsh int ipv6 set prefix ::ffff:0:0/96 40 1
+    netsh int ipv6 set prefix 2002::/16 35 2
+    netsh int ipv6 set prefix 2001::/32 30 3
+    netsh int ipv6 set prefix ::1/128 10 4
+    netsh int ipv6 set prefix ::/0 5 5
+    netsh int ipv6 set prefix fc00::/7 3 13
+    netsh int ipv6 set prefix fec0::/10 1 11
+    netsh int ipv6 set prefix 3ffe::/16 1 12
+
+    netsh interface ipv6 show prefixpolicies
+}
