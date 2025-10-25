@@ -298,7 +298,7 @@ function formatYAMLFile() {
     # sed -ri 's/password:\s+([^,"\{\}]+)/password: "\1"/g' "${subscribeFile}"
     sed -ri 's/password:\s+([^,"]+)/password: "\1"/g' "${subscribeFile}"
 
-    sed -ri 's/(\}+)"/"\1/g' "${subscribeFile}"
+    sed -ri 's/(\}+)\s*"/"\1/g' "${subscribeFile}"
 
     # IPV6
     sed -ri "/name:/ s/[\"【]*(${IPV6RegExp})[\"】]*/\"\[\1\]\"/g" "${subscribeFile}"
