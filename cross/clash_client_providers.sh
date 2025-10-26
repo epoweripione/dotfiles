@@ -1025,6 +1025,9 @@ processDuplicateProxies "${PROXIES_OUTPUT_TEMP}"
 # Check & fix invalid YAML format
 fixInvalidYAMLFile "${PROXIES_OUTPUT_TEMP}"
 
+# Format the proxies temp file contents into YAML format
+formatYAMLFile "${PROXIES_OUTPUT_TEMP}"
+
 # Save to `/tmp` directory for debug
 colorEcho "${BLUE}  Saving proxies to ${FUCHSIA}/tmp/proxies_all-${TARGET_CONFIG_NAME}${BLUE}..."
 cp -f "${PROXIES_OUTPUT_TEMP}" "/tmp/proxies_all-${TARGET_CONFIG_NAME}"
