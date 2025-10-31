@@ -32,6 +32,11 @@ fi
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
+## Enable community repository for Alpine Linux
+# if sudo test -f "/etc/apk/repositories"; then
+#     sudo sed -i '/community/s/^#//g' "/etc/apk/repositories"
+# fi
+
 # Install ZSH Shell
 if [[ -x "$(command -v pacman)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}installed packages${BLUE}..."
@@ -93,6 +98,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         dstat
         htop
         inxi
+        iotop-c
         jq
         lsof
         make
