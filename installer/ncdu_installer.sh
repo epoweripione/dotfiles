@@ -47,7 +47,8 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         INSTALLER_DOWNLOAD_FILE=$(awk -F"/" '{print $NF}' <<<"${INSTALLER_DOWNLOAD_URL}")
         INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE%%[?#]*}"
         if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
-            mv "${WORKDIR}/${INSTALLER_APP_NAME}-"* "${WORKDIR}/${INSTALLER_APP_NAME}"
+            NCDU_EXTRACTED_DIR=$(find "${WORKDIR}" -maxdepth 1 -type d -name "${INSTALLER_APP_NAME}-*")
+            mv "${NCDU_EXTRACTED_DIR}" "${WORKDIR}/${INSTALLER_APP_NAME}"
             [[ -f "${WORKDIR}/${INSTALLER_APP_NAME}/build.zig" ]] && INSTALLER_INSTALL_METHOD="build"
         fi
     fi
