@@ -7,6 +7,12 @@
 ## https: SSLError(SSLError(1, '[SSL: WRONG_SIGNATURE_TYPE] wrong signature type (_ssl.c:1123)'))
 # sudo sed -i 's/CipherString = DEFAULT@SECLEVEL=2/CipherString = DEFAULT@SECLEVEL=1/' /etc/ssl/openssl.cnf
 
+## sudo dockerd --debug
+## failed to start daemon: Error initializing network controller: Error creating default "bridge" network: Failed to program NAT chain: ZONE_CONFLICT: 'docker0' already bound to a zone
+# sudo firewall-cmd --get-active-zones
+# sudo firewall-cmd --permanent --zone=trusted --remove-interface="docker0"
+# sudo firewall-cmd --reload
+
 ## testing
 # https GET "https://mirror.baidubce.com/v2/library/nginx/tags/list"
 # ht GET "https://hub-mirror.c.163.com/v2/library/nginx/tags/list"
@@ -346,7 +352,7 @@ function dockerSetFirewalld() {
     if_docker=$(ip route 2>/dev/null | grep docker | sed -e "s/^.*dev.//" | awk '{print $1}' | head -n1)
 
     # Assumes docker interface is docker0
-    sudo firewall-cmd --permanent --zone=trusted --add-interface="${if_docker:-docker0}"
+    sudo firewall-cmd --permanent --zone=docker --add-interface="${if_docker:-docker0}"
 
     # Assumes network interface with your public IP is eth0
     sudo firewall-cmd --permanent --zone=public --add-interface="${if_default:-eth0}"
