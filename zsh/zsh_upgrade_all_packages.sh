@@ -258,6 +258,8 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "httpie-go"
         "httpstat"
         "hyperfine"
+        # [ImageKit - a powerful and fast command-line tool for batch processing images](https://github.com/hzbd/imagekit)
+        "imagekit#hzbd/imagekit##imagekit*"
         # "noxdir#crumbyte/noxdir#tar.gz#noxdir*"
         # [Logdy - terminal logs in web browser](https://github.com/logdyhq/logdy-core)
         "logdy#logdyhq/logdy-core##logdy*"
