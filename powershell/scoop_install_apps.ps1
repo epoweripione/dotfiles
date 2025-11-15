@@ -247,6 +247,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "gitbutler"
         "insomnia"
         "reqable"
+        "yaak"
         "fiddler"
         "wireshark"
         # "babelmap"
