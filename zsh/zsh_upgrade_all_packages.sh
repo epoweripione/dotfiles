@@ -249,6 +249,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "dysk"
         # [F2 - Command-Line Batch Renaming](https://github.com/ayoisaiah/f2)
         "f2#ayoisaiah/f2#tar.gz#f2*"
+        "fish#fish-shell/fish-shell#tar.xz#fish*"
         "fq"
         "fx"
         "gdu#dundee/gdu#tgz#gdu*"
@@ -493,6 +494,15 @@ fi
 if [[ -x "$(command -v mc)" ]]; then
     colorEcho "${BLUE}Updating ${FUCHSIA}mc${BLUE}..."
     mc update
+fi
+
+# oh-my-fish
+if [[ -x "$(command -v fish)" && ! -d "$HOME/.local/share/omf" ]]; then
+    curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish
+    # omf search autojump
+    # omf install z
+
+    # fish_config
 fi
 
 # if [[ -x "$(command -v pip)" ]]; then
