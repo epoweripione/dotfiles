@@ -317,6 +317,13 @@ if (-Not (Get-Command -Name "check_webservice_up" 2>$null)) {
 
 
 # Winget
+if (Get-Command "winget" -ErrorAction SilentlyContinue) {
+    if ("${env:GLOBAL_PROXY_IP}:${env:GLOBAL_PROXY_MIXED_PORT}") {
+        winget settings set DefaultProxy "http://${env:GLOBAL_PROXY_IP}:${env:GLOBAL_PROXY_MIXED_PORT}"
+    } else {
+        winget settings reset DefaultProxy
+    }
+}
 # & "$PSScriptRoot\winget_install_apps.ps1"
 
 
