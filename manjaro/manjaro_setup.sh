@@ -354,6 +354,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "wsysmon-git"
         "zenity"
         "archlinuxcn/mission-center"
+        "aur/portmaster-bin"
         #"easystroke"
         ## Time synchronization
         "chrony"
