@@ -72,7 +72,10 @@ fi
 
 # docker
 if [[ -x "$(command -v docker)" ]]; then
-    alias dockerPullAll='docker images | grep -Ev "REPOSITORY|<none>" | awk '"'"'{print $1,$2}'"'"' OFS='"'"':'"'"' | xargs -L1 docker pull'
+    alias dockerImages='docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedSince}}"'
+    alias dockerImagesInUse='docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}\t{{.CreatedSince}}" | grep -f <(docker ps -a --format "{{.Image}}")'
+    # alias dockerPullAll='docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.Size}}" | grep -Ev "REPOSITORY|<none>" | awk '"'"'{print $1,$2}'"'"' OFS=":" | xargs -L1 docker pull'
+    alias dockerPullAll='docker images --format "{{.Repository}}:{{.Tag}}" | xargs -L1 docker pull'
     alias dockerPs='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}"'
     alias dockerPsAll='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}\t{{.Ports}}\t{{.Networks}}\t{{.Command}}\t{{.Size}}"'
     alias dockerClean='docker ps -a | awk '"'"'/Exited/ {print $1}'"'"' | xargs docker rm'
