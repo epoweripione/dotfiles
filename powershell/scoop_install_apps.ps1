@@ -258,6 +258,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "wsa-pacman"
         # "clash-for-windows"
         "clash-verge-rev"
+        "clash-party"
+        "flclash"
         "mihomo"
         "naiveproxy"
         "hysteria"
@@ -362,7 +364,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "wget"
         "win32yank"
         "windhawk"
-        "winsw"
+        # "winsw"
+        "winsw-pre"
         "winmtr"
         "zeal"
         "zoxide"
@@ -394,7 +397,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         ## VNC/RDP
         "rustdesk"
         # "tightvnc"
-        "vncviewer"
+        "ultravnc"
+        # "vncviewer"
         ## k8s
         "openlens"
         ## images & videos
