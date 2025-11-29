@@ -52,7 +52,8 @@ if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
         INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_DOWNLOAD_FILE%%[?#]*}"
         if App_Installer_Download_Extract "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}" "${WORKDIR}"; then
             colorEcho "${BLUE}  Compiling ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
-            mv "${WORKDIR}/${INSTALLER_APP_NAME}-"* "${WORKDIR}/${INSTALLER_APP_NAME}" && \
+            AXEL_EXTRACTED_DIR=$(find "${WORKDIR}" -maxdepth 1 -type d -name "${INSTALLER_APP_NAME}-*")
+            mv "${AXEL_EXTRACTED_DIR}" "${WORKDIR}/${INSTALLER_APP_NAME}" && \
                 cd "${WORKDIR}/${INSTALLER_APP_NAME}" && \
                 ./configure >/dev/null && \
                 make >/dev/null && \
