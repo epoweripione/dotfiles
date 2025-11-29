@@ -226,6 +226,11 @@ fi
 
 # axel
 if [[ ! -x "$(command -v axel)" ]]; then
+    [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/axel_installer.sh" ]] && \
+        source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/axel_installer.sh"
+fi
+
+if [[ ! -x "$(command -v axel)" ]]; then
     if [[ ! -x "$(command -v snap)" ]]; then
         [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/snap_installer.sh" ]] && \
             source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/installer/snap_installer.sh"
