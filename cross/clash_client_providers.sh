@@ -295,6 +295,8 @@ function formatYAMLFile() {
     # sed -ri 's/name:\s+([^,"\{\}]+)/name: "\1"/g' "${subscribeFile}"
     sed -ri 's/name:\s+([^,"]+)/name: "\1"/g' "${subscribeFile}"
 
+    sed -ri 's/server:\s+([^,"]+)/server: "\1"/g' "${subscribeFile}"
+
     # sed -ri 's/password:\s+([^,"\{\}]+)/password: "\1"/g' "${subscribeFile}"
     sed -ri 's/password:\s+([^,"]+)/password: "\1"/g' "${subscribeFile}"
 
