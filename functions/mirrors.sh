@@ -102,19 +102,25 @@ function setMirrorNodejs() {
         [[ -n "${MIRROR_NODEJS_REGISTRY}" ]] && export COREPACK_NPM_REGISTRY="${MIRROR_NODEJS_REGISTRY}"
     fi
 
+    # fnm
+    if [[ "$(command -v fnm)" ]]; then
+        export FNM_NODE_DIST_MIRROR=${FNM_NODE_DIST_MIRROR:-"https://cdn.npmmirror.com/binaries/node"}
+    fi
+
     # nvm
     if [[ "$(command -v nvm)" ]]; then
-        export NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"}
+        export NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR:-"https://cdn.npmmirror.com/binaries/node"}
     fi
 
     # nvs
     if [[ "$(command -v nvs)" ]]; then
-        export NVS_NODEJS_ORG_MIRROR=${NVS_NODEJS_ORG_MIRROR:-"https://npmmirror.com/mirrors/node"}
+        export NVS_NODEJS_ORG_MIRROR=${NVS_NODEJS_ORG_MIRROR:-"https://cdn.npmmirror.com/binaries/node"}
         nvs remote node "${NVS_NODEJS_ORG_MIRROR}"
     fi
 
     # [NPM Binary mirror](https://github.com/cnpm/binary-mirror-config/blob/master/package.json)
     if [[ -z "${MIRROR_NODEJS_REGISTRY}" ]]; then
+        unset FNM_NODE_DIST_MIRROR
         unset CHROMEDRIVER_CDNURL
         unset COREPACK_NPM_REGISTRY
         unset CYPRESS_DOWNLOAD_PATH_TEMPLATE

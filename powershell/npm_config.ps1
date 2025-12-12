@@ -29,6 +29,8 @@ if (($ConfigAction -eq "AUTO") -and $UseMirror) {
     # Add-Content "$env:USERPROFILE\.npmrc" "`nselenium_cdnurl=https://npmmirror.com/mirrors/selenium" # selenium
     # Add-Content "$env:USERPROFILE\.npmrc" "`nnode_inspector_cdnurl=https://npmmirror.com/mirrors/node-inspector" # node-inspector
 
+    [System.Environment]::SetEnvironmentVariable("FNM_NODE_DIST_MIRROR", 'https://cdn.npmmirror.com/binaries/node', 'User')
+
     [System.Environment]::SetEnvironmentVariable("CHROMEDRIVER_CDNURL", 'https://cdn.npmmirror.com/binaries/chromedriver', 'User')
     [System.Environment]::SetEnvironmentVariable("COREPACK_NPM_REGISTRY", 'https://registry.npmmirror.com', 'User')
     [System.Environment]::SetEnvironmentVariable("CYPRESS_DOWNLOAD_PATH_TEMPLATE", 'https://cdn.npmmirror.com/binaries/cypress/${version}/${platform}-${arch}/cypress.zip', 'User')
@@ -74,6 +76,8 @@ if ($ConfigAction -eq "RESET") {
     npm config delete phantomjs_cdnurl
     npm config delete selenium_cdnurl
     npm config delete node_inspector_cdnurl
+
+    [System.Environment]::SetEnvironmentVariable("FNM_NODE_DIST_MIRROR", [NullString]::Value, 'User')
 
     [System.Environment]::SetEnvironmentVariable("CHROMEDRIVER_CDNURL", [NullString]::Value, 'User')
     [System.Environment]::SetEnvironmentVariable("COREPACK_NPM_REGISTRY", [NullString]::Value, 'User')

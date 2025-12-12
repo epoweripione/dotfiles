@@ -285,6 +285,13 @@ if [[ -d "$HOME/.nvm" ]]; then
     fi
 fi
 
+# fnm
+FNM_PATH="$HOME/.local/share/fnm"
+if [ -d "${FNM_PATH}" ]; then
+    export PATH="${FNM_PATH}:$PATH"
+    eval "$(fnm env --use-on-cd --shell zsh)"
+fi
+
 # npm global
 if [[ -d "$HOME/.npm-global" ]]; then
     [[ ":$PATH:" != *":$HOME/.npm-global/bin:"* ]] && export PATH=$HOME/.npm-global/bin:$PATH
