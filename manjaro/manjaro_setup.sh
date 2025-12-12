@@ -400,6 +400,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "xclip"
         ## [WinBoat - Run Windows apps on 🐧 Linux with ✨ seamless integration](https://github.com/TibixDev/winboat)
         "winboat-bin"
+        ## x11
+        "plasma-x11-session"
     )
 fi
 InstallSystemPackages "" "${AppManjaroInstallList[@]}"
