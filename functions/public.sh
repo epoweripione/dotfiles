@@ -72,7 +72,7 @@ function colorEchoAllColor() {
 function get_running_shell() {
     unset INFO_SHELL_RUNNING
 
-    INFO_SHELL_RUNNING=$(ps -p $$ -o cmd='',comm='',fname='' 2>/dev/null | sed 's/^-//' | grep -oE '\w+' | head -n1)
+    INFO_SHELL_RUNNING=$(ps -cp "$$" -o command="" 2>/dev/null | sed 's/^-//' | grep -oE '\w+' | head -n1)
 }
 
 # read array options
@@ -80,8 +80,8 @@ function Get_Read_Array_Options() {
     local runShell
 
     READ_ARRAY_OPTS=()
-    runShell=$(ps -p $$ -o cmd='',comm='',fname='' 2>/dev/null | sed 's/^-//' | grep -oE '\w+' | head -n1)
-    [[ "${runShell}" == "zsh" ]] && READ_ARRAY_OPTS=(-A) || READ_ARRAY_OPTS=(-a)
+    get_running_shell
+    [[ "${INFO_SHELL_RUNNING}" == "zsh" ]] && READ_ARRAY_OPTS=(-A) || READ_ARRAY_OPTS=(-a)
 }
 
 # version compare functions
