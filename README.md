@@ -94,7 +94,10 @@ A set of bash, zsh, tmux, powershell, wsl, nodejs, msys2 configuration and scrip
       - [https://mirrors.ustc.edu.cn/homebrew-cask.git](https://mirrors.ustc.edu.cn/homebrew-cask.git)
     + [Docker Registry](/installer/docker_installer.sh)
       - DOCKER_MIRROR_LIST=(...)
-    + [Nodejs](/nodejs/nvm_node_installer.sh)
+    + Nodejs
+      - [version manager using **fnm**](/nodejs/fnm_node_installer.sh)
+      - [version manager using **nvm**](/nodejs/nvm_node_installer.sh)
+      - [version manager using **nvs**](/nodejs/nvs_node_installer.sh)
       - [https://npmmirror.com/](https://npmmirror.com/)
     + [Go](/installer/goup_go_installer.sh)
       - [https://goproxy.cn](https://goproxy.cn)

@@ -555,7 +555,7 @@ systemctl is-enabled "chronyd" >/dev/null 2>&1 || {
 [[ -s "${MY_SHELL_SCRIPTS}/installer/cargo_rust_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/cargo_rust_installer.sh"
 
 # Node
-[[ -s "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_installer.sh"
+[[ -s "${MY_SHELL_SCRIPTS}/nodejs/fnm_node_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/nodejs/fnm_node_installer.sh"
 
 # Flutter & Android Studio
 [[ -s "${MY_SHELL_SCRIPTS}/installer/flutter_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/flutter_installer.sh"

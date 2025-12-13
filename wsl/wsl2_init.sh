@@ -247,7 +247,7 @@ sudo chmod u+s /bin/ping
 
 [[ -s "${MY_SHELL_SCRIPTS}/installer/goup_go_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/goup_go_installer.sh"
 
-[[ -s "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/nodejs/nvm_node_installer.sh"
+[[ -s "${MY_SHELL_SCRIPTS}/nodejs/fnm_node_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/nodejs/fnm_node_installer.sh"
 
 [[ -s "${MY_SHELL_SCRIPTS}/installer/python_pip_config.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/python_pip_config.sh"
 
