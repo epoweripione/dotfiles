@@ -326,6 +326,12 @@ if [[ ! -x "$(command -v npm)" ]]; then
     [[ -d "$HOME/.nvs" ]] && export NVS_HOME="$HOME/.nvs" && source "$NVS_HOME/nvs.sh"
     # nvm
     [[ -d "$HOME/.nvm" ]] && export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh"
+    # fnm
+    FNM_PATH="$HOME/.local/share/fnm"
+    if [ -d "${FNM_PATH}" ]; then
+        export PATH="${FNM_PATH}:$PATH"
+        eval "$(fnm env --use-on-cd)"
+    fi
 fi
 
 if [[ ! -x "$(command -v npm)" ]]; then
