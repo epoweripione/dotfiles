@@ -73,7 +73,7 @@ if type 'nvm' 2>/dev/null | grep -q 'function'; then
         # nvm_global_packages=$(npm list --global --depth=0 --json | jq -r '.dependencies | keys[]' 2>/dev/null | grep -Ev '^(npm|corepack)$')
         nvm_global_packages=$(npm list --global --depth=0 --json | jq -r '.dependencies | keys[]' 2>/dev/null | grep -Ev '^npm$')
         for version in "${installed_node_version[@]}"; do
-            colorEcho "${BLUE}Installing global packages for ${FUCHSIA}Nodejs $version${BLUE}..."
+            colorEcho "${BLUE}Installing global packages for ${FUCHSIA}Nodejs ${YELLOW}$version${BLUE}..."
             fnm use "${version}"
             for package in ${nvm_global_packages}; do
                 npm install --global "${package}"
@@ -88,10 +88,10 @@ fi
 
 # Install lts and latest nodejs
 if [[ -x "$(command -v ${INSTALLER_BINARY_NAME})" && ! "$(command -v node)" ]]; then
-    colorEcho "${BLUE}Installing ${FUCHSIA}Nodejs LTS${BLUE}..."
+    colorEcho "${BLUE}Installing ${FUCHSIA}Nodejs ${YELLOW}LTS${BLUE}..."
     fnm install --lts --corepack-enabled
 
-    colorEcho "${BLUE}Installing ${FUCHSIA}Nodejs latest${BLUE}..."
+    colorEcho "${BLUE}Installing ${FUCHSIA}Nodejs ${YELLOW}latest${BLUE}..."
     fnm install --latest --corepack-enabled
 
     fnm default lts-latest
@@ -102,21 +102,7 @@ if [[ -x "$(command -v npm)" ]]; then
     [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]] && \
         source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh"
 
-    if [[ ! -x "$(command -v npm-check)" ]]; then
-        colorEcho "${BLUE}Installing ${FUCHSIA}npm-check${BLUE}..."
-        npm install -g npm-check
-    fi
-
-    if [[ ! -x "$(command -v pm2)" ]]; then
-        colorEcho "${BLUE}Installing ${FUCHSIA}pm2${BLUE}..."
-        npm install -g pm2
-    fi
-
-    if [[ ! -x "$(command -v pnpm)" ]]; then
-        colorEcho "${BLUE}Installing ${FUCHSIA}pnpm${BLUE}..."
-        # npm install -g pnpm
-        curl -fsSL https://get.pnpm.io/install.sh | sh -
-    fi
+    npm_Global_Upgrade
 fi
 
 cd "${CURRENT_DIR}" || exit
