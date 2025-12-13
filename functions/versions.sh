@@ -392,6 +392,87 @@ function asdf_App_Update() {
     done <<<"${InstalledPlugins}"
 }
 
+# fnm: check & upgrade current installed Nodejs to latest major version
+function fnm_Node_Upgrade() {
+    local installed_node_versions
+    local major_version latest_version
+
+    [[ ! -x "$(command -v fnm)" ]] && colorEcho "${FUCHSIA}fnm${RED} is not installed!" && return 1
+
+    colorEcho "${BLUE}Updating ${FUCHSIA}Nodejs versions managed by fnm${BLUE}..."
+    installed_node_versions=$(fnm list 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | sort -uV)
+
+    while read -r node_version; do
+        [[ -z "${node_version}" ]] && continue
+
+        major_version=$(cut -d'.' -f1 <<<"${node_version}")
+        latest_version=$(fnm list-remote --filter "${major_version}" 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | sort -rV | head -n1)
+
+        if [[ -n "${latest_version}" && "${latest_version}" != "${node_version}" ]]; then
+            colorEcho "${BLUE}Upgrading ${FUCHSIA}Nodejs ${node_version}${BLUE} to ${YELLOW}${latest_version}${BLUE}..."
+            # installed global packages
+            fnm use "${node_version}"
+            nvm_global_packages=$(npm list --global --depth=0 --json | jq -r '.dependencies | keys[]' 2>/dev/null | grep -Ev '^npm$')
+
+            # install latest version
+            fnm install "${latest_version}" --corepack-enabled
+            fnm use "${latest_version}"
+
+            # reinstall global packages
+            colorEcho "${BLUE}Reinstalling global npm packages for ${FUCHSIA}Nodejs ${YELLOW}${latest_version}${BLUE}......"
+            for package in ${nvm_global_packages}; do
+                npm install --global "${package}"
+            done
+
+            # upgrade npm global packages to latest version
+            npm_Global_Upgrade
+
+            # uninstall old version
+            colorEcho "${BLUE}Removing old ${FUCHSIA}Nodejs ${YELLOW}${node_version}${BLUE}..."
+            fnm uninstall "${node_version}"
+        fi
+    done <<<"${installed_node_versions}"
+}
+
+# npm: check & upgrade global packages to latest version
+function npm_Global_Upgrade() {
+    [[ ! -x "$(command -v npm)" ]] && colorEcho "${FUCHSIA}npm${RED} is not installed!" && return 1
+
+    # [[ ! -x "$(command -v ncu)" ]] && npm install -g npm-check-updates
+    [[ ! -x "$(command -v npm-check)" ]] && npm install -g npm-check
+    [[ ! -x "$(command -v pm2)" ]] && npm install -g pm2
+
+    # if [[ -x "$(command -v ncu)" ]]; then
+    #     colorEcho "${BLUE}Updating ${FUCHSIA}npm global packages${BLUE} using ${ORANGE}npm-check-updates${BLUE}..."
+    #     ncu -u -g
+    # elif [[ -x "$(command -v npm-check)" ]]; then
+    if [[ -x "$(command -v npm-check)" ]]; then
+        colorEcho "${BLUE}Updating ${FUCHSIA}npm global packages${BLUE} using ${ORANGE}npm-check${BLUE}..."
+        npm-check -u -g -y
+    else
+        colorEcho "${BLUE}Updating ${FUCHSIA}npm global packages${BLUE}..."
+        npm update --location=global
+    fi
+
+    if [[ -x "$(command -v yarn)" ]]; then
+        colorEcho "${BLUE}Updating ${FUCHSIA}yarn global packages${BLUE}..."
+        yarn global upgrade --latest
+    fi
+
+    # pnpm
+    if [[ -x "$(command -v pnpm)" ]]; then
+        INSTALLER_VER_CURRENT=$(pnpm -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    else
+        INSTALLER_VER_CURRENT="0.0.0"
+    fi
+    INSTALLER_CHECK_URL="https://api.github.com/repos/pnpm/pnpm/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE}..."
+        curl -fsSL https://get.pnpm.io/install.sh | sh -
+    fi
+}
+
 # [List AUR packages installed and only AUR packages](https://bbs.archlinux.org/viewtopic.php?id=76218)
 # `pacman -Qqm` lists foreign packages. which, for must users, means AUR
 # `pacman -Qqe` lists packages that were explicitely installed
