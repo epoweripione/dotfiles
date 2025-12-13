@@ -408,10 +408,15 @@ function fnm_Node_Upgrade() {
         major_version=$(cut -d'.' -f1 <<<"${node_version}")
         latest_version=$(fnm list-remote --filter "${major_version}" 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | sort -rV | head -n1)
 
+        # # upgrade npm global packages to latest version
+        colorEcho "${BLUE}Upgrading global npm packages for ${FUCHSIA}Nodejs ${YELLOW}${node_version}${BLUE}......"
+        fnm use "${node_version}"
+        npm_Global_Upgrade
+
         if [[ -n "${latest_version}" && "${latest_version}" != "${node_version}" ]]; then
             colorEcho "${BLUE}Upgrading ${FUCHSIA}Nodejs ${node_version}${BLUE} to ${YELLOW}${latest_version}${BLUE}..."
-            # installed global packages
-            fnm use "${node_version}"
+            # get installed global packages
+            # fnm use "${node_version}"
             nvm_global_packages=$(npm list --global --depth=0 --json | jq -r '.dependencies | keys[]' 2>/dev/null | grep -Ev '^npm$')
 
             # install latest version
@@ -423,9 +428,6 @@ function fnm_Node_Upgrade() {
             for package in ${nvm_global_packages}; do
                 npm install --global "${package}"
             done
-
-            # upgrade npm global packages to latest version
-            npm_Global_Upgrade
 
             # uninstall old version
             colorEcho "${BLUE}Removing old ${FUCHSIA}Nodejs ${YELLOW}${node_version}${BLUE}..."
