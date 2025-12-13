@@ -97,27 +97,6 @@ function setMirrorNodejs() {
         export MIRROR_NODEJS_REGISTRY=${MIRROR_NODEJS_REGISTRY:-"https://registry.npmmirror.com"}
     fi
 
-    # corepack
-    if [[ "$(command -v corepack)" ]]; then
-        [[ -n "${MIRROR_NODEJS_REGISTRY}" ]] && export COREPACK_NPM_REGISTRY="${MIRROR_NODEJS_REGISTRY}"
-    fi
-
-    # fnm
-    if [[ "$(command -v fnm)" ]]; then
-        export FNM_NODE_DIST_MIRROR=${FNM_NODE_DIST_MIRROR:-"https://cdn.npmmirror.com/binaries/node"}
-    fi
-
-    # nvm
-    if [[ "$(command -v nvm)" ]]; then
-        export NVM_NODEJS_ORG_MIRROR=${NVM_NODEJS_ORG_MIRROR:-"https://cdn.npmmirror.com/binaries/node"}
-    fi
-
-    # nvs
-    if [[ "$(command -v nvs)" ]]; then
-        export NVS_NODEJS_ORG_MIRROR=${NVS_NODEJS_ORG_MIRROR:-"https://cdn.npmmirror.com/binaries/node"}
-        nvs remote node "${NVS_NODEJS_ORG_MIRROR}"
-    fi
-
     # [NPM Binary mirror](https://github.com/cnpm/binary-mirror-config/blob/master/package.json)
     if [[ -z "${MIRROR_NODEJS_REGISTRY}" ]]; then
         unset FNM_NODE_DIST_MIRROR
@@ -154,6 +133,21 @@ function setMirrorNodejs() {
     fi
 
     if [[ "${MIRROR_NODEJS_REGISTRY}" == "https://registry.npmmirror.com" ]]; then
+        # corepack
+        [[ "$(command -v corepack)" ]] && export COREPACK_NPM_REGISTRY="${MIRROR_NODEJS_REGISTRY}"
+
+        # fnm
+        [[ "$(command -v fnm)" ]] && export FNM_NODE_DIST_MIRROR="https://cdn.npmmirror.com/binaries/node"
+
+        # nvm
+        [[ "$(command -v nvm)" ]] && export NVM_NODEJS_ORG_MIRROR="https://cdn.npmmirror.com/binaries/node"
+
+        # nvs
+        if [[ "$(command -v nvs)" ]]; then
+            export NVS_NODEJS_ORG_MIRROR="https://cdn.npmmirror.com/binaries/node"
+            nvs remote node "${NVS_NODEJS_ORG_MIRROR}"
+        fi
+
         export CHROMEDRIVER_CDNURL='https://cdn.npmmirror.com/binaries/chromedriver'
         export COREPACK_NPM_REGISTRY='https://registry.npmmirror.com'
         export CYPRESS_DOWNLOAD_PATH_TEMPLATE='https://cdn.npmmirror.com/binaries/cypress/${version}/${platform}-${arch}/cypress.zip'
@@ -161,7 +155,7 @@ function setMirrorNodejs() {
         export ELECTRON_BUILDER_BINARIES_MIRROR='https://cdn.npmmirror.com/binaries/electron-builder-binaries/'
         export ELECTRON_MIRROR='https://cdn.npmmirror.com/binaries/electron/'
         export NODEJS_ORG_MIRROR='https://cdn.npmmirror.com/binaries/node'
-        export NVM_NODEJS_ORG_MIRROR='https://cdn.npmmirror.com/binaries/node'
+        # export NVM_NODEJS_ORG_MIRROR='https://cdn.npmmirror.com/binaries/node'
         export NWJS_URLBASE='https://cdn.npmmirror.com/binaries/nwjs/v'
         export OPERADRIVER_CDNURL='https://cdn.npmmirror.com/binaries/operadriver'
         export PHANTOMJS_CDNURL='https://cdn.npmmirror.com/binaries/phantomjs'
@@ -375,6 +369,7 @@ function unsetMirrorAll() {
     unset RUBY_GEM_SOURCE_MIRROR
     # nodejs
     unset MIRROR_NODEJS_REGISTRY
+    unset FNM_NODE_DIST_MIRROR
     unset NVM_NODEJS_ORG_MIRROR
     unset NVS_NODEJS_ORG_MIRROR
     # NPM Binary mirror

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# running SHELL
+get_running_shell
+
 # color echo with datetime
 # export COLOR_ECHO_DATETIME_FORMAT="%F %T.%6N %:z" # [2000-01-01 12:00:00.123456 +00:00]
 # export COLOR_ECHO_DATETIME_FORMAT="%FT%T%:z" # [2000-01-01T12:00:00+00:00]
@@ -289,7 +292,7 @@ fi
 FNM_PATH="$HOME/.local/share/fnm"
 if [ -d "${FNM_PATH}" ]; then
     export PATH="${FNM_PATH}:$PATH"
-    eval "$(fnm env --use-on-cd --shell zsh)"
+    eval "$(fnm env --use-on-cd --shell "${INFO_SHELL_RUNNING}")"
 fi
 
 # npm global
