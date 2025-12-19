@@ -3,27 +3,17 @@
 // @name:zh-CN        中日韩文字优化
 // @namespace         https://github.com/epoweripione/dotfiles
 // @version           1.0.0
-// @description       Set font-family by html.lang; add spaces between CJK characters and Latin letters; Element inspector(click to screenshot or convert to markdown)
-// @description:zh-cn 根据网页 html.lang 设置默认字体；自动在汉字与英文字符间添加空格；检查元素（点击截图或转为 Markdown）等
+// @description       Set font-family by html.lang; add spaces between CJK characters and Latin letters
+// @description:zh-cn 根据网页 html.lang 设置默认字体；自动在汉字与英文字符间添加空格等
 // @author            epoweripione
 // @license           MIT
 // @match             http://*/*
 // @match             https://*/*
-// @require           https://cdn.bootcss.com/jquery/3.7.0/jquery.min.js
-// @require           https://cdn.bootcdn.net/ajax/libs/findAndReplaceDOMText/0.4.6/findAndReplaceDOMText.min.js
-// @require           https://cdn.jsdelivr.net/gh/hsynlms/theroomjs/dist/theroom.min.js
-// @require           https://html2canvas.hertzen.com/dist/html2canvas.min.js
-// @require           https://cdn.jsdelivr.net/npm/dom-to-image-more/dist/dom-to-image-more.min.js
-// @require           https://cdn.bootcdn.net/ajax/libs/viewerjs/1.11.3/viewer.min.js
-// @require           https://cdn.bootcdn.net/ajax/libs/js-beautify/1.14.7/beautify-html.min.js
-// @require           https://unpkg.com/turndown/dist/turndown.js
-// @require           https://unpkg.com/@guyplusplus/turndown-plugin-gfm/dist/turndown-plugin-gfm.js
-// @require           https://cdn.jsdelivr.net/npm/html-to-md/dist/index.js
+// @require           https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js
+// @require           https://cdn.jsdelivr.net/npm/findandreplacedomtext/src/findAndReplaceDOMText.min.js
 // @require           https://cdn.jsdelivr.net/npm/darkreader/darkreader.min.js
 // @require           https://cdn.jsdelivr.net/npm/darkmode-js/lib/darkmode-js.min.js
-// @require           https://cdn.jsdelivr.net/npm/img-previewer/dist/img-previewer.min.js
-// @require           https://cdn.bootcdn.net/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js
-// @require           https://cdn.jsdelivr.net/npm/chinese-characters-codepoints-converter/index.js
+// @require           https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js
 // @require           https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant             GM_getValue
 // @grant             GM_setValue
@@ -33,8 +23,8 @@
 // ==/UserScript==
 
 // [Console Importer](https://chrome.google.com/webstore/detail/console-importer/hgajpakhafplebkdljleajgbpdmplhie)
-// $i('https://cdn.bootcss.com/jquery/3.7.0/jquery.min.js');
-// $i('https://cdn.bootcdn.net/ajax/libs/findAndReplaceDOMText/0.4.6/findAndReplaceDOMText.min.js');
+// $i('https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js');
+// $i('https://cdn.jsdelivr.net/npm/findandreplacedomtext/src/findAndReplaceDOMText.min.js');
 // $i('https://cdn.jsdelivr.net/npm/chinese-characters-codepoints-converter/index.js');
 
 // Unicode Code Points
@@ -56,7 +46,7 @@ const cssStyleID = 'CJK_Text_Optimize_TamperMonkey';
 const FONT_DEFAULT = 'Noto Sans'; // 默认字体
 const FONT_EMOJI = 'emoji'; // Emoji 字体
 const FONT_FALLBACK = 'sans-serif'; // 备用字体
-const FONT_MONO = 'FiraCode Nerd Font Mono'; // 等宽字体
+const FONT_MONO = 'JetBrainsMono Nerd Font'; // 等宽字体
 
 const FONT_CJK_SC = 'Noto Sans CJK SC'; // 简体中文字体
 const FONT_MONO_CJK_SC = 'Noto Sans Mono CJK SC'; // 简体中文等宽字体
@@ -73,10 +63,6 @@ const FONT_MONO_CJK_JP = 'Noto Sans Mono CJK JP'; // 日文等宽字体
 const FONT_CJK_KR = 'Noto Sans CJK KR'; // 韩文字体
 const FONT_MONO_CJK_KR = 'Noto Sans Mono CJK KR'; // 韩文等宽字体
 
-const MARKDOWN_FLAVOR = 'commonmark'; // 转为 Markdown 默认格式: commonmark, gfm, ghost
-const MARKDOWN_URL_FORMAT = 'absolute'; // 转为 Markdown 的 URL 默认格式: original, absolute, relative, root-relative
-
-const IMAGE_VIEWER = 'image-viewer'; // 图片查看器：image-viewer, img-previewer
 const DARK_MODE = 'DarkReader'; // 暗黑模式：DarkReader, Darkmodejs
 
 // 地区、CJK 字体、CJK 等宽字体
@@ -113,14 +99,12 @@ let codeBlockElements = [
 // 命令类型：enable - 默认启用（域名列表=禁用列表）、disable - 默认禁用（域名列表=启用列表）、direct - 直接执行命令
 let registeredMenuCommand = [];
 let menuCommand = [
-    ['menu_CJK_Font', '✅ 已启用 - CJK 字体替换', '❌ 已禁用 - CJK 字体替换', [], 'enable'],
+    ['menu_CJK_Font', '✅ 已启用 - CJK 字体替换', '❌ 已禁用 - CJK 字体替换', [], 'disable'],
     ['menu_CJK_Latin_Space', '✅ 已启用 - 在汉字与英文字符间添加空格', '❌ 已禁用 - 在汉字与英文字符间添加空格', [], 'enable'],
     ['menu_Pretty_Code_Block', '✅ 已启用 - 优化代码块', '❌ 已禁用 - 优化代码块', [], 'enable'],
     ['menu_Obfuscate_Character', '✅ 已启用 - 删除不可见的混淆字符', '❌ 已禁用 - 删除不可见的混淆字符', [], 'disable'],
     // ['menu_Darkmode', '✅ 已启用 - 暗黑模式', '❌ 已禁用 - 暗黑模式', [], 'disable'],
     ['menu_Link_Redirect', '🔗 - 移除外链重定向', '', '', 'direct'],
-    ['menu_Inspector_Screenshot', '📡 - 检查元素 - 点击截图', 'screenshot', '', 'direct'],
-    ['menu_Inspector_Markdown', '📡 - 检查元素 - 点击转为 Markdown', 'markdown', '', 'direct'],
 ];
 
 // 替换字体
@@ -368,7 +352,7 @@ const UNICODE_CJK_SYMBOLS_EXT = [
     '\\u2FF0-\\u2FFF', // CJK Radicals Supplement
     '\\u3100-\\u312F', // Bopomofo
     '\\u31A0-\\u31BF', // Bopomofo Extended
-    '\\u31C0-\\u31EF', // 
+    '\\u31C0-\\u31EF', // CJK Strokes
     '\\u3300-\\u33FF', // CJK Compatibility
     '\\uFE30-\\uFE4F', // CJK Compatibility Forms
     '\\uFF00-\\uFFEF', // Halfwidth and Fullwidth Forms
@@ -387,24 +371,15 @@ const UNICODE_CJK_SYMBOLS_EXT = [
 
 // 中日韩汉字（包括日文平假名、片假名、片假名注音扩展、韩文 Jamo） + 标点符号
 // const CJK_RANGE_HAN = "U+3400-4DBF,U+4E00-9FFF,U+F900-FAFF,U+D840-D87A,U+D880-D884,U+DC00-DFFF,U+3040-309F,U+30A0-30FF,U+DC00-DC01,U+31F0-31FF,U+FF66-FF9F,U+D82C,U+1100-11FF,U+3130-318F,U+A960-A97C,U+AC00-D7A3,U+D7B0-D7FB,U+FFA1-FFDC";
-const CJK_RANGE_HAN = '' + 
-    UNICODE_CJK_HAN.join(',').replaceAll('\\u','U+').replaceAll('-U+','-').replaceAll('{','').replaceAll('}','') + ',' + 
-    UNICODE_CJK_JP.join(',').replaceAll('\\u','U+').replaceAll('-U+','-').replaceAll('{','').replaceAll('}','') + ',' + 
+const CJK_RANGE_HAN = '' +
+    UNICODE_CJK_HAN.join(',').replaceAll('\\u','U+').replaceAll('-U+','-').replaceAll('{','').replaceAll('}','') + ',' +
+    UNICODE_CJK_JP.join(',').replaceAll('\\u','U+').replaceAll('-U+','-').replaceAll('{','').replaceAll('}','') + ',' +
     UNICODE_CJK_KR.join(',').replaceAll('\\u','U+').replaceAll('-U+','-').replaceAll('{','').replaceAll('}','');
 
 // 空白字符正则
 const reWhiteSpace = new RegExp(/\s/);
 
 // --------------------------函数及功能定义--------------------------
-// 监听键盘事件
-// Use https://keycode.info/ to get keys
-function onKeydown(evt) {
-    // Esc
-    if (evt.keyCode == 27) {
-        stopElementInspector();
-    }
-}
-
 // 语言
 const getLang = () => navigator.language || navigator.browserLanguage || (navigator.languages || ["en"])[0];
 
@@ -488,13 +463,13 @@ function registerMenuCommand() {
             case 'enable':
                 if (currentDomainOperation(menuCommand[id][0], menuCommand[id][4], 'check')) {
                     // 当前网站域名在禁用列表中，则点击菜单项目=启用
-                    registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][2]}`, 
+                    registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][2]}`,
                         function(){currentDomainOperation(menuCommand[id][0], menuCommand[id][4], 'delete')})
                     );
                 }
                 else {
                     // 当前网站域名不在禁用列表中，则点击菜单项目=禁用
-                    registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`, 
+                    registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`,
                         function(){currentDomainOperation(menuCommand[id][0], menuCommand[id][4], 'add')})
                     );
                 }
@@ -502,13 +477,13 @@ function registerMenuCommand() {
             case 'disable':
                 if (currentDomainOperation(menuCommand[id][0], menuCommand[id][4], 'check')) {
                     // 当前网站域名在启用列表中，则点击菜单项目=禁用
-                    registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`, 
+                    registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`,
                         function(){currentDomainOperation(menuCommand[id][0], menuCommand[id][4], 'delete')})
                     );
                 }
                 else {
                     // 当前网站域名不在启用列表中，则点击菜单项目=启用
-                    registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][2]}`, 
+                    registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][2]}`,
                         function(){currentDomainOperation(menuCommand[id][0], menuCommand[id][4], 'add')})
                     );
                 }
@@ -516,17 +491,17 @@ function registerMenuCommand() {
             case 'direct':
                 switch (menuCommand[id][0]) {
                     case 'menu_Link_Redirect':
-                        registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`, 
+                        registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`,
                                 function(){removeLinkRedirect()})
                             );
                         break;
                     case 'menu_Inspector_Screenshot':
-                        registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`, 
+                        registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`,
                                 function(){startElementInspector(elementInspectorOptions, `${menuCommand[id][2]}`)})
                             );
                         break;
                     case 'menu_Inspector_Markdown':
-                        registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`, 
+                        registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`,
                                 function(){startElementInspector(elementInspectorOptions, `${menuCommand[id][2]}`)})
                             );
                         break;
@@ -936,1475 +911,6 @@ function htmlToNodeList(html) {
     return template.content.childNodes;
 }
 
-// 鼠标滑动高亮元素
-// [A vanilla javascript plugin that allows you to outline dom elements like web inspectors](https://github.com/hsynlms/theroomjs)
-// https://www.cssscript.com/demo/highlight-dom-elements-on-hover-theroom
-const elementInspectorInfoTemplate = `
-    <div id="theroom-info">
-        <span id="theroom-tag"></span>
-        <span id="theroom-id"></span>
-        <span id="theroom-class"></span>
-    </div>
-
-    <style>
-        #theroom-info {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            left: 0;
-            font-family: '${FONT_DEFAULT}';
-            font-weight: bold;
-            background-color: rgba(177,213,200,0.5);
-            padding: 10px;
-            color: #fafafa;
-            text-align: center;
-            box-shadow: 0px 4px 20px rgba(0,0,0,0.3);
-        }
-
-        #theroom-tag {
-            color: #C2185B;
-        }
-
-        #theroom-id {
-            color: #5D4037;
-        }
-
-        #theroom-class {
-            color: #607D8B;
-        }
-    </style>
-`;
-
-const elementInspectorOptions = {
-    inspector: null,
-    createInspector: true,
-    htmlClass: true,
-    blockRedirection: false,
-    excludes: [],
-    started: function (element) {
-        const node = document.getElementsByClassName('inspector-element')[0];
-        node.style.backgroundColor = "rgba(255,0,0,0.5)";
-        node.style.transition = "all 200ms";
-        node.style.pointerEvents = "none";
-        node.style.zIndex = "2147483647";
-        node.style.position = "absolute";
-        node.innerHTML = `${elementInspectorInfoTemplate}`;
-    },
-    click: function (element) {
-        const node = document.getElementsByClassName('inspector-element')[0];
-        elementInspectorClick(element, node.getAttribute('click-action'));
-    },
-    mouseover: function (element) {
-        const elementInfo = document.querySelector("#theroom-info");
-        if (elementInfo) {
-            elementInfo.querySelector("#theroom-tag").innerText = element.tagName;
-            elementInfo.querySelector("#theroom-id").innerText = (element.id ? ("#" + element.id) : "");
-            elementInfo.querySelector("#theroom-class").innerText = (element.className ? ("." + element.className.split(/\s+/).join(".")) : "");
-        }
-    },
-}
-
-const startElementInspector = (options, clickAction) => {
-    theRoom.start(options);
-
-    const node = document.getElementsByClassName('inspector-element')[0];
-    node.setAttribute('click-action', clickAction);
-}
-
-const stopElementInspector = () => {
-    theRoom.stop(true);
-}
-
-function elementInspectorClick(element, action) {
-    switch (action) {
-        case 'screenshot':
-            if (element) {
-                elementInspectorScreenshot(element);
-            } else {
-                if (element.id) {
-                    elementSelectorScreenshot("#" + element.id);
-                } else if (element.className) {
-                    elementSelectorScreenshot("." + element.className.split(/\s+/).join("."));
-                }
-            }
-            break;
-        case 'markdown':
-            if (element) {
-                elementInspectorToMarkdown(element);
-            } else {
-                if (element.id) {
-                    elementSelectorToMarkdown("#" + element.id);
-                } else if (element.className) {
-                    elementSelectorToMarkdown("." + element.className.split(/\s+/).join("."));
-                }
-            }
-            break;
-    }
-}
-
-// ProgressBar
-// [Responsive and slick progress bars](https://kimmobrunfeldt.github.io/progressbar.js/)
-// https://cdnjs.cloudflare.com/ajax/libs/progressbar.js/1.1.0/progressbar.min.js
-const progressbarTemplate = `
-    <div id="progressbar"></div>
-
-    <style>
-        #progressbar {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
-        }
-    </style>
-`;
-
-function addProgressbar() {
-    const progressbar = document.createElement('div');
-    progressbar.innerHTML = progressbarTemplate.trim();
-    document.getElementsByTagName("body")[0].appendChild(progressbar);
-
-    const bar = new ProgressBar.Circle('#progressbar', {
-        color: '#aaa',
-        // This has to be the same size as the maximum width to
-        // prevent clipping
-        strokeWidth: 4,
-        trailWidth: 1,
-        easing: 'easeInOut',
-        duration: 1400,
-        text: {
-            autoStyleContainer: false
-        },
-        from: { color: '#FFEA82', width: 1 },
-        to: { color: '#ED6A5A', width: 4 },
-        // Set default step function for all animate calls
-        step: function(state, circle) {
-            circle.path.setAttribute('stroke', state.color);
-            circle.path.setAttribute('stroke-width', state.width);
-            const value = Math.round(circle.value() * 100);
-            if (value === 0) {
-                circle.setText('');
-            } else {
-                circle.setText(value);
-            }
-        }
-    });
-
-    bar.text.style.fontFamily = 'Helvetica, sans-serif';
-    bar.text.style.fontSize = '2rem';
-    
-    bar.animate(1.0);  // Number from 0.0 to 1.0
-}
-
-function removeProgressbar() {
-    const node = document.querySelector("#progressbar");
-    if (node) {
-        node.parentNode.remove();
-    }
-}
-
-// tooltips
-const tooltipsTemplate = `
-    <div id="tooltips-info">
-        <span id="tooltips-text"></span>
-    </div>
-
-    <style>
-        #tooltips-info {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: 20px;
-            font-family: '${FONT_DEFAULT}';
-            font-size: 1em;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        #tooltips-text {
-            color: #ED6A5A;
-        }
-    </style>
-`;
-
-function addTooltips() {
-    const tooltips = document.createElement('div');
-    tooltips.innerHTML = tooltipsTemplate.trim();
-    tooltips.querySelector("#tooltips-text").innerText = 'Capturing element screenshot...';
-    document.getElementsByTagName("body")[0].appendChild(tooltips);
-}
-
-function removeTooltips() {
-    const node = document.querySelector("#tooltips-info");
-    if (node) {
-        node.parentNode.remove();
-    }
-}
-
-// Loading Spinner/Indicator
-// [80+ Best Pure CSS Loading Spinners For Front-end Developers](https://365webresources.com/best-pure-css-loading-spinners/)
-
-// [CSS loader](https://github.com/raphaelfabeni/css-loader)
-// addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/pure-css-loader/dist/css-loader.css');
-const LoadingIndicatorTemplate = `
-    <div id="loading-indicator" class="loader"></div>
-`;
-
-// addLoadingIndicator('default', '处理中...', 'data-half data-blink');
-// addLoadingIndicator('curtain', '处理中...', 'data-colorful');
-function addLoadingIndicator(type, text, attrs) {
-    const loading = document.createElement('div');
-    loading.innerHTML = LoadingIndicatorTemplate.trim();
-
-    const node = loading.querySelector('#loading-indicator');
-    if (text) {
-        switch (type) {
-            case 'curtain':
-                node.setAttribute('data-curtain-text', text);
-                break;
-            case 'smartphone':
-                node.setAttribute('data-screen', text);
-                break;
-            default:
-                node.setAttribute('data-text', text);
-        }
-    }
-
-    if (attrs) {
-        attrs.split(' ').map(attr => node.setAttribute(attr, ''));
-    }
-
-    node.classList.add('loader-' + type);
-    node.classList.add('is-active');
-
-    document.getElementsByTagName("body")[0].appendChild(loading);
-}
-
-function removeLoadingIndicator() {
-    const node = document.querySelector("#loading-indicator");
-    if (node) {
-        node.parentNode.remove();
-    }
-}
-
-// 获取指定元素的截图
-// https://stackoverflow.com/questions/4912092/using-html5-canvas-javascript-to-take-in-browser-screenshots
-// [7 ways to take website screenshots with node.js and JavaScript](https://www.urlbox.io/7-ways-website-screenshots-nodejs-javascript)
-// [Take real screenshot with JS](https://github.com/amiad/screenshot.js)
-// [将网页元素生成图片保存](https://blog.51cto.com/u_14209124/2884171)
-// Open image in new window
-function openImageInWindow(base64URL) {
-    let win = window.open("");
-    win.document.write("<img style=\"display: block; -webkit-user-select: none; margin: auto;\" src=\""+ base64URL +"\" >");
-    // win.document.write('<iframe src="' + base64URL + '" frameborder="0" ' + 
-    //     'style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" ' + 
-    //     'allowfullscreen></iframe>'
-    // );
-    win.document.title = 'screenshot-' + getDateTimeString();
-}
-
-// 使用 html2canvas 获取元素截图的 DataURL
-// getElementScreenshotHtml2Canvas(document.querySelector('.hljs.bash'), openImageInWindow);
-function getElementScreenshotHtml2Canvas(element, useCORS, callback) {
-    // 创建图片画布
-    const elementID = 'canvas_element_screenshot';
-
-    const eleCanvas = document.createElement('canvas');
-    // const w = $(selector).outerWidth();
-    // const h = $(selector).outerHeight();
-    const w = element.offsetWidth;
-    const h = element.offsetHeight;
-    // const w = element.clientWidth;
-    // const h = element.clientHeight;
-
-    eleCanvas.id = elementID;
-    eleCanvas.width = w;
-    eleCanvas.height = h;
-    eleCanvas.style.width = w + 'px';
-    eleCanvas.style.height = h + 'px';
-    eleCanvas.style.display = 'none';
-    // eleCanvas.setAttribute('hidden', 'hidden');
-
-    //先放大2倍，然后缩小，处理模糊问题
-    // eleCanvas.width = w * 2;
-    // eleCanvas.height = h * 2;
-    // const ctx = eleCanvas.getContext('2d');
-    // ctx.scale(2,2);
-
-    html2canvas(element,{
-        canvas: eleCanvas,
-        allowTaint: true, //允许污染
-        taintTest: true, //在渲染前测试图片
-        // foreignObjectRendering: true, // 如果浏览器支持，使用 ForeignObject 渲染
-        useCORS: useCORS, //使用跨域
-    }).then(canvas => {
-        // document.body.appendChild(canvas);
-        // const eleDataUrl = document.getElementById('canvas_element_screenshot').toDataURL('image/png');
-        // removeElement('#' + elementID);
-        try {
-            const eleDataUrl = canvas.toDataURL('image/png');
-            callback(eleDataUrl);
-        } catch (e) {
-            callback('');
-        }
-    });
-}
-
-// [DOM to Image](https://github.com/1904labs/dom-to-image-more)
-function getElementScreenshotDomToImage(element, callback) {
-    domtoimage.toPng(element)
-        .then(dataUrl => {
-            callback(dataUrl);
-        })
-        .catch(error => {
-            callback('');
-        });
-}
-
-function elementInspectorScreenshot(element) {
-    // 停止鼠标滑动高亮元素
-    stopElementInspector();
-
-    // 提示
-    addLoadingIndicator('curtain', '处理中...', 'data-colorful');
-
-    // use dom-to-image by default
-    const renderScreenshotDom2Image = function(dataUrl) {
-        if (dataUrl) {
-            // 移除提示
-            removeLoadingIndicator();
-            // 显示截图
-            // openImageInWindow(dataUrl);
-            renderImageViewer(dataUrl, 'screenshot-' + getDateTimeString(), IMAGE_VIEWER);
-        } else {
-            getElementScreenshotHtml2Canvas(element, false, renderScreenshotHtml2CanvasCORS);
-        }
-    }
-
-    // if failed then use html2canvas without CORS
-    const renderScreenshotHtml2Canvas = function(dataUrl) {
-        if (dataUrl) {
-            // 移除提示
-            removeLoadingIndicator();
-            // 显示截图
-            renderImageViewer(dataUrl, 'screenshot-' + getDateTimeString(), IMAGE_VIEWER);
-        }
-    }
-
-    // if failed then use html2canvas with CORS
-    const renderScreenshotHtml2CanvasCORS = function(dataUrl) {
-        if (dataUrl) {
-            // 移除提示
-            removeLoadingIndicator();
-            // 显示截图
-            renderImageViewer(dataUrl, 'screenshot-' + getDateTimeString(), IMAGE_VIEWER);
-        } else {
-            getElementScreenshotHtml2Canvas(element, true, renderScreenshotHtml2Canvas);
-        }
-    }
-
-    getElementScreenshotDomToImage(element, renderScreenshotDom2Image);
-}
-
-function elementSelectorScreenshot(selector) {
-    const element = document.querySelector(selector);
-
-    if (!element) {
-        console.log('Can not find the element: ' + selector);
-        return;
-    }
-
-    elementInspectorScreenshot(element);
-}
-
-// 获取图像的 DataURL
-// getSelectorImageBase64('#my-image', openImageInWindow);
-// getSelectorImageBase64('#my-image', logDataURL);
-const logDataURL = (dataUrl) => console.log(dataUrl);
-
-function getSelectorImageBase64(selector, callback) {
-    const image = document.querySelector(selector);
-    if (!image) callback('');
-
-    const timestamp = new Date().getTime();
-    const imageUrl = image.src;
-
-    let img = new Image();
-
-    img.onload = function() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        canvas.width = img.naturalWidth || img.width;
-        canvas.height = img.naturalHeight || img.height;
-
-        ctx.drawImage(img, 0, 0);
-        callback(canvas.toDataURL('image/png'));
-    }
-
-    img.setAttribute('crossOrigin', 'anonymous');
-    img.src = imageUrl + '?v=' + timestamp;
-
-    // make sure the load event fires for cached images too
-    if ( img.complete || img.complete === undefined ) {
-        img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-        img.src = imageUrl;
-    }
-}
-
-// getBase64FromUrl(url).then(console.log)
-// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-const getImageBase64FromUrl = async (url) => {
-    const data = await fetch(url);
-    const blob = await data.blob();
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            const base64 = reader.result;
-            if (base64.startsWith("data:image")) {
-                resolve(base64);
-            } else {
-                reject(base64);
-            }
-        }
-        reader.readAsDataURL(blob);
-    });
-}
-
-// 根据图片 URL 获取图片 base64 编码
-// https://wiki.greasespot.net/GM.xmlHttpRequest
-// fetchImageBase64FromUrl(url).then(console.log)
-const fetchImageBase64FromUrl = async (url) => {
-    return new Promise((resolve, reject) => {
-        let host = window.location.origin + "/";
-        GM_xmlhttpRequest({
-            method: "get",
-            url: url,
-            headers: {referer: host},
-            responseType: "blob",
-            onload: (res) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    const base64 = reader.result;
-                    if (base64.startsWith("data:image")) {
-                        resolve(base64);
-                    } else {
-                        reject(base64);
-                    }
-                }
-                reader.readAsDataURL(res.response);
-            },
-            onerror: (error) => {
-                reject(error);
-            }
-        });
-    });
-}
-
-// fetchImageBase64(document.querySelector('#my-image').src, openImageInWindow);
-function fetchImageBase64(url, callback) {
-    if (url.startsWith("data:image")) callback(url);
-
-    try {
-        let host = window.location.origin + "/";
-        GM_xmlhttpRequest({
-            method: "get",
-            url: url,
-            headers: {referer: host},
-            responseType: "blob",
-            onload: (res) => {
-                let blob = res.response;
-                let oFileReader = new FileReader();
-                oFileReader.onloadend = (e) => {
-                    let base64 = e.target.result;
-                    if (base64.startsWith("data:image")) {
-                        callback(base64);
-                    }
-                };
-                oFileReader.readAsDataURL(blob);
-            }
-        });
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-// 仅保留 base64 编码的图片数组
-function cutoffNotBase64Images(imgsUrlArray) {
-    let resultArr = [];
-
-    imgsUrlArray.forEach((imgUrl, urlIndex) => {
-        if (imgUrl.startsWith("data:image") && imgUrl.includes("base64")) {
-            resultArr.push(imgUrl);
-        }
-    });
-
-    return resultArr;
-}
-
-// image viewer
-// [10 Best JavaScript Image Viewer Libraries in 2022](https://openbase.com/categories/js/best-javascript-image-viewer-libraries)
-// [Best Free image viewer In JavaScript & CSS](https://www.cssscript.com/tag/image-viewer/)
-// [Viewer.js](https://github.com/fengyuanchen/viewerjs)
-// addLinkStylesheetToHead('https://cdn.bootcdn.net/ajax/libs/viewerjs/1.11.3/viewer.min.css');
-const imageViewerTemplate = `
-    <div id="image-viewer-container">
-        <img id="image-viewer-img" src="" alt="">
-    </div>
-`;
-
-function removeImageViewer() {
-    const node = document.querySelector("#image-viewer-container");
-    if (node) {
-        node.parentNode.remove();
-    }
-}
-
-function imageViewer(dataUrl, altText) {
-    const template = document.createElement('div');
-    template.innerHTML = imageViewerTemplate.trim();
-
-    template.querySelector("#image-viewer-img").src = dataUrl;
-    template.querySelector("#image-viewer-img").alt = altText;
-
-    document.getElementsByTagName("body")[0].appendChild(template);
-
-    function loaded() {
-        const zIndex = getMaxZIndex() + 1;
-        const viewer = new Viewer(document.getElementById('image-viewer-img'), {
-            // inline: true,
-            // zIndexInline: `${zIndex}`,
-            zIndex: `${zIndex}`,
-            // viewed() {
-            //     viewer.zoomTo(1);
-            // },
-            hidden() {
-                document.querySelector("#image-viewer-container").parentNode.remove();
-                document.querySelector(".viewer-container").remove();
-            },
-        });
-
-        viewer.show();
-    }
-
-    const img = document.querySelector('#image-viewer-img');
-    if (img.complete) {
-        loaded();
-    } else {
-        img.addEventListener('load', loaded);
-    }
-}
-
-// [img-previewer](https://github.com/yue1123/img-previewer)
-// https://cdn.jsdelivr.net/npm/img-previewer/dist/img-previewer.min.js
-// addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/img-previewer/dist/index.css');
-const imagePreviewerTemplate = `
-    <div id="image-viewer-container">
-        <img id="image-viewer-img" src="" alt="">
-    </div>
-`;
-
-function imagePreviewer(dataUrl, altText) {
-    const template = document.createElement('div');
-    template.innerHTML = imagePreviewerTemplate.trim();
-
-    template.querySelector("#image-viewer-img").src = dataUrl;
-    template.querySelector("#image-viewer-img").alt = altText;
-
-    document.getElementsByTagName("body")[0].appendChild(template);
-
-    function loaded() {
-        const zIndex = getMaxZIndex() + 1;
-        const imgPreviewer = new ImgPreviewer('#image-viewer-container', {
-            scrollbar: true,
-            style: {
-                modalOpacity: 0.8,
-                headerOpacity: 0,
-                zIndex: `${zIndex}`,
-            },
-            i18n: {
-                RESET: '重置',
-                ROTATE_LEFT: '向左旋转',
-                ROTATE_RIGHT: '向右旋转',
-                CLOSE: '关闭',
-                NEXT: '下一张',
-                PREV: '上一张',
-            },
-            onHide() {
-                document.querySelector("#image-viewer-container").parentNode.remove();
-                document.querySelector("#J_container").remove();
-            }
-        });
-
-        imgPreviewer.show(0);
-
-        // document.querySelector("#image-viewer-container").style.overflow = 'hidden';
-        // document.querySelector("#image-viewer-container").style.zIndex = -99999;
-        document.querySelector("#image-viewer-container").style.display = 'none';
-    }
-
-    const img = document.querySelector('#image-viewer-img');
-    if (img.complete) {
-        loaded();
-    } else {
-        img.addEventListener('load', loaded);
-    }
-}
-
-function renderImageViewer(dataUrl, altText, viewer) {
-    switch (viewer) {
-        case 'image-viewer':
-            imageViewer(dataUrl, altText);
-            break;
-        default: // 'img-previewer'
-            imagePreviewer(dataUrl, altText);
-    }
-}
-
-// HTML 转 Markdown
-function getSelectionHTML() {
-    const userSelection = window.getSelection();
-    const range = userSelection.getRangeAt(0);
-    const clonedSelection = range.cloneContents();
-
-    const divSelection = document.createElement('div');
-    divSelection.appendChild(clonedSelection);
-    const selectionHTML = divSelection.innerHTML;
-
-    divSelection.remove();
-
-    return selectionHTML;
-}
-
-function getSelectionText() {
-    return window.getSelection().toString();
-}
-
-function getActiveElementContent() {
-    return document.activeElement.textContent || '';
-}
-
-function getDocumentTitle() {
-    return document.title;
-}
-
-async function writeTextToClipboard(text) {
-    try {
-        return await navigator.clipboard.writeText(text);
-    } catch (e) {
-        const textarea = document.createElement('textarea');
-        textarea.textContent = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('Copy', false);
-        document.body.removeChild(textarea);
-    }
-}
-
-function convertHtmlToSafeHTML(html) {
-    const template = document.createElement('template');
-    template.innerHTML = html;
-    const fragment = template.content;
-    fragment.querySelectorAll(['script', 'style', 'link', 'meta'].join(', ')).forEach(ele => ele.remove());
-
-    const templateHTML = template.innerHTML;
-
-    template.remove();
-
-    return templateHTML;
-}
-
-function convertUrlToAbsoluteURL(relativeUrl, baseUrl) {
-    try {
-        return new URL(relativeUrl, baseUrl).href;
-    } catch (e) {
-        return relativeUrl;
-    }
-}
-
-function isRelativeUrl(url) {
-    try {
-        const obj = new URL(url);
-        return false;
-    } catch (e) {
-        return true;
-    }
-}
-
-function isAbsoluteURL(url) {
-    try {
-        const obj = new URL(url);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
-function convertHtmlToAbsoluteLinkHTML(html, baseUrl) {
-    const template = document.createElement('template');
-    template.innerHTML = html;
-    const fragment = template.content;
-
-    fragment.querySelectorAll('[href]').forEach(ele => {
-        const url = ele.getAttribute('href');
-        if (isRelativeUrl(url)) {
-            ele.setAttribute('href', convertUrlToAbsoluteURL(url, baseUrl));
-        }
-    });
-
-    fragment.querySelectorAll('[src]').forEach(ele => {
-        const url = ele.getAttribute('src');
-        if (isRelativeUrl(url)) {
-            ele.setAttribute('src', convertUrlToAbsoluteURL(url, baseUrl));
-        }
-    });
-
-    const templateHTML = template.innerHTML;
-
-    template.remove();
-
-    return templateHTML;
-}
-
-function convertHtmlToRelativeLinkHTML(html, baseUrl) {
-    const template = document.createElement('template');
-    template.innerHTML = html;
-    const fragment = template.content;
-
-    fragment.querySelectorAll('[href]').forEach(ele => {
-        const url = ele.getAttribute('href');
-        if (isAbsoluteURL(url)) {
-            ele.setAttribute('href', convertUrlToRelativeURL(url, baseUrl));
-        }
-    });
-
-    fragment.querySelectorAll('[src]').forEach(ele => {
-        const url = ele.getAttribute('src');
-        if (isAbsoluteURL(url)) {
-            ele.setAttribute('src', convertUrlToRelativeURL(url, baseUrl));
-        }
-    });
-
-    const templateHTML = template.innerHTML;
-
-    template.remove();
-
-    return templateHTML;
-}
-
-function convertHtmlToRootRelativeLinkHTML(html, baseUrl) {
-    const template = document.createElement('template');
-    template.innerHTML = html;
-    const fragment = template.content;
-
-    fragment.querySelectorAll('[href]').forEach(ele => {
-        const url = ele.getAttribute('href');
-            ele.setAttribute('href', convertUrlToRootRelativeURL(url, baseUrl));
-    });
-
-    fragment.querySelectorAll('[src]').forEach(ele => {
-        const url = ele.getAttribute('src');
-        ele.setAttribute('src', convertUrlToRootRelativeURL(url, baseUrl));
-    });
-
-    const templateHTML = template.innerHTML;
-
-    template.remove();
-
-    return templateHTML;
-}
-
-function convertHtmlToFormattedLinkHTML(html, baseUrl, urlFormat) {
-    switch (urlFormat) {
-        case 'absolute':
-            return convertHtmlToAbsoluteLinkHTML(html, baseUrl);
-        case 'relative':
-            return convertHtmlToRelativeLinkHTML(html, baseUrl);
-        case 'root-relative':
-            return convertHtmlToRootRelativeLinkHTML(html, baseUrl);
-        default: // original
-            return html;
-    }
-}
-
-// https://github.com/beautify-web/js-beautify
-function convertHtmlToBeautifyHTML(html) {
-    return html_beautify(html);
-}
-
-// [An HTML to Markdown converter written in JavaScript](https://github.com/mixmark-io/turndown)
-function createTurndownServiceCommonmarkMarkdown() {
-    return new TurndownService({
-        headingStyle: 'atx',
-        hr: '---',
-        bulletListMarker: '*',
-        codeBlockStyle: 'fenced',
-        fence: '```',
-        emDelimiter: '*',
-        strongDelimiter: '**',
-        linkStyle: 'inlined',
-        keepReplacement(content) {
-            return content
-        }
-    }).addRule('strikethrough', {
-        filter: ['del', 's', 'strike'],
-        replacement(content) {
-            return '~~' + content + '~~'
-        }
-    });
-}
-
-function createTurndownServiceGfmMarkdown() {
-    return new TurndownService({
-        headingStyle: 'atx',
-        hr: '---',
-        bulletListMarker: '*',
-        codeBlockStyle: 'fenced',
-        fence: '```',
-        emDelimiter: '*',
-        strongDelimiter: '**',
-        linkStyle: 'inlined',
-        keepReplacement(content) {
-            return content
-        }
-    });
-}
-
-function createTurndownServiceGhostMarkdown() {
-    return new TurndownService({
-        headingStyle: 'atx',
-        hr: '---',
-        bulletListMarker: '*',
-        codeBlockStyle: 'fenced',
-        fence: '```',
-        emDelimiter: '*',
-        strongDelimiter: '**',
-        linkStyle: 'inlined',
-        keepReplacement(content) {
-            return content
-        }
-    }).addRule('strikethrough', {
-            filter: ['del', 's', 'strike'],
-            replacement(content) {
-                return '~~' + content + '~~'
-            }
-        }
-    );
-}
-
-// convertHtmlToCommonmarkMarkdown('<h1>Hello world!</h1>')
-function convertHtmlToCommonmarkMarkdown(html) {
-    const turndownService = createTurndownServiceCommonmarkMarkdown();
-    return turndownService.turndown(html);
-}
-
-function convertHtmlToGfmMarkdown(html) {
-    const turndownService = createTurndownServiceGfmMarkdown();
-    TurndownPluginGfmService.gfm(turndownService);
-    return turndownService.turndown(html);
-}
-
-function convertHtmlToGhostMarkdown(html) {
-    const turndownService = createTurndownServiceGhostMarkdown();
-    TurndownPluginGfmService.gfm(turndownService);
-    return turndownService.turndown(html);
-}
-
-function removeExtraLine(text) {
-    return text.replace(/^\s+^/mg, '\n').replace(/$\s+$/mg, '\n');
-}
-
-function removeLineTailBlank(text) {
-    return text.split('\n').map(line => line.trimRight()).join('\n');
-}
-
-function convertMarkdownToBeautifyMarkdown(text) {
-    return removeExtraLine(removeLineTailBlank(text));
-}
-
-// https://github.com/stonehank/html-to-md
-function convertHtmlToMD(html) {
-    return html2md(html);
-}
-
-// 等待图片加载完成
-const waitForImageLoaded = (img) => {
-    return new Promise((resolve, reject) => {
-        if (img.complete) {
-            return resolve();
-        }
-        img.onload = () => resolve();
-        img.onerror = () => reject(img);
-    });
-}
-
-// 将指定元素的图片替换为 base64 格式
-function replaceElementImageWithBase64(element, baseUrl, callback) {
-    images = Array.from(element.querySelectorAll('img'));
-
-    return Promise.all(
-        images.map(async (img) => {
-            let imgBase64;
-            let imgUrl = img.src;
-
-            if (imgUrl.startsWith("data:image")) {
-                imgBase64 = imgUrl;
-            } else {
-                imgUrl = convertUrlToAbsoluteURL(imgUrl, baseUrl);
-
-                try {
-                    // imgBase64 = await getImageBase64FromUrl(imgUrl);
-                    imgBase64 = await fetchImageBase64FromUrl(imgUrl);
-                } catch(error) {
-                    console.log(error);
-                }
-
-                try {
-                    img.src = imgBase64;
-                    await waitForImageLoaded(img);
-                } catch(error) {
-                    console.log(error);
-                }
-            }
-        })
-    ).then(() => {
-        callback();
-    });
-}
-
-// 将指定元素的图片转为 base64 格式，返回数组 imgData {src: '', dataurl: '', alt: '', title: ''}
-function convertElementImageToBase64(element, baseUrl, callback) {
-    images = Array.from(element.querySelectorAll('img'));
-
-    return Promise.all(
-        images.map(async (img) => {
-            let imgUrl = img.src;
-            let imgAlt = img.alt || '';
-            let imgTitle = img.title || '';
-
-            let imgData = {};
-            let imgBase64;
-
-            if (imgUrl.startsWith("data:image")) {
-                imgBase64 = imgUrl;
-            } else {
-                imgUrl = convertUrlToAbsoluteURL(imgUrl, baseUrl);
-
-                // imgBase64 = await getImageBase64FromUrl(imgUrl);
-                imgBase64 = await fetchImageBase64FromUrl(imgUrl);
-            }
-
-            return new Promise((resolve, reject) => {
-                if (imgBase64.startsWith("data:image")) {
-                    imgData['src'] = imgUrl;
-                    imgData['dataurl'] = imgBase64;
-                    imgData['alt'] = imgAlt;
-                    imgData['title'] = imgTitle;
-
-                    resolve(imgData);
-                } else {
-                    reject('');
-                }
-            });
-        })
-    ).then((results) => {
-        callback(results);
-    });
-}
-
-// 将 Markdown 中的 base64 图片转移到脚注
-function markdownBase64ImageToFootnote(text, imgData) {
-    let mdText = text;
-    let mdTitle = `# [${siteTitle}](${siteHref})\n\n`;
-    let imgFoot = '\n\n';
-
-    let altText, url, base64, imgTitle, imgFootLink;
-    let usedFootLink = [], usedUrl = [];
-    let emptyFootLinkCount = 0;
-
-    // ![image description](data:image/png;base64,...)
-    const reBase64 = new RegExp(/\!\[([^\[\]]*)\](\((data:image\/[^;]+;base64[^'"()]+)\s*['"]?([^'"()]*)['"]?\s*\))/gi);
-    let match = reBase64.exec(text);
-    do {
-        if (match) {
-            altText = match[1];
-            url = match[2];
-            base64 = match[3];
-            imgTitle = match[4];
-
-            if (!imgTitle) imgTitle = altText;
-
-            imgFootLink = imgTitle;
-            if (!imgFootLink) {
-                imgFootLink = imgFootLink.replace(/[~`!@#$%^&*()+={}\[\];:\'\"<>.,\/\\\?-_\s\n]/g, '');
-            }
-            if (!imgFootLink || usedFootLink.includes(imgFootLink) || imgFootLink.startsWith("http") || imgFootLink.startsWith("ftp")) {
-                emptyFootLinkCount++;
-                imgFootLink = `图片${emptyFootLinkCount}`;
-            }
-            usedFootLink.push(imgFootLink);
-
-            if (imgTitle) {
-                imgFoot = `${imgFoot}[${imgFootLink}]: ${base64} "${imgTitle}"\n`;
-            } else {
-                imgFoot = `${imgFoot}[${imgFootLink}]: ${base64}\n`;
-            }
-
-            mdText = mdText.replaceAll(url, `[${imgFootLink}]`);
-        }
-    } while ((match = reBase64.exec(text)) !== null);
-
-    // ![image description](https://...)
-    // const reUrl = new RegExp(/\!\[([^\[\]]*)\](\(((?!data:image)[^'"()]+)\s*['"]?([^'"()]*)['"]?\s*\))/gi);
-
-    // imgData[]
-    for (let id in imgData) {
-        url = imgData[id]['src'];
-
-        if (usedUrl.includes(url)) {
-            imgData[id]['used'] = true;
-        } else {
-            imgData[id]['used'] = false;
-        }
-
-        usedUrl.push(url);
-    }
-
-    for (let id in imgData) {
-        if (imgData[id]['used']) continue;
-
-        altText = imgData[id]['alt'];
-        url = imgData[id]['src'];
-        base64 = imgData[id]['dataurl'];
-        imgTitle = imgData[id]['title'];
-
-        if (!imgTitle) imgTitle = altText;
-
-        imgFootLink = imgTitle;
-        if (!imgFootLink) {
-            imgFootLink = imgFootLink.replace(/[~`!@#$%^&*()+={}\[\];:\'\"<>.,\/\\\?-_\s\n]/g, '');
-        }
-        if (!imgFootLink || usedFootLink.includes(imgFootLink) || imgFootLink.startsWith("http") || imgFootLink.startsWith("ftp")) {
-            emptyFootLinkCount++;
-            imgFootLink = `图片${emptyFootLinkCount}`;
-        }
-        usedFootLink.push(imgFootLink);
-
-        if (imgTitle) {
-            imgFoot = `${imgFoot}[${imgFootLink}]: ${base64} "${imgTitle}"\n`;
-        } else {
-            imgFoot = `${imgFoot}[${imgFootLink}]: ${base64}\n`;
-        }
-
-        mdText = mdText.replace(`(${url})`, `[${imgFootLink}]`);
-    }
-
-    mdText = `${mdTitle}${mdText}${imgFoot}`;
-
-    return mdText;
-}
-
-// 将 HTML 转为指定的 Markdown 格式
-// convertHtmlToMarkdown(html, siteHref, MARKDOWN_FLAVOR, MARKDOWN_URL_FORMAT)
-function convertHtmlToMarkdown(html, baseUrl, markdownFlavor, urlFormat) {
-    let htmlText, markdownText;
-
-    htmlText = convertHtmlToBeautifyHTML(
-        convertHtmlToFormattedLinkHTML(convertHtmlToSafeHTML(html), baseUrl, urlFormat)
-    );
-
-    switch (markdownFlavor) {
-        case 'commonmark':
-            markdownText = convertHtmlToCommonmarkMarkdown(htmlText);
-            break;
-        case 'gfm':
-            markdownText = convertHtmlToGfmMarkdown(htmlText);
-            break;
-        case 'ghost':
-            markdownText = convertHtmlToGhostMarkdown(htmlText);
-            break;
-        default: // html2md
-            markdownText = convertHtmlToMD(htmlText);
-    }
-
-    markdownText = convertMarkdownToBeautifyMarkdown(markdownText);
-
-    return markdownText;
-}
-
-// 将指定元素转为 Markdown 格式
-function convertElementToMarkdown(element) {
-    return convertHtmlToMarkdown(element.innerHTML, siteHref, MARKDOWN_FLAVOR, MARKDOWN_URL_FORMAT);
-}
-
-function elementSelectorToMarkdown(selector) {
-    const element = document.querySelector(selector);
-
-    if (!element) {
-        console.log('Can not find the element: ' + selector);
-        return;
-    }
-
-    return convertElementToMarkdown(element);
-}
-
-// 鼠标高亮元素转为 Markdown
-function elementInspectorToMarkdown(element) {
-    let htmlText, markdownText;
-
-    // 停止鼠标滑动高亮元素
-    stopElementInspector();
-
-    // 提示
-    addLoadingIndicator('curtain', '处理中...', 'data-colorful');
-
-    // 将元素的图片转为 base64 格式
-    convertElementImageToBase64(element, siteHref, (imgData) => {
-        // 获取元素 HTML
-        htmlText = convertHtmlToBeautifyHTML(
-                convertHtmlToFormattedLinkHTML(convertHtmlToSafeHTML(element.innerHTML), siteHref, MARKDOWN_URL_FORMAT)
-            );
-
-        // 获取 Markdown
-        switch (MARKDOWN_FLAVOR) {
-            case 'commonmark':
-                markdownText = convertHtmlToCommonmarkMarkdown(htmlText);
-                break;
-            case 'gfm':
-                markdownText = convertHtmlToGfmMarkdown(htmlText);
-                break;
-            case 'ghost':
-                markdownText = convertHtmlToGhostMarkdown(htmlText);
-                break;
-            default: // html2md
-                markdownText = convertHtmlToMD(htmlText);
-        }
-
-        markdownText = convertMarkdownToBeautifyMarkdown(markdownText);
-        markdownText = markdownBase64ImageToFootnote(markdownText, imgData);
-
-        // 移除提示
-        removeLoadingIndicator();
-
-        // 渲染为 Markdown
-        renderHtml2MD(htmlText, markdownText);
-    });
-}
-
-// HTML to Markdown render page
-const html2mdTemplate = `
-    <div id="html-md-container" class="viewer-container viewer-backdrop viewer-fixed viewer-fade viewer-transition viewer-in" tabindex="-1" touch-action="none" role="dialog" style="z-index: 2015;">
-        <div id="html-md" class="viewer-canvas">
-            <div class="infoWrap">
-                <span class="info">html</span>
-                <span class="info">markdown</span>
-            </div>
-            <div id="wrap" class="markdown-body ">
-                <textarea id="inputHTML" class="syncScrTxt"></textarea>
-                <textarea id="outputMD" readonly class="syncScrTxt"></textarea>
-            </div>
-            <div>
-                <label for="syncScrBtn" id="syncScrBtnRender">sync scroll</label>
-                <input type="checkbox" id="syncScrBtn" checked style="font-size:1rem" />
-            </div>
-        </div>
-        <div class="viewer-button viewer-close" role="button" tabindex="0"></div>
-    </div>
-
-    <style>
-        .viewer-container {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            bottom: 0;
-            direction: ltr;
-            font-size: 0;
-            left: 0;
-            line-height: 0;
-            overflow: hidden;
-            position: absolute;
-            right: 0;
-            top: 0;
-            -ms-touch-action: none;
-            touch-action: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none
-        }
-
-        .viewer-container ::-moz-selection,.viewer-container::-moz-selection {
-            background-color: transparent
-        }
-
-        .viewer-container ::selection,.viewer-container::selection {
-            background-color: transparent
-        }
-
-        .viewer-container:focus {
-            outline: 0
-        }
-
-        .viewer-button {
-            -webkit-app-region: no-drag;
-            background-color: rgba(0,0,0,0.5);
-            border-radius: 50%;
-            cursor: pointer;
-            height: 80px;
-            overflow: hidden;
-            position: absolute;
-            right: -40px;
-            top: -40px;
-            transition: background-color .15s;
-            width: 80px
-        }
-
-        .viewer-button:focus,.viewer-button:hover {
-            background-color: rgba(0,0,0,0.8)
-        }
-
-        .viewer-button:focus {
-            box-shadow: 0 0 3px #fff;
-            outline: 0
-        }
-
-        .viewer-button:before {
-            bottom: 15px;
-            left: 15px;
-            position: absolute
-        }
-
-        .viewer-close:before,.viewer-flip-horizontal:before,.viewer-flip-vertical:before,.viewer-fullscreen-exit:before,.viewer-fullscreen:before,.viewer-next:before,.viewer-one-to-one:before,.viewer-play:before,.viewer-prev:before,.viewer-reset:before,.viewer-rotate-left:before,.viewer-rotate-right:before,.viewer-zoom-in:before,.viewer-zoom-out:before {
-            background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAAUCAYAAABWOyJDAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAQPSURBVHic7Zs/iFxVFMa/0U2UaJGksUgnIVhYxVhpjDbZCBmLdAYECxsRFBTUamcXUiSNncgKQbSxsxH8gzAP3FU2jY0kKKJNiiiIghFlccnP4p3nPCdv3p9778vsLOcHB2bfveeb7955c3jvvNkBIMdxnD64a94GHMfZu3iBcRynN7zAOI7TG15gHCeeNUkr8zaxG2lbYDYsdgMbktBsP03jdQwljSXdtBhLOmtjowC9Mg9L+knSlcD8TNKpSA9lBpK2JF2VdDSR5n5J64m0qli399hNFMUlpshQii5jbXTbHGviB0nLNeNDSd9VO4A2UdB2fp+x0eCnaXxWXGA2X0au/3HgN9P4LFCjIANOJdrLr0zzZ+BEpNYDwKbpnQMeAw4m8HjQtM6Z9qa917zPQwFr3M5KgA6J5rTJCdFZJj9/lyvGhsDvwFNVuV2MhhjrK6b9bFiE+j1r87eBl4HDwCF7/U/k+ofAX5b/EXBv5JoLMuILzf3Ap6Z3EzgdqHMCuF7hcQf4HDgeoHnccncqdK/TvSDWffFXI/exICY/xZyqc6XLWF1UFZna4gJ7q8BsRvgd2/xXpo6P+D9dfT7PpECtA3cnWPM0GXGFZh/wgWltA+cDNC7X+AP4GzjZQe+k5dRxuYPeiuXU7e1qwLpDz7dFjXKRaSwuMLvAlG8zZlG+YmiK1HoFqT7wP2z+4Q45TfEGcMt01xLoNZEBTwRqD4BLpnMLeC1A41UmVxsXgXeBayV/Wx20rpTyrpnWRft7p6O/FdqzGrDukPNtkaMoMo3FBdBSQMOnYBCReyf05s126fU9ytfX98+mY54Kxnp7S9K3kj6U9KYdG0h6UdLbkh7poFXMfUnSOyVvL0h6VtIXHbS6nOP+s/Zm9mvyXW1uuC9ohZ72E9uDmXWLJOB1GxsH+DxPftsB8B6wlGDN02TAkxG6+4D3TWsbeC5CS8CDFce+AW500LhhOW2020TRjK3b21HEmgti9m0RonxbdMZeVzV+/4tF3cBpP7E9mKHNL5q8h5g0eYsCMQz0epq8gQrwMXAgcs0FGXGFRcB9wCemF9PkbYqM/Bas7fxLwNeJPdTdpo4itQti8lPMqTpXuozVRVXPpbHI3KkNTB1NfkL81j2mvhDp91HgV9MKuRIqrykj3WPq4rHyL+axj8/qGPmTqi6F9YDlHOvJU6oYcTsh/TYSzWmTE6JT19CtLTJt32D6CmHe0eQn1O8z5AXgT4sx4Vcu0/EQecMydB8z0hUWkTd2t4CrwNEePqMBcAR4mrBbwyXLPWJa8zrXmmLEhNBmfpkuY2102xxrih+pb+ieAb6vGhuA97UcJ5KR8gZ77K+99xxeYBzH6Q3/Z0fHcXrDC4zjOL3hBcZxnN74F+zlvXFWXF9PAAAAAElFTkSuQmCC");
-            background-repeat: no-repeat;
-            background-size: 280px;
-            color: transparent;
-            display: block;
-            font-size: 0;
-            height: 20px;
-            line-height: 0;
-            width: 20px
-        }
-
-        .viewer-close:before {
-            background-position: -260px 0;
-            content: "Close"
-        }
-
-        .viewer-fixed {
-            position: fixed
-        }
-
-        .viewer-open {
-            overflow: hidden
-        }
-
-        .viewer-show {
-            display: block
-        }
-
-        .viewer-hide {
-            display: none
-        }
-
-        .viewer-backdrop {
-            background-color: rgba(0,0,0,0.5)
-        }
-
-        .viewer-invisible {
-            visibility: hidden
-        }
-
-        .viewer-move {
-            cursor: move;
-            cursor: -webkit-grab;
-            cursor: grab
-        }
-
-        .viewer-fade {
-            opacity: 0
-        }
-
-        .viewer-in {
-            opacity: 1
-        }
-
-        .viewer-transition {
-            transition: all 0.3s
-        }
-
-        .viewer-container img {
-            display: block;
-            height: auto;
-            max-height: none!important;
-            max-width: none!important;
-            min-height: 0!important;
-            min-width: 0!important;
-            width: 100%
-        }
-
-        .viewer-canvas {
-            bottom: 0;
-            left: 0;
-            overflow: hidden;
-            position: absolute;
-            right: 0;
-            top: 0
-        }
-
-        .viewer-canvas>img {
-            height: auto;
-            margin: 15px auto;
-            max-width: 90%!important;
-            width: auto
-        }
-
-        #html-md {
-            font-size: 16px;
-            line-height: 1.5;
-            background: lightgreen;
-        }
-
-        .infoWrap {
-            display: flex;
-            justify-content: space-evenly;
-            height: 30px;
-        }
-
-        .info {
-            font-size: 1rem;
-            font-weight: bold;
-        }
-
-        #wrap {
-            display: flex;
-            justify-content: space-between;
-            margin: 8px;
-        }
-
-        #html-md .syncScrTxt {
-            font-size: 0.8rem;
-            width: 48%;
-            resize: horizontal;
-            min-width: 20%;
-            height: 85vh;
-        }
-
-        #html-md #inputHTML {
-            border: 1px solid #a9a9a9;
-            overflow: auto;
-        }
-
-        #html-md #outputMD {
-            resize: none;
-            flex: 1;
-        }
-
-        textarea {
-            line-height: 1.5;
-        }
-
-        #syncScrBtnRender {
-            border: 1px;
-            padding: 0.2rem;
-            border-radius: 4px;
-            margin: 0.5rem;
-            display: inline-block;
-            cursor: pointer;
-        }
-    </style>
-`;
-
-function renderHtml2MD(html, markdown) {
-    const template = document.createElement('div');
-    template.innerHTML = html2mdTemplate.trim();
-
-    template.querySelector("#inputHTML").value = html;
-    template.querySelector("#outputMD").value = markdown;
-
-    // const viewer = template.querySelector("#html-md-container");
-    // const cssStyles = {
-    //     backgroundcolor: "transparent",
-    // };
-    // for (let style in cssStyles) {
-    //     viewer.style[style] = cssStyles[style];
-    // }
-
-    document.getElementsByTagName("body")[0].appendChild(template);
-
-    // 同步滚动
-    function html2MDSyncScroll() {
-        let delay = false, timer = null;
-        let syncScrTxt = document.getElementsByClassName('syncScrTxt'),
-            syncScrBtn = document.getElementById('syncScrBtn');
-
-        function syncScroll(ev) {
-            let ele = ev.target;
-            if (!delay) {
-                clearTimeout(timer);
-                delay = true;
-                if (ele.className === 'syncScrTxt') {
-                    let scrRatio = ele.scrollTop / ele.scrollHeight;
-                    for (let j = 0; j < syncScrTxt.length; j++) {
-                        if (syncScrTxt[j] === ele) continue;
-                        syncScrTxt[j].scrollTo({
-                            top: syncScrTxt[j].scrollHeight * scrRatio,
-                        });
-                    }
-                }
-                timer = setTimeout(() => {
-                    delay = false;
-                }, 30);
-            }
-        }
-
-        function bindScr(syncScrTxt) {
-            for (let i = 0; i < syncScrTxt.length; i++) {
-                let ele = syncScrTxt[i];
-                ele.addEventListener('scroll', syncScroll);
-            }
-        }
-
-        function unbindScr(syncScrTxt) {
-            for (let i = 0; i < syncScrTxt.length; i++) {
-                let ele = syncScrTxt[i];
-                ele.removeEventListener('scroll', syncScroll);
-            }
-        }
-
-        function toggleSyncScroll(ev) {
-            if (ev.target.checked) {
-                bindScr(syncScrTxt);
-            } else {
-                unbindScr(syncScrTxt);
-            }
-        }
-
-        function checkIfBindScr() {
-            let checked = syncScrBtn.checked;
-            if (checked) {
-                bindScr(syncScrTxt);
-            } else {
-                unbindScr(syncScrTxt);
-            }
-        }
-
-        syncScrBtn.addEventListener('change', toggleSyncScroll);
-        checkIfBindScr();
-    }
-
-    // 关闭
-    function closeViewer() {
-        document.querySelector("#html-md-container").parentNode.remove();
-    }
-
-    document.querySelector(".viewer-button.viewer-close").addEventListener("click", closeViewer);
-
-    html2MDSyncScroll();
-}
-
 // 等待指定元素出现然后执行指定函数
 // https://gist.github.com/BrockA/2625891
 // https://gist.github.com/chrisjhoughton/7890303
@@ -2523,15 +1029,6 @@ function addLinkStylesheetToHead(link) {
     });
 }
 
-function getMaxZIndex() {
-    return Math.max(
-        ...Array.from(document.querySelectorAll('body *'), el =>
-            parseFloat(window.getComputedStyle(el).zIndex),
-        ).filter(zIndex => !Number.isNaN(zIndex)),
-        0,
-    );
-}
-
 // 包含文本最多的 DIV
 function getMostTextDivSelectorAll() {
     const skipSelectors = [
@@ -2589,7 +1086,7 @@ const darkModeOptions = {
 
 async function darkReaderFetch(url) {
     let host = siteOrigin + "/";
-    
+
     let responseData = await new Promise((resolve, reject) => {
         GM_xmlhttpRequest({
             method: "get",
@@ -2690,7 +1187,7 @@ function registerMenuGMConfig() {
     };
     // Use field definitions for the stored language
     let configFields = langDefs[configLang];
-    
+
     // The title for the settings panel in different languages
     let titleDefs = {
         'en': 'CJK Text Optimization',
@@ -2875,19 +1372,6 @@ function getWikiListFonts() {
         }
     }
 
-    // 图片查看器 CSS 样式
-    switch (IMAGE_VIEWER) {
-        case 'image-viewer':
-            addLinkStylesheetToHead('https://cdn.bootcdn.net/ajax/libs/viewerjs/1.11.3/viewer.min.css');
-            break;
-        case 'img-previewer':
-            addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/img-previewer/dist/index.css');
-            break;
-    }
-
-    // 加载指示器 CSS 样式
-    addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/pure-css-loader/dist/css-loader.css');
-
     // 附加的 CSS 样式
     if (cssFontStyle && cssSpaceStyle) {
         cssAddStyle = `${cssFontStyle}\n${cssSpaceStyle}`;
@@ -2919,13 +1403,10 @@ function getWikiListFonts() {
     }
 
     if (!waitForElement) {
-        // waitForElementOperation();
+        waitForElementOperation();
         // delay the function call to fix `DOMException: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node` on some sites
-        setTimeout(() => waitForElementOperation(), 1000);
+        // setTimeout(() => waitForElementOperation(), 500);
     }
-
-    // 监听键盘事件
-    document.addEventListener('keydown', onKeydown, true);
 
     // 监听滚动事件，以处理 自动无缝翻页（Autopager）
     // let beforeScrollTop = document.documentElement.scrollTop || document.body.scrollTop;
