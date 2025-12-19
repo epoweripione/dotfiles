@@ -272,7 +272,7 @@ fi
 # font: Fira Code Regular Nerd Font Complete Mono
 colorEcho "${BLUE}Installing ${FUCHSIA}FiraCode Nerd Font Mono${BLUE}..."
 App_Installer_Reset
-if [[ ! -s "$HOME/FiraCodeNerdFontMono-Regular.ttf" ]]; then
+if [[ ! -f "$HOME/FiraCodeNerdFontMono-Regular.ttf" ]]; then
     INSTALLER_CHECK_URL="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
     App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
 
@@ -285,11 +285,11 @@ if [[ ! -s "$HOME/FiraCodeNerdFontMono-Regular.ttf" ]]; then
     fi
 fi
 
-if [[ -s "$HOME/FiraCodeNerdFontMono-Regular.ttf" ]]; then
-    [[ -s "$HOME/.termux/font.ttf" && ! -s "$HOME/.termux/font.ttf.bak" ]] && \
+if [[ -f "$HOME/FiraCodeNerdFontMono-Regular.ttf" ]]; then
+    [[ -f "$HOME/.termux/font.ttf" && ! -f "$HOME/.termux/font.ttf.bak" ]] && \
         mv "$HOME/.termux/font.ttf" "$HOME/.termux/font.ttf.bak"
 
-    cp -f "$HOME/FiraCodeNerdFontMono-Regular.ttf" "$HOME/.termux/font.ttf"
+    cp -f "$HOME/FiraCode-Mono/FiraCodeNerdFontMono-Regular.ttf" "$HOME/.termux/font.ttf"
 fi
 
 # nnn
