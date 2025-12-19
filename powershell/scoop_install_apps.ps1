@@ -204,6 +204,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "go"
         "cargo-binstall"
         "rustup"
+        "biome"
         "fnm"
         "nodejs-lts"
         # "dotnet-sdk"
