@@ -64,7 +64,7 @@ body {
 }
 
 pre,code,kbd,samp {
-    font-family: 'FiraCode Nerd Font Mono', 'Noto Sans Mono CJK SC', emoji, sans-serif !important;
+    font-family: 'JetBrainsMono Nerd Font', 'Noto Sans Mono CJK SC', emoji, sans-serif !important;
 }
 
 html.han-la hanla:after {

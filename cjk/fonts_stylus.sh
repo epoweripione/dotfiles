@@ -172,28 +172,28 @@ declare -A CSS_FONTS=(
     ["바탕"]="KR;Noto Serif;Noto Serif CJK KR"
 
     # mono
-    ["Andale Mono"]="MONO;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["Consolas"]="MONO;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["Courier"]="MONO;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["Courier New"]="MONO;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["FantasqueSansMonoRegular"]="MONO;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["Lucida Console"]="MONO;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["Menlo"]="MONO;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["Monaco"]="MONO;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["mono"]="MONO;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["monospace"]="MONO;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
+    ["Andale Mono"]="MONO;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["Consolas"]="MONO;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["Courier"]="MONO;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["Courier New"]="MONO;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["FantasqueSansMonoRegular"]="MONO;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["Lucida Console"]="MONO;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["Menlo"]="MONO;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["Monaco"]="MONO;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["mono"]="MONO;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["monospace"]="MONO;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
 
-    ["NSimsun"]="SC;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["新宋体"]="SC;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
-    ["细明体"]="SC;FiraCode Nerd Font Mono;Noto Sans Mono CJK SC"
+    ["NSimsun"]="SC;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["新宋体"]="SC;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
+    ["细明体"]="SC;JetBrainsMono Nerd Font;Noto Sans Mono CJK SC"
 
-    ["MingLiU"]="TC;FiraCode Nerd Font Mono;Noto Sans Mono CJK TC"
-    ["MingLiU-ExtB"]="TC;FiraCode Nerd Font Mono;Noto Sans Mono CJK TC"
-    ["新宋體"]="TC;FiraCode Nerd Font Mono;Noto Sans Mono CJK TC"
-    ["細明體"]="TC;FiraCode Nerd Font Mono;Noto Sans Mono CJK TC"
+    ["MingLiU"]="TC;JetBrainsMono Nerd Font;Noto Sans Mono CJK TC"
+    ["MingLiU-ExtB"]="TC;JetBrainsMono Nerd Font;Noto Sans Mono CJK TC"
+    ["新宋體"]="TC;JetBrainsMono Nerd Font;Noto Sans Mono CJK TC"
+    ["細明體"]="TC;JetBrainsMono Nerd Font;Noto Sans Mono CJK TC"
 
-    ["MingLiU_HKSCS"]="HK;FiraCode Nerd Font Mono;Noto Sans Mono CJK HK"
-    ["MingLiU_HKSCS-ExtB"]="HK;FiraCode Nerd Font Mono;Noto Sans Mono CJK HK"
+    ["MingLiU_HKSCS"]="HK;JetBrainsMono Nerd Font;Noto Sans Mono CJK HK"
+    ["MingLiU_HKSCS-ExtB"]="HK;JetBrainsMono Nerd Font;Noto Sans Mono CJK HK"
 
     ["Sarasa Fixed SC"]="SC;Sarasa Fixed SC;"
     ["Sarasa Fixed Slab SC"]="SC;Sarasa Fixed Slab SC;"
@@ -349,6 +349,6 @@ done
 
 tee -a "${CSS_FILE}" >/dev/null <<-'EOF'
 pre,code,kbd,samp {
-    font-family: 'FiraCode Nerd Font Mono', 'Noto Sans Mono CJK SC', emoji !important;
+    font-family: 'JetBrainsMono Nerd Font', 'Noto Sans Mono CJK SC', emoji !important;
 }
 EOF

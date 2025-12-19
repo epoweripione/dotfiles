@@ -253,7 +253,7 @@
             <string>Hack</string>
         </test>
         <edit name="family" binding="strong">
-            <string>FiraCode Nerd Font Mono</string>
+            <string>JetBrainsMono Nerd Font</string>
         </edit>
     </match>
 
@@ -282,7 +282,7 @@
         </edit>
     </match>
 
-    <!-- Replace `Noto Sans Mono CJK` with `FiraCode Nerd Font Mono` -->
+    <!-- Replace `Noto Sans Mono CJK` with `JetBrainsMono Nerd Font` -->
     <match target="pattern">
         <!--
         <test name="prgname" compare="not_eq">
@@ -296,7 +296,7 @@
             <string>Noto Sans Mono CJK</string>
         </test>
         <edit name="family" mode="prepend" binding="strong">
-            <string>FiraCode Nerd Font Mono</string>
+            <string>JetBrainsMono Nerd Font</string>
         </edit>
     </match>
 
@@ -342,7 +342,7 @@
     <alias>
         <family>monospace</family>
         <prefer>
-            <family>FiraCode Nerd Font Mono</family>
+            <family>JetBrainsMono Nerd Font</family>
             <family>JetBrainsMono Nerd Font Mono</family>
             <family>Iosevka Term</family>
             <family>Twemoji</family>
