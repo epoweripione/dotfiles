@@ -399,7 +399,7 @@ function fnm_Node_Upgrade() {
 
     [[ ! -x "$(command -v fnm)" ]] && colorEcho "${FUCHSIA}fnm${RED} is not installed!" && return 1
 
-    colorEcho "${BLUE}Updating ${FUCHSIA}Nodejs versions managed by fnm${BLUE}..."
+    colorEcho "${BLUE}Updating ${FUCHSIA}Nodejs ${BLUE}versions managed by ${FUCHSIA}fnm${BLUE}..."
     installed_node_versions=$(fnm list 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | sort -uV)
 
     while read -r node_version; do
@@ -420,7 +420,7 @@ function fnm_Node_Upgrade() {
             nvm_global_packages=$(npm list --global --depth=0 --json | jq -r '.dependencies | keys[]' 2>/dev/null | grep -Ev '^npm$')
 
             # install latest version
-            fnm install "${latest_version}" --corepack-enabled
+            fnm install "${latest_version}"
             fnm use "${latest_version}"
 
             # reinstall global packages

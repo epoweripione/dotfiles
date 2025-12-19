@@ -89,10 +89,10 @@ fi
 # Install lts and latest nodejs
 if [[ -x "$(command -v ${INSTALLER_BINARY_NAME})" && ! "$(command -v node)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}Nodejs ${YELLOW}LTS${BLUE}..."
-    fnm install --lts --corepack-enabled
+    fnm install --lts
 
     colorEcho "${BLUE}Installing ${FUCHSIA}Nodejs ${YELLOW}latest${BLUE}..."
-    fnm install --latest --corepack-enabled
+    fnm install --latest
 
     fnm default lts-latest
     fnm use lts-latest
