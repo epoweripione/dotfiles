@@ -1,0 +1,38 @@
+{
+  "language": "postgresql",
+  "tabWidth": 4,
+  "useTabs": true,
+  "keywordCase": "upper",
+  "dataTypeCase": "upper",
+  "functionCase": "upper",
+  "identifierCase": "lower",
+  "indentStyle": "standard",
+  "logicalOperatorNewline": "before",
+  "expressionWidth": 80,
+  "linesBetweenQueries": 1,
+  "denseOperators": false,
+  "newlineBeforeSemicolon": true,
+  "paramTypes": {
+    "custom": [
+      {
+        "regex": "\\$+[0-9]+|%+[LIs]?"
+      }
+    ],
+    "positional": true,
+    "numbered": [
+      "?",
+      ":",
+      "$"
+    ],
+    "named": [
+      ":",
+      "@",
+      "$"
+    ],
+    "quoted": [
+      ":",
+      "@",
+      "$"
+    ]
+  }
+}
