@@ -14,6 +14,9 @@
 // @require           https://cdn.jsdelivr.net/npm/html2canvas/dist/html2canvas.min.js
 // @require           https://cdn.jsdelivr.net/npm/html-to-image/dist/html-to-image.min.js
 // @require           https://cdn.jsdelivr.net/npm/dom-to-image-more/dist/dom-to-image-more.min.js
+// @require           https://cdn.jsdelivr.net/npm/@zumer/snapdom/dist/snapdom.min.js
+// @require           https://cdn.jsdelivr.net/npm/dompdf.js@latest/dist/dompdf.js
+// @require           https://cdn.jsdelivr.net/gh/lmn1919/dompdf.js@main/examples/SourceHanSansSC-Normal-Min-normal.js
 // @require           https://cdn.jsdelivr.net/npm/viewerjs/dist/viewer.min.js
 // @require           https://cdn.bootcdn.net/ajax/libs/js-beautify/1.15.4/beautify-html.min.js
 // @require           https://unpkg.com/turndown/dist/turndown.js
@@ -43,7 +46,7 @@ const FONT_MONO = 'JetBrainsMono Nerd Font'; // 等宽字体
 const MARKDOWN_FLAVOR = 'commonmark'; // 转为 Markdown 默认格式: commonmark, gfm, ghost
 const MARKDOWN_URL_FORMAT = 'absolute'; // 转为 Markdown 的 URL 默认格式: original, absolute, relative, root-relative
 
-const DOM2IMAGE = 'html-to-image'; // 元素转图片：dom-to-image, html-to-image
+const DOM2IMAGE = 'snapdom'; // 元素转图片：dom-to-image, html-to-image, snapdom
 const IMAGE_VIEWER = 'image-viewer'; // 图片查看器：image-viewer, img-previewer
 
 // TamperMonkey 选项菜单
@@ -53,6 +56,8 @@ let registeredMenuCommand = [];
 let menuCommand = [
     ['menu_Inspector_Screenshot', '📡 - 检查元素 - 点击截图', 'screenshot', '', 'direct'],
     ['menu_Inspector_Markdown', '📡 - 检查元素 - 点击转为 Markdown', 'markdown', '', 'direct'],
+    ['menu_Inspector_PDF', '📡 - 检查元素 - 点击转为 PDF', 'pdf', '', 'direct'],
+    ['menu_Selection_to_Markdown', '📋 - 选择内容转为 Markdown', 'selection2md', '', 'direct'],
 ];
 
 // --------------------------函数及功能定义--------------------------
@@ -180,12 +185,12 @@ function registerMenuCommand() {
                                 function(){removeLinkRedirect()})
                             );
                         break;
-                    case 'menu_Inspector_Screenshot':
+                    case 'menu_Selection_to_Markdown':
                         registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`,
-                                function(){startElementInspector(elementInspectorOptions, `${menuCommand[id][2]}`)})
+                                function(){selectionToMarkdown()})
                             );
                         break;
-                    case 'menu_Inspector_Markdown':
+                    default:
                         registeredMenuCommand.push(GM_registerMenuCommand(`${menuCommand[id][1]}`,
                                 function(){startElementInspector(elementInspectorOptions, `${menuCommand[id][2]}`)})
                             );
@@ -339,6 +344,17 @@ function elementInspectorClick(element, action) {
                     elementSelectorToMarkdown("#" + element.id);
                 } else if (element.className) {
                     elementSelectorToMarkdown("." + element.className.split(/\s+/).join("."));
+                }
+            }
+            break;
+        case 'pdf':
+            if (element) {
+                elementInspectorToPDF(element);
+            } else {
+                if (element.id) {
+                    elementSelectorToPDF("#" + element.id);
+                } else if (element.className) {
+                    elementSelectorToPDF("." + element.className.split(/\s+/).join("."));
                 }
             }
             break;
@@ -590,6 +606,22 @@ function getElementScreenshotHtmlToImage(element, callback) {
         });
 }
 
+// [Snapdom](https://github.com/zumerlab/snapdom)
+async function getElementScreenshotSnapdom(element, callback) {
+    const pageBackgroundColor = getPageBackgroundColor();
+
+    const imgElement = await snapdom.toPng(element, {
+        backgroundColor: pageBackgroundColor
+    });
+
+    const dataUrl = imgElement.src;
+    if (!dataUrl || dataUrl.length < 100) {
+        callback('');
+    } else {
+        callback(dataUrl);
+    }
+}
+
 function elementInspectorScreenshot(element) {
     // 停止鼠标滑动高亮元素
     stopElementInspector();
@@ -597,11 +629,34 @@ function elementInspectorScreenshot(element) {
     // 提示
     addLoadingIndicator('curtain', '处理中...', 'data-colorful');
 
-    // use dom-to-image by default
-    const renderScreenshotDom2Image = function(dataUrl) {
+    const renderScreenshotHtmlSnapdom = function(dataUrl) {
+        // 移除提示
+        removeLoadingIndicator();
         if (dataUrl) {
-            // 移除提示
-            removeLoadingIndicator();
+            // 显示截图
+            // openImageInWindow(dataUrl);
+            renderImageViewer(dataUrl, 'screenshot-' + getDateTimeString(), IMAGE_VIEWER);
+        } else {
+            getElementScreenshotHtmlToImage(element, false, renderScreenshotHtmlToImage);
+        }
+    }
+
+    const renderScreenshotHtmlToImage = function(dataUrl) {
+        // 移除提示
+        removeLoadingIndicator();
+        if (dataUrl) {
+            // 显示截图
+            // openImageInWindow(dataUrl);
+            renderImageViewer(dataUrl, 'screenshot-' + getDateTimeString(), IMAGE_VIEWER);
+        } else {
+            getElementScreenshotDomToImage(element, false, renderScreenshotDom2Image);
+        }
+    }
+
+    const renderScreenshotDom2Image = function(dataUrl) {
+        // 移除提示
+        removeLoadingIndicator();
+        if (dataUrl) {
             // 显示截图
             // openImageInWindow(dataUrl);
             renderImageViewer(dataUrl, 'screenshot-' + getDateTimeString(), IMAGE_VIEWER);
@@ -610,21 +665,19 @@ function elementInspectorScreenshot(element) {
         }
     }
 
-    // if failed then use html2canvas without CORS
     const renderScreenshotHtml2Canvas = function(dataUrl) {
+        // 移除提示
+        removeLoadingIndicator();
         if (dataUrl) {
-            // 移除提示
-            removeLoadingIndicator();
             // 显示截图
             renderImageViewer(dataUrl, 'screenshot-' + getDateTimeString(), IMAGE_VIEWER);
         }
     }
 
-    // if failed then use html2canvas with CORS
     const renderScreenshotHtml2CanvasCORS = function(dataUrl) {
+        // 移除提示
+        removeLoadingIndicator();
         if (dataUrl) {
-            // 移除提示
-            removeLoadingIndicator();
             // 显示截图
             renderImageViewer(dataUrl, 'screenshot-' + getDateTimeString(), IMAGE_VIEWER);
         } else {
@@ -632,10 +685,18 @@ function elementInspectorScreenshot(element) {
         }
     }
 
-    if (DOM2IMAGE == 'html-to-image') {
-        getElementScreenshotHtmlToImage(element, renderScreenshotDom2Image);
-    } else {
-        getElementScreenshotDomToImage(element, renderScreenshotDom2Image);
+    switch (DOM2IMAGE) {
+        case 'html-to-image':
+            getElementScreenshotHtmlToImage(element, false, renderScreenshotHtmlToImage);
+            break; 
+        case 'dom-to-image':
+            getElementScreenshotDomToImage(element, false, renderScreenshotDom2Image);
+            break;
+        case 'snapdom':
+            getElementScreenshotSnapdom(element, renderScreenshotHtmlSnapdom);
+            break;
+        default:
+            getElementScreenshotHtml2Canvas(element, false, renderScreenshotHtml2Canvas);
     }
 }
 
@@ -1424,6 +1485,60 @@ function elementInspectorToMarkdown(element) {
     });
 }
 
+// Selection to Markdown
+function extractSelectionText(range) {
+    const fragment = range.cloneContents();
+    const nodes = Array.from(fragment.childNodes);
+    return nodes.map(
+        node => node.textContent
+    ).join('').trim();
+}
+
+function selectionToMarkdown() {
+    const selection = window.getSelection();
+    if (selection.isCollapsed) return;
+
+    const currentRange = selection.getRangeAt(0);
+
+    const divSelection = document.createElement('div');
+    divSelection.appendChild(currentRange.cloneContents());
+
+    // 提示
+    addLoadingIndicator('curtain', '处理中...', 'data-colorful');
+
+    // 将元素的图片转为 base64 格式
+    convertElementImageToBase64(divSelection, siteHref, (imgData) => {
+        // 获取元素 HTML
+        htmlText = convertHtmlToBeautifyHTML(
+                convertHtmlToFormattedLinkHTML(convertHtmlToSafeHTML(divSelection.innerHTML), siteHref, MARKDOWN_URL_FORMAT)
+            );
+
+        // 获取 Markdown
+        switch (MARKDOWN_FLAVOR) {
+            case 'commonmark':
+                markdownText = convertHtmlToCommonmarkMarkdown(htmlText);
+                break;
+            case 'gfm':
+                markdownText = convertHtmlToGfmMarkdown(htmlText);
+                break;
+            case 'ghost':
+                markdownText = convertHtmlToGhostMarkdown(htmlText);
+                break;
+            default: // html2md
+                markdownText = convertHtmlToMD(htmlText);
+        }
+
+        markdownText = convertMarkdownToBeautifyMarkdown(markdownText);
+        markdownText = markdownBase64ImageToFootnote(markdownText, imgData);
+
+        // 移除提示
+        removeLoadingIndicator();
+
+        // 渲染为 Markdown
+        renderHtml2MD(htmlText, markdownText);
+    });
+}
+
 // HTML to Markdown render page
 const html2mdTemplate = `
     <div id="html-md-container" class="viewer-container viewer-backdrop viewer-fixed viewer-fade viewer-transition viewer-in" tabindex="-1" touch-action="none" role="dialog" style="z-index: 2015;">
@@ -1800,6 +1915,110 @@ function setHtmlProperty() {
     });
 }
 
+// 转 PDF
+// [dompdf](https://github.com/lmn1919/dompdf.js)
+function getElementPDFDompdf(element, callback) {
+    const pageBackgroundColor = getPageBackgroundColor();
+    dompdf(element, {
+        useCORS: true,
+        backgroundColor: pageBackgroundColor,
+        fontConfig: {
+            fontFamily: 'SourceHanSansSC-Normal-Min',
+            fontBase64: window.fontBase64,
+        },
+        pagination: true,
+        format: "a4",
+        pageConfig: {
+            header: {
+                content: siteTitle,
+                height: 50,
+                contentColor: "#333333",
+                contentFontSize: 12,
+                contentPosition: "center",
+                padding: [0, 0, 0, 0],
+            },
+            footer: {
+                content: "第 ${currentPage} 页/共 ${totalPages} 页",
+                height: 50,
+                contentColor: "#333333",
+                contentFontSize: 12,
+                contentPosition: "center",
+                padding: [0, 0, 0, 0],
+            },
+        },
+    }).then((blob) => {
+        callback(blob);
+    }).catch((err) => {
+        callback('');
+    });
+}
+
+// [Snapdom with pdfExport plugin](https://github.com/zumerlab/snapdom)
+async function getElementPDFSnapdom(element, callback) {
+    const pageBackgroundColor = getPageBackgroundColor();
+
+    const out = await snapdom(element, {
+        backgroundColor: pageBackgroundColor,
+        plugins: [pdfExportPlugin()]
+    });
+
+    const pdfBlob = await out.toPdf();
+    if (pdfBlob) {
+        callback(pdfBlob);
+    } else {
+        callback('');
+    }
+}
+
+function elementInspectorToPDF(element) {
+    // 停止鼠标滑动高亮元素
+    stopElementInspector();
+
+    // 提示
+    addLoadingIndicator('curtain', '处理中...', 'data-colorful');
+
+    // use dompdf to convert element to pdf
+    const renderDom2PDF = function(blob) {
+        // 移除提示
+        removeLoadingIndicator();
+        if (blob) {
+            // downloadPDF(blob);
+            previewPDF(blob);
+        }
+    }
+
+    getElementPDFDompdf(element, renderDom2PDF);
+    // getElementPDFSnapdom(element, renderDom2PDF);
+}
+
+function elementSelectorToPDF(selector) {
+    const element = document.querySelector(selector);
+
+    if (!element) {
+        console.log('Can not find the element: ' + selector);
+        return;
+    }
+
+    elementInspectorToPDF(element);
+}
+
+
+//下载 PDF
+function downloadPDF(blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = siteTitle.replace(/[/\\?%*:|"<>\s]/g, '-').replace(/[-]+/g,'-') + '.pdf';
+    document.body.appendChild(a);
+    a.click();
+}
+
+// 预览 PDF
+function previewPDF(blob) {
+    const url = URL.createObjectURL(blob);
+    window.open(url);
+}
+
 // https://www.reddit.com/r/GreaseMonkey/comments/87wnsd/create_a_function_that_can_be_triggered_from/
 // This function will insert the function you want wrapped by a <script></script> tag on the page.
 // You can also just give it the function text directly or the
@@ -1839,6 +2058,19 @@ function addLinkScriptToHead(link) {
     });
 }
 
+// add css stylesheet to HEAD
+function addStylesheetToHead(style, styleID) {
+    const cssStyle = document.createElement('style');
+    cssStyle.id = styleID;
+    cssStyle.innerHTML = style;
+
+    const head = document.getElementsByTagName('head');
+    const headList = Array.from(head);
+    headList.forEach(node => {
+        node.appendChild(cssStyle);
+    });
+}
+
 // add css stylesheet link to HEAD
 function addLinkStylesheetToHead(link) {
     const cssNode = document.createElement('link');
@@ -1862,23 +2094,1124 @@ function getMaxZIndex() {
     );
 }
 
+// CSS 样式
+// https://cdn.jsdelivr.net/npm/pure-css-loader/dist/css-loader.css
+const loderStyle = `
+.loader {
+	color: #fff;
+	position: fixed;
+	box-sizing: border-box;
+	left: -9999px;
+	top: -9999px;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+	z-index: 999999;
+}
+.loader:after,
+.loader:before {
+	box-sizing: border-box;
+	display: none;
+}
+.loader.is-active {
+	background-color: rgba(0, 0, 0, 0.85);
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+}
+.loader.is-active:after,
+.loader.is-active:before {
+	display: block;
+}
+@keyframes rotation {
+	0% {
+		transform: rotate(0);
+	}
+	to {
+		transform: rotate(359deg);
+	}
+}
+@keyframes blink {
+	0% {
+		opacity: 0.5;
+	}
+	to {
+		opacity: 1;
+	}
+}
+.loader[data-text]:before {
+	position: fixed;
+	left: 0;
+	top: 50%;
+	color: currentColor;
+	font-family: Helvetica, Arial, sans-serif;
+	text-align: center;
+	width: 100%;
+	font-size: 14px;
+}
+.loader[data-text='']:before {
+	content: 'Loading';
+}
+.loader[data-text]:not([data-text='']):before {
+	content: attr(data-text);
+}
+.loader[data-text][data-blink]:before {
+	animation: blink 1s linear infinite alternate;
+}
+.loader-default[data-text]:before {
+	top: calc(50% - 63px);
+}
+.loader-default:after {
+	content: '';
+	position: fixed;
+	width: 48px;
+	height: 48px;
+	border: 8px solid #fff;
+	border-left-color: transparent;
+	border-radius: 50%;
+	top: calc(50% - 24px);
+	left: calc(50% - 24px);
+	animation: rotation 1s linear infinite;
+}
+.loader-default[data-half]:after {
+	border-right-color: transparent;
+}
+.loader-default[data-inverse]:after {
+	animation-direction: reverse;
+}
+.loader-double:after,
+.loader-double:before {
+	content: '';
+	position: fixed;
+	border-radius: 50%;
+	border: 8px solid;
+	animation: rotation 1s linear infinite;
+}
+.loader-double:after {
+	width: 48px;
+	height: 48px;
+	border-color: #fff;
+	border-left-color: transparent;
+	top: calc(50% - 24px);
+	left: calc(50% - 24px);
+}
+.loader-double:before {
+	width: 64px;
+	height: 64px;
+	border-color: #eb974e;
+	border-right-color: transparent;
+	animation-duration: 2s;
+	top: calc(50% - 32px);
+	left: calc(50% - 32px);
+}
+.loader-bar[data-text]:before {
+	top: calc(50% - 40px);
+	color: #fff;
+}
+.loader-bar:after {
+	content: '';
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	width: 200px;
+	height: 20px;
+	transform: translate(-50%, -50%);
+	background: linear-gradient(
+		-45deg,
+		#4183d7 25%,
+		#52b3d9 0,
+		#52b3d9 50%,
+		#4183d7 0,
+		#4183d7 75%,
+		#52b3d9 0,
+		#52b3d9
+	);
+	background-size: 20px 20px;
+	box-shadow: inset 0 10px 0 hsla(0, 0%, 100%, 0.2), 0 0 0 5px rgba(0, 0, 0, 0.2);
+	animation: moveBar 1.5s linear infinite reverse;
+}
+.loader-bar[data-rounded]:after {
+	border-radius: 15px;
+}
+.loader-bar[data-inverse]:after {
+	animation-direction: normal;
+}
+@keyframes moveBar {
+	0% {
+		background-position: 0 0;
+	}
+	to {
+		background-position: 20px 20px;
+	}
+}
+.loader-bar-ping-pong:before {
+	width: 200px;
+	background-color: #000;
+}
+.loader-bar-ping-pong:after,
+.loader-bar-ping-pong:before {
+	content: '';
+	height: 20px;
+	position: absolute;
+	top: calc(50% - 10px);
+	left: calc(50% - 100px);
+}
+.loader-bar-ping-pong:after {
+	width: 50px;
+	background-color: #f19;
+	animation: moveBarPingPong 0.5s linear infinite alternate;
+}
+.loader-bar-ping-pong[data-rounded]:before {
+	border-radius: 10px;
+}
+.loader-bar-ping-pong[data-rounded]:after {
+	border-radius: 50%;
+	width: 20px;
+	animation-name: moveBarPingPongRounded;
+}
+@keyframes moveBarPingPong {
+	0% {
+		left: calc(50% - 100px);
+	}
+	to {
+		left: calc(50% - -50px);
+	}
+}
+@keyframes moveBarPingPongRounded {
+	0% {
+		left: calc(50% - 100px);
+	}
+	to {
+		left: calc(50% - -80px);
+	}
+}
+@keyframes corners {
+	6% {
+		width: 60px;
+		height: 15px;
+	}
+	25% {
+		width: 15px;
+		height: 15px;
+		left: calc(100% - 15px);
+		top: 0;
+	}
+	31% {
+		height: 60px;
+	}
+	50% {
+		height: 15px;
+		top: calc(100% - 15px);
+		left: calc(100% - 15px);
+	}
+	56% {
+		width: 60px;
+	}
+	75% {
+		width: 15px;
+		left: 0;
+		top: calc(100% - 15px);
+	}
+	81% {
+		height: 60px;
+	}
+}
+.loader-border[data-text]:before {
+	color: #fff;
+}
+.loader-border:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 15px;
+	height: 15px;
+	background-color: #ff0;
+	animation: corners 3s ease both infinite;
+}
+.loader-ball:before {
+	content: '';
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	top: 50%;
+	left: 50%;
+	margin: -25px 0 0 -25px;
+	background-color: #fff;
+	border-radius: 50%;
+	z-index: 1;
+	animation: kickBall 1s infinite alternate ease-in both;
+}
+.loader-ball[data-shadow]:before {
+	box-shadow: inset -5px -5px 10px 0 rgba(0, 0, 0, 0.5);
+}
+.loader-ball:after {
+	content: '';
+	position: absolute;
+	background-color: rgba(0, 0, 0, 0.3);
+	border-radius: 50%;
+	width: 45px;
+	height: 20px;
+	top: calc(50% + 10px);
+	left: 50%;
+	margin: 0 0 0 -22.5px;
+	z-index: 0;
+	animation: shadow 1s infinite alternate ease-out both;
+}
+@keyframes shadow {
+	0% {
+		background-color: transparent;
+		transform: scale(0);
+	}
+	40% {
+		background-color: transparent;
+		transform: scale(0);
+	}
+	95% {
+		background-color: rgba(0, 0, 0, 0.75);
+		transform: scale(1);
+	}
+	to {
+		background-color: rgba(0, 0, 0, 0.75);
+		transform: scale(1);
+	}
+}
+@keyframes kickBall {
+	0% {
+		transform: translateY(-80px) scaleX(0.95);
+	}
+	90% {
+		border-radius: 50%;
+	}
+	to {
+		transform: translateY(0) scaleX(1);
+		border-radius: 50% 50% 20% 20%;
+	}
+}
+.loader-smartphone:after {
+	content: '';
+	color: #fff;
+	font-size: 12px;
+	font-family: Helvetica, Arial, sans-serif;
+	text-align: center;
+	line-height: 120px;
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	width: 70px;
+	height: 130px;
+	margin: -65px 0 0 -35px;
+	border: 5px solid #fd0;
+	border-radius: 10px;
+	box-shadow: inset 0 5px 0 0 #fd0;
+	background: radial-gradient(circle at 50% 90%, rgba(0, 0, 0, 0.5) 6px, transparent 0),
+		linear-gradient(0deg, #fd0 22px, transparent 0),
+		linear-gradient(0deg, rgba(0, 0, 0, 0.5) 22px, rgba(0, 0, 0, 0.5));
+	animation: shake 2s cubic-bezier(0.36, 0.07, 0.19, 0.97) both infinite;
+}
+.loader-smartphone[data-screen='']:after {
+	content: 'Loading';
+}
+.loader-smartphone:not([data-screen='']):after {
+	content: attr(data-screen);
+}
+@keyframes shake {
+	5% {
+		transform: translate3d(-1px, 0, 0);
+	}
+	10% {
+		transform: translate3d(1px, 0, 0);
+	}
+	15% {
+		transform: translate3d(-1px, 0, 0);
+	}
+	20% {
+		transform: translate3d(1px, 0, 0);
+	}
+	25% {
+		transform: translate3d(-1px, 0, 0);
+	}
+	30% {
+		transform: translate3d(1px, 0, 0);
+	}
+	35% {
+		transform: translate3d(-1px, 0, 0);
+	}
+	40% {
+		transform: translate3d(1px, 0, 0);
+	}
+	45% {
+		transform: translate3d(-1px, 0, 0);
+	}
+	50% {
+		transform: translate3d(1px, 0, 0);
+	}
+	55% {
+		transform: translate3d(-1px, 0, 0);
+	}
+}
+.loader-clock:before {
+	width: 120px;
+	height: 120px;
+	border-radius: 50%;
+	margin: -60px 0 0 -60px;
+	background: linear-gradient(180deg, transparent 50%, #f5f5f5 0),
+		linear-gradient(90deg, transparent 55px, #2ecc71 0, #2ecc71 65px, transparent 0),
+		linear-gradient(180deg, #f5f5f5 50%, #f5f5f5 0);
+	box-shadow: inset 0 0 0 10px #f5f5f5, 0 0 0 5px #555, 0 0 0 10px #7b7b7b;
+	animation: rotation infinite 2s linear;
+}
+.loader-clock:after,
+.loader-clock:before {
+	content: '';
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	overflow: hidden;
+}
+.loader-clock:after {
+	width: 60px;
+	height: 40px;
+	margin: -20px 0 0 -15px;
+	border-radius: 20px 0 0 20px;
+	background: radial-gradient(circle at 14px 20px, #25a25a 10px, transparent 0),
+		radial-gradient(circle at 14px 20px, #1b7943 14px, transparent 0),
+		linear-gradient(180deg, transparent 15px, #2ecc71 0, #2ecc71 25px, transparent 0);
+	animation: rotation infinite 24s linear;
+	transform-origin: 15px center;
+}
+.loader-curtain:after,
+.loader-curtain:before {
+	position: fixed;
+	width: 100%;
+	top: 50%;
+	margin-top: -35px;
+	font-size: 70px;
+	text-align: center;
+	font-family: Helvetica, Arial, sans-serif;
+	overflow: hidden;
+	line-height: 1.2;
+	content: 'Loading';
+}
+.loader-curtain:before {
+	color: #666;
+}
+.loader-curtain:after {
+	color: #fff;
+	height: 0;
+	animation: curtain 1s linear infinite alternate both;
+}
+.loader-curtain[data-curtain-text]:not([data-curtain-text='']):after,
+.loader-curtain[data-curtain-text]:not([data-curtain-text='']):before {
+	content: attr(data-curtain-text);
+}
+.loader-curtain[data-brazilian]:before {
+	color: #f1c40f;
+}
+.loader-curtain[data-brazilian]:after {
+	color: #2ecc71;
+}
+.loader-curtain[data-colorful]:before {
+	animation: maskColorful 2s linear infinite alternate both;
+}
+.loader-curtain[data-colorful]:after {
+	animation: curtain 1s linear infinite alternate both, maskColorful-front 2s 1s linear infinite alternate both;
+	color: #000;
+}
+@keyframes maskColorful {
+	0% {
+		color: #3498db;
+	}
+	49.5% {
+		color: #3498db;
+	}
+	50.5% {
+		color: #e74c3c;
+	}
+	to {
+		color: #e74c3c;
+	}
+}
+@keyframes maskColorful-front {
+	0% {
+		color: #2ecc71;
+	}
+	49.5% {
+		color: #2ecc71;
+	}
+	50.5% {
+		color: #f1c40f;
+	}
+	to {
+		color: #f1c40f;
+	}
+}
+@keyframes curtain {
+	0% {
+		height: 0;
+	}
+	to {
+		height: 84px;
+	}
+}
+.loader-music:after,
+.loader-music:before {
+	content: '';
+	position: fixed;
+	width: 240px;
+	height: 240px;
+	top: 50%;
+	left: 50%;
+	margin: -120px 0 0 -120px;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 240px;
+	color: #fff;
+	font-size: 40px;
+	font-family: Helvetica, Arial, sans-serif;
+	text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+	letter-spacing: -1px;
+}
+.loader-music:after {
+	backface-visibility: hidden;
+}
+.loader-music[data-hey-oh]:after,
+.loader-music[data-hey-oh]:before {
+	box-shadow: 0 0 0 10px;
+}
+.loader-music[data-hey-oh]:before {
+	background-color: #fff;
+	color: #000;
+	animation: coinBack 2.5s linear infinite, oh 5s 1.25s linear infinite both;
+}
+.loader-music[data-hey-oh]:after {
+	background-color: #000;
+	animation: coin 2.5s linear infinite, hey 5s linear infinite both;
+}
+.loader-music[data-no-cry]:after,
+.loader-music[data-no-cry]:before {
+	background: linear-gradient(45deg, #009b3a 50%, #fed100 51%);
+	box-shadow: 0 0 0 10px #000;
+}
+.loader-music[data-no-cry]:before {
+	animation: coinBack 2.5s linear infinite, cry 5s 1.25s linear infinite both;
+}
+.loader-music[data-no-cry]:after {
+	animation: coin 2.5s linear infinite, no 5s linear infinite both;
+}
+.loader-music[data-we-are]:before {
+	animation: coinBack 2.5s linear infinite, theWorld 5s 1.25s linear infinite both;
+	background: radial-gradient(ellipse at center, #4ecdc4 0, #556270);
+}
+.loader-music[data-we-are]:after {
+	animation: coin 2.5s linear infinite, weAre 5s linear infinite both;
+	background: radial-gradient(ellipse at center, #26d0ce 0, #1a2980);
+}
+.loader-music[data-rock-you]:before {
+	animation: coinBack 2.5s linear infinite, rockYou 5s 1.25s linear infinite both;
+	background: #444;
+}
+.loader-music[data-rock-you]:after {
+	animation: coin 2.5s linear infinite, weWill 5s linear infinite both;
+	background: #96281b;
+}
+@keyframes coin {
+	to {
+		transform: rotateY(359deg);
+	}
+}
+@keyframes coinBack {
+	0% {
+		transform: rotateY(180deg);
+	}
+	50% {
+		transform: rotateY(1turn);
+	}
+	to {
+		transform: rotateY(180deg);
+	}
+}
+@keyframes hey {
+	0% {
+		content: 'Hey!';
+	}
+	50% {
+		content: "Let's!";
+	}
+	to {
+		content: 'Hey!';
+	}
+}
+@keyframes oh {
+	0% {
+		content: 'Oh!';
+	}
+	50% {
+		content: 'Go!';
+	}
+	to {
+		content: 'Oh!';
+	}
+}
+@keyframes no {
+	0% {
+		content: 'No...';
+	}
+	50% {
+		content: 'no';
+	}
+	to {
+		content: 'No...';
+	}
+}
+@keyframes cry {
+	0% {
+		content: 'woman';
+	}
+	50% {
+		content: 'cry!';
+	}
+	to {
+		content: 'woman';
+	}
+}
+@keyframes weAre {
+	0% {
+		content: 'We are';
+	}
+	50% {
+		content: 'we are';
+	}
+	to {
+		content: 'We are';
+	}
+}
+@keyframes theWorld {
+	0% {
+		content: 'the world,';
+	}
+	50% {
+		content: 'the children!';
+	}
+	to {
+		content: 'the world,';
+	}
+}
+@keyframes weWill {
+	0% {
+		content: 'We will,';
+	}
+	50% {
+		content: 'rock you!';
+	}
+	to {
+		content: 'We will,';
+	}
+}
+@keyframes rockYou {
+	0% {
+		content: 'we will';
+	}
+	50% {
+		content: '\u1F918';
+	}
+	to {
+		content: 'we will';
+	}
+}
+.loader-pokeball:before {
+	content: '';
+	position: absolute;
+	width: 100px;
+	height: 100px;
+	top: 50%;
+	left: 50%;
+	margin: -50px 0 0 -50px;
+	background: linear-gradient(180deg, red 42%, #000 0, #000 58%, #fff 0);
+	background-repeat: no-repeat;
+	background-color: #fff;
+	border-radius: 50%;
+	z-index: 1;
+	animation: movePokeball 1s linear infinite both;
+}
+.loader-pokeball:after {
+	content: '';
+	position: absolute;
+	width: 24px;
+	height: 24px;
+	top: 50%;
+	left: 50%;
+	margin: -12px 0 0 -12px;
+	background-color: #fff;
+	border-radius: 50%;
+	z-index: 2;
+	animation: movePokeball 1s linear infinite both, flashPokeball 0.5s infinite alternate;
+	border: 2px solid #000;
+	box-shadow: 0 0 0 5px #fff, 0 0 0 10px #000;
+}
+@keyframes movePokeball {
+	0% {
+		transform: translateX(0) rotate(0);
+	}
+	15% {
+		transform: translatex(-10px) rotate(-5deg);
+	}
+	30% {
+		transform: translateX(10px) rotate(5deg);
+	}
+	45% {
+		transform: translatex(0) rotate(0);
+	}
+}
+@keyframes flashPokeball {
+	0% {
+		background-color: #fff;
+	}
+	to {
+		background-color: #fd0;
+	}
+}
+.loader-bouncing:after,
+.loader-bouncing:before {
+	content: '';
+	width: 20px;
+	height: 20px;
+	position: absolute;
+	top: calc(50% - 10px);
+	left: calc(50% - 10px);
+	border-radius: 50%;
+	background-color: #fff;
+	animation: kick 0.6s infinite alternate;
+}
+.loader-bouncing:after {
+	margin-left: -30px;
+	animation: kick 0.6s infinite alternate;
+}
+.loader-bouncing:before {
+	animation-delay: 0.2s;
+}
+@keyframes kick {
+	0% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0.3;
+		transform: translateY(-1rem);
+	}
+}
+`;
+
+// https://cdn.jsdelivr.net/npm/viewerjs/dist/viewer.min.css
+const viewerStyle = `
+.viewer-close:before,
+.viewer-flip-horizontal:before,
+.viewer-flip-vertical:before,
+.viewer-fullscreen-exit:before,
+.viewer-fullscreen:before,
+.viewer-next:before,
+.viewer-one-to-one:before,
+.viewer-play:before,
+.viewer-prev:before,
+.viewer-reset:before,
+.viewer-rotate-left:before,
+.viewer-rotate-right:before,
+.viewer-zoom-in:before,
+.viewer-zoom-out:before {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 560 40'%3E%3Cpath fill='%23fff' d='M49.6 17.9h20.2v3.9H49.6zm123.1 2 10.9-11 2.7 2.8-8.2 8.2 8.2 8.2-2.7 2.7-10.9-10.9zm94 0-10.8-11-2.7 2.8 8.1 8.2-8.1 8.2 2.7 2.7 10.8-10.9zM212 9.3l20.1 10.6L212 30.5V9.3zm161.5 4.6-7.2 6 7.2 5.9v-4h12.4v4l7.3-5.9-7.3-6v4h-12.4v-4zm40.2 12.3 5.9 7.2 5.9-7.2h-4V13.6h4l-5.9-7.3-5.9 7.3h4v12.6h-4zm35.9-16.5h6.3v2h-4.3V16h-2V9.7Zm14 0h6.2V16h-2v-4.3h-4.2v-2Zm6.2 14V30h-6.2v-2h4.2v-4.3h2Zm-14 6.3h-6.2v-6.3h2v4.4h4.3v2Zm-438 .1v-8.3H9.6v-3.9h8.2V9.7h3.9v8.2h8.1v3.9h-8.1v8.3h-3.9zM93.6 9.7h-5.8v3.9h2V30h3.8V9.7zm16.1 0h-5.8v3.9h1.9V30h3.9V9.7zm-11.9 4.1h3.9v3.9h-3.9zm0 8.2h3.9v3.9h-3.9zm244.6-11.7 7.2 5.9-7.2 6v-3.6c-5.4-.4-7.8.8-8.7 2.8-.8 1.7-1.8 4.9 2.8 8.2-6.3-2-7.5-6.9-6-11.3 1.6-4.4 8-5 11.9-4.9v-3.1Zm147.2 13.4h6.3V30h-2v-4.3h-4.3v-2zm14 6.3v-6.3h6.2v2h-4.3V30h-1.9zm6.2-14h-6.2V9.7h1.9V14h4.3v2zm-13.9 0h-6.3v-2h4.3V9.7h2V16zm33.3 12.5 8.6-8.6-8.6-8.7 1.9-1.9 8.6 8.7 8.6-8.7 1.9 1.9-8.6 8.7 8.6 8.6-1.9 2-8.6-8.7-8.6 8.7-1.9-2zM297 10.3l-7.1 5.9 7.2 6v-3.6c5.3-.4 7.7.8 8.7 2.8.8 1.7 1.7 4.9-2.9 8.2 6.3-2 7.5-6.9 6-11.3-1.6-4.4-7.9-5-11.8-4.9v-3.1Zm-157.3-.6c2.3 0 4.4.7 6 2l2.5-3 1.9 9.2h-9.3l2.6-3.1a6.2 6.2 0 0 0-9.9 5.1c0 3.4 2.8 6.3 6.2 6.3 2.8 0 5.1-1.9 6-4.4h4c-1 4.7-5 8.3-10 8.3a10 10 0 0 1-10-10.2 10 10 0 0 1 10-10.2Z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-size: 280px;
+	color: transparent;
+	display: block;
+	font-size: 0;
+	height: 20px;
+	line-height: 0;
+	width: 20px;
+}
+.viewer-zoom-in:before {
+	background-position: 0 0;
+	content: 'Zoom In';
+}
+.viewer-zoom-out:before {
+	background-position: -20px 0;
+	content: 'Zoom Out';
+}
+.viewer-one-to-one:before {
+	background-position: -40px 0;
+	content: 'One to One';
+}
+.viewer-reset:before {
+	background-position: -60px 0;
+	content: 'Reset';
+}
+.viewer-prev:before {
+	background-position: -80px 0;
+	content: 'Previous';
+}
+.viewer-play:before {
+	background-position: -100px 0;
+	content: 'Play';
+}
+.viewer-next:before {
+	background-position: -120px 0;
+	content: 'Next';
+}
+.viewer-rotate-left:before {
+	background-position: -140px 0;
+	content: 'Rotate Left';
+}
+.viewer-rotate-right:before {
+	background-position: -160px 0;
+	content: 'Rotate Right';
+}
+.viewer-flip-horizontal:before {
+	background-position: -180px 0;
+	content: 'Flip Horizontal';
+}
+.viewer-flip-vertical:before {
+	background-position: -200px 0;
+	content: 'Flip Vertical';
+}
+.viewer-fullscreen:before {
+	background-position: -220px 0;
+	content: 'Enter Full Screen';
+}
+.viewer-fullscreen-exit:before {
+	background-position: -240px 0;
+	content: 'Exit Full Screen';
+}
+.viewer-close:before {
+	background-position: -260px 0;
+	content: 'Close';
+}
+.viewer-container {
+	-webkit-tap-highlight-color: transparent;
+	-webkit-touch-callout: none;
+	bottom: 0;
+	direction: ltr;
+	font-size: 0;
+	left: 0;
+	line-height: 0;
+	overflow: hidden;
+	position: absolute;
+	right: 0;
+	top: 0;
+	-ms-touch-action: none;
+	touch-action: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.viewer-container ::-moz-selection,
+.viewer-container::-moz-selection {
+	background-color: transparent;
+}
+.viewer-container ::selection,
+.viewer-container::selection {
+	background-color: transparent;
+}
+.viewer-container:focus {
+	outline: 0;
+}
+.viewer-container img {
+	display: block;
+	height: auto;
+	max-height: none !important;
+	max-width: none !important;
+	min-height: 0 !important;
+	min-width: 0 !important;
+	width: 100%;
+}
+.viewer-canvas {
+	bottom: 0;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.viewer-canvas > img {
+	height: auto;
+	margin: 15px auto;
+	max-width: 90% !important;
+	width: auto;
+}
+.viewer-footer {
+	bottom: 0;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	right: 0;
+	text-align: center;
+}
+.viewer-navbar {
+	background-color: rgba(0, 0, 0, 0.5);
+	overflow: hidden;
+}
+.viewer-list {
+	box-sizing: content-box;
+	height: 50px;
+	margin: 0;
+	overflow: hidden;
+	padding: 1px 0;
+}
+.viewer-list > li {
+	color: transparent;
+	cursor: pointer;
+	float: left;
+	font-size: 0;
+	height: 50px;
+	line-height: 0;
+	opacity: 0.5;
+	overflow: hidden;
+	transition: opacity 0.15s;
+	width: 30px;
+}
+.viewer-list > li:focus,
+.viewer-list > li:hover {
+	opacity: 0.75;
+}
+.viewer-list > li:focus {
+	outline: 0;
+}
+.viewer-list > li + li {
+	margin-left: 1px;
+}
+.viewer-list > .viewer-loading {
+	position: relative;
+}
+.viewer-list > .viewer-loading:after {
+	border-width: 2px;
+	height: 20px;
+	margin-left: -10px;
+	margin-top: -10px;
+	width: 20px;
+}
+.viewer-list > .viewer-active,
+.viewer-list > .viewer-active:focus,
+.viewer-list > .viewer-active:hover {
+	opacity: 1;
+}
+.viewer-player {
+	background-color: #000;
+	bottom: 0;
+	cursor: none;
+	display: none;
+	right: 0;
+	z-index: 1;
+}
+.viewer-player,
+.viewer-player > img {
+	left: 0;
+	position: absolute;
+	top: 0;
+}
+.viewer-toolbar > ul {
+	display: inline-block;
+	margin: 0 auto 5px;
+	overflow: hidden;
+	padding: 6px 3px;
+}
+.viewer-toolbar > ul > li {
+	background-color: rgba(0, 0, 0, 0.5);
+	border-radius: 50%;
+	cursor: pointer;
+	float: left;
+	height: 24px;
+	overflow: hidden;
+	transition: background-color 0.15s;
+	width: 24px;
+}
+.viewer-toolbar > ul > li:focus,
+.viewer-toolbar > ul > li:hover {
+	background-color: rgba(0, 0, 0, 0.8);
+}
+.viewer-toolbar > ul > li:focus {
+	box-shadow: 0 0 3px #fff;
+	outline: 0;
+	position: relative;
+	z-index: 1;
+}
+.viewer-toolbar > ul > li:before {
+	margin: 2px;
+}
+.viewer-toolbar > ul > li + li {
+	margin-left: 1px;
+}
+.viewer-toolbar > ul > .viewer-small {
+	height: 18px;
+	margin-bottom: 3px;
+	margin-top: 3px;
+	width: 18px;
+}
+.viewer-toolbar > ul > .viewer-small:before {
+	margin: -1px;
+}
+.viewer-toolbar > ul > .viewer-large {
+	height: 30px;
+	margin-bottom: -3px;
+	margin-top: -3px;
+	width: 30px;
+}
+.viewer-toolbar > ul > .viewer-large:before {
+	margin: 5px;
+}
+.viewer-tooltip {
+	background-color: rgba(0, 0, 0, 0.8);
+	border-radius: 10px;
+	color: #fff;
+	display: none;
+	font-size: 12px;
+	height: 20px;
+	left: 50%;
+	line-height: 20px;
+	margin-left: -25px;
+	margin-top: -10px;
+	position: absolute;
+	text-align: center;
+	top: 50%;
+	width: 50px;
+}
+.viewer-title {
+	color: #ccc;
+	display: inline-block;
+	font-size: 12px;
+	line-height: 1.2;
+	margin: 5px 5%;
+	max-width: 90%;
+	min-height: 14px;
+	opacity: 0.8;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	transition: opacity 0.15s;
+	white-space: nowrap;
+}
+.viewer-title:hover {
+	opacity: 1;
+}
+.viewer-button {
+	-webkit-app-region: no-drag;
+	background-color: rgba(0, 0, 0, 0.5);
+	border-radius: 50%;
+	cursor: pointer;
+	height: 80px;
+	overflow: hidden;
+	position: absolute;
+	right: -40px;
+	top: -40px;
+	transition: background-color 0.15s;
+	width: 80px;
+}
+.viewer-button:focus,
+.viewer-button:hover {
+	background-color: rgba(0, 0, 0, 0.8);
+}
+.viewer-button:focus {
+	box-shadow: 0 0 3px #fff;
+	outline: 0;
+}
+.viewer-button:before {
+	bottom: 15px;
+	left: 15px;
+	position: absolute;
+}
+.viewer-fixed {
+	position: fixed;
+}
+.viewer-open {
+	overflow: hidden;
+}
+.viewer-show {
+	display: block;
+}
+.viewer-hide {
+	display: none;
+}
+.viewer-backdrop {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+.viewer-invisible {
+	visibility: hidden;
+}
+.viewer-move {
+	cursor: move;
+	cursor: grab;
+}
+.viewer-fade {
+	opacity: 0;
+}
+.viewer-in {
+	opacity: 1;
+}
+.viewer-transition {
+	transition: all 0.3s;
+}
+@keyframes viewer-spinner {
+	0% {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(1turn);
+	}
+}
+.viewer-loading:after {
+	animation: viewer-spinner 1s linear infinite;
+	border: 4px solid hsla(0, 0%, 100%, 0.1);
+	border-left-color: hsla(0, 0%, 100%, 0.5);
+	border-radius: 50%;
+	content: '';
+	display: inline-block;
+	height: 40px;
+	left: 50%;
+	margin-left: -20px;
+	margin-top: -20px;
+	position: absolute;
+	top: 50%;
+	width: 40px;
+	z-index: 1;
+}
+@media (max-width: 767px) {
+	.viewer-hide-xs-down {
+		display: none;
+	}
+}
+@media (max-width: 991px) {
+	.viewer-hide-sm-down {
+		display: none;
+	}
+}
+@media (max-width: 1199px) {
+	.viewer-hide-md-down {
+		display: none;
+	}
+}
+`;
+
 // --------------------------主程序--------------------------
 (function() {
     // 注册菜单命令
     registerMenuCommand();
 
     // 图片查看器 CSS 样式
-    switch (IMAGE_VIEWER) {
-        case 'image-viewer':
-            addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/viewerjs/dist/viewer.min.css');
-            break;
-        case 'img-previewer':
-            addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/img-previewer/dist/index.css');
-            break;
+    // switch (IMAGE_VIEWER) {
+    //     case 'image-viewer':
+    //         addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/viewerjs/dist/viewer.min.css');
+    //         break;
+    //     case 'img-previewer':
+    //         addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/img-previewer/dist/index.css');
+    //         break;
+    // }
+    if (viewerStyle) {
+        addStylesheetToHead(viewerStyle, 'css-viewer-style');
     }
 
     // 加载指示器 CSS 样式
-    addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/pure-css-loader/dist/css-loader.css');
+    // addLinkStylesheetToHead('https://cdn.jsdelivr.net/npm/pure-css-loader/dist/css-loader.css');
+    if (loderStyle) {
+        addStylesheetToHead(loderStyle, 'css-loder-style');
+    }
 
     // 监听键盘事件
     document.addEventListener('keydown', onKeydown, true);
