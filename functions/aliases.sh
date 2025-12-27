@@ -134,6 +134,10 @@ if [[ -x "$(command -v docker)" ]]; then
     alias docker-drawdb='docker run -d --name drawdb -p 80:80 -e TZ=Asia/Shanghai -v $HOME/drawdb:/var/www/html ghcr.io/drawdb-io/drawdb'
     # https://github.com/VERT-sh/VERT
     alias docker-vert='docker run -d --name vert -p 80:80 -e TZ=Asia/Shanghai ghcr.io/vert-sh/vert'
+    # https://github.com/darold/pgFormatter
+    alias docker-pgformatter='docker run --rm --name pgformatter -v $PWD:/work backplane/pgformatter'
+    # using "-i" for editing formatting the file in-place
+    alias docker-pgformatter-inplace='docker run --rm --name pgformatter -v $PWD:/work backplane/pgformatter -i'
 fi
 
 
