@@ -213,6 +213,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "zulu17-jdk"
         # "zulu11-jdk"
         # "zulu11-jre"
+        "perl"
         "python"
         # "miniconda3"
         "micromamba"
