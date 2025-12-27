@@ -184,7 +184,7 @@ fi
 # sudo reboot
 ## Test polkit
 # pkcheck -u -p $$ --enable-internal-agent -a <action>
-# pkexec -u root /usr/sbin/sh -c /usr/bin/install-service
+# pkexec -u root /usr/sbin/sh -c /usr/bin/clash-verge-service-install
 ## View polkit logs
 # journalctl -xab | grep -E '(polkit|pkexec)'
 # journalctl -b SYSLOG_FACILITY=10
@@ -198,8 +198,8 @@ polkit.addRule(function(action, subject) {
         polkit.log("action=" + action);
         polkit.log("subject=" + subject);
         var cmdline = action.lookup("command_line");
-        if ( ( cmdline.indexOf("/usr/bin/install-service") > 0 ) ||
-            ( cmdline.indexOf("/usr/bin/uninstall-service") > 0 ) ) {
+        if ( ( cmdline.indexOf("/usr/bin/clash-verge-service-install") > 0 ) ||
+            ( cmdline.indexOf("/usr/bin/clash-verge-service-uninstall") > 0 ) ) {
             return polkit.Result.YES;
         } else {
             return polkit.Result.NOT_HANDLED;
