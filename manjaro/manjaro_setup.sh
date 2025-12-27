@@ -348,6 +348,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "filelight"
         "gparted"
         "inotify-tools"
+        "kio-admin"
         "peek"
         "redshift"
         "ventoy-bin"
