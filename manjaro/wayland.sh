@@ -40,14 +40,15 @@ InstallSystemPackages "" "${InstallList[@]}"
 ## Start app executable file via `startplasma-wayland` at the beginning
 ## For example, to run `Dolphin` file manager via Wayland, use command in terminal (`konsole`):
 # startplasma-wayland dolphin
-## Edit the app shortcut file under ‘/usr/share/applications‘ (or copy to .local/share/applications), and add the variable to ‘Exec‘.
+## Edit the app shortcut file under `/usr/share/applications` (or copy to .local/share/applications), and add the variable to `Exec`.
 ## So you can start the app via Wayland protocol even from start menu.
 
 # Wayland IME Support
 if [[ "${XDG_SESSION_TYPE}" == "wayland" ]]; then
     # setWaylandIMEChrome
-    # setWaylandIMEVSCode
+    setWaylandIMEVSCode
     setWaylandIMEWPSOffice
+    setWaylandIMELibreOffice
 fi
 
 # [Waydroid](https://wiki.archlinux.org/title/Waydroid)

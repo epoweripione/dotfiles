@@ -256,8 +256,17 @@ CJKInstallList=(
 )
 InstallSystemPackages "" "${CJKInstallList[@]}"
 
-if ! grep -q "XMODIFIERS" "/etc/environment" 2>/dev/null; then
-    sudo tee -a "/etc/environment" >/dev/null <<-'EOF'
+if [[ "${XDG_SESSION_TYPE}" == "wayland" ]]; then
+    if ! grep -q "XMODIFIERS" "/etc/environment" 2>/dev/null; then
+        sudo tee -a "/etc/environment" >/dev/null <<-'EOF'
+
+# Fcitx5
+XMODIFIERS=@im=fcitx
+EOF
+    fi
+else
+    if ! grep -q "XMODIFIERS" "/etc/environment" 2>/dev/null; then
+        sudo tee -a "/etc/environment" >/dev/null <<-'EOF'
 
 # Fcitx5
 XMODIFIERS=@im=fcitx
@@ -265,10 +274,10 @@ QT_IM_MODULE=fcitx
 GTK_IM_MODULE=fcitx
 SDL_IM_MODULE=fcitx
 EOF
-fi
+    fi
 
-if ! grep -q "XMODIFIERS" "$HOME/.xprofile" 2>/dev/null; then
-    tee -a "$HOME/.xprofile" >/dev/null <<-'EOF'
+    if ! grep -q "XMODIFIERS" "$HOME/.xprofile" 2>/dev/null; then
+        tee -a "$HOME/.xprofile" >/dev/null <<-'EOF'
 
 # Fcitx5
 case "${XMODIFIERS}" in 
@@ -285,6 +294,7 @@ case "${XMODIFIERS}" in
         ;;
 esac
 EOF
+    fi
 fi
 
 # Gtk2

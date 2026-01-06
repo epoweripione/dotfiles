@@ -355,6 +355,19 @@ function setWaylandIMEVSCode() {
     fi
 }
 
+# Wayland IME for LibreOffice
+function setWaylandIMELibreOffice() {
+    local libreoffice_bin
+
+    libreoffice_bin=$(readlink -f "$(which libreoffice)")
+    if [[ -f "${libreoffice_bin}" ]]; then
+        if ! grep -q "export QT_IM_MODULE=" "${libreoffice_bin}"; then
+            sudo sed -i '/^export LC_ALL/a\export QT_IM_MODULE="fcitx"' "${libreoffice_bin}"
+            sudo sed -i '/^export LC_ALL/a\export XMODIFIERS="@im=fcitx"' "${libreoffice_bin}"
+        fi
+    fi
+}
+
 # Mount NFTS Drive & fix read-only mount NFTS Drive
 function mountReadonlyNTFSDrive() {
     local NTFSDrive=$1
