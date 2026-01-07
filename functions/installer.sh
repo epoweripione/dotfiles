@@ -1505,7 +1505,7 @@ function installPrebuiltBinary() {
 
     # file match pattern with archive_file_extension
     if [[ -n "${file_match_pattern}" ]]; then
-        grep -q '\*$' <<<"${file_match_pattern}" || file_match_pattern="${file_match_pattern}*"
+        grep -Eq '\$$|\*$' <<<"${file_match_pattern}" || file_match_pattern="${file_match_pattern}*"
 
         if [[ -n "${INSTALLER_ARCHIVE_EXT}" ]]; then
             if ! grep -q "${INSTALLER_ARCHIVE_EXT//./\\\.}" <<<"${file_match_pattern}"; then
