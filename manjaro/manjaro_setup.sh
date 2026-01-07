@@ -179,6 +179,7 @@ yay --noconfirm --needed -S aur/electron30-bin
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppManjaroInstallList[*]}" ]]; then
     AppManjaroInstallList=(
+        "nvidia-driver-assistant"
         "7zip"
         ## RDP Server
         # "xrdp"
