@@ -362,7 +362,7 @@ fi
 
 [[ -x "$(command -v zoxide)" ]] && Plugins="${Plugins} zoxide"
 
-Plugins="${Plugins} web-search you-should-use zsh-autosuggestions fast-syntax-highlighting history-substring-search"
+Plugins="${Plugins} web-search zsh-you-should-use zsh-autosuggestions fast-syntax-highlighting history-substring-search"
 
 # Plugins="${Plugins} zsh-navigation-tools history-search-multi-word"
 
