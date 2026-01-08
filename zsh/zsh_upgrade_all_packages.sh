@@ -195,7 +195,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "superfile"
         "sttr#abhimanyu003/sttr#tar.gz#sttr*"
         "tailspin"
-        "witr#pranshuparmar/witr##witr*[a-zA-Z0-9\-]+$"
+        "witr#pranshuparmar/witr##witr[^.]+[a-zA-Z0-9\-]+$"
         "yq"
         "zoxide"
         # "clash"
