@@ -29,6 +29,7 @@ fi
 [[ -z "${READ_ARRAY_OPTS[*]}" ]] && Get_Read_Array_Options
 
 [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
+[[ -z "${OS_PACKAGE_MANAGER}" ]] && get_os_package_manager
 
 ## oh-my-zsh custom plugins & themes
 # cd $ZSH && \
@@ -232,6 +233,7 @@ PluginList=(
     # "bigH/auto-sized-fzf"
     # "kevinhwang91/fzf-tmux-script"
     # "marlonrichert/zsh-autocomplete"
+    "MichaelAquilina/zsh-you-should-use"
 )
 
 for Target in "${PluginList[@]}"; do
@@ -310,10 +312,16 @@ Plugins="git"
 
 [[ "$(command -v git-flow)" ]] && Plugins="${Plugins} git-flow-avh"
 
+check_os_arch && Plugins="${Plugins} archlinux"
 [[ "${OS_INFO_TYPE}" == "darwin" ]] && Plugins="${Plugins} osx"
+[[ "${OS_PACKAGE_MANAGER}" == "dpkg" ]] && Plugins="${Plugins} debian"
+[[ "${OS_PACKAGE_MANAGER}" == "dnf" ]] && Plugins="${Plugins} dnf"
 
-Plugins="${Plugins} cp rsync sudo supervisor colored-man-pages"
+Plugins="${Plugins} cp rsync sudo supervisor colored-man-pages colorize"
 # Plugins="${Plugins} command-time"
+
+[[ "$(command -v code)" ]] && Plugins="${Plugins} vscode"
+[[ "$(command -v xcode)" ]] && Plugins="${Plugins} xcode"
 
 [[ -d "$HOME/.asdf" && ! "$(command -v mise)" ]] && Plugins="${Plugins} asdf"
 
@@ -323,10 +331,16 @@ Plugins="${Plugins} cp rsync sudo supervisor colored-man-pages"
 [[ -x "$(command -v docker)" ]] && Plugins="${Plugins} docker"
 [[ -x "$(command -v docker-compose)" ]] && Plugins="${Plugins} docker-compose"
 # [[ -x "$(command -v docker-machine)" ]] && Plugins="${Plugins} docker-machine"
-[[ -x "$(command -v kubectl)" ]] && Plugins="${Plugins} kubectl"
+[[ -x "$(command -v podman)" ]] && Plugins="${Plugins} podman"
+[[ -x "$(command -v kubectl)" ]] && Plugins="${Plugins} kubectl kubectx"
+[[ -x "$(command -v helm)" ]] && Plugins="${Plugins} helm"
+[[ -x "$(command -v aws)" ]] && Plugins="${Plugins} aws"
+[[ -x "$(command -v az)" ]] && Plugins="${Plugins} azure"
+[[ -x "$(command -v gcloud)" ]] && Plugins="${Plugins} gcloud"
 [[ -x "$(command -v fab)" ]] && Plugins="${Plugins} fabric"
 [[ -x "$(command -v redis-cli)" ]] && Plugins="${Plugins} redis-cli"
 [[ "$(command -v mise)" ]] && Plugins="${Plugins} mise"
+[[ "$(command -v uv)" ]] && Plugins="${Plugins} uv"
 
 if [[ -x "$(command -v poetry)" && -s "$ZSH_CUSTOM/plugins/poetry/_poetry" ]]; then
     Plugins="${Plugins} poetry"
@@ -348,7 +362,7 @@ fi
 
 [[ -x "$(command -v zoxide)" ]] && Plugins="${Plugins} zoxide"
 
-Plugins="${Plugins} zsh-autosuggestions fast-syntax-highlighting history-substring-search"
+Plugins="${Plugins} web-search you-should-use zsh-autosuggestions fast-syntax-highlighting history-substring-search"
 
 # Plugins="${Plugins} zsh-navigation-tools history-search-multi-word"
 
