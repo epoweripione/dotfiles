@@ -138,6 +138,8 @@ if [[ -x "$(command -v docker)" ]]; then
     alias docker-pgformatter='docker run --rm --name pgformatter -v $PWD:/work backplane/pgformatter'
     # using "-i" for editing formatting the file in-place
     alias docker-pgformatter-inplace='docker run --rm --name pgformatter -v $PWD:/work backplane/pgformatter -i'
+    # https://github.com/sqlfluff/sqlfluff
+    alias docker-sqlfluff='docker run --rm -it -v $PWD:/sql sqlfluff/sqlfluff'
 fi
 
 
