@@ -248,6 +248,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "dbeaver-plugin-batik"
         # "dbeaver-plugin-office"
         # "dbeaver-plugin-svg-format"
+        "sqlfluff"
         "aur/clouddm-personal-bin"
         "aur/drawdb-client-git"
         "wireshark-qt"
