@@ -434,6 +434,11 @@ function fnm_Node_Upgrade() {
             fnm uninstall "${node_version}"
         fi
     done <<<"${installed_node_versions}"
+
+    # set default to latest lts-latest
+    colorEcho "${BLUE}Setting default ${FUCHSIA}Nodejs${BLUE} to ${YELLOW}lts-latest${BLUE}..."
+    fnm install --lts 2>/dev/null
+    fnm default lts-latest
 }
 
 # npm: check & upgrade global packages to latest version
