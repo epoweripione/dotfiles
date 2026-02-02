@@ -2,16 +2,16 @@
   "dependencies": {
     "html-to-text": "^9.0.5",
     "minimist": "^1.2.8",
-    "puppeteer": "^24.34.0",
+    "puppeteer": "^24.36.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.5",
-    "@babel/preset-env": "^7.28.5",
-    "@commitlint/cli": "^20.3.0",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "@commitlint/cli": "^20.4.0",
     "@commitlint/config-conventional": "20.2.0",
-    "@types/lodash": "^4.17.21",
+    "@types/lodash": "^4.17.23",
     "babel-loader": "^10.0.0",
     "commitizen": "^4.3.1",
     "commitlint-config-gitmoji": "^2.3.1",
@@ -23,8 +23,8 @@
     "cz-relax": "^0.2.1",
     "eslint": "^9.39.2",
     "husky": "^9.1.7",
-    "lodash": "^4.17.21",
-    "memfs": "^4.51.1",
+    "lodash": "^4.17.23",
+    "memfs": "^4.56.10",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "webpack": "^5.104.1"
