@@ -272,6 +272,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "trojan"
         "frp"
         # "v2rayn"
+        "v2rayn-desktop"
+        "xray"
         # "lxrunoffline"
         "bulk-crap-uninstaller"
         "bulk-rename-utility"
