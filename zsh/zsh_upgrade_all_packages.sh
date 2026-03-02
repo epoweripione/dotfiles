@@ -177,6 +177,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         # "busybox"
         "croc"
         "dasel"
+        "diffnav#dlvhdr/diffnav#tar.gz#diffnav"
         "duf"
         "dust"
         "edit#microsoft/edit#tar.zst#edit*"
@@ -330,6 +331,9 @@ if [[ -z "${AppUpdateOnlyList[*]}" ]]; then
         "flutter"
         # "tabby"
         "unhide"
+        # [Postgres Language Server](https://github.com/supabase-community/postgres-language-server)
+        "postgres-language-server#supabase-community/postgres-language-server##postgres-language-server*"
+        "postgrestools#supabase-community/postgres-language-server##postgrestools*"
     )
 fi
 for Target in "${AppUpdateOnlyList[@]}"; do
