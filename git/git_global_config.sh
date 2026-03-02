@@ -108,6 +108,11 @@ if [[ -x "$(command -v delta)" ]]; then
     git config --global interactive.diffFilter "delta --color-only"
 fi
 
+# [diffnav](https://github.com/dlvhdr/diffnav)
+if [[ -x "$(command -v diffnav)" ]]; then
+    git config --global pager.diff diffnav
+fi
+
 if [[ -x "$(command -v nvim)" ]]; then
     # git difftool --tool-help
     # git config --global --unset diff.tool
