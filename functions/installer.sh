@@ -74,6 +74,64 @@ function allow_pip_in_conda_environment() {
     export PIP_REQUIRE_VIRTUALENV=false
 }
 
+# install nodejs & npm using fnm
+function fnm_Install_Nodejs() {
+    local NodeVersion=${1:-"lts"}
+
+    [[ -x "$(command -v node)" && -x "$(command -v npm)" ]] && return 0
+
+    # fnm
+    FNM_PATH="$HOME/.local/share/fnm"
+    if [ -d "${FNM_PATH}" ]; then
+        export PATH="${FNM_PATH}:$PATH"
+        eval "$(fnm env --use-on-cd)"
+    fi
+
+    # already installed with fnm & has a default version
+    [[ -x "$(command -v node)" && -x "$(command -v npm)" ]] && return 0
+
+    if [[ -x "$(command -v fnm)" ]]; then
+        colorEcho "${BLUE}Installing ${FUCHSIA}Nodejs ${YELLOW}${NodeVersion}${BLUE} with ${ORANGE}fnm${BLUE}..."
+        case "${NodeVersion}" in
+            lts)
+                fnm install --lts
+                # fnm default lts-latest
+                fnm use lts-latest
+                ;;
+            latest)
+                fnm install --latest
+                # fnm default latest
+                fnm use latest
+                ;;
+            *)
+                fnm install "${NodeVersion}"
+                # fnm default "${NodeVersion}"
+                fnm use "${NodeVersion}"
+        esac
+    else
+        colorEcho "${RED}fnm${BLUE} is not installed! Please install ${FUCHSIA}fnm${BLUE} first to manage Nodejs versions."
+        return 1
+    fi
+}
+
+# npm, pnpm: install global package
+function npm_Install_Global() {
+    local PackageName=$1
+    local PackageVersion=${2:-"latest"}
+
+    [[ ! -x "$(command -v npm)" ]] && colorEcho "${FUCHSIA}npm${RED} is not installed!" && return 1
+
+    colorEcho "${BLUE}Installing ${FUCHSIA}${PackageName} ${YELLOW}${PackageVersion}${BLUE}..."
+    if [[ -x "$(command -v pnpm)" ]]; then
+        pnpm add -g "${PackageName}@${PackageVersion}"
+
+        # run build scripts if exists
+        pnpm approve-builds -g
+    else
+        npm install -g "${PackageName}@${PackageVersion}"
+    fi
+}
+
 # Check package exists
 function checkPackageExists() {
     local PackageName=${1:-""}
