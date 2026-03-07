@@ -478,6 +478,11 @@ function npm_Global_Upgrade() {
         colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE}..."
         curl -fsSL https://get.pnpm.io/install.sh | sh -
     fi
+
+    if [[ -x "$(command -v pnpm)" ]]; then
+        colorEcho "${BLUE}Updating ${FUCHSIA}pnpm global packages${BLUE}..."
+        pnpm update --global
+    fi
 }
 
 # [List AUR packages installed and only AUR packages](https://bbs.archlinux.org/viewtopic.php?id=76218)
