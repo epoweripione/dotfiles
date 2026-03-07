@@ -19,7 +19,7 @@ fi
 
 App_Installer_Reset
 
-# [Gemini CLI - open-source AI agent that brings the power of Gemini directly into your terminal](hhttps://github.com/google-gemini/gemini-cli)
+# [Gemini CLI - open-source AI agent that brings the power of Gemini directly into your terminal](https://github.com/google-gemini/gemini-cli)
 INSTALLER_APP_NAME="gemini-cli"
 INSTALLER_GITHUB_REPO="google-gemini/gemini-cli"
 INSTALLER_BINARY_NAME="gemini"
@@ -31,18 +31,8 @@ else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-# Nodejs
-if [[ ! -x "$(command -v npm)" ]]; then
-    # nvs
-    [[ -d "$HOME/.nvs" ]] && export NVS_HOME="$HOME/.nvs" && source "$NVS_HOME/nvs.sh"
-    # nvm
-    [[ -d "$HOME/.nvm" ]] && export NVM_DIR="$HOME/.nvm" && source "$NVM_DIR/nvm.sh"
-fi
-
-# if [[ ! -x "$(command -v npm)" ]]; then
-#     colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm${RED} first!"
-#     cd "${CURRENT_DIR}" && exit 1
-# fi
+# install nodejs & npm using fnm
+fnm_Install_Nodejs
 
 if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
     if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
@@ -57,7 +47,7 @@ if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
 
     if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-        npm install -g @google/gemini-cli
+        npm_Install_Global "@google/gemini-cli"
     fi
 fi
 
