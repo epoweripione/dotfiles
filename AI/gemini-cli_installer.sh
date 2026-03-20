@@ -24,6 +24,8 @@ INSTALLER_APP_NAME="gemini-cli"
 INSTALLER_GITHUB_REPO="google-gemini/gemini-cli"
 INSTALLER_BINARY_NAME="gemini"
 
+INSTALLER_NPM_PACKAGE="@google/gemini-cli"
+
 if [[ -x "$(command -v ${INSTALLER_BINARY_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
     App_Installer_Get_Installed_Version "${INSTALLER_BINARY_NAME}"
@@ -47,7 +49,7 @@ if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
 
     if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-        npm_Install_Global "@google/gemini-cli"
+        npm_Install_Global "${INSTALLER_NPM_PACKAGE}"
     fi
 fi
 

@@ -48,6 +48,9 @@ if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
     if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
         npm_Install_Global "${INSTALLER_APP_NAME}"
+
+        # [Clawhub - Skill Directory for OpenClaw](https://clawhub.ai/)
+        npm_Install_Global "clawhub"
     fi
 fi
 
