@@ -2,18 +2,18 @@
   "dependencies": {
     "html-to-text": "^9.0.5",
     "minimist": "^1.2.8",
-    "puppeteer": "^24.38.0",
+    "puppeteer": "^24.40.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.0",
-    "@commitlint/cli": "^20.4.3",
+    "@babel/preset-env": "^7.29.2",
+    "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "20.2.0",
     "@postgres-language-server/cli": "^0.21.0",
     "@types/lodash": "^4.17.24",
-    "babel-loader": "^10.1.0",
+    "babel-loader": "^10.1.1",
     "commitizen": "^4.3.1",
     "commitlint-config-gitmoji": "^2.3.1",
     "conventional-changelog-cli": "^5.0.0",
