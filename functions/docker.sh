@@ -108,6 +108,12 @@ function dockerSetMirrors() {
             fi
 
             docker rmi "${mirror_domain}/${TEST_IMAGE}" >/dev/null 2>&1
+
+            # Tencent Cloud Docker registry mirror is the fastest in Tencent Cloud, so break if it's available
+            [[ "${mirror_domain}" == "mirror.ccs.tencentyun.com" ]] && break
+
+            # [Azure Docker Registry mirror](https://mirror.azk8s.cn/help/docker-registry-proxy-cache.html)
+            [[ "${mirror_domain}" == "mirror.azk8s.cn" ]] && break
         fi
     done
 
