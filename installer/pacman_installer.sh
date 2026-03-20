@@ -27,49 +27,51 @@ fi
 if [[ -n "${OS_PACKAGE_MANAGER}" && "${OS_PACKAGE_MANAGER}" != "pacman" ]]; then
     # Use built-in package manager to install packages required for install pacapt or pacaptr
     # [List of software package management systems](https://en.wikipedia.org/wiki/List_of_software_package_management_systems)
-    PackagesList=(
-        axel
-        curl
-        wget
-        git
-        tar
-        zip
-        unzip
-    )
+    PackagesList=()
+    [[ ! "$(command -v axel)" ]] && PackagesList+=("axel")
+    [[ ! "$(command -v curl)" ]] && PackagesList+=("curl")
+    [[ ! "$(command -v wget)" ]] && PackagesList+=("wget")
+    [[ ! "$(command -v git)" ]] && PackagesList+=("git")
+    [[ ! "$(command -v tar)" ]] && PackagesList+=("tar")
+    [[ ! "$(command -v zip)" ]] && PackagesList+=("zip")
+    [[ ! "$(command -v unzip)" ]] && PackagesList+=("unzip")
 
-    case "${OS_PACKAGE_MANAGER}" in
-        apt | apt-get | dpkg)
-            sudo apt update && sudo apt install -y "${PackagesList[@]}"
-            ;;
-        dnf)
-            sudo dnf -y install "${PackagesList[@]}"
-            ;;
-        yum)
-            sudo yum -y install "${PackagesList[@]}"
-            ;;
-        pacman)
-            sudo pacman --noconfirm -S "${PackagesList[@]}"
-            ;;
-        apk)
-            sudo apk add --no-cache "${PackagesList[@]}"
-            ;;
-        zypper)
-            sudo zypper refresh && sudo zypper install -y "${PackagesList[@]}"
-            ;;
-        emerge | portage)
-            sudo emerge --ask=n "${PackagesList[@]}"
-            ;;
-        pkg | pkgng)
-            sudo pkg install -y "${PackagesList[@]}"
-            ;;
-        macports)
-            sudo port install "${PackagesList[@]}"
-            ;;
-        *)
-            colorEcho "${RED}Unsupported package manager! Please install ${FUCHSIA}${PackagesList[*]}${RED} manually!"
-            exit 1
-            ;;
-    esac
+    if [[ -n "${PackagesList[*]}" ]]; then
+        colorEcho "${BLUE}Installing ${FUCHSIA}${PackagesList[*]}${BLUE}..."
+        case "${OS_PACKAGE_MANAGER}" in
+            apt | apt-get | dpkg)
+                sudo apt update && sudo apt install -y "${PackagesList[@]}"
+                ;;
+            dnf)
+                sudo dnf -y install "${PackagesList[@]}"
+                ;;
+            yum)
+                sudo yum -y install "${PackagesList[@]}"
+                ;;
+            pacman)
+                sudo pacman --noconfirm -S "${PackagesList[@]}"
+                ;;
+            apk)
+                sudo apk add --no-cache "${PackagesList[@]}"
+                ;;
+            zypper)
+                sudo zypper refresh && sudo zypper install -y "${PackagesList[@]}"
+                ;;
+            emerge | portage)
+                sudo emerge --ask=n "${PackagesList[@]}"
+                ;;
+            pkg | pkgng)
+                sudo pkg install -y "${PackagesList[@]}"
+                ;;
+            macports)
+                sudo port install "${PackagesList[@]}"
+                ;;
+            *)
+                colorEcho "${RED}Unsupported package manager! Please install ${FUCHSIA}${PackagesList[*]}${RED} manually!"
+                exit 1
+                ;;
+        esac
+    fi
 
     PACMAN_STYLE_COMMAND="pacapt"
 
