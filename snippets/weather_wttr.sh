@@ -102,6 +102,8 @@ WEATHER_PNG=${2:-"$HOME/.config/conky/hybrid/weather.png"}
 WEATHER_MINI_PNG=${3:-"$HOME/.config/conky/hybrid/weather_mini.png"}
 
 WEATHER_JSON="${WORKDIR}/weather.json"
+WEATHER_SAVE_JSON="$(dirname "${WEATHER_PNG}")/weather_save.json"
+
 WEATHER_HTML="${WORKDIR}/weather_wttr.html"
 WEATHER_HTML_PNG="${WORKDIR}/weather_wttr.png"
 
@@ -121,6 +123,8 @@ if [[ ${curl_rtn_code} -gt 0 ]]; then
     exit 1
 fi
 
+cp -f "${WEATHER_JSON}" "${WEATHER_SAVE_JSON}"
+
 colorEcho "${BLUE}Getting weather from ${FUCHSIA}wttr.in${BLUE}..."
 curl "${CURL_DOWNLOAD_OPTS[@]}" \
         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
@@ -128,7 +132,7 @@ curl "${CURL_DOWNLOAD_OPTS[@]}" \
         -o "${WORKDIR}/weather.png"
 curl_rtn_code=$?
 if [[ ${curl_rtn_code} -eq 0 ]]; then
-    convert -transparent black "${WORKDIR}/weather.png" "${WEATHER_PNG}"
+    magick "${WORKDIR}/weather.png" -transparent black "${WEATHER_PNG}"
 else
     colorEcho "${RED}Error occurred while getting ${FUCHSIA}weather PNG data from ${FUCHSIA}wttr.in${RED}!"
     exit 1
@@ -138,7 +142,7 @@ fi
 #         --noproxy '*' -H "Accept-Language: zh-cn" --compressed \
 #         "wttr.in/_Qtp_lang=zh_cn.png" \
 #         -o "${WORKDIR}/weather_mini.png" && \
-#     | convert -transparent black "${WORKDIR}/weather_mini.png" "${WEATHER_MINI_PNG}"
+#     | magick "${WORKDIR}/weather_mini.png" -transparent black "${WEATHER_MINI_PNG}"
 
 if [[ ! -s "${WEATHER_JSON}" ]]; then
     colorEcho "${RED}Error occurred while getting ${FUCHSIA}weather data from ${FUCHSIA}wttr.in${RED}!"
@@ -195,14 +199,14 @@ tee "${WEATHER_HTML}" >/dev/null <<-'EOF'
 EOF
 
 for ((i=0; i<3; i++)); do
-    V_DATE=$(jq -r ".weather[$i] | .date" "${WEATHER_JSON}")
+    V_DATE=$(jq -r ".data.weather[$i] | .date" "${WEATHER_JSON}")
     V_WEEKDAY=$(date --date="${V_DATE}" +%w)
 
     WEATHER_DATE=$(cut -d"-" -f2- <<<"${V_DATE}")
     WEATHER_WEEKDAY="${DATE_WEEKDAY[${V_WEEKDAY}]}"
 
-    WEATHER_TEMP_MIN=$(jq -r ".weather[$i] | .mintempC" "${WEATHER_JSON}")
-    WEATHER_TEMP_MAX=$(jq -r ".weather[$i] | .maxtempC" "${WEATHER_JSON}")
+    WEATHER_TEMP_MIN=$(jq -r ".data.weather[$i] | .mintempC" "${WEATHER_JSON}")
+    WEATHER_TEMP_MAX=$(jq -r ".data.weather[$i] | .maxtempC" "${WEATHER_JSON}")
 
     tee -a "${WEATHER_HTML}" >/dev/null <<-EOF
 			<tr class="bordersolid">
@@ -228,30 +232,30 @@ EOF
     for j in 2 4 6; do
         WEATHER_CNT=$((WEATHER_CNT + 1))
 
-        V_CODE=$(jq -r ".weather[$i] | .hourly[$j] | .weatherCode" "${WEATHER_JSON}")
+        V_CODE=$(jq -r ".data.weather[$i] | .hourly[$j] | .weatherCode" "${WEATHER_JSON}")
         WEATHER_ICON+=("${WEATHER_SYMBOL[${WWO_CODE["${V_CODE}"]}]}")
 
-        V_TEMP=$(jq -r ".weather[$i] | .hourly[$j] | .tempC" "${WEATHER_JSON}")
-        V_TEMP_FEEL=$(jq -r ".weather[$i] | .hourly[$j] | .FeelsLikeC" "${WEATHER_JSON}")
+        V_TEMP=$(jq -r ".data.weather[$i] | .hourly[$j] | .tempC" "${WEATHER_JSON}")
+        V_TEMP_FEEL=$(jq -r ".data.weather[$i] | .hourly[$j] | .FeelsLikeC" "${WEATHER_JSON}")
         WEATHER_TEMP+=("${V_TEMP}")
         WEATHER_TEMP_FEEL+=("${V_TEMP_FEEL}")
 
-        V_DESC=$(jq -r ".weather[$i] | .hourly[$j] | .lang_zh[0] | .value" "${WEATHER_JSON}")
+        V_DESC=$(jq -r ".data.weather[$i] | .hourly[$j] | .lang_zh[0] | .value" "${WEATHER_JSON}")
         WEATHER_DESC+=("${V_DESC}")
 
-        V_WIND_DEGREE=$(jq -r ".weather[$i] | .hourly[$j] | .winddirDegree" "${WEATHER_JSON}")
+        V_WIND_DEGREE=$(jq -r ".data.weather[$i] | .hourly[$j] | .winddirDegree" "${WEATHER_JSON}")
         V_WIND_DIRECTION=$(echo "(((${V_WIND_DEGREE}+22.5)%360)/45.0)" | bc)
-        V_WIND_SPEED=$(jq -r ".weather[$i] | .hourly[$j] | .windspeedKmph" "${WEATHER_JSON}")
-        V_WIND_GUSTSPEED=$(jq -r ".weather[$i] | .hourly[$j] | .WindGustKmph" "${WEATHER_JSON}")
+        V_WIND_SPEED=$(jq -r ".data.weather[$i] | .hourly[$j] | .windspeedKmph" "${WEATHER_JSON}")
+        V_WIND_GUSTSPEED=$(jq -r ".data.weather[$i] | .hourly[$j] | .WindGustKmph" "${WEATHER_JSON}")
         WEATHER_WIND_DIRECTION+=("${WIND_DIRECTION[${V_WIND_DIRECTION}]}")
         WEATHER_WIND_SPEED+=("${V_WIND_SPEED}")
         WEATHER_WIND_GUSTSPEED+=("${V_WIND_GUSTSPEED}")
 
-        V_VISIBILITY=$(jq -r ".weather[$i] | .hourly[$j] | .visibility" "${WEATHER_JSON}")
+        V_VISIBILITY=$(jq -r ".data.weather[$i] | .hourly[$j] | .visibility" "${WEATHER_JSON}")
         WEATHER_VISIBILITY+=("${V_VISIBILITY}")
 
-        V_RAIN_MM=$(jq -r ".weather[$i] | .hourly[$j] | .precipMM" "${WEATHER_JSON}")
-        V_RAIN_CHANCE=$(jq -r ".weather[$i] | .hourly[$j] | .chanceofrain" "${WEATHER_JSON}")
+        V_RAIN_MM=$(jq -r ".data.weather[$i] | .hourly[$j] | .precipMM" "${WEATHER_JSON}")
+        V_RAIN_CHANCE=$(jq -r ".data.weather[$i] | .hourly[$j] | .chanceofrain" "${WEATHER_JSON}")
         WEATHER_RAIN_MM+=("${V_RAIN_MM}")
         WEATHER_RAIN_CHANCE+=("${V_RAIN_CHANCE}")
     done
@@ -297,16 +301,16 @@ colorEcho "${BLUE}Converting ${ORANGE} HTML ${BLUE}to${FUCHSIA} PNG${BLUE}..."
 
 ## Save output to image file
 ## Imagemagick
-# convert label:"$(ls)" result.png && display result.png
-# ls | convert -fill red -background yellow label:@- result.png && display result.png
-# convert label:@"scriptfile.sh" result.png && display result.png
+# magick label:"$(ls)" result.png && display result.png
+# ls | magick -fill red -background yellow label:@- result.png && display result.png
+# magick label:@"scriptfile.sh" result.png && display result.png
 
 ## Render Unicode & emoji characters
-## convert -list format | grep -i pango
-# ls | convert pango:@- result.png && display result.png
+## magick -list format | grep -i pango
+# ls | magick pango:@- result.png && display result.png
 
 ## Convert html to image file
-# convert pango:@"${WEATHER_HTML}" "${WEATHER_HTML_PNG}" && display "${WEATHER_HTML_PNG}"
+# magick pango:@"${WEATHER_HTML}" "${WEATHER_HTML_PNG}" && display "${WEATHER_HTML_PNG}"
 
 ## wkhtmltopdf
 # yay --noconfirm --needed -S wkhtmltopdf
@@ -317,7 +321,7 @@ colorEcho "${BLUE}Converting ${ORANGE} HTML ${BLUE}to${FUCHSIA} PNG${BLUE}..."
 # if [[ -x "/opt/google/chrome/google-chrome" ]]; then
 #     /opt/google/chrome/google-chrome --headless --disable-gpu --window-size=300,500 \
 #             --screenshot="${WEATHER_HTML_PNG}" "${WEATHER_HTML}" && \
-#         convert -transparent black "${WEATHER_HTML_PNG}" "${WEATHER_MINI_PNG}"
+#         magick "${WEATHER_HTML_PNG}" -transparent black "${WEATHER_MINI_PNG}"
 # fi
 
 # Nodejs
@@ -359,7 +363,7 @@ cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && \
         --url="file://${WEATHER_HTML}" \
         --Element="#weather" \
         --Output="${WEATHER_HTML_PNG}" && \
-    convert -transparent black "${WEATHER_HTML_PNG}" "${WEATHER_MINI_PNG}"
+    magick "${WEATHER_HTML_PNG}" -transparent black "${WEATHER_MINI_PNG}"
 
 
 cd "${CURRENT_DIR}" || exit
