@@ -32,6 +32,7 @@ if [[ -n "${OS_PACKAGE_MANAGER}" && "${OS_PACKAGE_MANAGER}" != "pacman" ]]; then
     [[ ! "$(command -v curl)" ]] && PackagesList+=("curl")
     [[ ! "$(command -v wget)" ]] && PackagesList+=("wget")
     [[ ! "$(command -v git)" ]] && PackagesList+=("git")
+    [[ ! "$(command -v jq)" ]] && PackagesList+=("jq")
     [[ ! "$(command -v tar)" ]] && PackagesList+=("tar")
     [[ ! "$(command -v zip)" ]] && PackagesList+=("zip")
     [[ ! "$(command -v unzip)" ]] && PackagesList+=("unzip")
