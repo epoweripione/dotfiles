@@ -500,9 +500,8 @@ if [[ -x "$(command -v brew)" ]]; then
     brew upgrade
 fi
 
-if [[ -x "$(command -v mc)" ]]; then
-    colorEcho "${BLUE}Updating ${FUCHSIA}mc${BLUE}..."
-    mc update
+if [[ -x "$(command -v minio)" || -x "$(command -v mc)" || -x "$(command -v mcli)" ]]; then
+    source "${MY_SHELL_SCRIPTS}/installer/minio_installer.sh"
 fi
 
 # oh-my-fish
