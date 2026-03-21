@@ -27,7 +27,8 @@ DESKTOP_DIR=$(xdg-user-dir DESKTOP)
 [[ ! -d "${MANUAL_INSTALL_DIR}" ]] && mkdir -p "${MANUAL_INSTALL_DIR}"
 
 # [GoldenDict++OCR](https://autoptr.top/gdocr/GoldenDict-OCR-Deployment/)
-INSTALLER_ARCHIVE_FILENAME="$(find "${MANUAL_INSTALL_APP_STORE}" -maxdepth 1 -type f -iname "goldendict*debian.tar.gz" | sort -r | head -n1)"
+# [GoldenDict++OCR「划词翻译」](https://github.com/nonwill/GoldenDict-OCR)
+INSTALLER_ARCHIVE_FILENAME="$(find "${MANUAL_INSTALL_APP_STORE}" -maxdepth 1 -type f -iname "goldendict*debian*.tar.gz" | sort -r | head -n1)"
 if [[ -f "${INSTALLER_ARCHIVE_FILENAME}" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}GoldenDict++OCR${BLUE}..."
     [[ -d "${MANUAL_INSTALL_DIR}/GoldenDict++OCR" ]] && sudo rm -rf "${MANUAL_INSTALL_DIR}/GoldenDict++OCR" || true
