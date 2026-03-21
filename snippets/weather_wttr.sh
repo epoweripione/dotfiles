@@ -149,6 +149,11 @@ if [[ ! -s "${WEATHER_JSON}" ]]; then
     exit 1
 fi
 
+JSON_DATA_PREFIX=""
+if jq -e 'has("data")' "${WEATHER_JSON}" >/dev/null; then
+    JSON_DATA_PREFIX=".data"
+fi
+
 colorEcho "${BLUE}Parsing ${ORANGE}JSON${BLUE} to ${FUCHSIA}HTML${BLUE}..."
 tee "${WEATHER_HTML}" >/dev/null <<-'EOF'
 <!DOCTYPE html>
@@ -199,14 +204,14 @@ tee "${WEATHER_HTML}" >/dev/null <<-'EOF'
 EOF
 
 for ((i=0; i<3; i++)); do
-    V_DATE=$(jq -r ".data.weather[$i] | .date" "${WEATHER_JSON}")
+    V_DATE=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .date" "${WEATHER_JSON}")
     V_WEEKDAY=$(date --date="${V_DATE}" +%w)
 
     WEATHER_DATE=$(cut -d"-" -f2- <<<"${V_DATE}")
     WEATHER_WEEKDAY="${DATE_WEEKDAY[${V_WEEKDAY}]}"
 
-    WEATHER_TEMP_MIN=$(jq -r ".data.weather[$i] | .mintempC" "${WEATHER_JSON}")
-    WEATHER_TEMP_MAX=$(jq -r ".data.weather[$i] | .maxtempC" "${WEATHER_JSON}")
+    WEATHER_TEMP_MIN=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .mintempC" "${WEATHER_JSON}")
+    WEATHER_TEMP_MAX=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .maxtempC" "${WEATHER_JSON}")
 
     tee -a "${WEATHER_HTML}" >/dev/null <<-EOF
 			<tr class="bordersolid">
@@ -232,30 +237,30 @@ EOF
     for j in 2 4 6; do
         WEATHER_CNT=$((WEATHER_CNT + 1))
 
-        V_CODE=$(jq -r ".data.weather[$i] | .hourly[$j] | .weatherCode" "${WEATHER_JSON}")
+        V_CODE=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .weatherCode" "${WEATHER_JSON}")
         WEATHER_ICON+=("${WEATHER_SYMBOL[${WWO_CODE["${V_CODE}"]}]}")
 
-        V_TEMP=$(jq -r ".data.weather[$i] | .hourly[$j] | .tempC" "${WEATHER_JSON}")
-        V_TEMP_FEEL=$(jq -r ".data.weather[$i] | .hourly[$j] | .FeelsLikeC" "${WEATHER_JSON}")
+        V_TEMP=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .tempC" "${WEATHER_JSON}")
+        V_TEMP_FEEL=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .FeelsLikeC" "${WEATHER_JSON}")
         WEATHER_TEMP+=("${V_TEMP}")
         WEATHER_TEMP_FEEL+=("${V_TEMP_FEEL}")
 
-        V_DESC=$(jq -r ".data.weather[$i] | .hourly[$j] | .lang_zh[0] | .value" "${WEATHER_JSON}")
+        V_DESC=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .lang_zh[0] | .value" "${WEATHER_JSON}")
         WEATHER_DESC+=("${V_DESC}")
 
-        V_WIND_DEGREE=$(jq -r ".data.weather[$i] | .hourly[$j] | .winddirDegree" "${WEATHER_JSON}")
+        V_WIND_DEGREE=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .winddirDegree" "${WEATHER_JSON}")
         V_WIND_DIRECTION=$(echo "(((${V_WIND_DEGREE}+22.5)%360)/45.0)" | bc)
-        V_WIND_SPEED=$(jq -r ".data.weather[$i] | .hourly[$j] | .windspeedKmph" "${WEATHER_JSON}")
-        V_WIND_GUSTSPEED=$(jq -r ".data.weather[$i] | .hourly[$j] | .WindGustKmph" "${WEATHER_JSON}")
+        V_WIND_SPEED=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .windspeedKmph" "${WEATHER_JSON}")
+        V_WIND_GUSTSPEED=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .WindGustKmph" "${WEATHER_JSON}")
         WEATHER_WIND_DIRECTION+=("${WIND_DIRECTION[${V_WIND_DIRECTION}]}")
         WEATHER_WIND_SPEED+=("${V_WIND_SPEED}")
         WEATHER_WIND_GUSTSPEED+=("${V_WIND_GUSTSPEED}")
 
-        V_VISIBILITY=$(jq -r ".data.weather[$i] | .hourly[$j] | .visibility" "${WEATHER_JSON}")
+        V_VISIBILITY=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .visibility" "${WEATHER_JSON}")
         WEATHER_VISIBILITY+=("${V_VISIBILITY}")
 
-        V_RAIN_MM=$(jq -r ".data.weather[$i] | .hourly[$j] | .precipMM" "${WEATHER_JSON}")
-        V_RAIN_CHANCE=$(jq -r ".data.weather[$i] | .hourly[$j] | .chanceofrain" "${WEATHER_JSON}")
+        V_RAIN_MM=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .precipMM" "${WEATHER_JSON}")
+        V_RAIN_CHANCE=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .chanceofrain" "${WEATHER_JSON}")
         WEATHER_RAIN_MM+=("${V_RAIN_MM}")
         WEATHER_RAIN_CHANCE+=("${V_RAIN_CHANCE}")
     done
