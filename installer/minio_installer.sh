@@ -17,97 +17,37 @@ else
     fi
 fi
 
-[[ -z "${OS_INFO_TYPE}" ]] && get_os_type
-[[ -z "${OS_INFO_ARCH}" ]] && get_arch
-
 # [MinIO - High Performance, Kubernetes Native Object Storage](https://min.io/)
-# https://github.com/minio/minio
-INSTALLER_INSTALL_PATH="/usr/local/bin"
+# [Silo (Community maintained fork of MinIO)](https://github.com/pgsty/minio)
 
-DOWNLOAD_DOMAIN="https://dl.min.io"
-# [[ "${THE_WORLD_BLOCKED}" == "true" ]] && DOWNLOAD_DOMAIN="http://dl.minio.org.cn"
+# if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
+#     curl -fsSL https://repo.pigsty.io/pig | bash
+# else
+#     curl -fsSL https://repo.pigsty.cc/pig | bash
+# fi
+# pig repo add infra -u
+# pig install minio
 
-# MINIO SERVER
+# minio server
 App_Installer_Reset
 
-INSTALLER_APP_NAME="minio"
-INSTALLER_INSTALL_NAME="minio"
-INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
+INSTALLER_GITHUB_REPO="pgsty/minio"
+INSTALLER_BINARY_NAME="minio"
 
-INSTALLER_VER_CURRENT="0.0"
+INSTALLER_ARCHIVE_EXT="tar.gz"
+INSTALLER_MATCH_PATTERN="${INSTALLER_BINARY_NAME}*"
 
-if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
-    INSTALLER_IS_UPDATE="yes"
-    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -v | grep -Po -m1 'RELEASE\.[0-9+TZ:-]{2,}' | head -n1)
-else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
-fi
+installPrebuiltBinary "${INSTALLER_BINARY_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}#${INSTALLER_MATCH_PATTERN}"
 
-if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
-    INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" \
-                            -N "${DOWNLOAD_DOMAIN}/server/minio/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}" \
-                            | grep -Po -m1 'RELEASE\.[0-9+TZ:-]{2,}' | head -n1)
-    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE="0.0"
+# mc client
+INSTALLER_GITHUB_REPO="pgsty/mc"
+INSTALLER_BINARY_NAME="mc"
 
-    version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}" && INSTALLER_IS_INSTALL="no"
-fi
+INSTALLER_ARCHIVE_EXT="tar.gz"
+INSTALLER_MATCH_PATTERN="${INSTALLER_BINARY_NAME}*"
 
-if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+installPrebuiltBinary "${INSTALLER_BINARY_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}#${INSTALLER_MATCH_PATTERN}"
 
-    INSTALLER_DOWNLOAD_URL="${DOWNLOAD_DOMAIN}/server/minio/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}/${INSTALLER_INSTALL_NAME}"
-
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
-    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
-        sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
-            sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
-
-        # Save downloaded file to cache
-        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
-    fi
-fi
-
-# MINIO CLIENT
-App_Installer_Reset
-
-INSTALLER_APP_NAME="mc"
-INSTALLER_INSTALL_NAME="mc"
-INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}"
-
-INSTALLER_VER_CURRENT="0.0"
-
-if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
-    INSTALLER_IS_UPDATE="yes"
-    INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} -v | grep -Po -m1 'RELEASE\.[0-9+TZ:-]{2,}' | head -n1)
-else
-    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
-fi
-
-if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
-    INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" \
-                            -N "${DOWNLOAD_DOMAIN}/client/mc/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}" \
-                            | grep -Po -m1 'RELEASE\.[0-9+TZ:-]{2,}' | head -n1)
-    [[ -z "${INSTALLER_VER_REMOTE}" ]] && INSTALLER_VER_REMOTE="0.0"
-
-    version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}" && INSTALLER_IS_INSTALL="no"
-fi
-
-if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-
-    INSTALLER_DOWNLOAD_URL="${DOWNLOAD_DOMAIN}/client/mc/release/${OS_INFO_TYPE}-${OS_INFO_ARCH}/${INSTALLER_INSTALL_NAME}"
-
-    INSTALLER_DOWNLOAD_FILE="${WORKDIR}/${INSTALLER_INSTALL_NAME}-${OS_INFO_TYPE}-${OS_INFO_ARCH}"
-    if App_Installer_Download "${INSTALLER_DOWNLOAD_URL}" "${INSTALLER_DOWNLOAD_FILE}"; then
-        sudo cp -f "${INSTALLER_DOWNLOAD_FILE}" "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}" && \
-            sudo chmod +x "${INSTALLER_INSTALL_PATH}/${INSTALLER_INSTALL_NAME}"
-
-        # Save downloaded file to cache
-        App_Installer_Save_to_Cache "${INSTALLER_APP_NAME}" "${INSTALLER_VER_REMOTE}" "${INSTALLER_DOWNLOAD_FILE}"
-    fi
-fi
 
 : '
 # Run the MinIO Server with Non-Default Credentials
