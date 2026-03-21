@@ -296,6 +296,8 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "xh"
         "navi"
         "tealdeer"
+        # [weathr - a terminal weather app with ascii animation](https://github.com/Veirt/weathr)
+        "weathr#Veirt/weathr##weathr*"
     )
 fi
 for Target in "${AppWSLDesktopList[@]}"; do
