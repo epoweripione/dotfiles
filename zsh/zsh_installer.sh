@@ -71,8 +71,11 @@ if [[ -x "$(command -v pacman)" ]]; then
         curl
         wget
         git
+        7zip
+        7zip-rar
         zip
         unzip
+        unrar
         zstd
         # autojump
         # autojump-zsh
@@ -98,6 +101,7 @@ if [[ -x "$(command -v pacman)" ]]; then
         dstat
         htop
         inxi
+        iftop
         iotop-c
         jq
         lsof
