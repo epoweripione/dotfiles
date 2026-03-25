@@ -818,7 +818,11 @@ function Archive_File_Extract() {
             zstd -dq "${filename}" --output-dir-flat "${workdir}" || extract_rtn_code=$?
             ;;
         ".7z")
-            7z e "${filename}" -o"${workdir}" || extract_rtn_code=$?
+            if [[ -x "$(command -v 7zz)" ]]; then
+                7zz e "${filename}" -o"${workdir}" || extract_rtn_code=$?
+            else
+                7z e "${filename}" -o"${workdir}" || extract_rtn_code=$?
+            fi
             ;;
     esac
 
