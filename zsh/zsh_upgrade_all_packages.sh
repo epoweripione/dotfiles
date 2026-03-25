@@ -164,6 +164,10 @@ else
     fi
 fi
 
+# [Modern Unix: A collection of modern/faster/saner alternatives to common unix commands](https://github.com/ibraheemdev/modern-unix)
+AppInstaller="${MY_SHELL_SCRIPTS}/installer/modern-unix_installer.sh"
+[[ -f "${AppInstaller}" ]] && source "${AppInstaller}"
+
 # Always install & update apps
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
@@ -172,21 +176,12 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         # "asdf"
         "mise"
         "as-tree"
-        "bat"
-        "broot"
         # "busybox"
         "croc"
         "dasel"
         "diffnav#dlvhdr/diffnav#tar.gz#diffnav"
-        "duf"
-        "dust"
         "edit#microsoft/edit#tar.zst#edit*"
         "erdtree"
-        # "exa"
-        "eza"
-        "fd"
-        "git-delta"
-        "lazygit"
         "lnav"
         "magic-wormhole"
         # "nano"
@@ -197,8 +192,6 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "sttr#abhimanyu003/sttr#tar.gz#sttr*"
         "tailspin"
         "witr#pranshuparmar/witr##witr[^.]+[a-zA-Z0-9\-]+$"
-        "yq"
-        "zoxide"
         # "clash"
         "mihomo"
         "mieru"
@@ -242,12 +235,8 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "bottom"
         "btop"
         "bandwhich#imsnif/bandwhich#tar.gz#bandwhich*"
-        "choose"
         "cpufetch#Dr-Noob/cpufetch##cpufetch_*"
-        "curlie"
         "distrobox"
-        # "dog"
-        "doggo"
         "dysk"
         # [F2 - Command-Line Batch Renaming](https://github.com/ayoisaiah/f2)
         "f2#ayoisaiah/f2#tar.gz#f2*"
@@ -255,18 +244,12 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "fq"
         "fx"
         "gdu#dundee/gdu#tgz#gdu*"
-        "git-lfs"
         "gotty"
-        "httpie"
-        "httpie-go"
-        "httpstat"
-        "hyperfine"
         # [ImageKit - a powerful and fast command-line tool for batch processing images](https://github.com/hzbd/imagekit)
         "imagekit#hzbd/imagekit##imagekit*"
         # "noxdir#crumbyte/noxdir#tar.gz#noxdir*"
         # [Logdy - terminal logs in web browser](https://github.com/logdyhq/logdy-core)
         "logdy#logdyhq/logdy-core##logdy*"
-        "lsd"
         "nali"
         "ncdu"
         "nu"
@@ -275,12 +258,10 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "pgenv"
         # "pistol"
         "poetry"
-        "procs"
         "pup"
         "rclone"
         "re-txt"
         "restic"
-        "sd"
         "somo"
         # "starship"
         "tig"
@@ -292,10 +273,9 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "uv"
         "vfox"
         "viu"
+        # [wrk - Modern HTTP benchmarking tool](https://github.com/wg/wrk)
         "wrk"
-        "xh"
         "navi"
-        "tealdeer"
         # [weathr - a terminal weather app with ascii animation](https://github.com/Veirt/weathr)
         "weathr#Veirt/weathr##weathr*"
     )
