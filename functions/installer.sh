@@ -34,7 +34,7 @@ function pip_Package_Install() {
         return 1
     fi
 
-    colorEcho "${BLUE}  Installing ${FUCHSIA}pip package ${ORANGE}${PackageName}${BLUE}..."
+    colorEcho "${BLUE}Installing ${FUCHSIA}pip package ${ORANGE}${PackageName}${BLUE}..."
     if [[ -z "${PackageVersion}" ]]; then
         ${PipCMD} install -U "${PackageName}"
     else
