@@ -17,15 +17,15 @@ else
     fi
 fi
 
-# Modern Unix: A collection of modern/faster/saner alternatives to common unix commands
-# https://github.com/ibraheemdev/modern-unix
+# [Modern Unix: A collection of modern/faster/saner alternatives to common unix commands](https://github.com/ibraheemdev/modern-unix)
 AppList=(
     "bat"
     "bfs"
-    # "exa"
     "eza"
     "lsd"
     "git-delta"
+    "git-lfs"
+    "lazygit"
     "dust"
     "duf"
     "broot"
@@ -36,31 +36,41 @@ AppList=(
     "mcfly"
     "choose"
     "jq"
+    "yq"
     "sd"
-    "cheat"
-    "tldr"
+    # "cheat"
+    # "tldr"
+    # [tealdeer - A very fast implementation of tldr in Rust](https://github.com/tealdeer-rs/tealdeer)
+    "tealdeer"
     "bottom"
     "glances"
-    "gtop"
+    # "gtop"
     "hyperfine"
     "gping"
     "procs"
-    "httpie"
-    "httpie-go"
+    ## [Load Testing Toolkit](https://github.com/aliesbelik/load-testing-toolkit)
+    # "httpie"
+    # "httpie-go"
+    # "httpstat"
     "curlie"
     "xh"
     "zoxide"
-    # "dog"
     "doggo"
 )
+
+PackagesList=()
 for Target in "${AppList[@]}"; do
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/${Target}_installer.sh"
     if [[ -f "${AppInstaller}" ]]; then
         source "${AppInstaller}"
     else
-        PackagesList=("${Target}") && InstallSystemPackages "" "${PackagesList[@]}"
+        [[ ! -x "$(command -v "${Target}")" ]] && PackagesList+=("${Target}")
     fi
 done
 
+if [[ -n "${PackagesList[*]}" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}${PackagesList[*]}${BLUE}..."
+    InstallSystemPackages "" "${PackagesList[@]}"
+fi
 
 cd "${CURRENT_DIR}" || exit
