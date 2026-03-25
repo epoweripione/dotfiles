@@ -19,10 +19,9 @@ fi
 
 App_Installer_Reset
 
-# tealdeer: A very fast implementation of tldr in Rust
-# https://github.com/dbrgn/tealdeer
+# [tealdeer - A very fast implementation of tldr in Rust](https://github.com/tealdeer-rs/tealdeer)
 INSTALLER_APP_NAME="tealdeer"
-INSTALLER_GITHUB_REPO="dbrgn/tealdeer"
+INSTALLER_GITHUB_REPO="tealdeer-rs/tealdeer"
 
 INSTALLER_INSTALL_NAME="tldr"
 
