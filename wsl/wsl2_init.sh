@@ -201,7 +201,7 @@ sudo apt update && sudo apt upgrade -y
 # Install useful packages
 colorEcho "${BLUE}Installing ${FUCHSIA}Pre-requisite packages${BLUE}..."
 sudo apt install -y binutils build-essential di dnsutils g++ gcc keychain \
-    git htop iproute2 make net-tools netcat-openbsd p7zip-full psmisc tree unzip zip
+    git htop iproute2 make net-tools netcat-openbsd 7zip 7zip-rar psmisc tree unzip zip
 
 ## Login with SSH Key
 # pssh -i -H "host01 host02" -l root \
