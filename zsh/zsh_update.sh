@@ -65,20 +65,10 @@ if [[ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ]]; then
     fi
 fi
 
-
 # ZSH
 # upgrade_oh_my_zsh
 # [[ -n "$ZSH" ]] && Git_Clone_Update_Branch "ohmyzsh/ohmyzsh" "$ZSH"
 [[ -n "$ZSH" ]] && $ZSH/tools/upgrade.sh
-
-
-## tmux
-# if [[ ! -x "$(command -v tmux)" ]] && [[ -x "$(command -v pacman)" ]]; then
-#     if pacman -Si tmux >/dev/null 2>&1; then
-#         colorEcho "${BLUE}Installing ${FUCHSIA}tmux${BLUE}..."
-#         sudo pacman --noconfirm -S tmux
-#     fi
-# fi
 
 if [[ -x "$(command -v tmux)" ]]; then
     # Oh My Tmux: https://github.com/gpakosz/.tmux
@@ -119,82 +109,8 @@ if [[ -x "$(command -v tmux)" ]]; then
 
         # bind key | for split current window vertically
         echo -e "unbind _\nbind | split-window -h" >> "$HOME/.tmux.conf.local"
-
-        # Add true color support
-        # {
-        #     echo ""
-        #     echo '# if-shell "infocmp xterm-256color" "set-option -g default-terminal xterm-256color"'
-        #     echo '# if-shell "infocmp screen-256color" "set-option -g default-terminal screen-256color"'
-        #     echo '# if-shell "infocmp tmux-256color" "set-option -g default-terminal tmux-256color"'
-        #     echo 'set -g default-terminal "screen-256color"'
-        #     echo 'set -ga terminal-overrides ",*256col*:Tc"'
-        # } >> "$HOME/.tmux.conf.local"
-
-        # https://github.com/tmux-plugins/tmux-sidebar
-        # echo "" >> "$HOME/.tmux.conf.local"
-        # echo "set -g @plugin 'tmux-plugins/tmux-sidebar'" >> "$HOME/.tmux.conf.local"
-
-#         # add blank line on top of tmux statusbar (tmux 2.9+)
-#         TMUX_VERSION=$(tmux -V | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-#         if version_ge $TMUX_VERSION "2.9"; then
-#             tee -a "$HOME/.tmux.conf.local" >/dev/null <<-EOF
-# set -gF 'status-format[1]' '#{status-format[0]}'
-# set -g 'status-format[0]' ''
-# set -g status 2
-# EOF
-#         fi
-#         unset TMUX_VERSION
     fi
 fi
-
-
-## neofetch
-# if [[ ! -x "$(command -v neofetch)" ]] && [[ -x "$(command -v pacman)" ]]; then
-#     if pacman -Si neofetch >/dev/null 2>&1; then
-#         colorEcho "${BLUE}Installing ${FUCHSIA}neofetch${BLUE}..."
-#         sudo pacman --noconfirm -S neofetch
-#     fi
-# fi
-
-# if [[ ! -x "$(command -v neofetch)" ]]; then
-#     Git_Clone_Update_Branch "dylanaraps/neofetch" "$HOME/neofetch"
-
-#     if [[ "${OS_INFO_TYPE}" == "darwin" ]]; then
-#         cd "$HOME/neofetch" && sudo make PREFIX=/usr/local install
-#     elif [[ "${OS_INFO_TYPE}" == "windows" ]]; then
-#         cd "$HOME/neofetch" && sudo make -i install
-#     else
-#         cd "$HOME/neofetch" && sudo make install
-#     fi
-# fi
-
-# if [[ -x "$(command -v neofetch)" ]]; then
-#     mkdir -p "$HOME/.config/neofetch" && \
-#         cp "$HOME/.dotfiles/zsh/neofetch_config.conf" \
-#             "$HOME/.config/neofetch/config.conf"
-# fi
-
-
-## fzf
-## https://github.com/junegunn/fzf
-# [[ ! -x "$(command -v fzf)" ]] && PackagesList=(fzf) && InstallSystemPackages "" "${PackagesList[@]}"
-
-if [[ ! -x "$(command -v fzf)" ]]; then
-    Git_Clone_Update_Branch "junegunn/fzf" "$HOME/.fzf"
-    [[ -s "$HOME/.fzf/install" ]] && "$HOME/.fzf/install"
-elif [[ -d "$HOME/.fzf" ]]; then
-    Git_Clone_Update_Branch "junegunn/fzf" "$HOME/.fzf"
-    [[ -s "$HOME/.fzf/install" ]] && "$HOME/.fzf/install" --bin
-fi
-
-
-## PathPicker
-## https://github.com/facebook/pathpicker/
-# Git_Clone_Update_Branch "facebook/pathpicker" "$HOME/.pathpicker"
-# if [[ ! -x "$(command -v fpp)" ]] ; then
-#     [[ -s "$HOME/.pathpicker/fpp" ]] && sudo ln -s "$HOME/.pathpicker/fpp" "/usr/local/bin/fpp"
-# fi
-
 
 # Custom plugins
 colorEcho "${BLUE}Oh-my-zsh custom ${FUCHSIA}plugins${BLUE}..."
@@ -240,17 +156,6 @@ for Target in "${PluginList[@]}"; do
     TargetName=$(echo "${Target}" | awk -F"/" '{print $NF}')
     Git_Clone_Update_Branch "${Target}" "${ZSH_CUSTOM}/plugins/${TargetName}"
 done
-
-## fzf-tab: speed up parse and apply filename colorizing
-# if [[ ! -s "${ZSH_CUSTOM}/plugins/fzf-tab/modules/Src/aloxaf/fzftab.so" ]]; then
-#     [[ ! "$(command -v build-fzf-tab-module)" ]] && \
-#         source "${ZSH_CUSTOM}/plugins/fzf-tab/fzf-tab.plugin.zsh"
-
-#     if [[ "$(command -v build-fzf-tab-module)" ]]; then
-#         colorEcho "${BLUE}Building ${FUCHSIA}fzf-tab modules${BLUE}..."
-#         build-fzf-tab-module >/dev/null
-#     fi
-# fi
 
 # Custom themes
 colorEcho "${BLUE}Oh-my-zsh custom ${FUCHSIA}themes${BLUE}..."
