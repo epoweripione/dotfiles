@@ -168,6 +168,9 @@ fi
 AppInstaller="${MY_SHELL_SCRIPTS}/installer/modern-unix_installer.sh"
 [[ -f "${AppInstaller}" ]] && source "${AppInstaller}"
 
+# List of system packages to install using `InstallSystemPackages()` function
+systemPackagesList=()
+
 # Always install & update apps
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
@@ -208,6 +211,8 @@ for Target in "${AppAlwaysInstallList[@]}"; do
     else
         if grep -q -E "#" <<<"${Target}"; then
             installPrebuiltBinary "${Target}"
+        else
+            systemPackagesList+=("${Target}")
         fi
     fi
 done
@@ -278,6 +283,10 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "navi"
         # [weathr - a terminal weather app with ascii animation](https://github.com/Veirt/weathr)
         "weathr#Veirt/weathr##weathr*"
+        # Tools for fzf-tab preview
+        "chafa"
+        "libimage-exiftool-perl"
+        "perl-Image-ExifTool"
     )
 fi
 for Target in "${AppWSLDesktopList[@]}"; do
@@ -288,6 +297,8 @@ for Target in "${AppWSLDesktopList[@]}"; do
     else
         if grep -q -E "#" <<<"${Target}"; then
             installPrebuiltBinary "${Target}"
+        else
+            systemPackagesList+=("${Target}")
         fi
     fi
 done
@@ -326,9 +337,14 @@ for Target in "${AppUpdateOnlyList[@]}"; do
     else
         if grep -q -E "#" <<<"${Target}"; then
             installPrebuiltBinary "${Target}"
+        else
+            systemPackagesList+=("${Target}")
         fi
     fi
 done
+
+# Install system packages using `InstallSystemPackages()` function
+[[ -n "${systemPackagesList[*]}" ]] && InstallSystemPackages "" "${systemPackagesList[@]}"
 
 # duckdb
 AppInstaller="${MY_SHELL_SCRIPTS}/db/duckdb_installer.sh"
