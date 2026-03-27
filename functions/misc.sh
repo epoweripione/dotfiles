@@ -174,3 +174,17 @@ function get_zone_time() {
         colorEcho "${BLUE}${tz}: ${ZONE_TIME}"
     done
 }
+
+# y - return to current directory after yazi exit
+function y() {
+    local tmp
+
+    tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+
+    yazi "$@" --cwd-file="$tmp"
+
+    if cwd="$(command cat -- "$tmp")" && [[ -n "$cwd" ]] && [[ "$cwd" != "$PWD" ]]; then
+        builtin cd -- "$cwd" || return
+    fi
+    command rm -f -- "$tmp"
+}
