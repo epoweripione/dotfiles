@@ -24,8 +24,6 @@ INSTALLER_APP_NAME="claude-code"
 INSTALLER_GITHUB_REPO="anthropics/claude-code"
 INSTALLER_BINARY_NAME="claude-code"
 
-INSTALLER_NPM_PACKAGE="@anthropics/claude-code"
-
 if [[ -x "$(command -v ${INSTALLER_BINARY_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
     App_Installer_Get_Installed_Version "${INSTALLER_BINARY_NAME}"
@@ -33,22 +31,17 @@ else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
 
-# install nodejs & npm using fnm
-fnm_Install_Nodejs
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_BINARY_NAME}${BLUE}..."
 
-if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
-    if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-        colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
-
-        INSTALLER_CHECK_URL="https://api.github.com/repos/${INSTALLER_GITHUB_REPO}/releases/latest"
-        App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
-        if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
-            INSTALLER_IS_INSTALL="no"
-        fi
+    INSTALLER_CHECK_URL="https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest"
+    INSTALLER_VER_REMOTE=$(curl "${CURL_CHECK_OPTS[@]}" "${INSTALLER_CHECK_URL}" 2>/dev/null)
+    if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        INSTALLER_IS_INSTALL="no"
     fi
+fi
 
-    if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-        npm_Install_Global "${INSTALLER_NPM_PACKAGE}"
-    fi
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_BINARY_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+    curl -fsSL https://claude.ai/install.sh | bash
 fi
