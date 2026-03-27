@@ -1,0 +1,10 @@
+# ~/.config/yazi/keymap.toml
+
+[mgr]
+prepend_keymap = [
+    # Enter directory
+    { on = ["<Enter>"], run = "enter", desc = "Enter directory" },
+
+    # o Open file or directory
+    { on = ["o"], run = "open", desc = "Open file or directory" },
+]
