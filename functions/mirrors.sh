@@ -269,15 +269,35 @@ function setMirrorGem() {
 function setMirrorNix() {
     if [[ -x "$(command -v nix)" ]]; then
         export MIRROR_NIX_STORE=${MIRROR_NIX_STORE:-"https://mirrors.tuna.tsinghua.edu.cn"}
-        mkdir -p "$HOME/.config/nix"
-        if ! grep -q "^substituters =" "$HOME/.config/nix/nix.conf"; then
-            echo "substituters = ${MIRROR_NIX_STORE}/nix-channels/store https://cache.nixos.org" >> "$HOME/.config/nix/nix.conf"
+        # mkdir -p "$HOME/.config/nix"
+        # if ! grep -q "^substituters =" "$HOME/.config/nix/nix.conf" 2>/dev/null; then
+        #     echo "substituters = ${MIRROR_NIX_STORE}/nix-channels/store https://cache.nixos.org" >> "$HOME/.config/nix/nix.conf"
+        # fi
+
+        if ! grep -q "^substituters =" "/etc/nix/nix.conf" 2>/dev/null; then
+            echo "substituters = ${MIRROR_NIX_STORE}/nix-channels/store https://cache.nixos.org/" | sudo tee -a "/etc/nix/nix.conf" >/dev/null
         fi
 
         if ! nix-channel --list | grep "${MIRROR_NIX_STORE}" >/dev/null 2>&1; then
+            sudo -i nix-channel --add "${MIRROR_NIX_STORE}/nix-channels/nixpkgs-unstable" nixpkgs
+            sudo -i nix-channel --update
+
             nix-channel --add "${MIRROR_NIX_STORE}/nix-channels/nixpkgs-unstable" nixpkgs
             nix-channel --update
+
         fi
+
+        if [[ -n "${http_proxy}" ]]; then
+            if ! sudo grep -q "http_proxy=" /etc/systemd/system/nix-daemon.service.d/override.conf 2>/dev/null; then
+                sudo mkdir -p /etc/systemd/system/nix-daemon.service.d/
+                echo '[Service]' | sudo tee -a "/etc/systemd/system/nix-daemon.service.d/override.conf" >/dev/null
+                echo "Environment=\"http_proxy=${http_proxy}\"" | sudo tee -a "/etc/systemd/system/nix-daemon.service.d/override.conf" >/dev/null
+                echo "Environment=\"https_proxy=${http_proxy}\"" | sudo tee -a "/etc/systemd/system/nix-daemon.service.d/override.conf" >/dev/null
+            fi
+        fi
+
+        sudo systemctl daemon-reload
+        sudo systemctl restart nix-daemon.service
     fi
 }
 
