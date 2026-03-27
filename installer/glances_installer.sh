@@ -26,7 +26,17 @@ INSTALLER_INSTALL_NAME="glances"
 # PIP_PACKAGE_NAME="glances"
 PIP_PACKAGE_NAME="glances[all]"
 
-[[ ! -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]] && INSTALLER_IS_INSTALL="yes" || INSTALLER_IS_INSTALL="no"
-[[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
+if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
+    INSTALLER_IS_UPDATE="yes"
+    INSTALLER_IS_INSTALL="no"
+else
+    [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
+fi
+
+## Python
+# [[ -s "${MY_SHELL_SCRIPTS}/installer/python_pip_config.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/python_pip_config.sh"
+
+[[ -x "$(command -v pip)" ]] && INSTALLER_IS_INSTALL="no"
 
 [[ "${INSTALLER_IS_INSTALL}" == "yes" ]] && pip_Package_Install "${PIP_PACKAGE_NAME}"
+[[ "${INSTALLER_IS_UPDATE}" == "yes" ]] && pip install --upgrade "${INSTALLER_INSTALL_NAME}" >/dev/null 2>&1
