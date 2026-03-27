@@ -150,7 +150,15 @@ PluginList=(
     # "kevinhwang91/fzf-tmux-script"
     # "marlonrichert/zsh-autocomplete"
     "MichaelAquilina/zsh-you-should-use"
+    "Freed-Wu/fzf-tab-source"
 )
+
+# [[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
+# if check_os_wsl; then
+#     PluginList+=("petronny/pinyin-completion")
+# else
+#     [[ -n "${OS_INFO_DESKTOP}" ]] && PluginList+=("petronny/pinyin-completion")
+# fi
 
 for Target in "${PluginList[@]}"; do
     TargetName=$(echo "${Target}" | awk -F"/" '{print $NF}')
@@ -260,12 +268,22 @@ if [[ -x "$(command -v fzf)" || -d "$HOME/.fzf" ]]; then
     Plugins="${Plugins} fzf"
     if [[ -d "${ZSH_CUSTOM}/plugins/fzf-tab" ]]; then
         Plugins="${Plugins} fzf-tab"
+        [[ -d "${ZSH_CUSTOM}/plugins/fzf-tab-source" ]] && Plugins="${Plugins} fzf-tab-source"
     else
         Plugins="${Plugins} zsh-interactive-cd"
     fi
 fi
 
 [[ -x "$(command -v zoxide)" ]] && Plugins="${Plugins} zoxide"
+
+## [pinyin-completion](https://github.com/petronny/pinyin-completion)
+# if [[ -d "${ZSH_CUSTOM}/plugins/pinyin-completion" ]]; then
+#     if [[ ! -s "${ZSH_CUSTOM}/plugins/pinyin-completion/module/Src/zi/pinyin.so" ]]; then
+#         source "${ZSH_CUSTOM}/plugins/pinyin-completion/pinyin-completion.plugin.zsh"
+#         autoload -Uz pinyin-compile && pinyin-compile "${ZSH_CUSTOM}/plugins/pinyin-completion"
+#     fi
+#     Plugins="${Plugins} pinyin-completion"
+# fi
 
 Plugins="${Plugins} web-search zsh-you-should-use zsh-autosuggestions fast-syntax-highlighting history-substring-search"
 
