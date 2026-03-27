@@ -19,6 +19,8 @@ fi
 
 App_Installer_Reset
 
+[[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
+
 # [Nix, the purely functional package manager](https://nix.dev/)
 INSTALLER_APP_NAME="nix"
 INSTALLER_GITHUB_REPO="NixOS/nix"
@@ -37,6 +39,8 @@ if [[ "${INSTALLER_IS_UPDATE}" == "yes" ]]; then
     nix upgrade-nix
 elif [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     curl -L https://nixos.org/nix/install | sh -s -- --daemon
+
+    [[ "${THE_WORLD_BLOCKED}" == "true" ]] && setMirrorNix
 fi
 
 # [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]] && setMirrorNix
