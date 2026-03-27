@@ -7,6 +7,39 @@ function fzf-tmux-popup() {
     fzf-tmux -p "${TMUX_POPUP_DIMENSION:-80%,80%}" "$@"
 }
 
+# Function to determine the preview command based on file type
+if [[ -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/functions/fzf_preview.sh" ]]; then
+    source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/functions/fzf_preview.sh"
+
+    # Export the function so fzf can use it in a subshell
+    # Listing Exported Functions: `declare -p -f` or `export -p`
+    # Unexporting: `declare -f -n function_name`
+    DEFALUT_SHELL=$(basename "$SHELL")
+    if [[ "${DEFALUT_SHELL}" == "zsh" ]]; then
+        if ! grep -q "fzf_preview.sh" "$HOME/.zshenv" 2>/dev/null; then
+            echo "" | tee -a "$HOME/.zshenv" >/dev/null
+            echo "# fzf: function to determine the preview command based on file type" | tee -a "$HOME/.zshenv" >/dev/null
+            echo "source ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/functions/fzf_preview.sh" | tee -a "$HOME/.zshenv" >/dev/null
+        fi
+    elif [[ "${DEFALUT_SHELL}" == "bash" ]]; then
+        export -f fzf_preview_file
+    fi
+
+    # [~/.lessfilter](https://github.com/Aloxaf/fzf-tab/wiki/Preview#show-file-contents)
+    if [[ ! -f "$HOME/.lessfilter" ]]; then
+        echo '#!/usr/bin/env bash' | tee "$HOME/.lessfilter" >/dev/null
+
+        echo "" | tee -a "$HOME/.lessfilter" >/dev/null
+        echo "# fzf: function to determine the preview command based on file type" | tee -a "$HOME/.lessfilter" >/dev/null
+        echo "source ${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/functions/fzf_preview.sh" | tee -a "$HOME/.lessfilter" >/dev/null
+
+        echo "" | tee -a "$HOME/.lessfilter" >/dev/null
+        echo 'fzf_preview_file "$1"' | tee -a "$HOME/.lessfilter" >/dev/null
+
+        chmod +x "$HOME/.lessfilter"
+    fi
+fi
+
 # tmux session
 if [[ -n "$TMUX" ]]; then
     TMUX_VERSION_320=""
@@ -29,34 +62,37 @@ if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/auto-sized-fzf" ]]; the
     source "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/auto-sized-fzf/auto-sized-fzf.sh"
 fi
 
-# use fd to generate input for fzf
-if [[ -x "$(command -v fd)" ]]; then
-    # export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --no-ignore --exclude .git'
-    export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git --color=always"
+# use `bfs` or `fd` to generate input for fzf
+if [[ -x "$(command -v bfs)" ]]; then
+    # [Using bfs with fzf](https://github.com/tavianator/bfs/discussions/119)
+    export FZF_DEFAULT_COMMAND="bfs -s -color -mindepth 1 -exclude \( -name .git -or -name .hg -or -name node_modules \) -printf '%P\n' 2>/dev/null"
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-    export FZF_ALT_C_COMMAND="fd --type d --strip-cwd-prefix --hidden --follow --exclude .git --color=always"
+    export FZF_ALT_C_COMMAND="bfs -s -color -mindepth 1 -exclude \( -name .git -or -name .hg -or -name node_modules \) -type d -printf '%P\n' 2>/dev/null"
+
+    _fzf_compgen_path() {
+        bfs -H "$1" -color -exclude \( -name .git -or -name .hg -or -name node_modules \) 2>/dev/null
+    }
+
+    _fzf_compgen_dir() {
+        bfs -H "$1" -color -exclude \( -name .git -or -name .hg -or -name node_modules \) -type d 2>/dev/null
+    }
+elif [[ -x "$(command -v fd)" ]]; then
+    # export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --no-ignore --exclude .git'
+    export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix --hidden --follow --exclude .git --exclude .hg --exclude node_modules --color=always"
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="fd --type d --strip-cwd-prefix --hidden --follow --exclude .git --exclude .hg --exclude node_modules --color=always"
 fi
 
 # export FZF_DEFAULT_OPTS="--ansi --multi $(fzf_sizer_preview_window_settings)"
 FZF_DEFAULT_OPTS="--ansi --multi \
 --bind='ctrl-j:preview-page-down,ctrl-k:preview-page-up,alt-j:preview-bottom,alt-k:preview-top' \
 --bind='tab:toggle+down,btab:toggle+up,shift-tab:toggle+up,ctrl-a:toggle-all,ctrl-s:toggle-sort' \
---bind='?:toggle-preview,ctrl-space:toggle-preview,alt-w:toggle-preview-wrap,enter:accept' \
+--bind='ctrl-/:toggle-preview,alt-/:change-preview-window(down|hidden|),alt-w:toggle-preview-wrap,enter:accept' \
+--bind='ctrl-e:execute(\$EDITOR {} < /dev/tty)' \
 --layout='reverse' \
---preview-window='right,70%' \
---height='70%'"
-# FZF_DEFAULT_OPTS=$(cat <<- EOF
-# --ansi
-# --multi
-# --bind='alt-j:preview-bottom,alt-k:preview-top'
-# --bind='tab:toggle+down,btab:toggle+up,shift-tab:toggle+up,ctrl-a:toggle-all,ctrl-s:toggle-sort'
-# --bind='?:toggle-preview,ctrl-space:toggle-preview,alt-w:toggle-preview-wrap,enter:accept'
-# --layout='reverse'
-# --preview-window='right,70%'
-# --height='70%'
-# EOF
-# )
-# FZF_DEFAULT_OPTS=$(tr '\n' ' ' <<<"${FZF_DEFAULT_OPTS}" | sed 's/^ *//g' | sed 's/ *$//g')
+--preview-window='right,60%' \
+--height='~60%'
+--border"
 export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS}"
 
 # Utility tool for using git interactively
@@ -87,8 +123,7 @@ fi
 
 # tab completion
 if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]]; then
-    # fzf-tab
-    # https://github.com/Aloxaf/fzf-tab
+    # [fzf-tab](https://github.com/Aloxaf/fzf-tab)
     # set list-colors to enable filename colorizing
     [[ ! -s "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab/modules/Src/aloxaf/fzftab.so" ]] && \
         zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
@@ -99,13 +134,38 @@ if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]]; then
         '[[ "$group" == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
     zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags '--preview-window=down:3:wrap'
 
-    # custom keybindings
-    zstyle ':fzf-tab:*' fzf-bindings 'tab:toggle+down' 'btab:toggle+up' 'shift-tab:toggle+up' 'enter:accept' 'ctrl-a:toggle-all'
+    # To make fzf-tab follow FZF_DEFAULT_OPTS.
+    # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
+    zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
+    # switch group using `<` and `>`
+    zstyle ':fzf-tab:*' switch-group '<' '>'
+
+    # Minimal height of fzf's prompt
+    zstyle ':fzf-tab:*' fzf-min-height '50'
+
+    # custom keybindings
+    # zstyle ':fzf-tab:*' fzf-bindings 'tab:toggle+down' 'btab:toggle+up' 'shift-tab:toggle+up' 'enter:accept' 'ctrl-a:toggle-all'
+
+    ## [Preview](https://github.com/Aloxaf/fzf-tab/wiki/Preview)
     # preview directory's content with eza when completing cd
     # zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
-    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -T --git-ignore --icons -L1 $realpath'
-    zstyle ':fzf-tab:complete:cd:*' fzf-flags '--height=50%'
+    # zstyle ':fzf-tab:complete:(cd|z|__zoxide_z):*' fzf-preview 'eza --tree --icons --color=always --level=2 --group-directories-first $realpath || tree -C -L2 "$realpath"'
+    # zstyle ':fzf-tab:complete:(cd|z|__zoxide_z):*' fzf-flags '--height=50%'
+
+    # show file contents
+    zstyle ':fzf-tab:complete:*:*' fzf-preview 'less ${(Q)realpath}'
+    export LESSOPEN='|~/.lessfilter %s'
+
+    # To disable or override preview for command options and subcommands, use
+    # zstyle ':fzf-tab:complete:*:options' fzf-preview
+    # zstyle ':fzf-tab:complete:*:argument-1' fzf-preview
+
+    # environment variable
+    zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview 'echo ${(P)word}'
+
+    # Homebrew
+    zstyle ':fzf-tab:complete:brew-(install|uninstall|search|info):*-argument-rest' fzf-preview 'HOMEBREW_COLOR=1 brew info $word'
 
     if [[ -n "$TMUX" && -n "${TMUX_VERSION_320}" ]]; then
         # zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
@@ -113,13 +173,16 @@ if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]]; then
         zstyle ':fzf-tab:complete:cd:*' popup-pad 30 0
     fi
 else
-    # fzf-tab-completion
-    # https://github.com/lincheney/fzf-tab-completion
+    # [fzf-tab-completion](https://github.com/lincheney/fzf-tab-completion)
     if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab-completion" ]]; then
         source "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab-completion/zsh/fzf-zsh-completion.sh"
         bindkey '^I' fzf_completion
     fi
 fi
+
+## [fzf-tab-source: a collection of fzf-tab completion sources](https://github.com/Freed-Wu/fzf-tab-source)
+# Git_Clone_Update_Branch "Freed-Wu/fzf-tab-source" "${ZSH_CUSTOM}/plugins/fzf-tab-source"
+# source "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab-source/fzf-tab-source.plugin.zsh"
 
 ## fzf-tmux-pane & fzf-tmux-popup
 ## https://github.com/kevinhwang91/fzf-tmux-script
@@ -169,6 +232,8 @@ fi
 # }
 
 # fzf alias
+alias fzf-preview='${FZF_REAL_COMMAND:-fzf} --preview="fzf_preview_file {}"'
+
 alias fzf-cat='${FZF_REAL_COMMAND:-fzf} --preview="cat {}"'
 
 alias fzf-file='${FZF_REAL_COMMAND:-fzf} --layout=reverse --info=inline --border --preview-window=up,1,border-horizontal'\
@@ -181,7 +246,7 @@ alias fzf-tree-dir='echo "$PWD" | ${FZF_REAL_COMMAND:-fzf} --preview="exa -T -D 
 
 if [[ -x "$(command -v bat)" ]]; then
     alias bat-themes='bat --list-themes | ${FZF_REAL_COMMAND:-fzf} --preview="bat --theme={} --color=always ${ZSH}/oh-my-zsh.sh"'
-    alias fzf-bat='${FZF_REAL_COMMAND:-fzf} --preview="bat --theme=TwoDark --style=numbers,changes --color=always {}"'
+    alias fzf-bat='${FZF_REAL_COMMAND:-fzf} --preview="bat --theme=TwoDark --color=always {}"'
 fi
 
 if [[ -x "$(command -v pistol)" ]]; then
