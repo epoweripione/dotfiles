@@ -216,7 +216,7 @@ function InstallSystemPackages() {
 
     [[ -n "${PreInstallMsg}" ]] && colorEcho "${PreInstallMsg}"
     for TargetPackage in "${InstallList[@]}"; do
-        colorEchoN "${BLUE}  Checking ${FUCHSIA}${TargetPackage}${BLUE}...\033[0K\r"
+        colorEchoN "${BLUE}Checking ${FUCHSIA}${TargetPackage}${BLUE}...\033[0K\r"
         if checkPackageNeedInstall "${TargetPackage}"; then
             PackagesToInstall+=("${TargetPackage}")
         fi
@@ -226,7 +226,7 @@ function InstallSystemPackages() {
     [[ -n "${InstallList[*]}" ]] && tput el
 
     if [[ -n "${PackagesToInstall[*]}" ]]; then
-        colorEcho "${BLUE}  Installing ${FUCHSIA}${PackagesToInstall[*]}${BLUE}..."
+        colorEcho "${BLUE}Installing ${FUCHSIA}${PackagesToInstall[*]}${BLUE}..."
         if [[ "$(command -v yay)" ]]; then
             yay --noconfirm --needed -S "${PackagesToInstall[@]}"
         else
