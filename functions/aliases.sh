@@ -144,21 +144,21 @@ fi
 
 
 if [[ -x "$(command -v eza)" ]]; then
-    alias ezan="eza -ghl --icons --git --time-style=long-iso"
-    alias ezal="eza -aghl --icons --git --time-style=long-iso"
-    alias ezaa="eza -abghHliS --icons --git --time-style=long-iso"
-    alias ezat="eza --tree --icons"
-    alias ezat1="eza --tree --icons --level=1"
-    alias ezat2="eza --tree --icons --level=2"
-    alias ezat3="eza --tree --icons --level=3"
+    alias ezan="eza -ghl --icons --git --time-style=long-iso --group-directories-first"
+    alias ezal="eza -aghl --icons --git --time-style=long-iso --group-directories-first"
+    alias ezaa="eza -abghHliS --icons --git --time-style=long-iso --group-directories-first"
+    alias ezat="eza --tree --icons --color=always --group-directories-first"
+    alias ezat1="eza --tree --icons --color=always --level=1 --group-directories-first"
+    alias ezat2="eza --tree --icons --color=always --level=2 --group-directories-first"
+    alias ezat3="eza --tree --icons --color=always --level=3 --group-directories-first"
     # replace exa with eza
-    alias exan="eza -ghl --icons --git --time-style=long-iso"
-    alias exal="eza -aghl --icons --git --time-style=long-iso"
-    alias exaa="eza -abghHliS --icons --git --time-style=long-iso"
-    alias exat="eza --tree --icons"
-    alias exat1="eza --tree --icons --level=1"
-    alias exat2="eza --tree --icons --level=2"
-    alias exat3="eza --tree --icons --level=3"
+    alias exan="eza -ghl --icons --git --time-style=long-iso --group-directories-first"
+    alias exal="eza -aghl --icons --git --time-style=long-iso --group-directories-first"
+    alias exaa="eza -abghHliS --icons --git --time-style=long-iso --group-directories-first"
+    alias exat="eza --tree --icons --color=always --group-directories-first"
+    alias exat1="eza --tree --icons --color=always --level=1 --group-directories-first"
+    alias exat2="eza --tree --icons --color=always --level=2 --group-directories-first"
+    alias exat3="eza --tree --icons --color=always --level=3 --group-directories-first"
 fi
 
 # pip
