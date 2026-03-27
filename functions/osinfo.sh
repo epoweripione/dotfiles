@@ -218,6 +218,9 @@ function get_arch() {
         riscv64)
             spruce_type="riscv64"
             ;;
+        *loong*64*)
+            spruce_type="loong64"
+            ;;
 		*)
             spruce_type="$architecture"
             ;;
@@ -285,6 +288,9 @@ function get_sysArch() {
             ;;
         riscv64)
             VDIS="riscv64"
+            ;;
+        *loong*64*)
+            VDIS="loong64"
             ;;
 		*)
             VDIS="$architecture"
@@ -365,6 +371,15 @@ function get_cpu_arch_level() {
     # echo "CPU supports x86-64-v$level"
 
     CPU_ARCH_LEVEL=$level
+}
+
+# Check if the system is using musl libc
+function check_os_musl() {
+    [[ -f "/lib/libc.musl-x86_64.so.1" || -f "/lib/libc.musl-aarch64.so.1" ]] && return 0
+
+    [[ -x "$(command -v ldd)" ]] && ldd /bin/ls 2>&1 | grep -q "musl" && return 0
+
+    return 1
 }
 
 function get_os_icon() {

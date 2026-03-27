@@ -364,6 +364,9 @@ function App_Installer_Get_OS_Info_Match_Cond() {
                 && OS_INFO_UNMATCH_COND="riscv64" \
                 || OS_INFO_UNMATCH_COND="${OS_INFO_UNMATCH_COND}|riscv64"
             ;;
+        loong64)
+            OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|loongarch64"
+            ;;
     esac
 
     OS_INFO_MATCH_FLOAT="${OS_INFO_FLOAT}"
@@ -382,7 +385,7 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     # [sing-box](https://github.com/SagerNet/sing-box/blob/main/.goreleaser.yaml)
     # [Clash.Meta](https://github.com/MetaCubeX/Clash.Meta/blob/Meta/Makefile)
     OS_INFO_MATCH_CPU_LEVEL=""
-    [[ CPU_ARCH_LEVEL -le 2 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64-compatible|amd64v1|amd64v2"
+    [[ CPU_ARCH_LEVEL -le 2 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64-compatible|amd64v1|amd64v2|amd64-v1|amd64-v2"
     [[ CPU_ARCH_LEVEL -ge 3 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64v3|amd64-v3"
 }
 
@@ -533,7 +536,14 @@ function App_Installer_Get_Remote_URL() {
         fi
     fi
 
-    [[ -z "${multi_match_filter}" ]] && multi_match_filter="musl|static"
+    # [[ -z "${multi_match_filter}" ]] && multi_match_filter="musl|static"
+    if [[ -z "${multi_match_filter}" ]]; then
+        if check_os_musl; then
+            multi_match_filter="musl|static"
+        else
+            multi_match_filter="gnu|glibc"
+        fi
+    fi
 
     # Get download urls
     if [[ -n "${jq_match_pattern}" ]]; then
