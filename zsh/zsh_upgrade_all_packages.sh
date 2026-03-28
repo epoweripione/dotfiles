@@ -280,8 +280,10 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "uv"
         "vfox"
         "viu"
-        # [wrk - Modern HTTP benchmarking tool](https://github.com/wg/wrk)
-        "wrk"
+        # [Vegeta - HTTP load testing tool and library](https://github.com/tsenart/vegeta)
+        "vegeta#tsenart/vegeta#tar.gz#vegeta*"
+        # [k6 - A modern load testing tool, using Go and JavaScript](https://github.com/grafana/k6)
+        "k6#grafana/k6#tar.gz#k6*"
         "navi"
         # [weathr - a terminal weather app with ascii animation](https://github.com/Veirt/weathr)
         "weathr#Veirt/weathr##weathr*"
