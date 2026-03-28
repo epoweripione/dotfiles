@@ -90,6 +90,9 @@ fi
 if [[ -s "$HOME/.config/conky/hybrid/hybrid.conf" ]]; then
     sed -i "s|home_dir = .*|home_dir = \"${HOME}\"|" "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
 
+    # lua_load
+    sed -i "s|~/|${HOME}/|g" "$HOME/.config/conky/hybrid/hybrid.conf"
+
     # Disk
     sed -i 's|/opt|/var|g' "$HOME/.config/conky/hybrid/hybrid.conf"
     sed -i 's|/opt|/var|g' "$HOME/.config/conky/hybrid/lua/hybrid-rings.lua"
