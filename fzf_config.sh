@@ -95,6 +95,10 @@ FZF_DEFAULT_OPTS="--ansi --multi \
 --border"
 export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS}"
 
+export FZF_CTRL_T_OPTS='--walker-skip .git,node_modules,target --preview="fzf_preview_file {}"'
+# export FZF_CTRL_R_OPTS="--bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort' --color header:italic --header 'Press CTRL-Y to copy command into clipboard'"
+export FZF_ALT_C_OPTS='--walker-skip .git,node_modules,target --preview="fzf_preview_file {}"'
+
 # Utility tool for using git interactively
 # https://github.com/wfxr/forgit
 if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/forgit" ]]; then
@@ -137,6 +141,10 @@ if [[ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab" ]]; then
     # To make fzf-tab follow FZF_DEFAULT_OPTS.
     # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
     zstyle ':fzf-tab:*' use-fzf-default-opts yes
+
+    # set descriptions format to enable group support
+    # NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
+    zstyle ':completion:*:descriptions' format '[%d]'
 
     # switch group using `<` and `>`
     zstyle ':fzf-tab:*' switch-group '<' '>'
