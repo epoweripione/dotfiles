@@ -43,8 +43,13 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+    if [[ "${INSTALLER_IS_UPDATE}" == "yes" ]]; then
+        colorEcho "${BLUE}  Updating ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE} to ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+        atuin update
+    else
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+        curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh
+    fi
 
     # bash
     if [[ -f "$HOME/.bashrc" ]]; then
