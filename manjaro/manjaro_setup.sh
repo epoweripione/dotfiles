@@ -399,6 +399,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "manjaro-tools-pkg"
         "manjaro-tools-iso"
         ## copies the content of a file into your clipboard
+        "wl-clipboard"
         # xclip -selection clipboard -i < file.txt
         "xclip"
         ## [WinBoat - Run Windows apps on 🐧 Linux with ✨ seamless integration](https://github.com/TibixDev/winboat)
