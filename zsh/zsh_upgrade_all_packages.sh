@@ -458,7 +458,6 @@ if [[ -x "$(command -v navi)" ]]; then
 fi
 
 if [[ -x "$(command -v tldr)" ]]; then
-    colorEcho "${BLUE}Updating ${FUCHSIA}tldr cheatsheets${BLUE}..."
     # tldr --update
     case "${OS_INFO_TYPE}" in
         darwin)
@@ -472,7 +471,13 @@ if [[ -x "$(command -v tldr)" ]]; then
             TLDR_PAGES="$HOME/.local/share/tldr"
             ;;
     esac
-    [[ -n "${TLDR_PAGES}" ]] && Git_Clone_Update_Branch "tldr-pages/tldr" "${TLDR_PAGES}"
+
+    if [[ -n "${TLDR_PAGES}" ]]; then
+        if check_os_wsl || [[ -n "${OS_INFO_DESKTOP}" ]]; then
+            colorEcho "${BLUE}Updating ${FUCHSIA}tldr cheatsheets${BLUE}..."
+            Git_Clone_Update_Branch "tldr-pages/tldr" "${TLDR_PAGES}"
+        fi
+    fi
 
     # tealdeer Pages cache
     if tldr -v | grep -q 'tealdeer'; then
