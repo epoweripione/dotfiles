@@ -290,7 +290,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         # Tools for fzf-tab preview
         "chafa"
         "libimage-exiftool-perl"
-        "perl-Image-ExifTool"
+        "perl-image-exiftool"
     )
 fi
 for Target in "${AppWSLDesktopList[@]}"; do
