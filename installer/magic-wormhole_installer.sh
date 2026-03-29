@@ -57,9 +57,9 @@ if [[ ! -x "$(command -v wormhole)" && -x "$(command -v pip)" ]]; then
     fi
 
     colorEcho "${BLUE}  Installing ${FUCHSIA}Magic Wormhole${BLUE}..."
-    pip install --user -U magic-wormhole
-    # pip install --user -U magic-wormhole-mailbox-server
-    # pip install --user -U magic-wormhole-transit-relay
+    pip_Package_Install magic-wormhole
+    # pip_Package_Install magic-wormhole-mailbox-server
+    # pip_Package_Install magic-wormhole-transit-relay
 fi
 
 
