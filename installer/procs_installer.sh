@@ -19,16 +19,17 @@ fi
 
 App_Installer_Reset
 
-# procs: a replacement for ps written in Rust
-# https://github.com/dalance/procs
+# [procs: a replacement for ps written in Rust](https://github.com/dalance/procs)
 INSTALLER_APP_NAME="procs"
 INSTALLER_GITHUB_REPO="dalance/procs"
 
+INSTALLER_ARCHIVE_EXT="zip"
 INSTALLER_INSTALL_NAME="procs"
 
 if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
     INSTALLER_VER_CURRENT=$(${INSTALLER_INSTALL_NAME} --version 2>&1 | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    INSTALLER_EXEC_FULLNAME=$(readlink -f "$(which ${INSTALLER_INSTALL_NAME})")
 else
     [[ "${IS_UPDATE_ONLY}" == "yes" ]] && INSTALLER_IS_INSTALL="no"
 fi
@@ -43,10 +44,20 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     fi
 fi
 
-# Install Latest Version
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    INSTALLER_INSTALL_METHOD="custom"
+
+    if [[ -n "${INSTALLER_EXEC_FULLNAME}" ]] && [[ "${INSTALLER_EXEC_FULLNAME}" != *"${INSTALLER_INSTALL_PATH}"* ]]; then
+        [[ -x "$(command -v cargo)" || -x "$(command -v brew)" ]] && INSTALLER_INSTALL_METHOD="build"
+    fi
+fi
+
+# Install Latest Version
+if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-    installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_INSTALL_NAME}" cargo
+    installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_INSTALL_NAME}"
+elif [[ "${INSTALLER_INSTALL_METHOD}" == "custom" ]]; then
+    installPrebuiltBinary "${INSTALLER_INSTALL_NAME}#${INSTALLER_GITHUB_REPO}#${INSTALLER_ARCHIVE_EXT}#${INSTALLER_INSTALL_NAME}"
 fi
 
 
