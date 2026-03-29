@@ -27,7 +27,7 @@ fzf_preview_file() {
     if [[ "$mime_category" == "image" ]]; then
         # preview images using a terminal image viewer, e.g., chafa, viu
         if [[ -x "$(command -v chafa)" ]]; then
-            chafa "$file"
+            chafa -s "${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}" "$file"
         elif [[ -x "$(command -v viu)" ]]; then
             viu "$file"
         fi
