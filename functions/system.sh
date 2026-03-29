@@ -260,6 +260,7 @@ function SnapperDeleteSnapshots() {
     sudo update-grub
 }
 
+# Fix `bin` path in `PATH` environment variable
 # fix "command not found" when running via cron
 function FixSystemBinPath() {
     local DirList=()
@@ -275,7 +276,7 @@ function FixSystemBinPath() {
     )
 
     for TargetDir in "${DirList[@]}"; do
-        [[ -d "${TargetDir}" && ":$PATH:" != *":${TargetDir}:"* ]] && PATH="${TargetDir}:$PATH"
+        [[ -d "${TargetDir}" && ":$PATH:" != *":${TargetDir}:"* ]] && PATH="$PATH:${TargetDir}"
     done
 }
 

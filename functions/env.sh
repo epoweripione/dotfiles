@@ -334,10 +334,8 @@ if [[ -d "$HOME/.pgenv" ]]; then
     [[ ":$PATH:" != *":$HOME/.pgenv/bin:"* ]] && export PATH=$PATH:$HOME/.pgenv/bin:$HOME/.pgenv/pgsql/bin
 fi
 
-# sbin
-[[ -d "/sbin" && ":$PATH:" != *":/sbin:"* ]] && export PATH=/sbin:$PATH
-[[ -d "/usr/sbin" && ":$PATH:" != *":/usr/sbin:"* ]] && export PATH=/usr/sbin:$PATH
-[[ -d "/usr/local/sbin" && ":$PATH:" != *":/usr/local/sbin:"* ]] && export PATH=/usr/local/sbin:$PATH
+# Fix `bin` path in `PATH` environment variable
+FixSystemBinPath
 
 # WSL1
 if check_os_wsl1; then
