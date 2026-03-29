@@ -177,9 +177,11 @@ function get_zone_time() {
 
 # y - return to current directory after yazi exit
 function y() {
-    local tmp
+    local tmp cwd
 
-    tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+    [[ -x "$(command -v yazi)" ]] || return
+
+    tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
 
     yazi "$@" --cwd-file="$tmp"
 
