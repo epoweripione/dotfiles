@@ -24,7 +24,9 @@ INSTALLER_APP_NAME="yazi"
 INSTALLER_GITHUB_REPO="sxyazi/yazi"
 
 INSTALLER_INSTALL_NAME="yazi"
-INSTALLER_CARGO_NAME="yazi-fm"
+
+INSTALLER_CARGO_NAME="yazi-build"
+INSTALLER_CARGO_BIN_NAME="yazi-fm"
 
 if [[ -x "$(command -v ${INSTALLER_INSTALL_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
@@ -56,6 +58,9 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         "poppler-utils"
         "resvg"
         "ripgrep"
+        "xclip"
+        "xsel"
+        "wl-clipboard"
     )
 
     [[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
@@ -63,7 +68,14 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
     InstallSystemPackages "" "${PackagesList[@]}"
 
-    installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_CARGO_NAME}" cargo
+    # installBuildBinary "${INSTALLER_APP_NAME}" "${INSTALLER_INSTALL_NAME}" cargo
+    if [[ -x "$(command -v cargo-binstall)" ]]; then
+        if ! cargo binstall --no-confirm "${INSTALLER_CARGO_BIN_NAME}" 2>/dev/null; then
+            cargo install "${INSTALLER_CARGO_NAME}"
+        fi
+    else
+        cargo install "${INSTALLER_CARGO_NAME}"
+    fi
 fi
 
 cd "${CURRENT_DIR}" || exit
