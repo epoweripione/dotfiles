@@ -96,8 +96,16 @@ FZF_DEFAULT_OPTS="--ansi --multi \
 export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS}"
 
 export FZF_CTRL_T_OPTS='--walker-skip .git,node_modules,target --preview="fzf_preview_file {}"'
-# export FZF_CTRL_R_OPTS="--bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort' --color header:italic --header 'Press CTRL-Y to copy command into clipboard'"
 export FZF_ALT_C_OPTS='--walker-skip .git,node_modules,target --preview="fzf_preview_file {}"'
+
+COPY_TOOL=""
+[[ -x "$(command -v xsel)" ]] && COPY_TOOL="xsel --clipboard --input"
+[[ -x "$(command -v xclip)" ]] && COPY_TOOL="xclip -selection clipboard"
+[[ -x "$(command -v wl-copy)" ]] && COPY_TOOL="wl-copy"
+[[ -x "$(command -v pbcopy)" ]] && COPY_TOOL="pbcopy"
+if [[ -n "${COPY_TOOL}" ]]; then
+    export FZF_CTRL_R_OPTS="--bind 'ctrl-y:execute-silent(echo -n {2..} | ${COPY_TOOL})+abort' --color header:italic --header 'Press CTRL-Y to copy command into clipboard'"
+fi
 
 # Utility tool for using git interactively
 # https://github.com/wfxr/forgit
@@ -264,6 +272,13 @@ fi
 if [[ -x "$(command -v viu)" ]]; then
     alias fzf-viu='${FZF_REAL_COMMAND:-fzf} --preview="viu {}"'
 fi
+
+# [fix: image stays in the screen after the fzf is done](https://github.com/junegunn/fzf/issues/3228#issuecomment-1803402184)
+autoload -Uz add-zsh-hook
+fzf_preview_cleanup() {
+    printf "\x1b_Ga=d,d=A\x1b\\"
+}
+add-zsh-hook precmd fzf_preview_cleanup
 
 unset TMUX_VERSION
 unset TMUX_VERSION_320
