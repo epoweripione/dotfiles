@@ -53,18 +53,33 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 
     # bash
     if [[ -f "$HOME/.bashrc" ]]; then
-        if ! grep -q "atuin init" "$HOME/.bashrc"; then
+        if grep -q "atuin init" "$HOME/.bashrc"; then
+            # use fzf to search history, disable ctrl-r in atuin
+            if ! grep -q "disable-ctrl-r" "$HOME/.bashrc"; then
+                sed -i 's/atuin init bash/atuin init bash --disable-ctrl-r/g' "$HOME/.bashrc"
+            fi
+        else
             echo 'source $HOME/.atuin/bin/env' >> "$HOME/.bashrc"
-            echo 'eval "$(atuin init bash)"' >> "$HOME/.bashrc"
+            echo 'eval "$(atuin init bash --disable-ctrl-r)"' >> "$HOME/.bashrc"
         fi
     fi
 
     # zsh
     if [[ -f "$HOME/.zshrc" ]]; then
-        if ! grep -q "atuin init" "$HOME/.zshrc"; then
+        if grep -q "atuin init" "$HOME/.zshrc"; then
+            # use fzf to search history, disable ctrl-r in atuin
+            if ! grep -q "disable-ctrl-r" "$HOME/.zshrc"; then
+                sed -i 's/atuin init zsh/atuin init zsh --disable-ctrl-r/g' "$HOME/.zshrc"
+            fi
+        else
             echo 'source $HOME/.atuin/bin/env' >> "$HOME/.zshrc"
-            echo 'eval "$(atuin init zsh)"' >> "$HOME/.zshrc"
+            echo 'eval "$(atuin init zsh --disable-ctrl-r)"' >> "$HOME/.zshrc"
         fi
+    fi
+
+    # Disable immediately executing a command when pressing Enter in atuin's interactive search mode
+    if [[ -f "$HOME/.config/atuin/config.toml" ]]; then
+        sed -i 's/^enter_accept.*/enter_accept = false/g' "$HOME/.config/atuin/config.toml"
     fi
 fi
 
