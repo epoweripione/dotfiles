@@ -87,6 +87,10 @@ function fnm_Install_Nodejs() {
         eval "$(fnm env --use-on-cd)"
     fi
 
+    if [[ ! -x "$(command -v fnm)" && -f "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/fnm_node_installer.sh" ]]; then
+        source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/fnm_node_installer.sh"
+    fi
+
     # already installed with fnm & has a default version
     [[ -x "$(command -v node)" && -x "$(command -v npm)" ]] && return 0
 
@@ -110,6 +114,37 @@ function fnm_Install_Nodejs() {
         esac
     else
         colorEcho "${RED}fnm${BLUE} is not installed! Please install ${FUCHSIA}fnm${BLUE} first to manage Nodejs versions."
+        return 1
+    fi
+}
+
+# install nodejs
+function install_Nodejs() {
+    local NodeVersion=${1:-"lts"}
+
+    [[ -x "$(command -v node)" ]] && return 0
+
+    fnm_Install_Nodejs "${NodeVersion}"
+
+    [[ ! -x "$(command -v node)" && "$(command -v mise)" ]] && mise use --global "nodejs@${NodeVersion}"
+    [[ ! -x "$(command -v node)" && "$(command -v asdf)" ]] && asdf_App_Install nodejs "${NodeVersion}"
+
+    if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
+        [[ ! -x "$(command -v pnpm)" ]] && npm install -g pnpm
+
+        [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]] && \
+            source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh"
+    fi
+}
+
+function get_npm_package_install_command() {
+    unset NPM_INSTALL_CMD
+
+    if [[ -x "$(command -v pnpm)" ]]; then
+        NPM_INSTALL_CMD="pnpm add"
+    elif [[ -x "$(command -v npm)" ]]; then
+        NPM_INSTALL_CMD="npm install"
+    else
         return 1
     fi
 }
