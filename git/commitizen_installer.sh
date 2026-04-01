@@ -43,62 +43,51 @@ fi
 
 # Install nodejs
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
-    [[ ! -x "$(command -v node)" && "$(command -v mise)" ]] && mise use --global nodejs@lts
-    [[ ! -x "$(command -v node)" && "$(command -v asdf)" ]] && asdf_App_Install nodejs lts
-
-    if [[ -x "$(command -v node)" && -x "$(command -v npm)" ]]; then
-        [[ -s "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh" ]] && \
-            source "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/nodejs/npm_config.sh"
-    fi
+    install_Nodejs
 
     # jq
     [[ ! -x "$(command -v jq)" ]] && PackagesList=(jq) && InstallSystemPackages "" "${PackagesList[@]}"
 fi
 
+[[ -z "${NPM_INSTALL_CMD}" ]] && get_npm_package_install_command
+[[ -z "${NPM_INSTALL_CMD}" ]] && colorEcho "${FUCHSIA}npm${RED} not found! Please install ${FUCHSIA}npm${RED} first." && exit 1
+
 # Install packages If there is a package.json file in the directory
-if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v npm)" && -s "${CURRENT_DIR}/package.json" ]]; then
-    npm install
+if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -s "${CURRENT_DIR}/package.json" ]]; then
+    ${NPM_INSTALL_CMD}
     INSTALLER_IS_INSTALL="no"
 fi
 
 # Install and run Commitizen locally
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v npx)" ]]; then
     # commitizen
-    npm install commitizen conventional-changelog-cli conventional-changelog-cz-emoji-config --save-dev && \
+    ${NPM_INSTALL_CMD} commitizen conventional-changelog-cli conventional-changelog-cz-emoji-config --save-dev && \
         npx commitizen init cz-conventional-changelog --save-dev --save-exact
 
     # husky & commitlint
-    npm install husky @commitlint/config-conventional @commitlint/cli --save-dev
+    ${NPM_INSTALL_CMD} husky @commitlint/config-conventional @commitlint/cli --save-dev
 
     # cz-emoji: Commitizen adapter formatting commit messages using emojis
     # https://github.com/ngryman/cz-emoji
-    npm install cz-emoji commitlint-config-gitmoji --save-dev
-fi
+    ${NPM_INSTALL_CMD} cz-emoji commitlint-config-gitmoji --save-dev
 
-## git hooks
-# if [[ -s "${CURRENT_DIR}/node_modules/.bin/cz" ]]; then
-#     if [[ ! -s "${CURRENT_DIR}/.git/hooks/prepare-commit-msg" ]]; then
-#         {
-#             echo '#!/bin/bash'
-#             echo 'exec < /dev/tty && node_modules/.bin/cz --hook || true'
-#         } >> "${CURRENT_DIR}/.git/hooks/prepare-commit-msg"
-#         chmod +x "${CURRENT_DIR}/.git/hooks/prepare-commit-msg"
-#     fi
-# fi
+    # [cz-git | czg 🛠️ DX first and more engineered, lightweight, customizable, standard output format Commitizen adapter and CLI](https://github.com/Zhengqbbb/cz-git)
+    ${NPM_INSTALL_CMD} cz-git czg --save-dev
+fi
 
 # husky hooks
 if [[ -s "${CURRENT_DIR}/node_modules/.bin/husky" ]]; then
     npx husky install && \
-        npm set-script prepare "husky && chmod ug+x .husky/*"
+        ${NPM_INSTALL_CMD} set-script prepare "husky && chmod ug+x .husky/*"
 fi
 
 if [[ ! -s "${CURRENT_DIR}/.husky/commit-msg" ]]; then
-    echo 'npx --no -- commitlint --edit "$1"' > "${CURRENT_DIR}/.husky/commit-msg"
+    echo 'npx --no -- commitlint --edit ""' > "${CURRENT_DIR}/.husky/commit-msg"
 fi
 chmod +x "${CURRENT_DIR}/.husky/commit-msg"
 
 if [[ ! -s "${CURRENT_DIR}/.husky/prepare-commit-msg" ]]; then
-    echo 'exec < /dev/tty && node_modules/.bin/cz --hook || true' > "${CURRENT_DIR}/.husky/prepare-commit-msg"
+    echo 'exec < /dev/tty && npx czg --hook || true' > "${CURRENT_DIR}/.husky/prepare-commit-msg"
 fi
 chmod +x "${CURRENT_DIR}/.husky/prepare-commit-msg"
 
@@ -155,8 +144,8 @@ fi
 
 # gitmoji-cli
 # https://github.com/carloscuesta/gitmoji-cli
-[[ ! -x "$(command -v gitmoji)" ]] && npm install -g gitmoji-cli
-[[ -x "$(command -v gitmoji)" ]] && noproxy_cmd gitmoji --list
+[[ ! -x "$(command -v gitmoji)" ]] && npm_Install_Global gitmoji-cli
+[[ -x "$(command -v gitmoji)" ]] && gitmoji --list
 
 ## 🤖 🚀 ✨ Emojify your conventional commits with Devmoji
 ## https://github.com/folke/devmoji

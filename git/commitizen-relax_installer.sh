@@ -19,10 +19,13 @@ fi
 
 App_Installer_Reset
 
-if [[ ! -x "$(command -v npm)" && ! -x "$(command -v npx)" ]]; then
-    colorEcho "${RED}Please install ${FUCHSIA}nodejs & npm & npx${RED} first!"
-    exit 0
-fi
+install_Nodejs
+
+# jq
+[[ ! -x "$(command -v jq)" ]] && PackagesList=(jq) && InstallSystemPackages "" "${PackagesList[@]}"
+
+[[ -z "${NPM_INSTALL_CMD}" ]] && get_npm_package_install_command
+[[ -z "${NPM_INSTALL_CMD}" ]] && colorEcho "${FUCHSIA}npm${RED} not found! Please install ${FUCHSIA}npm${RED} first." && exit 1
 
 # cz-relax: One-click to configured commitizen
 # https://github.com/qiqihaobenben/commitizen-relax
@@ -38,9 +41,9 @@ fi
 
 [[ "${INSTALLER_IS_INSTALL}" == "no" ]] && exit 0
 
-npm install -g commitizen
+${NPM_INSTALL_CMD} -g commitizen
 
-npm install cz-relax --save-dev
+${NPM_INSTALL_CMD} cz-relax --save-dev
 
 [[ -d "${CURRENT_DIR}/.husky" ]] && npx cz-relax init --force || npx cz-relax init
 
