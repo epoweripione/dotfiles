@@ -247,6 +247,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         # [F2 - Command-Line Batch Renaming](https://github.com/ayoisaiah/f2)
         "f2#ayoisaiah/f2#tar.gz#f2*"
         "fish#fish-shell/fish-shell#tar.xz#fish*"
+        "flowscope"
         "fq"
         "fx"
         "gdu#dundee/gdu#tgz#gdu*"
@@ -520,14 +521,15 @@ if [[ -x "$(command -v fish)" && ! -d "$HOME/.local/share/omf" ]]; then
     # fish_config
 fi
 
-# if [[ -x "$(command -v pip)" ]]; then
-#     colorEcho "${BLUE}Updating ${FUCHSIA}pip installed user packages${BLUE}..."
-#     # https://stackoverflow.com/questions/68673221/warning-running-pip-as-the-root-user
-#     # pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 \
-#     #     | xargs --no-run-if-empty -n1 pip install --root-user-action=ignore --user -U
-#     pip list -o | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 \
-#         | xargs --no-run-if-empty -n1 pip install --user -U
-# fi
+if [[ -x "$(command -v pip)" && -f "$HOME/.local/bin/pip" ]]; then
+    if $HOME/.local/bin/pip list -o 2>/dev/null | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | grep -q -E '^pip$'; then
+        colorEcho "${BLUE}Updating ${FUCHSIA}pip${BLUE}..."
+        $HOME/.local/bin/pip install -U pip
+    fi
+
+    # colorEcho "${BLUE}Updating ${FUCHSIA}installed user packages by pip${BLUE}..."
+    # pipUpdateAll
+fi
 
 # fastfetch -c "$HOME/fastfetch_all.jsonc"
 if [[ ! -f "$HOME/fastfetch_all.jsonc" ]]; then
