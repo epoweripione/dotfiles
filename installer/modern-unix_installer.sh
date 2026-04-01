@@ -69,7 +69,6 @@ for Target in "${AppList[@]}"; do
 done
 
 if [[ -n "${PackagesList[*]}" ]]; then
-    colorEcho "${BLUE}Installing ${FUCHSIA}${PackagesList[*]}${BLUE}..."
     InstallSystemPackages "" "${PackagesList[@]}"
 fi
 

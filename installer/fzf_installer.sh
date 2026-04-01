@@ -21,10 +21,12 @@ App_Installer_Reset
 
 # [fzf: A command-line fuzzy finder written in Go](https://github.com/junegunn/fzf)
 if [[ ! -x "$(command -v fzf)" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}fzf${BLUE}..."
     # PackagesList=(fzf) && InstallSystemPackages "" "${PackagesList[@]}"
     Git_Clone_Update_Branch "junegunn/fzf" "$HOME/.fzf"
     [[ -s "$HOME/.fzf/install" ]] && "$HOME/.fzf/install"
 elif [[ -d "$HOME/.fzf" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}fzf${BLUE}..."
     Git_Clone_Update_Branch "junegunn/fzf" "$HOME/.fzf"
     [[ -s "$HOME/.fzf/install" ]] && "$HOME/.fzf/install" --bin
 fi
