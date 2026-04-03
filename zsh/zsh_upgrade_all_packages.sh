@@ -247,7 +247,6 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         # [F2 - Command-Line Batch Renaming](https://github.com/ayoisaiah/f2)
         "f2#ayoisaiah/f2#tar.gz#f2*"
         "fish#fish-shell/fish-shell#tar.xz#fish*"
-        "flowscope"
         "fq"
         "fx"
         "gdu#dundee/gdu#tgz#gdu*"
@@ -313,6 +312,7 @@ IS_UPDATE_ONLY="yes"
 if [[ -z "${AppUpdateOnlyList[*]}" ]]; then
     AppUpdateOnlyList=(
         # "cgit"
+        "flowscope"
         "frp"
         "goproxy"
         # "gvm_go"
