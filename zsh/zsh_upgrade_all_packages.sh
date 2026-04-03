@@ -156,7 +156,7 @@ fi
 
 if [[ -x "$(command -v cargo-binstall)" ]]; then
     colorEcho "${BLUE}Updating installed binary by ${FUCHSIA}Rust Cargo${BLUE}..."
-    cargo binstall --no-confirm $(cargo install --list | egrep '^([a-z0-9_-]+)\s+(v[0-9.]+).*:$' | cut -f1 -d' ')
+    cargo binstall --no-confirm $(cargo install --list | grep -E '^([a-z0-9_-]+)\s+(v[0-9.]+).*:$' | cut -f1 -d' ')
 else
     if [[ -x "$(command -v cargo-install-update)" ]]; then
         colorEcho "${BLUE}Updating installed binary by ${FUCHSIA}Rust Cargo${BLUE}..."
