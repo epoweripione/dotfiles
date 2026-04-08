@@ -61,12 +61,24 @@ if (-Not (Get-Command "scoop" -ErrorAction SilentlyContinue)) {
 
         $env:SCOOP = "$AppsInstallDir"
         $env:SCOOP_GLOBAL = "$AppsInstallDir\globalApps"
+        $env:SCOOP_CACHE = "$AppsInstallDir\cache"
+
+        if (-Not (Test-Path "$env:SCOOP_GLOBAL")) {
+            New-Item -path "$env:SCOOP_GLOBAL" -type Directory | Out-Null
+        }
+
+        if (-Not (Test-Path "$env:SCOOP_CACHE")) {
+            New-Item -path "$env:SCOOP_CACHE" -type Directory | Out-Null
+        }
+
         [environment]::setEnvironmentVariable('SCOOP',$env:SCOOP,'User')
         [environment]::setEnvironmentVariable('SCOOP_GLOBAL',$env:SCOOP_GLOBAL,'Machine')
+        [environment]::setEnvironmentVariable('SCOOP_CACHE',$env:SCOOP_CACHE,'User')
     }
 
-    Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+    # Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
     # Invoke-WebRequest -useb get.scoop.sh | Invoke-Expression
+    Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
 
     # scoop install -g <app>
 }
@@ -87,6 +99,10 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
 
     if ($SCOOP_PROXY_ADDR) {
         scoop config proxy $SCOOP_PROXY_ADDR
+    }
+
+    if ($env:SCOOP_CACHE) {
+        scoop config cache_path "$env:SCOOP_CACHE"
     }
 
     if (-Not (Get-Command "git" -ErrorAction SilentlyContinue)) {
