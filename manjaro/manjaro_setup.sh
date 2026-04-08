@@ -244,6 +244,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         # "jre-openjdk"
         "dbgate-bin"
         "dbeaver"
+        "gonavi-bin"
         # "dbeaver-plugin-apache-poi"
         # "dbeaver-plugin-batik"
         # "dbeaver-plugin-office"
