@@ -77,7 +77,7 @@ if (-Not (Get-Module -Name "PSReadLine")) {
 }
 
 $InstallModules = @(
-    "Find-String"
+    # "Find-String"
     "Posh-git"
     "oh-my-posh"
     "Terminal-Icons"
@@ -108,7 +108,7 @@ Install-Script Refresh-EnvironmentVariables -Force
 # Install-Module -Name PSWriteColor -Force -AcceptLicense -SkipPublisherCheck
 
 $EnableModules = @(
-    "Find-String"
+    # "Find-String"
     "Posh-git"
     "Terminal-Icons"
     "PSEverything"
