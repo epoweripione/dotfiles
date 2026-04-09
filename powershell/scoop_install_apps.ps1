@@ -71,9 +71,13 @@ if (-Not (Get-Command "scoop" -ErrorAction SilentlyContinue)) {
             New-Item -path "$env:SCOOP_CACHE" -type Directory | Out-Null
         }
 
-        [environment]::setEnvironmentVariable('SCOOP',$env:SCOOP,'User')
-        [environment]::setEnvironmentVariable('SCOOP_GLOBAL',$env:SCOOP_GLOBAL,'Machine')
-        [environment]::setEnvironmentVariable('SCOOP_CACHE',$env:SCOOP_CACHE,'User')
+        $PSCommand = @"
+[System.Environment]::setEnvironmentVariable('SCOOP',$env:SCOOP,'User');
+[System.Environment]::setEnvironmentVariable('SCOOP_CACHE',$env:SCOOP_CACHE,'User');
+[System.Environment]::setEnvironmentVariable('SCOOP_GLOBAL',$env:SCOOP_GLOBAL,'Machine');
+"@
+        $PSCommand = $PSCommand -Replace "`r`n"
+        Start-Process powershell "$PSCommand" -WindowStyle Hidden -Verb RunAs
     }
 
     # Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
