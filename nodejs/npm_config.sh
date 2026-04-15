@@ -94,6 +94,12 @@ fi
 
 
 ## [pnpm](https://pnpm.io/cli/config)
+if [[ ! -x "$(command -v pnpm)" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}pnpm${BLUE}..."
+    # npm install -g pnpm
+    curl -fsSL https://get.pnpm.io/install.sh | sh -
+fi
+
 # The local configuration file is located in the root of the project and is named .npmrc.
 # The global configuration file is located at one of the following locations:
 # If the $XDG_CONFIG_HOME env variable is set, then $XDG_CONFIG_HOME/pnpm/rc
