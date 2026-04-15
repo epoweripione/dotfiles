@@ -261,7 +261,11 @@ function UpdateInstalledApps {
     git reset --hard | Out-Null
 
     # reset scoop buckets repository
-    $ScoopBucketPath = "$env:UserProfile\scoop\buckets"
+    if($env:SCOOP) {
+        $ScoopBucketPath = "$env:SCOOP\buckets"
+    } else {
+        $ScoopBucketPath = "$env:UserProfile\scoop\buckets"
+    }
     $ScoopBuckets = scoop bucket list 6>&1 | Select-Object -ExpandProperty Name
     foreach ($Bucket in $ScoopBuckets) {
         Set-Location -Path "${ScoopBucketPath}\${Bucket}"
@@ -317,7 +321,7 @@ function UpdateInstalledApps {
     Update-Module
 
     # pip
-    if (Get-Command -Name "cargo" -ErrorAction SilentlyContinue) {
+    if (Get-Command -Name "pip" -ErrorAction SilentlyContinue) {
         Write-Host
         Write-Color -Text "Updating pip packages..." -Color Cyan
         UpdateOutdatedPipPackages
@@ -365,8 +369,10 @@ function SearchScoopBucket {
     )
 
     if ($SearchCond) {
-        Get-ChildItem -Path "$env:UserProfile\scoop\buckets" `
-            -Recurse -Include "*$SearchCond*.json" -Depth 2 -Name
+        if(!$env:SCOOP) {
+            $env:SCOOP = "$env:USERPROFILE\scoop"
+        }
+        Get-ChildItem -Path "$env:SCOOP\buckets" -Recurse -Include "*$SearchCond*.json" -Depth 2 -Name
     }
 }
 
