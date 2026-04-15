@@ -59,13 +59,17 @@ if (Get-Command "git" -ErrorAction SilentlyContinue) {
 
     ## [Always pull using HTTPS, push using SSH](https://stackoverflow.com/questions/43800726/always-pull-using-https-push-using-ssh-using-insteadof)
     # Github
-    git config --global url."https://github.com/".insteadOf "git@github.com:"
-    git config --global url."git@github.com:".pushInsteadOf "https://github.com/"
-    git config --global url."git@github.com:".pushInsteadOf "git@github.com:" --append
+    if (-NOT (git config --global --get url."https://github.com/".insteadOf)) {
+        git config --global url."https://github.com/".insteadOf "git@github.com:"
+        git config --global url."git@github.com:".pushInsteadOf "https://github.com/"
+        git config --global url."git@github.com:".pushInsteadOf "git@github.com:" --append
+    }
     # Gitlab
-    git config --global url."https://gitlab.com/".insteadOf "git@gitlab.com:"
-    git config --global url."git@gitlab.com:".pushInsteadOf "https://gitlab.com/"
-    git config --global url."git@gitlab.com:".pushInsteadOf "git@gitlab.com:" --append
+    if (-NOT (git config --global --get url."https://gitlab.com/".insteadOf)) {
+        git config --global url."https://gitlab.com/".insteadOf "git@gitlab.com:"
+        git config --global url."git@gitlab.com:".pushInsteadOf "https://gitlab.com/"
+        git config --global url."git@gitlab.com:".pushInsteadOf "git@gitlab.com:" --append
+    }
 
     if ($Proxy) {
         git config --global http.proxy "$Proxy"
