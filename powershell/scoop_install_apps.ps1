@@ -142,6 +142,15 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         scoop install sudo
     }
 
+    if (-Not (Get-Command "gsudo" -ErrorAction SilentlyContinue)) {
+        Write-Host "Installing gsudo..." -ForegroundColor Blue
+        scoop install gsudo
+    }
+
+    ## scoop checkup
+    # LongPaths support
+    gsudo Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1
+
     if ($GITHUB_API_TOKEN) {
         scoop config gh_token "$GITHUB_API_TOKEN"
     }
@@ -204,6 +213,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
 
     $Apps = @(
         "vcredist"
+        "scoop-search"
         "hub"
         "less"
         "oh-my-posh"
@@ -222,8 +232,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "android-studio"
         # "flutter"
         "go"
-        "cargo-binstall"
         "rustup"
+        "cargo-binstall"
         "biome"
         "fnm"
         "nodejs-lts"
@@ -235,6 +245,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "zulu11-jre"
         "perl"
         "python"
+        "postgres-language-server"
         # "miniconda3"
         "micromamba"
         # "miniforge"
@@ -258,7 +269,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "geany-plugins"
         # "notepad3"
         "notepadplusplus"
-        "notepads-np"
+        # "notepads-np"
         # "lapce"
         "lite-xl-addons" # https://lite-xl.com/en/tutorials/system-fonts
         # "pulsar"
@@ -281,7 +292,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "wave-terminal"
         "wsa-pacman"
         # "clash-for-windows"
-        "clash-verge-rev"
+        # "clash-verge-rev"
         "clash-party"
         "flclash"
         "mihomo"
@@ -372,7 +383,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "fd"
         "file"
         "gping"
-        "host-editor"
+        # "host-editor"
+        "hosts-file-editor"
         "keyviz"
         "lsd"
         "mkcert"
@@ -398,7 +410,6 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "jq"
         "yq"
         "vfox"
-        "sandboxie-plus-np"
         "wsl2-distro-manager"
         # "trafficmonitor"
         "driverstoreexplorer"
@@ -463,6 +474,12 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
     $sudoApps = @(
         # "file-converter-np"
         # "nmap"
+        "sandboxie-plus-np"
+    )
+
+    # [tesseract-languages@4.1.0: decompress error](https://github.com/ScoopInstaller/Main/issues/4874)
+    # [some packages have symlinks or junctions in the zip file](https://github.com/ScoopInstaller/Scoop/issues/6611)
+    $gsudoApps = @(
         "tesseract"
         "tesseract-languages"
     )
@@ -552,6 +569,13 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         }
     }
 
+    foreach ($TargetApp in $gsudoApps) {
+        if (-Not ($InstalledApps -match "$TargetApp")) {
+            Write-Host "Installing $TargetApp..." -ForegroundColor Blue
+            gsudo scoop install $TargetApp
+        }
+    }
+
     foreach ($TargetApp in $sudoFonts) {
         if (-Not ($InstalledApps -match "$TargetApp")) {
             Write-Host "Installing $TargetApp..." -ForegroundColor Blue
@@ -612,87 +636,13 @@ if (Get-Command "flutter" -ErrorAction SilentlyContinue) {
     # git config --global --add safe.directory "*"
 }
 
-# Cherry Studio MCP depencency
-if (Get-Command "$env:USERPROFILE\scoop\apps\cherry-studio\current\Cherry Studio.exe" -ErrorAction SilentlyContinue) {
-    if (-Not (Test-Path "$env:USERPROFILE\.cherrystudio\bin\uv.exe")) {
-        mkdir -p "$env:USERPROFILE\.cherrystudio\bin"
-        sudo mklink "$env:USERPROFILE\.cherrystudio\bin\uv.exe" "$env:USERPROFILE\scoop\apps\uv\current\uv.exe"
-        sudo mklink "$env:USERPROFILE\.cherrystudio\bin\uvx.exe" "$env:USERPROFILE\scoop\apps\uv\current\uvx.exe"
-        sudo mklink "$env:USERPROFILE\.cherrystudio\bin\bun.exe" "$env:USERPROFILE\scoop\apps\bun\current\bun.exe"
-    }
-}
-
-## Android Studio
-# if (Get-Command "sdkmanager" -ErrorAction SilentlyContinue) {
-#     # fix: java.lang.NoClassDefFoundError: javax/xml/bind/annotation/XmlSchema
-#     # https://stackoverflow.com/questions/46402772/failed-to-install-android-sdk-java-lang-noclassdeffounderror-javax-xml-bind-a
-#     $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
-#     $userenv = $userenv.TrimEnd(';')
-#     [System.Environment]::SetEnvironmentVariable("PATH", "%ANDROID_HOME%\cmdline-tools\latest\bin;" + $userenv, 'User')
-# }
-
-if ( -Not (Get-Command "sdkmanager" -ErrorAction SilentlyContinue)) {
-    if (Test-Path "$HOME\AppData\Local\Android\Sdk\cmdline-tools\latest\bin") {
-        $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
-        $userenv = $userenv.TrimEnd(';')
-        [System.Environment]::SetEnvironmentVariable("PATH", "%USERPROFILE%\AppData\Local\Android\Sdk\cmdline-tools\latest\bin;" + $userenv, 'User')
-    }
-}
-
-if ( -Not (Get-Command "adb" -ErrorAction SilentlyContinue)) {
-    if (Test-Path "$HOME\AppData\Local\Android\Sdk\platform-tools") {
-        $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
-        $userenv = $userenv.TrimEnd(';')
-        [System.Environment]::SetEnvironmentVariable("PATH", "%USERPROFILE%\AppData\Local\Android\Sdk\platform-tools;" + $userenv, 'User')
-    } esle if (Test-Path "$HOME\scoop\apps\adb\current\platform-tools") {
-        $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
-        $userenv = $userenv.TrimEnd(';')
-        [System.Environment]::SetEnvironmentVariable("PATH", "%USERPROFILE%\scoop\apps\adb\current\platform-tools;" + $userenv, 'User')
-    }
-}
-
-# [Unable to find bundled Java version on Flutter](https://stackoverflow.com/questions/51281702/unable-to-find-bundled-java-version-on-flutter)
-if (Test-Path "$HOME\scoop\apps\android-studio\current\jbr") {
-    if (-Not (Test-Path "$HOME\scoop\apps\android-studio\current\jre\java.exe")) {
-        Remove-Item -Path "$HOME\scoop\apps\android-studio\current\jre" -Recurse -Force -Confirm:$false
-        New-Item -ItemType SymbolicLink -Path "$HOME\scoop\apps\android-studio\current\jre" -Target "$HOME\scoop\apps\android-studio\current\jbr"
-    }
-}
-
-# go
-if (Get-Command "go" -ErrorAction SilentlyContinue) {
-    go env -w GO111MODULE=auto
-}
-
-# mirrors
-if (-Not (check_webservice_up)) {
-    if (Get-Command "go" -ErrorAction SilentlyContinue) {
-        go env -w GOPROXY="https://goproxy.cn,direct"
-        # go env -w GOPROXY="https://goproxy.io,direct"
-        # go env -w GOPROXY="https://mirrors.aliyun.com/goproxy/,direct"
-        # go env -w GOPROXY="https://proxy.golang.org,direct"
-
-        # go env -w GOSUMDB="sum.golang.google.cn"
-        # go env -w GOSUMDB="gosum.io+ce6e7565+AY5qEHUk/qmHc5btzW45JVoENfazw8LielDsaI+lEbq6"
-
-        ## https://goproxy.io/zh/docs/goproxyio-private.html
-        # go env -w GOPRIVATE="*.corp.example.com"
-    }
-
-    if (Get-Command "npm" -ErrorAction SilentlyContinue) {
-        & "$PSScriptRoot\npm_config.ps1"
-    }
-}
-
-# npm
-if (Get-Command "npm" -ErrorAction SilentlyContinue) {
-    npm install -g npm-check pnpm pm2
-}
-
 ## Fix `fatal: index file corrupt`
-# Set-Location "$HOME\scoop\apps\scoop\current"; Remove-Item -Path .\.git\index -Recurse; git reset; git reset --hard; git pull
-# Remove-Item -Path "$HOME\scoop\buckets\main" -Recurse; git clone -c core.autocrlf=false -c core.filemode=false "https://github.com/ScoopInstaller/Main" "$HOME\scoop\buckets\main"
+# Set-Location "$env:SCOOP\apps\scoop\current"; Remove-Item -Path .\.git\index -Recurse; git reset; git reset --hard; git pull
+# Remove-Item -Path "$env:SCOOP\buckets\main" -Recurse; git clone -c core.autocrlf=false -c core.filemode=false "https://github.com/ScoopInstaller/Main" "$env:SCOOP\buckets\main"
 # scoop bucket rm dorado; scoop bucket add dorado https://github.com/chawyehsu/dorado
 # scoop bucket rm java; scoop bucket add java
 
 # Write-Host "Done." -ForegroundColor Blue
+
+# app configuration
+& "$PSScriptRoot\installed_app_configuration.ps1"
