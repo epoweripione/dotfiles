@@ -132,7 +132,7 @@ fi
 colorEcho "${BLUE}Installing ${FUCHSIA}pre-requisite packages${BLUE}..."
 sudo apt update && \
     sudo apt install -y apt-transport-https apt-utils ca-certificates \
-        lsb-release software-properties-common curl wget gnupg2 sudo
+        lsb-release curl wget gnupg2 sudo
 
 # Add custom repositories
 colorEcho "${BLUE}Add ${FUCHSIA}custom repositories${BLUE}..."
@@ -152,18 +152,6 @@ fi
 # setx WSLENV USERPROFILE/p:APPDATA/p:
 ## powershell
 # [Environment]::SetEnvironmentVariable("WSLENV", $env:WSLENV + "USERPROFILE/p:APPDATA/p:", [System.EnvironmentVariableTarget]::User)
-
-# [wslu - A collection of utilities for WSL](https://github.com/wslutilities/wslu)
-if [[ ! -x "$(command -v wslfetch)" ]]; then
-    colorEcho "${BLUE}Installing ${FUCHSIA}wslu${BLUE}..."
-    # wget -O - https://pkg.wslutiliti.es/public.key | sudo tee -a "/etc/apt/trusted.gpg.d/wslu.asc" >/dev/null
-    # if ! grep -q "^deb https://pkg.wslutiliti.es/debian" "/etc/apt/sources.list" 2>/dev/null; then
-    #     RELEASE_CODENAME=$(lsb_release -c | awk '{print $2}')
-    #     # RELEASE_CODENAME=$(dpkg --status tzdata | grep Provides | cut -f2 -d'-')
-    #     echo "deb https://pkg.wslutiliti.es/debian ${RELEASE_CODENAME} main" | sudo tee -a "/etc/apt/sources.list" >/dev/null
-    # fi
-    curl -sL https://raw.githubusercontent.com/wslutilities/wslu/master/extras/scripts/wslu-install | bash
-fi
 
 ## git lfs
 ## https://github.com/git-lfs/git-lfs/wiki/Tutorial
@@ -201,7 +189,7 @@ sudo apt update && sudo apt upgrade -y
 # Install useful packages
 colorEcho "${BLUE}Installing ${FUCHSIA}Pre-requisite packages${BLUE}..."
 sudo apt install -y binutils build-essential di dnsutils g++ gcc keychain \
-    git htop iproute2 make net-tools netcat-openbsd 7zip 7zip-rar psmisc tree unzip zip
+    git htop iproute2 make net-tools netcat-openbsd 7zip psmisc tree unzip zip
 
 ## Login with SSH Key
 # pssh -i -H "host01 host02" -l root \
