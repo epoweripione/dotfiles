@@ -2,8 +2,7 @@
 	"window.titleBarStyle": "custom",
 	"window.restoreFullscreen": true,
 	"window.density.editorTabHeight": "compact",
-
-	"explorer.confirmDelete": false,
+	"workbench.colorCustomizations": {},
 	"workbench.iconTheme": "vscode-icons",
 	"workbench.productIconTheme": "fluent-icons",
 	"workbench.list.horizontalScrolling": true,
@@ -11,7 +10,7 @@
 	"workbench.editor.decorations.badges": true,
 	"workbench.editor.decorations.colors": true,
 	"workbench.editor.wrapTabs": true,
-
+	"http.proxy": "http://127.0.0.1:7890",
 	"editor.minimap.enabled": true,
 	"editor.renderControlCharacters": true,
 	"editor.renderWhitespace": "selection",
@@ -20,105 +19,84 @@
 	"editor.formatOnPaste": false,
 	"editor.linkedEditing": true,
 	"editor.bracketPairColorization.enabled": true,
+	"editor.cursorBlinking": "smooth",
 	"editor.guides.bracketPairs": true,
 	"editor.autoClosingBrackets": "always",
 	"editor.autoClosingQuotes": "always",
-
-	"extensions.closeExtensionDetailsOnViewChange": true,
-	"extensions.ignoreRecommendations": true,
-
-	"files.eol": "\n",
-	"files.exclude": {
-			"**/.classpath": true,
-			"**/.project": true,
-			"**/.settings": true,
-			"**/.factorypath": true
-	},
-
-	"terminal.external.windowsExec": "wt.exe",
-	"terminal.integrated.copyOnSelection": true,
-	"terminal.integrated.tabs.enabled": true,
-
-	"editor.codeActionsOnSave": {
-		"source.fixAll": "explicit"
-	},
-	"eslint.validate": [
-			"typescript",
-			"typescriptreact",
-			"javascript",
-			"javascriptreact",
-			"html",
-			"vue"
-	],
-	"eslint.alwaysShowStatus": true,
-
-	"stylelint.validate": [
-			"css",
-			"less",
-			"postcss",
-			"scss",
-			"vue",
-			"sass"
-	],
-
-	"typescript.tsdk": "node_modules/typescript/lib",
-
-	"gitlens.keymap": "alternate",
-	"gitlens.advanced.messages": {
-			"suppressCommitHasNoPreviousCommitWarning": false,
-			"suppressCommitNotFoundWarning": false,
-			"suppressFileNotUnderSourceControlWarning": false,
-			"suppressGitVersionWarning": false,
-			"suppressLineUncommittedWarning": false,
-			"suppressNoRepositoryWarning": false
-	},
-
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[dockercompose]": {
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2,
+		"editor.autoIndent": "advanced",
+		"editor.defaultFormatter": "redhat.vscode-yaml"
+	},
+	"[github-actions-workflow]": {
+		"editor.defaultFormatter": "redhat.vscode-yaml"
+	},
+	"[go]": {
+		"editor.defaultFormatter": "golang.go"
+	},
 	"[javascript]": {
-			"editor.defaultFormatter": "vscode.typescript-language-features"
+		"editor.defaultFormatter": "vscode.typescript-language-features"
 	},
 	"[json]": {
-			"editor.tabSize": 2,
-			"editor.defaultFormatter": "vscode.json-language-features"
+		"editor.tabSize": 2,
+		"editor.defaultFormatter": "vscode.json-language-features"
 	},
-	"dart.flutterSdkPath": "C:\\Users\\LiangMS\\scoop\\apps\\flutter\\current",
-	"vs-kubernetes": {
-		"vscode-kubernetes.minikube-path.windows": "C:\\Users\\LiangMS\\.vs-kubernetes\\tools\\minikube\\windows-amd64\\minikube.exe",
-		"vscode-kubernetes.kubectl-path.windows": "C:\\Users\\LiangMS\\.vs-kubernetes\\tools\\kubectl\\kubectl.exe"
+	"[jsonc]": {
+		"editor.tabSize": 2,
+		"editor.defaultFormatter": "vscode.json-language-features"
 	},
-
-	"go.useLanguageServer": true,
-	"go.toolsManagement.autoUpdate": true,
-	"go.formatTool": "gofumpt",
-	"[go]": {
-			"editor.defaultFormatter": "golang.go"
-	},
-
-	"[xml]": {
-			"editor.defaultFormatter": "redhat.vscode-xml"
-	},
-
 	"[python]": {
 		"editor.formatOnType": true
 	},
-
+	"[sql]": {
+		"editor.defaultFormatter": "ReneSaarsoo.sql-formatter-vsc"
+	},
 	"[toml]": {
 		"editor.defaultFormatter": "tamasfe.even-better-toml"
 	},
-
-	"redhat.telemetry.enabled": true,
-
-	"svelte.enable-ts-plugin": true,
-
+	"[xml]": {
+		"editor.defaultFormatter": "redhat.vscode-xml"
+	},
+	"extensions.closeExtensionDetailsOnViewChange": true,
+	"extensions.ignoreRecommendations": true,
+	"files.eol": "\n",
+	"files.exclude": {
+		"**/.classpath": true,
+		"**/.project": true,
+		"**/.settings": true,
+		"**/.factorypath": true
+	},
+	"terminal.external.windowsExec": "wt.exe",
+	"terminal.integrated.copyOnSelection": true,
+	"terminal.integrated.tabs.enabled": true,
+	"eslint.validate": [
+		"typescript",
+		"typescriptreact",
+		"javascript",
+		"javascriptreact",
+		"html",
+		"vue"
+	],
 	"prettier.singleQuote": true,
 	"prettier.useTabs": true,
 	"prettier.tabWidth": 4,
 	"prettier.printWidth": 120,
-
-	"markdown.copyFiles.destination": {
-		"*.md": "assets/${documentBaseName}-${fileName}"
+	"chat.instructionsFilesLocations": {
+		".github/instructions": true
 	},
-
+	"json.schemaDownload.trustedDomains": {
+		"https://schemastore.azurewebsites.net/": true,
+		"https://raw.githubusercontent.com/": true,
+		"https://www.schemastore.org/": true,
+		"https://json.schemastore.org/": true,
+		"https://json-schema.org/": true,
+		"https://biomejs.dev": true
+	},
+	"go.useLanguageServer": true,
+	"go.toolsManagement.autoUpdate": true,
+	"go.formatTool": "gofumpt",
 	"markdown.extension.print.theme": "dark",
 	"markdown-preview-enhanced.enableExtendedTableSyntax": true,
 	"markdown-preview-enhanced.enableHTML5Embed": true,
@@ -126,40 +104,36 @@
 	"markdown-preview-enhanced.mermaidTheme": "dark",
 	"markdown-preview-enhanced.previewTheme": "one-dark.css",
 	"markdown-preview-enhanced.revealjsTheme": "black.css",
-
+	"markdown.copyFiles.destination": {
+		"*.md": "assets/${documentBaseName}-${fileName}"
+	},
 	"powershell.integratedConsole.showOnStartup": false,
 	"powershell.promptToUpdatePowerShell": false,
-
 	"vsicons.dontShowNewVersionMessage": true,
-
-	"innosetup.pathToIscc": "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe",
-
 	"shellcheck.exclude": [
-			"1090",
-			"1091",
-			"1094",
-			"2001",
-			"2002",
-			"2012",
-			"2015",
-			"2016",
-			"2034",
-			"2097",
-			"2098",
-			"2119",
-			"2120",
-			"2126",
-			"2129",
-			"2142",
-			"2145",
-			"2219"
+		"1090",
+		"1091",
+		"1094",
+		"2001",
+		"2002",
+		"2012",
+		"2015",
+		"2016",
+		"2034",
+		"2097",
+		"2098",
+		"2119",
+		"2120",
+		"2126",
+		"2129",
+		"2142",
+		"2145",
+		"2219"
 	],
-	"yaml.maxItemsComputed": 50000,
-	"git.openRepositoryInParentFolders": "never",
-	"tabnine.experimentalAutoImports": true,
-	"database-client.autoSync": true,
-	"workbench.colorTheme": "GitHub Dark",
+	"biome.suggestInstallingGlobally": false,
+	"docker.extension.enableComposeLanguageServer": false,
 	"docker.extension.dockerEngineAvailabilityPrompt": false,
+	"git.openRepositoryInParentFolders": "never",
 	"js-unicode-preview.languages": [
 		"json",
 		"jsonc",
@@ -167,5 +141,82 @@
 		"javascriptreact",
 		"typescript",
 		"typescriptreact"
-	]
+	],
+	"redhat.telemetry.enabled": true,
+	"scriptmonkey.activation condition.userscript header": true,
+	"svelte.enable-ts-plugin": true,
+	"yaml.maxItemsComputed": 50000,
+	"dbcode.connections": [],
+	"dbcode.useLanguageServer": true,
+	"dbcode.formatting.expressionWidth": 80,
+	"dbcode.formatting.keywordCase": "upper",
+	"dbcode.formatting.dataTypeCase": "upper",
+	"dbcode.formatting.functionCase": "upper",
+	"dbcode.formatting.identifierCase": "lower",
+	"dbcode.resultLocation": "below",
+	"pgsql.openQueryResultsInTabByDefault": true,
+	"pgsql.openQueryResultsInTabByDefaultDoNotShowPrompt": true,
+	"pgFormatter.functionCase": "lowercase",
+	"pgFormatter.keepNewline": true,
+	"pgFormatter.tabs": true,
+	"pgFormatter.typeCase": "uppercase",
+	"SQL-Formatter-VSCode.dataTypeCase": "upper",
+	"SQL-Formatter-VSCode.dialect": "postgresql",
+	"SQL-Formatter-VSCode.functionCase": "upper",
+	"SQL-Formatter-VSCode.identifierCase": "lower",
+	"SQL-Formatter-VSCode.keywordCase": "upper",
+	"SQL-Formatter-VSCode.tabSizeOverride": 4,
+	"SQL-Formatter-VSCode.expressionWidth": 80,
+	"SQL-Formatter-VSCode.newlineBeforeSemicolon": true,
+	"SQL-Formatter-VSCode.paramTypes": {
+		"custom": [
+			{
+				"regex": "\\$+[0-9]+|%+[LIs]?"
+			}
+		]
+	},
+	"sqlfluff.dialect": "postgres",
+	"gitlens.keymap": "alternate",
+	"gitlens.advanced.messages": {
+		"suppressCommitHasNoPreviousCommitWarning": false,
+		"suppressCommitNotFoundWarning": false,
+		"suppressFileNotUnderSourceControlWarning": false,
+		"suppressGitVersionWarning": false,
+		"suppressLineUncommittedWarning": false,
+		"suppressNoRepositoryWarning": false
+	},
+	"innosetup.pathToIscc": "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe",
+	"pgsql.serverGroups": [
+		{
+			"name": "Servers",
+			"id": "6CD711AC-5A72-481F-8E21-83BCA12D19AD",
+			"isDefault": true
+		}
+	],
+	"pgsql.connections": [
+		{
+			"id": "257A14F6-D63C-433D-BC9F-D8027789EB82",
+			"groupId": "6CD711AC-5A72-481F-8E21-83BCA12D19AD",
+			"authenticationType": "SqlLogin",
+			"connectTimeout": 15,
+			"applicationName": "vscode-pgsql",
+			"clientEncoding": "utf8",
+			"sslmode": "prefer",
+			"savePassword": true,
+			"server": "127.0.0.1",
+			"user": "postgres",
+			"password": "",
+			"database": "postgres",
+			"profileName": "TotemDB",
+			"sshPassword": "",
+			"expiresOn": 0
+		}
+	],
+	"[powershell]": {
+		"editor.defaultFormatter": "ms-vscode.powershell"
+	},
+	"workbench.colorTheme": "Islands Dark",
+	"Translate-next.defaultEngine": "google",
+	"Translate-next.targetLanguage": "English",
+	"Translate-next.parentLanguage": "Chinese"
 }
