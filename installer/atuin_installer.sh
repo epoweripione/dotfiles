@@ -77,9 +77,15 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         fi
     fi
 
-    # Disable immediately executing a command when pressing Enter in atuin's interactive search mode
+    ## [Configure atuin](https://docs.atuin.sh/cli/reference/config/)
+    # atuin config print
     if [[ -f "$HOME/.config/atuin/config.toml" ]]; then
-        sed -i 's/^enter_accept.*/enter_accept = false/g' "$HOME/.config/atuin/config.toml"
+        # Disable immediately executing a command when pressing Enter in atuin's interactive search mode
+        # sed -i 's/^[# ]*enter_accept[ ]*=.*/enter_accept = false/' "$HOME/.config/atuin/config.toml"
+        atuin config set enter_accept false
+        # Inline window
+        atuin config set style "compact"
+        atuin config set inline_height 20
     fi
 fi
 
