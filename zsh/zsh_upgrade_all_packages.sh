@@ -276,6 +276,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "tldx#brandonyoungdev/tldx#tar.gz#tldx*"
         # [Trippy - A network diagnostic tool](https://github.com/fujiapple852/trippy)
         "trip#fujiapple852/trippy#tar.gz#trippy*"
+        "sqlfluff"
         "usql"
         "uv"
         "vfox"
