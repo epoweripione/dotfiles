@@ -482,6 +482,7 @@ function npm_Global_Upgrade() {
     if [[ -x "$(command -v pnpm)" ]]; then
         colorEcho "${BLUE}Updating ${FUCHSIA}pnpm global packages${BLUE}..."
         pnpm update --global
+        pnpm approve-builds --global
     fi
 }
 
