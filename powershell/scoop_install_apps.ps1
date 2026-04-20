@@ -260,6 +260,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "dbgate"
         "dbvis"
         "heidisql"
+        "pgadmin4-np"
+        "sqruff"
         "krita"
         "obs-studio"
         "xpipe"
@@ -443,6 +445,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "kiwix"
         ##AI
         "ollama"
+        "opencode-desktop"
         "chatbox-ce"
         "cherry-studio"
         "cursor"
