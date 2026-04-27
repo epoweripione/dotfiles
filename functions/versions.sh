@@ -425,9 +425,9 @@ function fnm_Node_Upgrade() {
 
             # reinstall global packages
             colorEcho "${BLUE}Reinstalling global npm packages for ${FUCHSIA}Nodejs ${YELLOW}${latest_version}${BLUE}......"
-            for package in ${nvm_global_packages}; do
+            while read -r package; do
                 npm install --global "${package}"
-            done
+            done <<<"${nvm_global_packages}"
 
             # uninstall old version
             colorEcho "${BLUE}Removing old ${FUCHSIA}Nodejs ${YELLOW}${node_version}${BLUE}..."
