@@ -2,14 +2,14 @@
   "dependencies": {
     "html-to-text": "^9.0.5",
     "minimist": "^1.2.8",
-    "puppeteer": "^24.40.0",
+    "puppeteer": "^24.42.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.2",
-    "@commitlint/cli": "^20.5.0",
+    "@commitlint/cli": "^20.5.2",
     "@commitlint/config-conventional": "20.5.0",
     "@postgres-language-server/cli": "^0.24.0",
     "@types/lodash": "^4.17.24",
@@ -23,13 +23,13 @@
     "cz-git": "^1.12.0",
     "cz-relax": "^0.2.1",
     "czg": "^1.12.0",
-    "eslint": "^10.2.0",
+    "eslint": "^10.2.1",
     "husky": "^9.1.7",
     "lodash": "^4.18.1",
-    "memfs": "^4.57.1",
+    "memfs": "^4.57.2",
     "ts-loader": "^9.5.7",
-    "typescript": "^6.0.2",
-    "webpack": "^5.106.1"
+    "typescript": "^6.0.3",
+    "webpack": "^5.106.2"
   },
   "scripts": {
     "prepare": "husky",
