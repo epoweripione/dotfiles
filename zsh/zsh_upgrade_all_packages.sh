@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 trap 'rm -rf "${WORKDIR}"' EXIT
 
@@ -149,14 +149,18 @@ if [[ -x "$(command -v rustup)" ]]; then
     rustup upgrade
 fi
 
-if [[ -x "$(command -v cargo-binstall)" ]]; then
+if [[ -x "$(command -v cargo)" && ! -x "$(command -v cargo-binstall)" ]]; then
     AppInstaller="${MY_SHELL_SCRIPTS}/installer/cargo-binstall_installer.sh"
     [[ -f "${AppInstaller}" ]] && source "${AppInstaller}"
 fi
 
 if [[ -x "$(command -v cargo-binstall)" ]]; then
     colorEcho "${BLUE}Updating installed binary by ${FUCHSIA}Rust Cargo${BLUE}..."
-    cargo binstall --no-confirm $(cargo install --list | grep -E '^([a-z0-9_-]+)\s+(v[0-9.]+).*:$' | cut -f1 -d' ')
+    # cargo binstall --no-confirm $(cargo install --list | grep -E '^([a-z0-9_-]+)\s+(v[0-9.]+).*:$' | cut -f1 -d' ')
+    cargo_installed_bins=$(cargo install --list | grep -E '^([a-z0-9_-]+)\s+(v[0-9.]+).*:$' | cut -f1 -d' ')
+    while read -r cargo_bin; do
+        cargo binstall --no-confirm "${cargo_bin}"
+    done <<<"${cargo_installed_bins}"
 else
     if [[ -x "$(command -v cargo-install-update)" ]]; then
         colorEcho "${BLUE}Updating installed binary by ${FUCHSIA}Rust Cargo${BLUE}..."
@@ -183,7 +187,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "croc"
         "dasel"
         "diffnav#dlvhdr/diffnav#tar.gz#diffnav"
-        "edit#microsoft/edit#tar.zst#edit*"
+        "edit#microsoft/edit#tar.gz#edit*"
         "erdtree"
         "lnav"
         "magic-wormhole"
@@ -250,6 +254,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         "fq"
         "fx"
         "gdu#dundee/gdu#tgz#gdu*"
+        "glow"
         "gotty"
         # [ImageKit - a powerful and fast command-line tool for batch processing images](https://github.com/hzbd/imagekit)
         "imagekit#hzbd/imagekit##imagekit*"
@@ -266,6 +271,7 @@ if [[ -z "${AppWSLDesktopList[*]}" ]]; then
         # "pistol"
         "poetry"
         "pup"
+        "quien"
         "rclone"
         "re-txt"
         "restic"
@@ -523,9 +529,9 @@ if [[ -x "$(command -v fish)" && ! -d "$HOME/.local/share/omf" ]]; then
 fi
 
 if [[ -x "$(command -v pip)" && -f "$HOME/.local/bin/pip" ]]; then
-    if $HOME/.local/bin/pip list -o 2>/dev/null | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | grep -q -E '^pip$'; then
+    if "$HOME/.local/bin/pip" list -o 2>/dev/null | grep -Eiv "^-|^package|^warning|^error" | cut -d" " -f1 | grep -q -E '^pip$'; then
         colorEcho "${BLUE}Updating ${FUCHSIA}pip${BLUE}..."
-        $HOME/.local/bin/pip install -U pip
+        "$HOME/.local/bin/pip" install -U pip
     fi
 
     # colorEcho "${BLUE}Updating ${FUCHSIA}installed user packages by pip${BLUE}..."
