@@ -1188,7 +1188,7 @@ function App_Installer_Install() {
             for ((i=1; i <= 8; ++i)); do
                 [[ ! -d "${INSTALLER_MANPAGE_PATH}/man${i}" ]] && sudo mkdir -p "${INSTALLER_MANPAGE_PATH}/man${i}"
                 [[ ! -d "${INSTALLER_MANPAGE_PATH}/man${i}" ]] && continue
-                install_files=$(find "${INSTALLER_ARCHIVE_ROOT}" -type f -name "*.${i}")
+                install_files=$(find "${INSTALLER_ARCHIVE_ROOT}" -type f -name "*.${i}" -or -name "*.${i}.gz")
                 while read -r finded_file; do
                     [[ ! -f "${finded_file}" ]] && continue
                     ! file -Lbi "${finded_file}" | grep -q "text" && continue
