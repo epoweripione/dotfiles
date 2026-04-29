@@ -65,7 +65,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v npx)" ]]; then
         npx commitizen init cz-conventional-changelog --save-dev --save-exact
 
     # husky & commitlint
-    ${NPM_INSTALL_CMD} husky @commitlint/config-conventional @commitlint/cli --save-dev
+    ${NPM_INSTALL_CMD} husky @commitlint/cli @commitlint/config-conventional --save-dev
 
     # cz-emoji: Commitizen adapter formatting commit messages using emojis
     # https://github.com/ngryman/cz-emoji
@@ -73,12 +73,34 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v npx)" ]]; then
 
     # [cz-git | czg 🛠️ DX first and more engineered, lightweight, customizable, standard output format Commitizen adapter and CLI](https://github.com/Zhengqbbb/cz-git)
     ${NPM_INSTALL_CMD} cz-git czg --save-dev
+
+    # eslint
+    ${NPM_INSTALL_CMD} eslint @eslint/js @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-config-prettier eslint-plugin-prettier --save-dev
+
+    # stylelint
+    ${NPM_INSTALL_CMD} stylelint stylelint-config-standard stylelint-config-standard-scss postcss-html postcss-scss --save-dev
+
+    # lint-staged
+    ${NPM_INSTALL_CMD} lint-staged --save-dev
+
+    # vite
+    ${NPM_INSTALL_CMD} vite vite-plugin-checker --save-dev
+
+    ## vue
+    # ${NPM_INSTALL_CMD} eslint-plugin-vue vue-eslint-parser stylelint-config-recommended-vue --save-dev
+
+    ## react
+    # ${NPM_INSTALL_CMD} @eslint-react/eslint-plugin --save-dev
+
+    ## react native
+    # ${NPM_INSTALL_CMD} eslint-config-expo @react-native/eslint-config --save-dev
 fi
 
 # husky hooks
 if [[ -s "${CURRENT_DIR}/node_modules/.bin/husky" ]]; then
     npx husky install && \
-        ${NPM_INSTALL_CMD} set-script prepare "husky && chmod ug+x .husky/*"
+        ${NPM_INSTALL_CMD} set-script prepare "husky && chmod ug+x .husky/*" && \
+        npx husky add .husky/pre-commit "npx lint-staged"
 fi
 
 if [[ ! -s "${CURRENT_DIR}/.husky/commit-msg" ]]; then
