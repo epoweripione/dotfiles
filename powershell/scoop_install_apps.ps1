@@ -398,6 +398,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "rainmeter"
         "smartmontools"
         "smartsystemmenu"
+        "systeminformer-nightly"
         "twinkle-tray"
         "trippy"
         "usql"
