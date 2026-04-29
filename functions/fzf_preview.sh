@@ -18,6 +18,14 @@ fzf_preview_file() {
     mime_kind=${mime_type##*/}
 
     if [[ "$mime_category" == "text" ]]; then
+        # preview markdown files with 'glow'
+        if [[ "$file" =~ .(md|markdown|mdown|mkd|mdwn|mdtxt|mdtext)$ ]]; then
+            if [[ -x "$(command -v glow)" ]]; then
+                CLICOLOR_FORCE=1 COLORTERM=truecolor glow -l -s dark "$file"
+                return
+            fi
+        fi
+
         # preview text files with syntax highlighting using 'bat'
         # Fallback to 'cat' or 'less' if 'bat' is not installed
         bat --theme=TwoDark --color=always "$file" || cat "$file" || less "$file"
