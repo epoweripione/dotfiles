@@ -74,6 +74,9 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" && -x "$(command -v npx)" ]]; then
     # [cz-git | czg 🛠️ DX first and more engineered, lightweight, customizable, standard output format Commitizen adapter and CLI](https://github.com/Zhengqbbb/cz-git)
     ${NPM_INSTALL_CMD} cz-git czg --save-dev
 
+    # prettier
+    ${NPM_INSTALL_CMD} prettier --save-dev
+
     # eslint
     ${NPM_INSTALL_CMD} eslint @eslint/js @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-config-prettier eslint-plugin-prettier --save-dev
 
