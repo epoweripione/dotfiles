@@ -1,18 +1,15 @@
-// pnpm install minimist puppeteer puppeteer-extra puppeteer-extra-plugin-stealth
-// npx envinfo@latest --system --binaries --npmPackages '*(puppeteer*|playwright*|automation-extra*|@extra*)'
-// pnpm install htmlparser2 html-to-text
+// pnpm add puppeteer rebrowser-puppeteer yargs-parser html-to-text cheerio jsdom
 
-// [Troubleshooting](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md)
-// Dependencies for chrome
-// ldd $HOME/.cache/puppeteer/chrome/linux-119.0.6045.105/chrome-linux64/chrome | grep not
+// const args = require('minimist')(process.argv.slice(2));
+const args = require('yargs-parser')(process.argv.slice(2));
 
-const args = require('minimist')(process.argv.slice(2));
-
-// node nodejs/puppeteer_text.js --url="https://nodejs.org/docs/latest/api/synopsis.html" --Element="#apicontent" --Output="$HOME/text.txt"
+// node nodejs/puppeteer_text.js --url="https://nodejs.org/docs/latest/api/synopsis.html" --Element="#apicontent" --RemoveElement=".copy-button" --OutTextFile="$HOME/text.txt"
 // console.log(args.url): https://nodejs.org/docs/latest/api/synopsis.html
 // console.log(args.Element): #apicontent
+
 const url = args.url;
 const CaptureElement = args.Element;
+const RemoveElement = args.RemoveElement;
 const AcceptCookies = args.AcceptCookies;
 const ContentProtectPasswordRe = args.ContentProtectPasswordRe;
 const ContentProtectPassword = args.ContentProtectPassword;
@@ -21,33 +18,36 @@ const ContentProtectElement = args.ContentProtectElement;
 const OutTextFile = args.OutTextFile;
 const OutProtectFile = args.OutProtectFile;
 
-const DisableStealth = args.DisableStealth;
-const DisableLog = args.DisableLog;
+// const DisableStealth = args.DisableStealth;
 
-// [Puppeteer Tutorial](https://www.tutorialspoint.com/puppeteer/index.htm)
-// Id Selector: "#elementID"
-// Name Selector: "[name='elementName']"
-// Class Selector: ".elementClass"
-// Attribute Selector: "li[class='heading']"
+// // Avoid Detection of Headless Chromium
+// // https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth
+// // puppeteer-extra is a drop-in replacement for puppeteer,
+// // it augments the installed puppeteer with plugin functionality
+// const puppeteer = require('puppeteer-extra');
+// // add stealth plugin and use defaults (all evasion techniques)
+// if (! DisableStealth) {
+//     const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+//     puppeteer.use(StealthPlugin());
+// }
 
-// Avoid Detection of Headless Chromium
-// https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth
-// puppeteer-extra is a drop-in replacement for puppeteer,
-// it augments the installed puppeteer with plugin functionality
-const puppeteer = require('puppeteer-extra');
-// add stealth plugin and use defaults (all evasion techniques)
-if (! DisableStealth) {
-    const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-    puppeteer.use(StealthPlugin());
-}
+// [Patches for undetectable browser automation](https://github.com/rebrowser/rebrowser-patches)
+const puppeteer = require('rebrowser-puppeteer');
 
 // Fix Error: An `executablePath` or `channel` must be specified for `puppeteer-core`
-const {executablePath} = require('puppeteer');
+const { executablePath } = require('puppeteer');
 
-const os = require("os");
-const fs = require('fs');
+const os = require("node:os");
+const fs = require('node:fs');
 
 const { convert } = require('html-to-text');
+const Html2TextOptions = {
+    wordwrap: false,
+    // wordwrap: 130,
+};
+
+// const cheerio = require('cheerio');
+// const jsdom = require("jsdom");
 
 const userHomeDir = os.homedir();
 const SaveDir = `${userHomeDir}/puppeteer/text`;
@@ -91,11 +91,6 @@ if (OutProtectFile) {
     OutputProtectTextFile = `${SaveDir}/text-${getDateTimeString()}_protect.txt`;
 }
 
-const Html2TextOptions = {
-    wordwrap: false,
-    // wordwrap: 130,
-};
-
 // Accept Cookies and Other Information
 const PuppeteerAcceptCookies = async () => {
     const browser = await puppeteer.launch({
@@ -128,7 +123,9 @@ const PuppeteerText = async () => {
     //     await browser.close();
     //     return;
     // }
-    let status = await page.goto(url, { waitUntil: 'load', timeout: 1 * 60000 });
+
+    await page.goto(url, { waitUntil: 'load', timeout: 1 * 60000 });
+    // const status = await page.goto(url, { waitUntil: 'load', timeout: 1 * 60000 });
     // console.log(status);
     // console.log(status.status());
 
@@ -145,6 +142,19 @@ const PuppeteerText = async () => {
     // });
     // console.log(Article);
 
+    // Remove element before extracting text
+    if (RemoveElement) {
+        await page.evaluate((selector) => {
+            const elementToRemove = selector.split(',');
+            for (let i = 0; i < elementToRemove.length; i++) {
+                const elements = document.querySelectorAll(elementToRemove[i]);
+                for(let j=0; j < elements.length; j++){
+                    elements[j].parentNode.removeChild(elements[j]);
+                }
+            }
+        }, RemoveElement);
+    }
+
     let outHtml, outText;
 
     if (CaptureElement) {
@@ -159,17 +169,29 @@ const PuppeteerText = async () => {
         const pageElements = await page.$$(CaptureElement);
         for (const pageElement of pageElements) {
             const eleHtml = await page.evaluate(ele => ele.innerHTML, pageElement);
-            const eleText = await page.evaluate(ele => ele.textContent, pageElement);
-            outHtml = outHtml.length === 0 ? eleHtml : outHtml + "\n" + eleHtml;
-            outText = outText.length === 0 ? eleText : outText + "\n" + eleText;
+            outHtml = outHtml.length === 0 ? eleHtml : `${outHtml}\n${eleHtml}`;
+            // const eleText = await page.evaluate(ele => ele.textContent, pageElement);
+            // outText = outText.length === 0 ? eleText : `${outText}\n${eleText}`;
         }
     } else {
         outHtml = await page.content();
-        outText = convert(outHtml, Html2TextOptions);
     }
 
+    outText = convert(outHtml, Html2TextOptions);
+
+    // const cleanHtml = outHtml.replace(/<\/p>|<\/div>|<\/pre>|<\/code>|<\/h1>|<\/h2>|<\/h3>|<\/li>/g, "\n");
+    // const dom = new jsdom.JSDOM(outHtml);
+    // outText = dom.window.document.body.textContent.trim() || "";
+
+    // const $ = cheerio.load(outHtml);
+    // // Append a newline character after each block element
+    // $('p, div, pre, h1, h2, h3, li').each((i, el) => {
+    //     $(el).append('\n'); 
+    // });
+    // outText = $.text().trim() || "";
+
     // Content protect by password, but the password in the same page
-    let protectPwdRe, protectPwdMatch, protectPassword
+    let protectPwdRe, protectPassword;
     let outProtectHtml, outProtectText;
 
     protectPwdRe = ContentProtectPasswordRe;
@@ -177,23 +199,24 @@ const PuppeteerText = async () => {
     if (protectPwdRe) {
         //protectPwdRe = protectPwdRe.replace(/[\\]/g, "\\$&");
         const pwdRe = new RegExp(protectPwdRe, "g");
-        while (r = pwdRe.exec(outText)) {
-            protectPwdMatch = r[0]
-            protectPassword = r[1]
-            // console.log(protectPwdMatch + "   " + protectPassword)
+        const r = pwdRe.exec(outText);
+        if (r) {
+            protectPwdMatch = r[0];
+            protectPassword = r[1];
+            // console.log(protectPwdMatch + "   " + protectPassword);
         }
     }
 
     if (protectPassword && PasswordInputElement && ContentProtectElement) {
-        const pwdInput = await page.$(PasswordInputElement)
+        const pwdInput = await page.$(PasswordInputElement);
 
-        pwdInput.type(protectPassword)
-        await page.waitForTimeout(1000)
-        await page.keyboard.press('Enter')
+        pwdInput.type(protectPassword);
+        await page.waitForTimeout(1000);
+        await page.keyboard.press('Enter');
     
-        await page.waitForTimeout(5000)
+        await page.waitForTimeout(5000);
 
-        const protectContent = await page.$(ContentProtectElement)
+        const protectContent = await page.$(ContentProtectElement);
         outProtectHtml = await page.evaluate(ele => ele.innerHTML, protectContent);
         outProtectText = await page.evaluate(ele => ele.textContent, protectContent);
     }

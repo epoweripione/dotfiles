@@ -1,13 +1,16 @@
-// https://www.baeldung.com/linux/command-line-website-screenshots
-// npm install minimist puppeteer puppeteer-extra puppeteer-extra-plugin-stealth
+// [Anti-Bot Bypass Tools - Technical Deep Dives](https://github.com/pim97/anti-detect-browser-tools-tech-comparison)
+// [BotBrowser - Advanced Privacy Browser Core with Unified Fingerprint Defense](https://github.com/botswin/BotBrowser)
+// pnpm add puppeteer rebrowser-puppeteer yargs-parser
 // npx envinfo@latest --system --binaries --npmPackages '*(puppeteer*|playwright*|automation-extra*|@extra*)'
 
-// process.argv.forEach(function (val, index, array) {
-//     console.log(index + ': ' + val);
-// });
-const args = require('minimist')(process.argv.slice(2));
+// [Troubleshooting](https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md)
+// Dependencies for chrome
+// ldd $HOME/.cache/puppeteer/chrome/linux-147.0.7727.57/chrome-linux64/chrome | grep not
 
-// node nodejs/puppeteer_screenshot.js --url="https://nodejs.org/en/" --Element="#logo > img" --Output="$HOME/screenshot.png"
+// Fix: error while loading shared libraries
+// sudo apt install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxext6 libxfixes3 libxrandr2 libgbm1 libasound2
+
+// node nodejs/puppeteer_screenshot.js --url="https://developer.mozilla.org/" --Element="#content" --Output="$HOME/screenshot.png"
 // node nodejs/puppeteer_screenshot.js --url="file://$HOME/.config/conky/hybrid/weather_wttr.html" --Element="#weather" --Output="$HOME/.config/conky/hybrid/weather_wttr.png"
 // node nodejs/puppeteer_screenshot.js --url="https://wannianli.tianqi.com/" \
 //     --Element="#cal_body" \
@@ -15,8 +18,22 @@ const args = require('minimist')(process.argv.slice(2));
 //     --ReplaceElement=".hd.li_history" \
 //     --ReplaceWithHTML="<span>历史上的今天</span>" \
 //     --Output="$HOME/.config/conky/hybrid/calendar.png"
-// console.log(args.url): https://nodejs.org/en/
-// console.log(args.Element): #logo > img
+
+// [Puppeteer Tutorial](https://www.tutorialspoint.com/puppeteer/index.htm)
+// Id Selector: "#elementID"
+// Name Selector: "[name='elementName']"
+// Class Selector: ".elementClass"
+// Attribute Selector: "li[class='heading']"
+
+// process.argv.forEach(function (val, index, array) {
+//     console.log(index + ': ' + val);
+// });
+// const args = require('minimist')(process.argv.slice(2));
+// console.log(args);
+
+const args = require('yargs-parser')(process.argv.slice(2));
+// console.log(args);
+
 const url = args.url;
 const CaptureElement = args.Element;
 const RemoveElement = args.RemoveElement;
@@ -25,24 +42,28 @@ const ReplaceElement = args.ReplaceElement;
 const ReplaceWithHTML = args.ReplaceWithHTML;
 const Output = args.Output;
 
-const DisableStealth = args.DisableStealth;
+// const DisableStealth = args.DisableStealth;
 
-// Avoid Detection of Headless Chromium
-// https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth
-// puppeteer-extra is a drop-in replacement for puppeteer,
-// it augments the installed puppeteer with plugin functionality
-const puppeteer = require('puppeteer-extra');
-// add stealth plugin and use defaults (all evasion techniques)
-if (! DisableStealth) {
-    const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-    puppeteer.use(StealthPlugin());
-}
+// // Avoid Detection of Headless Chromium
+// // https://github.com/berstend/puppeteer-extra/tree/master/packages/puppeteer-extra-plugin-stealth
+// // puppeteer-extra is a drop-in replacement for puppeteer,
+// // it augments the installed puppeteer with plugin functionality
+// const puppeteer = require('puppeteer-extra');
+// // add stealth plugin and use defaults (all evasion techniques)
+// if (! DisableStealth) {
+//     const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+//     puppeteer.use(StealthPlugin());
+// }
+
+// [Patches for undetectable browser automation](https://github.com/rebrowser/rebrowser-patches)
+const puppeteer = require('rebrowser-puppeteer');
 
 // Fix Error: An `executablePath` or `channel` must be specified for `puppeteer-core`
-const {executablePath} = require('puppeteer');
+const { executablePath } = require('puppeteer');
+// console.log(`Using Chromium executable at: ${executablePath()}`);
 
-const os = require("os");
-const fs = require('fs');
+const os = require("node:os");
+const fs = require('node:fs');
 
 const userHomeDir = os.homedir();
 const ScreenshotDir = `${userHomeDir}/puppeteer/screenshots`;
@@ -109,7 +130,7 @@ const PuppeteerScreenshotFull = async () => {
         await page.evaluate((selector) => {
             const elementToRemove = selector.split(',');
             for (let i = 0; i < elementToRemove.length; i++) {
-                let elements = document.querySelectorAll(elementToRemove[i]);
+                const elements = document.querySelectorAll(elementToRemove[i]);
                 for(let j=0; j < elements.length; j++){
                     elements[j].parentNode.removeChild(elements[j]);
                 }
@@ -121,7 +142,7 @@ const PuppeteerScreenshotFull = async () => {
     if (ReplaceElement) {
         await page.evaluate((selector,replace) => {
             if (replace) {
-                let elements = document.querySelectorAll(selector);
+                const elements = document.querySelectorAll(selector);
                 for(let j=0; j < elements.length; j++){
                     elements[j].innerHTML = `${replace}`;
                 }
@@ -160,7 +181,7 @@ const PuppeteerScreenshotElement = async () => {
         await page.evaluate((selector) => {
             const elementToRemove = selector.split(',');
             for (let i = 0; i < elementToRemove.length; i++) {
-                let elements = document.querySelectorAll(elementToRemove[i]);
+                const elements = document.querySelectorAll(elementToRemove[i]);
                 for(let j=0; j < elements.length; j++){
                     elements[j].parentNode.removeChild(elements[j]);
                 }
@@ -172,7 +193,7 @@ const PuppeteerScreenshotElement = async () => {
     if (ReplaceElement) {
         await page.evaluate((selector,replace) => {
             if (replace) {
-                let elements = document.querySelectorAll(selector);
+                const elements = document.querySelectorAll(selector);
                 for(let j=0; j < elements.length; j++){
                     elements[j].innerHTML = `${replace}`;
                 }

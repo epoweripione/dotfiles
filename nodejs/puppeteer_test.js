@@ -1,6 +1,9 @@
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
+// const puppeteer = require('puppeteer-extra');
+// const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+// puppeteer.use(StealthPlugin());
+
+// [Patches for undetectable browser automation](https://github.com/rebrowser/rebrowser-patches)
+const puppeteer = require('rebrowser-puppeteer');
 
 // Fix Error: An `executablePath` or `channel` must be specified for `puppeteer-core`
 const {executablePath} = require('puppeteer');
@@ -10,17 +13,17 @@ const {executablePath} = require('puppeteer');
 // stealth.enabledEvasions.delete('sourceurl');
 // puppeteer.use(stealth);
 
-const url = "https://nodejs.org/en/";
-const CaptureElement = "#logo > img";
+const url = "https://developer.mozilla.org/";
+const CaptureElement = "#content";
 
-const os = require("os");
+const os = require("node:os");
 
 const userHomeDir = os.homedir();
 
 const ScreenshotDir = `${userHomeDir}/puppeteer/screenshots`;
 const UserDataDir = `${userHomeDir}/puppeteer/userdata`;
 
-const OutputFileFullPage = `${ScreenshotDir}/screenshot_fullpage.png`;
+// const OutputFileFullPage = `${ScreenshotDir}/screenshot_fullpage.png`;
 const OutputFileElement = `${ScreenshotDir}/screenshot_element.png`;
 
 const PuppeteerScreenshotTest = async () => {
