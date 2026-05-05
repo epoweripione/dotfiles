@@ -467,19 +467,22 @@ function npm_Global_Upgrade() {
     fi
 
     # pnpm
-    if [[ -x "$(command -v pnpm)" ]]; then
-        INSTALLER_VER_CURRENT=$(pnpm -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    else
-        INSTALLER_VER_CURRENT="0.0.0"
-    fi
-    INSTALLER_CHECK_URL="https://api.github.com/repos/pnpm/pnpm/releases/latest"
-    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
-    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
-        colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE}..."
-        curl -fsSL https://get.pnpm.io/install.sh | sh -
-    fi
+    # if [[ -x "$(command -v pnpm)" ]]; then
+    #     INSTALLER_VER_CURRENT=$(pnpm -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    # else
+    #     INSTALLER_VER_CURRENT="0.0.0"
+    # fi
+    # INSTALLER_CHECK_URL="https://api.github.com/repos/pnpm/pnpm/releases/latest"
+    # App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    # if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+    #     colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE} to ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+    #     curl -fsSL https://get.pnpm.io/install.sh | sh -
+    # fi
 
     if [[ -x "$(command -v pnpm)" ]]; then
+        colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE}..."
+        pnpm self-update
+
         colorEcho "${BLUE}Updating ${FUCHSIA}pnpm global packages${BLUE}..."
         pnpm update --global
         pnpm approve-builds --global --all
