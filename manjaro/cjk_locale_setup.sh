@@ -95,8 +95,10 @@ if [[ -z "${FontManjaroInstallList[*]}" ]]; then
         "otf-cm-unicode"
         "otf-stix"
         ## emoji
-        "archlinuxcn/ttf-twemoji"
-        # "noto-fonts-emoji"
+        # "archlinuxcn/ttf-twemoji"
+        "archlinuxcn/otf-twemoji-all" #[A simple library that provides standard Unicode emoji support across all platforms](https://github.com/jdecked/twemoji)
+        # "aur/otf-openmoji" # [Open source emojis for designers, developers and everyone else](https://github.com/hfg-gmuend/openmoji)
+        "noto-fonts-emoji"
         # "unicode-emoji"
         ## Adobe fonts
         # "adobe-source-code-pro-fonts"
@@ -250,7 +252,7 @@ CJKInstallList=(
     "fcitx5-nord"
     "fcitx5-breeze"
     # emoji & screen keyboard
-    "aur/emoji-keyboard-bin" # [Emoji keyboard](https://github.com/OzymandiasTheGreat/emoji-keyboard)
+    # "aur/emoji-keyboard-bin" # [Emoji keyboard](https://github.com/OzymandiasTheGreat/emoji-keyboard)
     # "aur/emote" # [Emote](https://github.com/tom-james-watson/Emote)
     "onboard" # [Onboard Onscreen Keyboard](https://launchpad.net/onboard)
 )
@@ -379,6 +381,20 @@ fi
 if [[ -x "$(command -v flatpak)" && ! -x "$(command -v emote)" ]]; then
     colorEcho "${BLUE}Installing ${FUCHSIA}emote${BLUE}..."
     flatpak install --or-update -y "com.tomjwatson.Emote"
+fi
+
+# [smile - An emoji picker for linux, with custom tags support and localization](https://github.com/mijorus/smile)
+if [[ -x "$(command -v flatpak)" && ! -x "$(command -v smile)" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}smile${BLUE}..."
+    flatpak install --or-update -y "it.mijorus.smile"
+
+    # [Paste automatically on Wayland](https://smile.mijorus.it/docs/paste-automatically-on-wayland/)
+    yay --noconfirm -S "aur/dotool"
+    curl -fsSL https://raw.githubusercontent.com/mijorus/smile/refs/heads/master/extras/autopaste-service-install.sh | bash
+
+    # Change Locale for smile to display menu correctly
+    flatpak override --user --env=LC_ALL=en_US.utf8 it.mijorus.smile
+    # flatpak run --env=LC_ALL=en_US.utf8 --branch=stable --arch=x86_64 --command=smile it.mijorus.smile
 fi
 
 # add to autostart

@@ -65,7 +65,6 @@ if [[ "${OS_INFO_DESKTOP}" == "XFCE" ]]; then
         "aur/firefox-esr-globalmenu"
         "aur/rclone-appmenu"
         "aur/syncthing-appmenu"
-        ""
     )
     InstallSystemPackages "" "${AppInstallList[@]}"
 
@@ -84,6 +83,7 @@ if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
         "extra/materia-kde"
         "extra/kvantum-theme-materia"
         "extra/kvantum-theme-matcha"
+        "aur/sweet-kvantum-git"
         "aur/kvantum-theme-catppuccin-git"
         "aur/kvantum-theme-whitesur-git"
         "aur/plasma6-themes-otto-git"
@@ -94,6 +94,9 @@ if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
         # "aur/lightly-qt6"
         # [Latte-Dock](https://github.com/KDE/latte-dock)
         "aur/latte-dock"
+        # [Cairo-Dock](https://github.com/Cairo-Dock/cairo-dock-core)
+        "cairo-dock"
+        "cairo-dock-plug-ins"
     )
     InstallSystemPackages "" "${AppInstallList[@]}"
 else

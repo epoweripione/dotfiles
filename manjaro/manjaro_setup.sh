@@ -175,6 +175,8 @@ sudo pacman --noconfirm -R p7zip 2>/dev/null # replace `p7zip` with `extra/7zip`
 yay --noconfirm --needed -S aur/electron22-bin
 # Electron30 for `dbgate`
 yay --noconfirm --needed -S aur/electron30-bin
+# Electron40 for `lx-music-desktop`
+yay --noconfirm --needed -S aur/electron40-bin
 
 # Maybe load app list from `$HOME/.dotfiles.env.local` in `zsh_custom_conf.sh`
 if [[ -z "${AppManjaroInstallList[*]}" ]]; then
@@ -332,6 +334,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "vlc-plugins-all"
         # Video & Audio
         "kdenlive"
+        "archlinuxcn/lx-music-desktop"
         ## Proxy
         "aur/frps-bin"
         "aur/frpc-bin"
@@ -572,7 +575,7 @@ systemctl is-enabled "chronyd" >/dev/null 2>&1 || {
 [[ -s "${MY_SHELL_SCRIPTS}/installer/he3_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/he3_installer.sh"
 
 # [洛雪音乐助手桌面版](https://github.com/lyswhut/lx-music-desktop)
-[[ -s "${MY_SHELL_SCRIPTS}/installer/lx-music-desktop_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/lx-music-desktop_installer.sh"
+# [[ -s "${MY_SHELL_SCRIPTS}/installer/lx-music-desktop_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/lx-music-desktop_installer.sh"
 
 # Notepadqq
 # [[ -s "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh" ]] && source "${MY_SHELL_SCRIPTS}/installer/notepadqq_installer.sh"
@@ -651,6 +654,16 @@ yay --noconfirm -Sc && yay --noconfirm -Yc
 
 sudo sh -c 'rm -rf /var/lib/snapd/cache/*'
 
+# Allow members of the group sudo to execute any command without password prompt
+CommandList=(
+    snap
+)
+for TargetCommand in "${CommandList[@]}"; do
+    [[ -x "$(command -v "${TargetCommand}")" ]] && \
+        echo "%sudo ALL=NOPASSWD:$(which "${TargetCommand}")" \
+            | sudo tee "/etc/sudoers.d/nopasswd_sudo_command_${TargetCommand}" >/dev/null && \
+        sudo chmod 440 "/etc/sudoers.d/nopasswd_sudo_command_${TargetCommand}"
+done
 
 ## Change default data location for some applications: docker, kvm...
 # [[ -s "${MY_SHELL_SCRIPTS}/manjaro/change_apps_data_location.sh" ]] && \
