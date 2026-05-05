@@ -296,7 +296,7 @@ EOF
 
 # Wayland IME for WPS Office
 function setWaylandIMEWPSOffice() {
-    [[ -f "/usr/lib/office6/wpscloudsvr" ]] && sudo chmod -x "/usr/lib/office6/wpscloudsvr"
+    [[ -f "/usr/lib/office6/wpscloudsvr" && -x "/usr/lib/office6/wpscloudsvr" ]] && sudo chmod -x "/usr/lib/office6/wpscloudsvr"
 
     if [[ -f "/usr/bin/wps" ]]; then
         if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wps"; then
