@@ -18,6 +18,7 @@ else
 fi
 
 [[ -z "${THE_WORLD_BLOCKED}" ]] && set_proxy_mirrors_env
+[[ -z "${OS_INFO_DESKTOP}" ]] && get_os_desktop
 
 # Local WAN GEO location
 colorEcho "${BLUE}Checking ${FUCHSIA}GEO location${BLUE} by WAN IP..."
@@ -106,6 +107,16 @@ fi
 # Full update
 colorEcho "${BLUE}Updating ${FUCHSIA}full system${BLUE}..."
 sudo pacman --noconfirm -Syu
+
+# KDE Plasma users with SDDM can now migrate to Plasma Login Manager
+if [[ "${OS_INFO_DESKTOP}" == "KDE" ]]; then
+    if ! systemctl is-enabled plasmalogin >/dev/null 2>&1; then
+        sudo pacman -Syu plasma-login-manager
+        sudo systemctl disable sddm
+        sudo systemctl enable plasmalogin
+        sudo pacman -R sddm-kcm sddm
+    fi
+fi
 
 # Language packs
 if [[ "${IP_GEO_IN_CHINA}" == "yes" ]]; then
