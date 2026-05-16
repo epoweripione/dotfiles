@@ -664,6 +664,31 @@ function setGlobalProxies {
     }
 }
 
+function clearGlobalProxy() {
+    # User environment variables
+    $PSCommand = @"
+[Environment]::SetEnvironmentVariable('GLOBAL_PROXY_IP', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('GLOBAL_PROXY_MIXED_PORT', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('GLOBAL_PROXY_HTTP_PORT', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('HTTP_PROXY', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('HTTPS_PROXY', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('ALL_PROXY', [NullString]::Value, 'User');
+[Environment]::SetEnvironmentVariable('NO_PROXY', [NullString]::Value, 'User')
+"@
+    $PSCommand = $PSCommand -Replace "`r`n"
+    Start-Process powershell "$PSCommand" -WindowStyle Hidden -Verb RunAs
+
+    # Current session environment variables
+    if ($env:GLOBAL_PROXY_IP) {Remove-Item "Env:\GLOBAL_PROXY_IP"}
+    if ($env:GLOBAL_PROXY_MIXED_PORT) {Remove-Item "Env:\GLOBAL_PROXY_MIXED_PORT"}
+    if ($env:GLOBAL_PROXY_HTTP_PORT) {Remove-Item "Env:\GLOBAL_PROXY_HTTP_PORT"}
+
+    if ($env:HTTP_PROXY) {Remove-Item "Env:\HTTP_PROXY"}
+    if ($env:HTTPS_PROXY) {Remove-Item "Env:\HTTPS_PROXY"}
+    if ($env:ALL_PROXY) {Remove-Item "Env:\ALL_PROXY"}
+    if ($env:NO_PROXY) {Remove-Item "Env:\NO_PROXY"}
+}
+
 function RebuildFontCache {
     # https://eddiejackson.net/wp/?p=16137
     # https://www.isunshare.com/windows-10/how-to-delete-font-cache-in-windows-10.html
