@@ -198,6 +198,10 @@ if [[ -s "$HOME/.zshrc" ]]; then
 
     # disable auto update
     sed -i "s/[#]*[ ]*DISABLE_AUTO_UPDATE.*/DISABLE_AUTO_UPDATE=\"true\"/" "$HOME/.zshrc"
+    sed -i "s/^# zstyle ':omz:update' mode disabled/zstyle ':omz:update' mode disabled/" "$HOME/.zshrc"
+
+    # disable zsh substitution/autocomplete with URL and backslashes
+    sed -i 's/^# DISABLE_MAGIC_FUNCTIONS="true"/DISABLE_MAGIC_FUNCTIONS="true"/' "$HOME/.zshrc"
 
     # zsh plugins
     colorEcho "${BLUE}Oh-my-zsh custom plugins..."
