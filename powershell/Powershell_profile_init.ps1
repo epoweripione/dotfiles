@@ -423,6 +423,12 @@ function UpdateInstalledApps {
 
     # update installed scoop apps
     scoop config aria2-enabled true
+
+    # [vcpkg fails installing](https://github.com/microsoft/vcpkg/issues/48122)
+    # remove `::1` from `NO_PROXY` to fix it
+    $env:NO_PROXY = "localhost,127.0.0.1"
+    # scoop update vcpkg
+
     scoop update *
     scoop update * -g
 
@@ -480,6 +486,22 @@ function UpdateInstalledApps {
         Write-Host
         Write-Color -Text "Updating installed binary by ", "Rust Cargo", "..." -Color Cyan,Magenta,Cyan
         cargo install-update --all
+    }
+}
+
+function UpdateScoopApps {
+    # update installed scoop apps, except the ones specified in the parameter
+    # Usage: UpdateScoopApps -SkipApps "app1,app2,app3"
+    param (
+        [string] $SkipApps
+    )
+
+    Write-Color -Text "Checking for updates..." -Color Cyan
+    $UpdateApps = scoop status 2>$null 6>$null | Select-Object -ExpandProperty Name
+    foreach ($App in $UpdateApps) {
+        if ($App -notin $SkipApps.split(",")) {
+            scoop update "${App}"
+        }
     }
 }
 
