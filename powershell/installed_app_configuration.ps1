@@ -101,3 +101,10 @@ if (Get-Command "cargo" -ErrorAction SilentlyContinue) {
         }
     }
 }
+
+# zlib
+if (Test-Path "$env:SCOOP\apps\zlib\current\bin\zlib.dll") {
+    $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+    $userenv = $userenv.TrimEnd(';')
+    [System.Environment]::SetEnvironmentVariable("PATH", "$env:SCOOP\apps\zlib\current\bin;" + $userenv, 'User')
+}
