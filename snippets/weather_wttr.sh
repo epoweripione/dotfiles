@@ -105,6 +105,7 @@ WEATHER_JSON="${WORKDIR}/weather.json"
 WEATHER_SAVE_JSON="$(dirname "${WEATHER_PNG}")/weather_save.json"
 
 WEATHER_HTML="${WORKDIR}/weather_wttr.html"
+WEATHER_SAVE_HTML="$(dirname "${WEATHER_PNG}")/weather_wttr.html"
 WEATHER_HTML_PNG="${WORKDIR}/weather_wttr.png"
 
 if [[ -z "${WEATHER_CITY}" ]]; then
@@ -300,6 +301,8 @@ tee -a "${WEATHER_HTML}" >/dev/null <<-'EOF'
 </html>
 EOF
 
+cp -f "${WEATHER_HTML}" "${WEATHER_SAVE_HTML}"
+
 colorEcho "${BLUE}Converting ${ORANGE} HTML ${BLUE}to${FUCHSIA} PNG${BLUE}..."
 ## Print output in table format
 # echo -e '05-25\t05-26\t05-27\t\n🌦25(28)\t🌦29(34)\t🌦26(30)' | column -t -s $'\t' --table-empty-lines
@@ -362,9 +365,9 @@ if [[ ! -d "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/node_modules" ]]; then
     cd "${CURRENT_DIR}" && exit 1
 fi
 
-# Puppeteer
+# Playwright
 cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}" && \
-    node ./nodejs/puppeteer_screenshot.js \
+    node ./nodejs/playwright_screenshot.js \
         --url="file://${WEATHER_HTML}" \
         --Element="#weather" \
         --Output="${WEATHER_HTML_PNG}" && \
