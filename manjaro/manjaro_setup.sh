@@ -271,7 +271,8 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "aria2"
         "filezilla"
         "archlinuxcn/qbittorrent-enhanced-git"
-        "aur/imfile-bin"
+        # "aur/imfile-bin"
+        "aur/motrix-next-bin"
         ## Docker
         "docker"
         "docker-buildx"
