@@ -392,12 +392,35 @@ function asdf_App_Update() {
     done <<<"${InstalledPlugins}"
 }
 
+function pnpm_Install_Upgrade() {
+    # disable pnpm installed by corepack to avoid conflict
+    [[ -x "$(command -v corepack)" ]] && corepack disable pnpm
+
+    if [[ -x "$(command -v pnpm)" ]]; then
+        INSTALLER_VER_CURRENT=$(pnpm -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+    else
+        INSTALLER_VER_CURRENT="0.0.0"
+    fi
+
+    INSTALLER_CHECK_URL="https://api.github.com/repos/pnpm/pnpm/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE} to ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+        # pnpm self-update
+        curl -fsSL https://get.pnpm.io/install.sh | sh -
+    fi
+}
+
 # fnm: check & upgrade current installed Nodejs to latest major version
 function fnm_Node_Upgrade() {
     local installed_node_versions
     local major_version latest_version
 
     [[ ! -x "$(command -v fnm)" ]] && colorEcho "${FUCHSIA}fnm${RED} is not installed!" && return 1
+
+    colorEcho "${BLUE}Updating ${FUCHSIA}fnm${BLUE}..."
+    curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
 
     colorEcho "${BLUE}Updating ${FUCHSIA}Nodejs ${BLUE}versions managed by ${FUCHSIA}fnm${BLUE}..."
     installed_node_versions=$(fnm list 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | sort -uV)
@@ -466,22 +489,8 @@ function npm_Global_Upgrade() {
         yarn global upgrade --latest
     fi
 
-    # pnpm
-    # if [[ -x "$(command -v pnpm)" ]]; then
-    #     INSTALLER_VER_CURRENT=$(pnpm -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
-    # else
-    #     INSTALLER_VER_CURRENT="0.0.0"
-    # fi
-    # INSTALLER_CHECK_URL="https://api.github.com/repos/pnpm/pnpm/releases/latest"
-    # App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
-    # if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
-    #     colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE} to ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-    #     curl -fsSL https://get.pnpm.io/install.sh | sh -
-    # fi
-
     if [[ -x "$(command -v pnpm)" ]]; then
-        colorEcho "${BLUE}Updating ${FUCHSIA}pnpm${BLUE}..."
-        pnpm self-update
+        pnpm_Install_Upgrade
 
         colorEcho "${BLUE}Updating ${FUCHSIA}pnpm global packages${BLUE}..."
         pnpm update --global
