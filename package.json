@@ -3,7 +3,7 @@
     "cheerio": "^1.2.0",
     "html-to-text": "^10.0.0",
     "jsdom": "^29.1.1",
-    "puppeteer": "^24.43.1",
+    "puppeteer": "^25.0.2",
     "rebrowser-puppeteer": "^24.8.1",
     "yargs-parser": "^22.0.0"
   },
@@ -29,7 +29,7 @@
     "cz-git": "^1.13.1",
     "cz-relax": "^0.2.1",
     "czg": "^1.13.1",
-    "eslint": "^10.3.0",
+    "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "husky": "^9.1.7",
