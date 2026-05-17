@@ -7,6 +7,13 @@
 // Dependencies for chrome
 // ldd $HOME/.cache/puppeteer/chrome/linux-147.0.7727.57/chrome-linux64/chrome | grep not
 
+// Clear Cache and Reinstall Browsers
+// bash: rm -rf ~/.cache/puppeteer
+// cmd: rmdir /s /q "%LOCALAPPDATA%\puppeteer"
+// powershell: Remove-Item -Recurse -Force "$env:LOCALAPPDATA\puppeteer"
+// PUPPETEER_CACHE_DIR="$HOME/.cache/puppeteer"
+// pnpm exec puppeteer browsers install chrome-headless-shell
+
 // Fix: error while loading shared libraries
 // sudo apt install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxext6 libxfixes3 libxrandr2 libgbm1 libasound2
 
