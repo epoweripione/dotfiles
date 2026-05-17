@@ -420,6 +420,7 @@ function pnpm_Install_Upgrade() {
     # reinstall global packages if missing after pnpm upgrade
     pnpm_global_new=$(pnpm list --global --json | jq -r '.[] | .dependencies | keys[]' | grep -v '@pnpm/exe')
     while read -r pnpm_pkg; do
+        [[ -z "${pnpm_pkg}" ]] && continue
         if ! grep -q "^${pnpm_pkg}$" <<<"${pnpm_global_new}"; then
             colorEcho "${BLUE}Installing ${FUCHSIA}${pnpm_pkg}${BLUE}..."
             pnpm add --global "${pnpm_pkg}"
@@ -441,8 +442,14 @@ function fnm_Node_Upgrade() {
 
     [[ ! -x "$(command -v fnm)" ]] && colorEcho "${FUCHSIA}fnm${RED} is not installed!" && return 1
 
-    colorEcho "${BLUE}Updating ${FUCHSIA}fnm${BLUE}..."
-    curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+    INSTALLER_VER_CURRENT=$(fnm --version 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+
+    INSTALLER_CHECK_URL="https://api.github.com/repos/Schniz/fnm/releases/latest"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}"
+    if version_gt "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
+        colorEcho "${BLUE}Updating ${FUCHSIA}fnm${BLUE} to ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+        curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+    fi
 
     colorEcho "${BLUE}Updating ${FUCHSIA}Nodejs ${BLUE}versions managed by ${FUCHSIA}fnm${BLUE}..."
     installed_node_versions=$(fnm list 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | sort -uV)
@@ -518,6 +525,7 @@ function npm_Global_Upgrade() {
 
         pnpm_global_outdated=$(pnpm outdated --global --format=json | jq -r 'keys[]' | grep -v '@pnpm/exe')
         while read -r pnpm_pkg; do
+            [[ -z "${pnpm_pkg}" ]] && continue
             colorEcho "${BLUE}Updating ${FUCHSIA}${pnpm_pkg}${BLUE}..."
             pnpm update --global --latest "${pnpm_pkg}"
         done <<<"${pnpm_global_outdated}"
