@@ -159,9 +159,6 @@ function npm_Install_Global() {
     colorEcho "${BLUE}Installing ${FUCHSIA}${PackageName} ${YELLOW}${PackageVersion}${BLUE}..."
     if [[ -x "$(command -v pnpm)" ]]; then
         pnpm add -g "${PackageName}@${PackageVersion}"
-
-        # run build scripts if exists
-        pnpm approve-builds -g
     else
         npm install -g "${PackageName}@${PackageVersion}"
     fi

@@ -393,11 +393,17 @@ function asdf_App_Update() {
 }
 
 function pnpm_Install_Upgrade() {
+    # Binaries Location: `pnpm bin -g`
+    # Global Package Root: `pnpm root -g`
+    # Store Path: `pnpm store path`
+    local pnpm_global_old pnpm_global_new pnpm_pkg
+
     # disable pnpm installed by corepack to avoid conflict
     [[ -x "$(command -v corepack)" ]] && corepack disable pnpm
 
     if [[ -x "$(command -v pnpm)" ]]; then
         INSTALLER_VER_CURRENT=$(pnpm -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+        pnpm_global_old=$(pnpm list --global --json | jq -r '.[] | .dependencies | keys[]' | grep -v '@pnpm/exe')
     else
         INSTALLER_VER_CURRENT="0.0.0"
     fi
@@ -410,6 +416,22 @@ function pnpm_Install_Upgrade() {
         # pnpm self-update
         curl -fsSL https://get.pnpm.io/install.sh | sh -
     fi
+
+    # reinstall global packages if missing after pnpm upgrade
+    pnpm_global_new=$(pnpm list --global --json | jq -r '.[] | .dependencies | keys[]' | grep -v '@pnpm/exe')
+    while read -r pnpm_pkg; do
+        if ! grep -q "^${pnpm_pkg}$" <<<"${pnpm_global_new}"; then
+            colorEcho "${BLUE}Installing ${FUCHSIA}${pnpm_pkg}${BLUE}..."
+            pnpm add --global "${pnpm_pkg}"
+        fi
+    done <<<"${pnpm_global_old}"
+
+    # set fetch timeout to 10 minutes to avoid `The operation was aborted due to timeout` error when network is slow or unstable
+    pnpm config set fetch-timeout 600000
+    # pnpm config set fetch-retries 5
+    # pnpm config set network-concurrency 2
+
+    # pnpm add --fetch-timeout=600000 --fetch-retries=5 --network-concurrency=2 --global "<package-name>"
 }
 
 # fnm: check & upgrade current installed Nodejs to latest major version
@@ -466,6 +488,8 @@ function fnm_Node_Upgrade() {
 
 # npm: check & upgrade global packages to latest version
 function npm_Global_Upgrade() {
+    local pnpm_global_outdated pnpm_pkg
+
     [[ ! -x "$(command -v npm)" ]] && colorEcho "${FUCHSIA}npm${RED} is not installed!" && return 1
 
     # [[ ! -x "$(command -v ncu)" ]] && npm install -g npm-check-updates
@@ -492,9 +516,11 @@ function npm_Global_Upgrade() {
     if [[ -x "$(command -v pnpm)" ]]; then
         pnpm_Install_Upgrade
 
-        colorEcho "${BLUE}Updating ${FUCHSIA}pnpm global packages${BLUE}..."
-        pnpm update --global
-        pnpm approve-builds --global --all
+        pnpm_global_outdated=$(pnpm outdated --global --format=json | jq -r 'keys[]' | grep -v '@pnpm/exe')
+        while read -r pnpm_pkg; do
+            colorEcho "${BLUE}Updating ${FUCHSIA}${pnpm_pkg}${BLUE}..."
+            pnpm update --global --latest "${pnpm_pkg}"
+        done <<<"${pnpm_global_outdated}"
     fi
 }
 
