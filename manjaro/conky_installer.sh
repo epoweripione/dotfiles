@@ -228,7 +228,7 @@ conky.config = {
     alignment = 'bottom_left',
 
     double_buffer = true,
-    minimum_width = 300,
+    minimum_width = 350,
     minimum_height = 450,
 
     draw_shades = false,
