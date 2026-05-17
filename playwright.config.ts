@@ -1,4 +1,13 @@
 import { defineConfig, devices } from '@playwright/test';
+import { existsSync } from "fs";
+
+const chromiumPath = existsSync("/usr/bin/chromium")
+  ? "/usr/bin/chromium"
+  : undefined;
+
+const firefoxPath = existsSync("/usr/bin/firefox")
+  ? "/usr/bin/firefox"
+  : undefined;
 
 /**
  * Read environment variables from file.
@@ -36,12 +45,18 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        launchOptions: chromiumPath ? { executablePath: chromiumPath } : {},
+      },
     },
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        ...devices['Desktop Firefox'],
+        launchOptions: firefoxPath ? { executablePath: firefoxPath } : {},
+      },
     },
 
     {

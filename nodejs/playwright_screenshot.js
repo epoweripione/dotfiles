@@ -12,6 +12,9 @@
 // pnpm exec playwright install --with-deps
 // pnpm exec playwright install --list
 
+// archlinux
+// yay --noconfirm -S chromium aur/playwright aur/playwright-cli
+
 // node nodejs/playwright_screenshot.js --url="https://developer.mozilla.org/" --Element="#content" --Output="$HOME/screenshot.png"
 // node nodejs/playwright_screenshot.js --url="file://$HOME/.config/conky/hybrid/weather_wttr.html" --Element="#weather" --Output="$HOME/.config/conky/hybrid/weather_wttr.png"
 // node nodejs/playwright_screenshot.js --url="https://wannianli.tianqi.com/" \
@@ -65,10 +68,15 @@ if (Output) {
     OutputFile = `${ScreenshotDir}/screenshot-${getDateTimeString()}.png`;
 }
 
+const chromiumPath = fs.existsSync("/usr/bin/chromium")
+    ? "/usr/bin/chromium"
+    : undefined;
+
 // Accept Cookies and Other Information
 const playwrightAcceptCookies = async () => {
     const browser = await chromium.launch({
 		headless: false,
+        executablePath: chromiumPath,
 		// slowMo: 50,
         // args: ['--window-size=1280,720']
 	});
@@ -83,6 +91,7 @@ const playwrightAcceptCookies = async () => {
 const playwrightScreenshotFull = async () => {
     const browser = await chromium.launch({
 		headless: true,
+        executablePath: chromiumPath,
 		// slowMo: 50,
         // args: ['--window-size=1280,720']
 	});
@@ -130,6 +139,7 @@ const playwrightScreenshotFull = async () => {
 const playwrightScreenshotElement = async () => {
     const browser = await chromium.launch({
 		headless: true,
+        executablePath: chromiumPath,
 		// slowMo: 50,
         // args: ['--window-size=1280,720']
 	});
