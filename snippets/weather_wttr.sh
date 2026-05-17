@@ -20,7 +20,7 @@ fi
 [[ -z "${CURL_CHECK_OPTS[*]}" ]] && Get_Installer_CURL_Options
 [[ -z "${AXEL_DOWNLOAD_OPTS[*]}" ]] && Get_Installer_AXEL_Options
 
-# https://github.com/chubin/wttr.in/blob/master/lib/constants.py
+# https://github.com/chubin/wttr.in/blob/master/internal/renderer/oneline/constants.go
 declare -A WWO_CODE=(
     ["113"]="Sunny"
     ["116"]="PartlyCloudy"
@@ -70,6 +70,58 @@ declare -A WWO_CODE=(
     ["389"]="ThunderyHeavyRain"
     ["392"]="ThunderySnowShowers"
     ["395"]="HeavySnowShowers"
+)
+
+# https://github.com/chubin/wttr.in/blob/master/share/translations/zh-cn/conditions.txt
+declare -A WWO_ZH_CN=(
+    ["113"]="晴"
+    ["116"]="少云"
+    ["119"]="多云"
+    ["122"]="阴"
+    ["143"]="轻雾"
+    ["176"]="局部下小雨"
+    ["179"]="局部下小雪"
+    ["182"]="局部有雨夹雪"
+    ["185"]="局部有冻毛毛雨"
+    ["200"]="可能打雷"
+    ["227"]="小雪"
+    ["230"]="暴雪"
+    ["248"]="雾"
+    ["260"]="冻雾"
+    ["263"]="局部毛毛雨"
+    ["266"]="毛毛雨"
+    ["281"]="冻毛毛雨"
+    ["284"]="大冻毛毛雨"
+    ["293"]="局部小雨"
+    ["296"]="小雨"
+    ["299"]="有时中雨"
+    ["302"]="中雨"
+    ["305"]="有时大雨"
+    ["308"]="大雨"
+    ["311"]="小冻雨"
+    ["314"]="中或大冻雨"
+    ["317"]="小雨夹雪"
+    ["320"]="中或大雨夹雪"
+    ["323"]="局部小雪"
+    ["326"]="小雪"
+    ["329"]="局部中雪"
+    ["332"]="中雪"
+    ["335"]="局部大雪"
+    ["338"]="大雪"
+    ["350"]="冰丸"
+    ["353"]="小阵雨"
+    ["356"]="中或大阵雨"
+    ["359"]="暴阵雨"
+    ["362"]="小阵雨夹雪"
+    ["365"]="中或大阵雨夹雪"
+    ["368"]="小阵雪"
+    ["371"]="中或大阵雪"
+    ["374"]="小阵雨夹雪"
+    ["377"]="小冻雨"
+    ["386"]="局部小雷阵雨"
+    ["389"]="中或大雷阵雨"
+    ["392"]="小雷阵雪"
+    ["395"]="中或大雷阵雪"
 )
 
 declare -A WEATHER_SYMBOL=(
@@ -246,7 +298,10 @@ EOF
         WEATHER_TEMP+=("${V_TEMP}")
         WEATHER_TEMP_FEEL+=("${V_TEMP_FEEL}")
 
-        V_DESC=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .lang_zh[0] | .value" "${WEATHER_JSON}")
+        V_DESC="${WWO_ZH_CN["${V_CODE}"]}"
+        if [[ -z "${V_DESC}" ]]; then
+            V_DESC=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .lang_zh[0] | .value" "${WEATHER_JSON}")
+        fi
         WEATHER_DESC+=("${V_DESC}")
 
         V_WIND_DEGREE=$(jq -r "${JSON_DATA_PREFIX}.weather[$i] | .hourly[$j] | .winddirDegree" "${WEATHER_JSON}")
