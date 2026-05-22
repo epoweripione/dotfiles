@@ -287,6 +287,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "reqable"
         "yaak"
         "fiddler"
+        "proxifier"
+        "proxybridge"
         "proxypin"
         "wireshark"
         # "babelmap"
