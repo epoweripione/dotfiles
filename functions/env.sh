@@ -242,12 +242,12 @@ fi
 
 # poetry
 if [[ -x "$(command -v poetry)" && -d "$HOME/.poetry/bin" ]]; then
-    [[ ":$PATH:" != *":$HOME/.poetry/bin:"* ]] && export PATH=$HOME/.poetry/bin:$PATH
+    [[ ":$PATH:" != *":$HOME/.poetry/bin:"* ]] && export PATH=$PATH:$HOME/.poetry/bin
 fi
 
 # pip local install
 if [[ -d "$HOME/.local/bin" ]]; then
-    [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH=$HOME/.local/bin:$PATH
+    [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH=$PATH:$HOME/.local/bin
 fi
 
 if [[ -z "${PIP_CMD_USER}" ]]; then
