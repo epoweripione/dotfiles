@@ -247,7 +247,10 @@ fi
 
 # pip local install
 if [[ -d "$HOME/.local/bin" ]]; then
-    [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH=$PATH:$HOME/.local/bin
+    [[ ":$PATH:" == *":$HOME/.local/bin:"* ]] && \
+        PATH="$(sed -e "s|:$HOME/.local/bin||g" <<<"$PATH")" && \
+        export PATH=$PATH:$HOME/.local/bin
+    # [[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH=$PATH:$HOME/.local/bin
 fi
 
 if [[ -z "${PIP_CMD_USER}" ]]; then
