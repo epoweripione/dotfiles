@@ -84,6 +84,9 @@ waydroid show-full-ui
 
 
 ## Network
+## Check if Waydroid has basic connectivity
+# sudo waydroid shell ping 8.8.8.8
+
 ## DNS traffic needs to be allowed
 ## nftables
 # sudo nft list ruleset
@@ -96,7 +99,8 @@ waydroid show-full-ui
 # sudo nft add rule "inet" filter "input" iifname "waydroid0" accept
 # sudo nft add rule "inet" filter "forward" iifname "waydroid0" accept
 # sudo nft add rule "inet" filter "forward" oifname "waydroid0" accept
-# sudo nft -a list table "inet" filter
+# sudo nft list table "inet" filter
+# sudo nft list table "inet" filter | sudo tee -a /etc/nftables.conf >/dev/null
 
 ## ufw
 # ufw allow 67
@@ -115,6 +119,33 @@ waydroid show-full-ui
 ## We assume that interface `waydroid0` created by waydroid should be in the firewalld zone trusted automatically.
 ## If not so, please adjust those commands above or move interface waydroid0 to trusted. You may also need
 # firewall-cmd --runtime-to-permanent
+
+
+## Set the Global Proxy
+## Identify the Host Gateway IP
+# ip addr show "waydroid0"
+# host_ip=$(ip addr show "waydroid0" 2>/dev/null | grep "inet\|inet6" | awk '{print $2}' | cut -d'/' -f1)
+## Set the Global Proxy
+# sudo waydroid shell settings put global http_proxy "${host_ip:-"192.168.240.1"}":7890
+# sudo waydroid shell settings put global https_proxy "${host_ip:-"192.168.240.1"}":7890
+# sudo waydroid shell settings get global http_proxy
+# sudo waydroid shell settings get global https_proxy
+## Remove the proxy settings
+# sudo waydroid shell settings delete global http_proxy
+# sudo waydroid shell settings delete global https_proxy
+
+## Alternative: ADB Reverse (for localhost proxies)
+## Get the Waydroid IP
+# waydroid status
+# adb connect 192.168.240.112:5555
+## List of devices attached
+# adb devices
+## Forward the port
+# adb reverse tcp:7890 tcp:7890
+# adb reverse --list
+## Set the proxy in Waydroid to localhost
+# sudo waydroid shell settings put global http_proxy 127.0.0.1:7890
+# sudo waydroid shell settings put global https_proxy 127.0.0.1:7890
 
 
 ## Tips and tricks
@@ -148,3 +179,7 @@ waydroid show-full-ui
 ## You may also want to do little cleanup, run
 # rm -rf /var/lib/waydroid /home/.waydroid
 # rm -rf ~/waydroid ~/.share/waydroid ~/.local/share/applications/*aydroid* ~/.local/share/waydroid
+
+
+## Builds
+# - [Android builds for Waydroid](https://github.com/WayDroid-ATV/waydroid-builds)
