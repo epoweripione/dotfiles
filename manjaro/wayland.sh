@@ -21,10 +21,17 @@ fi
 # [Wayland](https://wiki.archlinux.org/title/Wayland)
 # XDG_SESSION_TYPE=wayland
 InstallList=(
-    "plasma-wayland-session"
-    "xorg-xwayland"
+    # "aur/binder_linux-dkms"
+    "waydroid"
+    "archlinuxcn/waydroid-helper"
+    # "archlinuxcn/waydroid-image"
+    "archlinuxcn/waydroid-image-gapps"
+    "archlinuxcn/waydroidsu"
 )
 InstallSystemPackages "" "${InstallList[@]}"
+
+## check if the kernel supports Android features
+# zgrep -i -e android -e memfd -e ashmem /proc/config.gz
 
 ## [Plasma (Wayland) session stuck on a black screen](https://discuss.kde.org/t/solved-plasma-wayland-session-stuck-on-a-black-screen/6691)
 # if ! grep -q "^KWIN_DRM_NO_AMS=" "/etc/environment"; then
@@ -53,3 +60,15 @@ fi
 
 # [Waydroid](https://wiki.archlinux.org/title/Waydroid)
 # [在 Archlinux KDE下使用 Waydroid](https://zhuanlan.zhihu.com/p/643889264)
+
+## Initialize Waydroid
+# sudo waydroid init -f
+
+# Initialize Waydroid with GApps support
+sudo waydroid init -s GAPPS -f
+
+sudo systemctl enable --now waydroid-container
+# sudo systemctl start waydroid-container
+
+# waydroid --details-to-stdout show-full-ui
+waydroid show-full-ui
