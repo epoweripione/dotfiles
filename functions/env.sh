@@ -300,12 +300,12 @@ fi
 
 # pnpm
 if [[ -d "$HOME/.local/share/pnpm" ]]; then
-    export PNPM_HOME="$HOME/.local/share/pnpm"
-    [[ ":$PATH:" != *":$PNPM_HOME:"* ]] && export PATH=$PNPM_HOME:$PATH
-
     if [[ -x "$(command -v pnpm)" ]]; then
+        [[ -z "${PNPM_HOME}" ]] && export PNPM_HOME="$HOME/.local/share/pnpm"
+        [[ ":$PATH:" != *":$PNPM_HOME/bin:"* ]] && export PATH=$PNPM_HOME/bin:$PATH
+
         PNPM_STORE=$(pnpm config get store-dir)
-        if [[ -z "${PNPM_STORE}" ]]; then
+        if [[ -z "${PNPM_STORE}" || "${PNPM_STORE}" == "undefined" ]]; then
             mkdir -p "$HOME/.pnpm-store"
             pnpm config set store-dir "$HOME/.pnpm-store"
         fi

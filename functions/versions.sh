@@ -401,6 +401,10 @@ function pnpm_Install_Upgrade() {
     # disable pnpm installed by corepack to avoid conflict
     [[ -x "$(command -v corepack)" ]] && corepack disable pnpm
 
+    ## Clear Local pnpm Data
+    # [[ -d "$HOME/.local/share/pnpm" ]] && rm -rf "$HOME/.local/share/pnpm"
+    # [[ -d "$HOME/Library/pnpm" ]] && rm -rf "$HOME/Library/pnpm"
+
     if [[ -x "$(command -v pnpm)" ]]; then
         INSTALLER_VER_CURRENT=$(pnpm -v 2>/dev/null | grep -Eo '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
         pnpm_global_old=$(pnpm list --global --json | jq -r '.[] | .dependencies | keys[]' | grep -v '@pnpm/exe')

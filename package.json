@@ -527,11 +527,5 @@
         }
       ]
     }
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "puppeteer",
-      "rebrowser-puppeteer"
-    ]
   }
 }
