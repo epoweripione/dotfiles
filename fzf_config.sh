@@ -91,7 +91,7 @@ FZF_DEFAULT_OPTS="--ansi --multi \
 --bind='ctrl-e:execute(\$EDITOR {} < /dev/tty)' \
 --layout='reverse' \
 --preview-window='right,60%' \
---height='~60%'
+--height='~60%' \
 --border"
 export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS}"
 
