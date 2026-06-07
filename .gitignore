@@ -210,3 +210,17 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Database files
+.db/
+certs/
+data/
+dump/
+pgdump/
+buckup/
+
+# Container files
+.docker-build.new
+
+# Other files
+oem/
