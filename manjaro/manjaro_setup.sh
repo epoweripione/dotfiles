@@ -308,7 +308,7 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "aur/wemeet-bin"
         "aur/dingtalk-bin"
         ## Markdown
-        "vnote-git"
+        "aur/vnote-bin"
         #"typora"
         ## Note
         #"leanote"
