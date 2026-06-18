@@ -175,6 +175,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "php"
         # "games"
         # "he3-app"
+        "dbx"
     )
 
     $BucketsURL = @(
@@ -191,6 +192,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "" # php
         # "" # games
         # "https://github.com/he3-app/he3-scoop"
+        "https://github.com/t8y2/scoop-bucket"
     )
 
     $AddedBuckets = scoop bucket list 6>&1 | Out-String
@@ -261,6 +263,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         # "dbeaver"
         # "dbgate"
         "dbvis"
+        "dbx"
         "heidisql"
         "pgadmin4-np"
         "sqruff"
@@ -323,6 +326,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "mpc-be"
         "vlc"
         "potplayer"
+        "stremio"
         "captura"
         "quicklook"
         "screentogif"
