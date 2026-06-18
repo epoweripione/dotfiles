@@ -205,6 +205,10 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         # "naive#klzgrad/naiveproxy#tar.xz#naive*"
         "sing-box"
         "clash2singbox"
+        # [Ouch - Painless compression and decompression in the terminal](https://github.com/ouch-org/ouch)
+        "ouch#ouch-org/ouch#tar.gz#ouch*"
+        # [topgrade - Upgrade all the things](https://github.com/topgrade-rs/topgrade)
+        # "topgrade#topgrade-rs/topgrade#tar.gz#topgrade*"
     )
 fi
 for Target in "${AppAlwaysInstallList[@]}"; do
