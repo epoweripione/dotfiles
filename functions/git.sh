@@ -55,14 +55,14 @@ function Git_Clone_Update() {
         CurrentDir=$(pwd)
         cd "${REPODIR}" || return
 
-        REPOREMOTE=$(git config --get remote.origin.url | head -n1)
+        REPOREMOTE=$(${GIT_COMMAND} config --get remote.origin.url | head -n1)
 
         colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE} from ${ORANGE}${REPOREMOTE}${BLUE}..."
 
         ${GIT_COMMAND} pull || pull_error=1
 
         cd "${CurrentDir}" || return
-        [[ ${pull_error} -eq 1 ]] && return 1
+        [[ ${pull_error} -eq 1 ]] && return 1 || return 0
     else
         colorEcho "${BLUE}  Cloning ${ORANGE}${REPOREMOTE}${BLUE} to ${FUCHSIA}${REPODIR}${BLUE}..."
         [[ -z "${GIT_CLONE_OPTS[*]}" ]] && Get_Git_Clone_Options
@@ -71,6 +71,8 @@ function Git_Clone_Update() {
                 return 1
             }
     fi
+
+    return 0
 }
 
 function Git_Clone_Update_Branch() {
@@ -114,11 +116,11 @@ function Git_Clone_Update_Branch() {
         CurrentDir=$(pwd)
         cd "${REPODIR}" || return
 
-        REPOREMOTE=$(git config --get remote.origin.url | head -n1)
+        REPOREMOTE=$(${GIT_COMMAND} config --get remote.origin.url | head -n1)
 
         colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE} from ${ORANGE}${REPOREMOTE}${BLUE}..."
 
-        [[ -z "${BRANCH}" ]] && BRANCH=$(${GIT_COMMAND} symbolic-ref --short HEAD 2>/dev/null)
+        [[ -z "${BRANCH}" ]] && BRANCH=$(${GIT_COMMAND} remote show origin 2>/dev/null | sed -n '/HEAD branch/s/.*: //p')
         [[ -z "${BRANCH}" ]] && BRANCH="master"
 
         if ! ${GIT_COMMAND} pull --rebase --stat origin "${BRANCH}"; then
@@ -126,7 +128,7 @@ function Git_Clone_Update_Branch() {
             DEFAULTBRANCH=$(${GIT_COMMAND} ls-remote --symref "${REPOREMOTE}" HEAD \
                         | awk '/^ref:/ {sub(/refs\/heads\//, "", $2); print $2}')
             if [[ -n "${DEFAULTBRANCH}" && "${DEFAULTBRANCH}" != "${BRANCH}" ]]; then
-                git branch -m "${BRANCH}" "${DEFAULTBRANCH}"
+                ${GIT_COMMAND} branch -m "${BRANCH}" "${DEFAULTBRANCH}"
 
                 [[ -s "${REPODIR}/.git/config" ]] && \
                     sed -i "s|${BRANCH}|${DEFAULTBRANCH}|g" "${REPODIR}/.git/config"
@@ -151,7 +153,7 @@ function Git_Clone_Update_Branch() {
         #     git checkout ${remote_branch_name}
 
         cd "${CurrentDir}" || return
-        [[ ${pull_error} -eq 1 ]] && return 1
+        [[ ${pull_error} -eq 1 ]] && return 1 || return 0
     else
         colorEcho "${BLUE}  Cloning ${ORANGE}${REPOREMOTE}${BLUE} to ${FUCHSIA}${REPODIR}${BLUE}..."
         [[ -z "${BRANCH}" ]] && \
@@ -166,6 +168,8 @@ function Git_Clone_Update_Branch() {
                 return 1
             }
     fi
+
+    return 0
 }
 
 
