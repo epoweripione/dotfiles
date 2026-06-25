@@ -23,6 +23,7 @@ function Git_Clone_Update() {
     local GIT_COMMAND="git"
     local REPOREMOTE=""
     local CurrentDir
+    local pull_error=0
 
     if [[ -z "${REPONAME}" ]]; then
         colorEcho "${RED}Error! Repository name can't empty!"
@@ -58,9 +59,10 @@ function Git_Clone_Update() {
 
         colorEcho "${BLUE}  Updating ${FUCHSIA}${REPODIR}${BLUE} from ${ORANGE}${REPOREMOTE}${BLUE}..."
 
-        ${GIT_COMMAND} pull
+        ${GIT_COMMAND} pull || pull_error=1
 
         cd "${CurrentDir}" || return
+        [[ ${pull_error} -eq 1 ]] && return 1
     else
         colorEcho "${BLUE}  Cloning ${ORANGE}${REPOREMOTE}${BLUE} to ${FUCHSIA}${REPODIR}${BLUE}..."
         [[ -z "${GIT_CLONE_OPTS[*]}" ]] && Get_Git_Clone_Options
@@ -80,6 +82,7 @@ function Git_Clone_Update_Branch() {
     local REPOREMOTE=""
     local DEFAULTBRANCH=""
     local CurrentDir
+    local pull_error=0
 
     if [[ -z "${REPONAME}" ]]; then
         colorEcho "${RED}Error! Repository name can't empty!"
@@ -133,7 +136,9 @@ function Git_Clone_Update_Branch() {
                 # git branch -u "origin/${DEFAULTBRANCH}" "${DEFAULTBRANCH}"
                 # git symbolic-ref "refs/remotes/origin/HEAD" "refs/remotes/origin/${DEFAULTBRANCH}"
 
-                ${GIT_COMMAND} pull --rebase --stat origin "${DEFAULTBRANCH}"
+                ${GIT_COMMAND} pull --rebase --stat origin "${DEFAULTBRANCH}" || pull_error=1
+            else
+                pull_error=1
             fi
         fi
 
@@ -146,6 +151,7 @@ function Git_Clone_Update_Branch() {
         #     git checkout ${remote_branch_name}
 
         cd "${CurrentDir}" || return
+        [[ ${pull_error} -eq 1 ]] && return 1
     else
         colorEcho "${BLUE}  Cloning ${ORANGE}${REPOREMOTE}${BLUE} to ${FUCHSIA}${REPODIR}${BLUE}..."
         [[ -z "${BRANCH}" ]] && \
