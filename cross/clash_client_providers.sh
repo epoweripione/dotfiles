@@ -289,6 +289,13 @@ function formatYAMLFile() {
     sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${subscribeFile}"
     sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${subscribeFile}"
 
+    # 'xhttp-opts.path' is a string
+    sed -ri '/xhttp-opts:/ s/(PATH|Path|path):\s*\[([^,\{\}]+)\]/\1: \2/g' "${subscribeFile}"
+
+    # 'public-key', 'short-id'
+    sed -ri 's/public-key:\s+([^,"\{\}]+)/public-key: "\1"/g' "${subscribeFile}"
+    sed -ri 's/short-id:\s+([^,"\{\}]+)/short-id: "\1"/g' "${subscribeFile}"
+
     # sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${subscribeFile}"
     sed -ri 's/grpc-service-name:\s+([^,"]+)/grpc-service-name: "\1"/' "${subscribeFile}"
 
