@@ -427,11 +427,17 @@ colorEcho "${BLUE}Getting ${FUCHSIA}clash rules${BLUE}..."
 
 # Update ACL4SSR
 # https://github.com/ACL4SSR/ACL4SSR
-if [[ -s "/srv/subconverter/subconverter" ]]; then
+if [[ -f "/srv/subconverter/subconverter" ]]; then
     if [[ -d "/etc/clash" ]]; then
         find "/etc/clash" -type f -name "*_Profile*" -print0 | xargs -0 -I{} sudo cp -f {} "/srv/subconverter/profiles"
         find "/srv/subconverter/config" -type l -name "*_Rules*" -print0 | xargs -0 -I{} sudo rm -f {}
         find "/etc/clash" -type f -name "*_Rules*" -print0 | xargs -0 -I{} sudo cp -f {} "/srv/subconverter/config"
+    fi
+
+    if [[ -d "$HOME/subconverter/ACL4SSR" ]]; then
+        if ! Git_Clone_Update_Branch "ACL4SSR/ACL4SSR" "$HOME/subconverter/ACL4SSR" "github.com" "master"; then
+            rm -rf "$HOME/subconverter/ACL4SSR"
+        fi
     fi
 
     if Git_Clone_Update_Branch "ACL4SSR/ACL4SSR" "$HOME/subconverter/ACL4SSR" "github.com" "master"; then
