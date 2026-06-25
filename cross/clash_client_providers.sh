@@ -289,13 +289,6 @@ function formatYAMLFile() {
     sed -ri 's/User-Agent:\s+([^:"\{\}]+)(,\s+[^[:space:]]+)([:"\{\}]+)/User-Agent: "\1"\2\3/' "${subscribeFile}"
     sed -ri 's/User-Agent:\s+([^"\{\}]+)(["\{\}]+)/User-Agent: "\1"\2/' "${subscribeFile}"
 
-    # 'xhttp-opts.path' is a string
-    sed -ri '/xhttp-opts:/ s/(PATH|Path|path):\s*\[([^,\{\}]+)\]/\1: \2/g' "${subscribeFile}"
-
-    # 'public-key', 'short-id'
-    sed -ri 's/public-key:\s+([^,"\{\}]+)/public-key: "\1"/g' "${subscribeFile}"
-    sed -ri 's/short-id:\s+([^,"\{\}]+)/short-id: "\1"/g' "${subscribeFile}"
-
     # sed -ri 's/grpc-service-name:\s+([^,"\{\}]+)/grpc-service-name: "\1"/' "${subscribeFile}"
     sed -ri 's/grpc-service-name:\s+([^,"]+)/grpc-service-name: "\1"/' "${subscribeFile}"
 
@@ -330,6 +323,13 @@ function formatYAMLFile() {
     # 'http-opts.headers[Host]','h2-opts.headers[Host]' is a slice
     sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
     sed -ri '/h2-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
+
+    # 'xhttp-opts.path' is a string
+    sed -ri '/xhttp-opts:/ s/(PATH|Path|path):\s*\[([^,\{\}]+)\]/\1: \2/g' "${subscribeFile}"
+
+    # 'public-key', 'short-id'
+    sed -ri 's/public-key:\s+([^,"\{\}]+)/public-key: "\1"/g' "${subscribeFile}"
+    sed -ri 's/short-id:\s+([^,"\{\}]+)/short-id: "\1"/g' "${subscribeFile}"
 
     # replace characters not conform
     sed -ri -e 's/":"/:/g' -e 's/"\]:\["/]:[/g' -e 's/"\s+"/"/g' "${subscribeFile}"
