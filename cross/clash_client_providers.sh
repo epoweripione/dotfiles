@@ -324,8 +324,8 @@ function formatYAMLFile() {
     sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
     sed -ri '/h2-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
 
-    # 'xhttp-opts.path' is a string
-    sed -ri '/xhttp-opts:/ s/(PATH|Path|path):\s*\[([^,\{\}]+)\]/\1: \2/g' "${subscribeFile}"
+    # 'xhttp-opts.host', 'xhttp-opts.path' is a string
+    sed -ri '/xhttp-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\[([^,\{\}]+)\]/\1: \2/g' "${subscribeFile}"
 
     # 'public-key', 'short-id'
     sed -ri 's/public-key:\s+([^,"\{\}]+)/public-key: "\1"/g' "${subscribeFile}"
