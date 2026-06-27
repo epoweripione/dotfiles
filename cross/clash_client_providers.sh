@@ -331,6 +331,9 @@ function formatYAMLFile() {
     sed -ri 's/public-key:\s+([^,"\{\}]+)/public-key: "\1"/g' "${subscribeFile}"
     sed -ri 's/short-id:\s+([^,"\{\}]+)/short-id: "\1"/g' "${subscribeFile}"
 
+    sed -ri 's/public-key:\s+"(\S+)\s+"/public-key: "\1"/g' "${subscribeFile}"
+    sed -ri 's/short-id:\s+"(\S+)\s+"/short-id: "\1"/g' "${subscribeFile}"
+
     # replace characters not conform
     sed -ri -e 's/":"/:/g' -e 's/"\]:\["/]:[/g' -e 's/"\s+"/"/g' "${subscribeFile}"
 
