@@ -334,6 +334,9 @@ function formatYAMLFile() {
     sed -ri 's/public-key:\s+"?([^,\{\}[:space:]]+)[[:space:]]+"?/public-key: "\1"/g' "${subscribeFile}"
     sed -ri 's/short-id:\s+"?([^,\{\}[:space:]]+)[[:space:]]+"?/short-id: "\1"/g' "${subscribeFile}"
 
+    # chacha20-ietf-poly1305
+    sed -ri 's/cipher:\s+"?(chacha20-ietf-poly[^,\{\}[:space:]]+)"?/cipher: "chacha20-ietf-poly1305"/g' "${subscribeFile}"
+
     # replace characters not conform
     sed -ri -e 's/":"/:/g' -e 's/"\]:\["/]:[/g' -e 's/"\s+"/"/g' "${subscribeFile}"
 
