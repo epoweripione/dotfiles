@@ -500,7 +500,8 @@ function UpdateScoopApps {
     $UpdateApps = scoop status 2>$null 6>$null | Select-Object -ExpandProperty Name
     foreach ($App in $UpdateApps) {
         if ($App -notin $SkipApps.split(",")) {
-            scoop update "${App}"
+            scoop update "${App}" 6>$null
+            scoop update "${App}" -g 6>$null
         }
     }
 }
