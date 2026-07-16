@@ -300,6 +300,25 @@ function get_sysArch() {
     OS_INFO_VDIS=$VDIS
 }
 
+function get_armArch() {
+	local architecture armArch
+
+    architecture=$(uname -m 2>/dev/null)
+    case "$architecture" in
+		armv6l)
+            armArch="armv6"
+            ;;
+		*armv7*)
+            armArch="armv7"
+            ;;
+		*armv8* | aarch64)
+            armArch="armv8"
+            ;;
+    esac
+
+    OS_INFO_ARM_ARCH=$armArch
+}
+
 function get_arch_float() {
     # https://raspberrypi.stackexchange.com/questions/4677/how-can-i-tell-if-i-am-using-the-hard-float-or-the-soft-float-version-of-debian
     local dpkg_arch

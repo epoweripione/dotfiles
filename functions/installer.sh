@@ -316,11 +316,12 @@ function Get_Installer_AXEL_Options() {
 
 # Get os type & architecture that match running platform
 function App_Installer_Get_OS_Info_Match_Cond() {
-    OS_INFO_UNMATCH_COND=""
+    OS_INFO_UNMATCH_COND="polyfill"
 
     [[ -z "${OS_INFO_RELEASE}" ]] && get_os_release
     [[ -z "${OS_INFO_TYPE}" ]] && get_os_type
     [[ -z "${OS_INFO_ARCH}" ]] && get_arch
+    [[ -z "${OS_INFO_ARM_ARCH}" ]] && get_armArch
     [[ -z "${OS_INFO_FLOAT}" ]] && get_arch_float
     [[ -z "${CPU_ARCH_LEVEL}" ]] && get_cpu_arch_level
 
@@ -352,6 +353,7 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     esac
 
     OS_INFO_MATCH_ARCH="${OS_INFO_ARCH}"
+    OS_INFO_MATCH_ARM_ARCH="${OS_INFO_ARM_ARCH}" # armv6, armv7
     case "${OS_INFO_ARCH}" in
         amd64)
             OS_INFO_MATCH_ARCH="${OS_INFO_MATCH_ARCH}|x86_64|x86-64|x64|64bit"
@@ -626,6 +628,11 @@ function App_Installer_Get_Remote_URL() {
     if [[ -n "${OS_INFO_MATCH_TYPE}" ]]; then
         match_result_type=$(grep -Ei "${OS_INFO_MATCH_TYPE}" <<<"${match_urls}")
         [[ -n "${match_result_type}" ]] && match_urls="${match_result_type}"
+    fi
+
+    if [[ -n "${OS_INFO_MATCH_ARM_ARCH}" ]]; then
+        match_result_arch=$(grep -Ei "${OS_INFO_MATCH_ARM_ARCH}" <<<"${match_urls}")
+        [[ -n "${match_result_arch}" ]] && match_urls="${match_result_arch}"
     fi
 
     if [[ -n "${OS_INFO_MATCH_ARCH}" ]]; then
