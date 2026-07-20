@@ -324,9 +324,14 @@ function formatYAMLFile() {
     sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
     sed -ri '/h2-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
 
-    # multiple host
-    sed -ri '/http-opts:/ s/(HOST|Host|host):\s*\[([^\{\}]+)\],\s*([^\{\}]+)/\1: \[\2, \3\]/g' "${subscribeFile}"
-    sed -ri '/h2-opts:/ s/(HOST|Host|host):\s*\[([^\{\}]+)\],\s*([^\{\}]+)/\1: \[\2, \3\]/g' "${subscribeFile}"
+    # maybe multiple host in 'http-opts.headers[Host]','h2-opts.headers[Host]'
+    perl -i -pe 's/(HOST|Host|host):\s+\[([^\{\}]+?)\]/\1: \2/g if /[,\s]+http-opts:/' "${subscribeFile}"
+    perl -i -pe 's/(HOST|Host|host):\s+([^\{\}\[\]]+?),\s+(?=[\w\-\_]+:)/\1: [\2], /g if /[,\s]+http-opts:/' "${subscribeFile}"
+    perl -i -pe 's/(HOST|Host|host):\s+([^\{\}\[\]]+?)([\{\}]+)/\1: [\2]\3/g if /[,\s]+http-opts:/' "${subscribeFile}"
+
+    perl -i -pe 's/(HOST|Host|host):\s+\[([^\{\}]+?)\]/\1: \2/g if /[,\s]+h2-opts:/' "${subscribeFile}"
+    perl -i -pe 's/(HOST|Host|host):\s+([^\{\}\[\]]+?),\s+(?=[\w\-\_]+:)/\1: [\2], /g if /[,\s]+h2-opts:/' "${subscribeFile}"
+    perl -i -pe 's/(HOST|Host|host):\s+([^\{\}\[\]]+?)([\{\}]+)/\1: [\2]\3/g if /[,\s]+h2-opts:/' "${subscribeFile}"
 
     # 'xhttp-opts.host', 'xhttp-opts.path' is a string
     sed -ri '/xhttp-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\[([^,\{\}]+)\]/\1: \2/g' "${subscribeFile}"
