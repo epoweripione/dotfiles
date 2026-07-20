@@ -321,8 +321,8 @@ function formatYAMLFile() {
     sed -ri 's/(http-opts|h2-opts):\s*\{\}\,\s*//g' "${subscribeFile}"
 
     # 'http-opts.headers[Host]','h2-opts.headers[Host]' is a slice
-    sed -ri '/http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
-    sed -ri '/h2-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
+    sed -ri '/[,\s]+http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
+    sed -ri '/[,\s]+h2-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
 
     # maybe multiple host in 'http-opts.headers[Host]','h2-opts.headers[Host]'
     perl -i -pe 's/(HOST|Host|host):\s+\[([^\{\}]+?)\]/\1: \2/g if /[,\s]+http-opts:/' "${subscribeFile}"
@@ -334,7 +334,7 @@ function formatYAMLFile() {
     perl -i -pe 's/(HOST|Host|host):\s+([^\{\}\[\]]+?)([\{\}]+)/\1: [\2]\3/g if /[,\s]+h2-opts:/' "${subscribeFile}"
 
     # 'xhttp-opts.host', 'xhttp-opts.path' is a string
-    sed -ri '/xhttp-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\[([^,\{\}]+)\]/\1: \2/g' "${subscribeFile}"
+    sed -ri '/[,\s]+xhttp-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\[([^,\{\}]+)\]/\1: \2/g' "${subscribeFile}"
 
     # 'public-key', 'short-id'
     sed -ri 's/public-key:\s+([^,"\{\}]+)/public-key: "\1"/g' "${subscribeFile}"
