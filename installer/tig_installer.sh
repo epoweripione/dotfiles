@@ -60,9 +60,6 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
             libevent-devel
             ncurses
             libncurses-dev
-            libncursesw-dev
-            libncurses5-dev
-            libncursesw5-dev
             ncurses-devel
             readline
         )
