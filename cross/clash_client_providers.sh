@@ -324,7 +324,9 @@ function formatYAMLFile() {
     sed -ri '/[,\s]+http-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
     sed -ri '/[,\s]+h2-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\"([^,"\{\}]+)\"/\1: \["\2"\]/g' "${subscribeFile}"
 
-    # maybe multiple host in 'http-opts.headers[Host]','h2-opts.headers[Host]'
+    ## maybe multiple host in 'http-opts.headers[Host]','h2-opts.headers[Host]'
+    # sed -ri '/MATCH_PATTERN/{/EXCLUDE_PATTERN/! s/OLD/NEW/g}' file.txt
+    # perl -i -pe 's/OLD/NEW/g if /MATCH_PATTERN/ && !/EXCLUDE_PATTERN/' file.txt
     perl -i -pe 's/(HOST|Host|host):\s+\[([^\{\}]+?)\]/\1: \2/g if /[,\s]+http-opts:/' "${subscribeFile}"
     perl -i -pe 's/(HOST|Host|host):\s+([^\{\}\[\]]+?),\s+(?=[\w\-\_]+:)/\1: [\2], /g if /[,\s]+http-opts:/' "${subscribeFile}"
     perl -i -pe 's/(HOST|Host|host):\s+([^\{\}\[\]]+?)([\{\}]+)/\1: [\2]\3/g if /[,\s]+http-opts:/' "${subscribeFile}"
@@ -358,6 +360,9 @@ function formatYAMLFile() {
     if [[ ${GroupStartLine} -lt ${RuleStartLine} ]]; then
         sed -ri "${GroupStartLine},${RuleStartLine} s|^\s*-\s+([^\"]+)$|      - \"\1\"|g" "${subscribeFile}"
     fi
+
+    # Fix: Google Play download
+    sed -ri '/(xn--ngstr-lra8j.com|xn--ngstr-cn-8za9o.com)/d' "${subscribeFile}"
 }
 
 # Check & fix invalid YAML format
