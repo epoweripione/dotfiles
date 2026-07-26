@@ -360,9 +360,6 @@ function formatYAMLFile() {
     if [[ ${GroupStartLine} -lt ${RuleStartLine} ]]; then
         sed -ri "${GroupStartLine},${RuleStartLine} s|^\s*-\s+([^\"]+)$|      - \"\1\"|g" "${subscribeFile}"
     fi
-
-    # Fix: Google Play download
-    sed -ri '/(xn--ngstr-lra8j.com|xn--ngstr-cn-8za9o.com)/d' "${subscribeFile}"
 }
 
 # Check & fix invalid YAML format
