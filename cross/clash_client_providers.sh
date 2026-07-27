@@ -338,12 +338,19 @@ function formatYAMLFile() {
     # 'xhttp-opts.host', 'xhttp-opts.path' is a string
     sed -ri '/[,\s]+xhttp-opts:/ s/(HOST|Host|host|PATH|Path|path):\s*\[([^,\{\}]+)\]/\1: \2/g' "${subscribeFile}"
 
-    # 'public-key', 'short-id'
+    # wireguard `ipv6` is a string
+    sed -ri "/type:\s+wireguard,/ s/\"\[(${IPV6RegExp})\]\"/\"\1\"/g" "${subscribeFile}"
+
+    # 'public-key', `private-key`, 'short-id', `ip`
     sed -ri 's/public-key:\s+([^,"\{\}]+)/public-key: "\1"/g' "${subscribeFile}"
+    sed -ri 's/private-key:\s+([^,"\{\}]+)/private-key: "\1"/g' "${subscribeFile}"
     sed -ri 's/short-id:\s+([^,"\{\}]+)/short-id: "\1"/g' "${subscribeFile}"
+    sed -ri 's/ip:\s+([^,"\{\}]+)/ip: "\1"/g' "${subscribeFile}"
 
     sed -ri 's/public-key:\s+"?([^,\{\}[:space:]]+)[[:space:]]+"?/public-key: "\1"/g' "${subscribeFile}"
+    sed -ri 's/private-key:\s+"?([^,\{\}[:space:]]+)[[:space:]]+"?/private-key: "\1"/g' "${subscribeFile}"
     sed -ri 's/short-id:\s+"?([^,\{\}[:space:]]+)[[:space:]]+"?/short-id: "\1"/g' "${subscribeFile}"
+    sed -ri 's/ip:\s+"?([^,\{\}[:space:]]+)[[:space:]]+"?/ip: "\1"/g' "${subscribeFile}"
 
     # chacha20-ietf-poly1305
     sed -ri 's/cipher:\s+"?(chacha20-ietf-poly[^,\{\}[:space:]]+)"?/cipher: "chacha20-ietf-poly1305"/g' "${subscribeFile}"
