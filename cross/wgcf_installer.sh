@@ -57,3 +57,9 @@ fi
 ## WireGuard connetcion profile
 # wgcf-profile.conf
 
+# "${MY_SHELL_SCRIPTS}/cross/wireguard_installer.sh"
+# sudo cp ./wgcf-profile.conf /etc/wireguard/wgcf.conf
+# sudo wg-quick up wgcf
+# sudo systemctl enable wg-quick@wgcf
+
+# sudo wg-quick down wgcf
