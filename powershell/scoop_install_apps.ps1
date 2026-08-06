@@ -270,6 +270,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "krita"
         "obs-studio"
         "xpipe"
+        "doublecmd"
         "edit"
         "zed"
         # "geany"
