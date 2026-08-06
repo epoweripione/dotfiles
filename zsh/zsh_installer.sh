@@ -125,6 +125,8 @@ if [[ -x "$(command -v pacman)" ]]; then
         # tmux
         xsel
         xmlstarlet
+        xxd
+        vim-common
     )
     InstallSystemPackages "" "${PackagesList[@]}"
 fi
