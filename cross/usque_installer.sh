@@ -19,10 +19,10 @@ fi
 
 App_Installer_Reset
 
-# [wgcf is an unofficial, cross-platform CLI for Cloudflare Warp](https://github.com/ViRb3/wgcf)
-INSTALLER_GITHUB_REPO="ViRb3/wgcf"
-INSTALLER_BINARY_NAME="wgcf"
-INSTALLER_MATCH_PATTERN="wgcf_*"
+# [Usque - open-source reimplementation of the Cloudflare WARP client's MASQUE mode](https://github.com/Diniboy1123/usque)
+INSTALLER_GITHUB_REPO="Diniboy1123/usque"
+INSTALLER_BINARY_NAME="usque"
+INSTALLER_MATCH_PATTERN="usque*"
 
 INSTALLER_VERSION_TO_FILE="yes"
 
@@ -48,36 +48,10 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 fi
 
 : '
-# Usage
-wgcf register
-wgcf generate
+usque register
 
-# cf account
-wgcf-account.toml
+# SOCKS5 Proxy Mode
+usque socks -b 127.0.0.1 -p 40000
 
-# WireGuard connetcion profile
-wgcf-profile.conf
-
-# Install WireGuard
-"${MY_SHELL_SCRIPTS}/cross/wireguard_installer.sh"
-sudo cp ./wgcf-profile.conf /etc/wireguard/wgcf.conf
-
-# Add routing rule to avoid routing all traffic through the WireGuard tunnel
-get_network_wan_ipv4; get_network_wan_ipv6
-echo "${NETWORK_WAN_NET_IP} ${NETWORK_WAN_NET_IPV6}"
-
-if [[ -n "${NETWORK_WAN_NET_IP}" ]]; then
-    sudo sed -i "/^\[Peer\]/i\PostUp = ip -4 rule add from ${NETWORK_WAN_NET_IP} lookup main" /etc/wireguard/wgcf.conf
-    sudo sed -i "/^\[Peer\]/i\PostDown = ip -4 rule delete from ${NETWORK_WAN_NET_IP} lookup main" /etc/wireguard/wgcf.conf
-fi
-
-if [[ -n "${NETWORK_WAN_NET_IPV6}" ]]; then
-    sudo sed -i "/^\[Peer\]/i\PostUp = ip -6 rule add from ${NETWORK_WAN_NET_IPV6} lookup main" /etc/wireguard/wgcf.conf
-    sudo sed -i "/^\[Peer\]/i\PostDown = ip -6 rule delete from ${NETWORK_WAN_NET_IPV6} lookup main" /etc/wireguard/wgcf.conf
-fi
-
-sudo wg-quick up wgcf
-sudo wg-quick down wgcf
-
-sudo systemctl enable wg-quick@wgcf
+nohup usque socks -b 127.0.0.1 -p 40000 >/dev/null 2>&1 &
 '
