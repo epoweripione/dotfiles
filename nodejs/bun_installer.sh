@@ -14,7 +14,7 @@ fi
 
 App_Installer_Reset
 
-# [Bun - a fast JavaScript bundler](https://bun.sh/)
+# [Bun is an all-in-one toolkit for developing modern JavaScript/TypeScript applications](https://bun.com/docs)
 INSTALLER_GITHUB_REPO="oven-sh/bun"
 INSTALLER_BINARY_NAME="bun"
 
@@ -40,6 +40,6 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     if [[ "${INSTALLER_IS_UPDATE}" == "yes" ]]; then
         bun upgrade
     else
-        curl -fsSL https://bun.sh/install | bash
+        curl -fsSL https://bun.com/install | bash
     fi
 fi
