@@ -477,6 +477,7 @@ function App_Installer_Get_Remote_Version() {
     if grep -q -E "^jq=" <<<"${version_match_pattern}"; then
         version_match_pattern="${version_match_pattern/jq=/}"
         if grep -q -E "@" <<<"${version_match_pattern}"; then
+            # `jq=.tag_name@([0-9]{1,}\.)+[0-9]{1,}`
             jq_match_pattern=$(awk -F@ '{print $1}' <<<"${version_match_pattern}")
             version_match_pattern=$(awk -F@ '{print $2}' <<<"${version_match_pattern}")
         else
@@ -487,7 +488,7 @@ function App_Installer_Get_Remote_Version() {
 
     if [[ -z "${INSTALLER_VER_REMOTE}" && -n "${jq_match_pattern}" ]]; then
         INSTALLER_VER_REMOTE=$(jq -r "${jq_match_pattern}//empty" 2>/dev/null <<<"${INSTALLER_REMOTE_CONTENT}" | cut -d'v' -f2)
-        [[ -n "${version_match_pattern}" ]] && INSTALLER_VER_REMOTE=$(grep -E "${version_match_pattern}" <<<"${INSTALLER_VER_REMOTE}")
+        [[ -n "${version_match_pattern}" ]] && INSTALLER_VER_REMOTE=$(grep -Eo "${version_match_pattern}" <<<"${INSTALLER_VER_REMOTE}")
     fi
 
     [[ -z "${INSTALLER_VER_REMOTE}" && -n "${version_match_pattern}" ]] && \
