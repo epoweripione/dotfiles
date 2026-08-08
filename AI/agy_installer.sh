@@ -51,5 +51,9 @@ fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-    curl -fsSL https://antigravity.google/cli/install.sh | bash
+    if [[ "${INSTALLER_IS_UPDATE}" == "yes" ]]; then
+        agy update
+    else
+        curl -fsSL https://antigravity.google/cli/install.sh | bash
+    fi
 fi
