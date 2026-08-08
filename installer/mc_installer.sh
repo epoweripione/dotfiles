@@ -20,7 +20,7 @@ fi
 App_Installer_Reset
 
 # [MinIO - High Performance, Kubernetes Native Object Storage](https://min.io/)
-# [Silo (Community maintained fork of MinIO)](https://github.com/pgsty/minio)
+# [Silo (Community maintained fork of MinIO)](https://github.com/pgsty/silo)
 INSTALLER_GITHUB_REPO="pgsty/mc"
 INSTALLER_BINARY_NAME="mc"
 

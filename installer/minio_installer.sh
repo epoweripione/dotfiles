@@ -18,7 +18,7 @@ else
 fi
 
 # [MinIO - High Performance, Kubernetes Native Object Storage](https://min.io/)
-# [Silo (Community maintained fork of MinIO)](https://github.com/pgsty/minio)
+# [Silo (Community maintained fork of MinIO)](https://github.com/pgsty/silo)
 
 # if [[ "${THE_WORLD_BLOCKED}" == "true" ]]; then
 #     curl -fsSL https://repo.pigsty.io/pig | bash
@@ -26,13 +26,13 @@ fi
 #     curl -fsSL https://repo.pigsty.cc/pig | bash
 # fi
 # pig repo add infra -u
-# pig install minio
+# pig install silo
 
-# minio server
+# silo server
 App_Installer_Reset
 
-INSTALLER_GITHUB_REPO="pgsty/minio"
-INSTALLER_BINARY_NAME="minio"
+INSTALLER_GITHUB_REPO="pgsty/silo"
+INSTALLER_BINARY_NAME="silo"
 
 INSTALLER_ARCHIVE_EXT="tar.gz"
 INSTALLER_MATCH_PATTERN="${INSTALLER_BINARY_NAME}*"
