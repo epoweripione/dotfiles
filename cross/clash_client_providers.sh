@@ -373,12 +373,24 @@ function formatYAMLFile() {
 function fixInvalidYAMLFile() {
     local subscribeFile=$1
     local InvalidFile="no"
+    local GroupLine TotalLine InvalidLines
 
     ## Fix: invalid leading UTF-8 octet
     ## https://stackoverflow.com/questions/12999651/how-to-remove-non-utf-8-characters-from-text-file
     ## https://stackoverflow.com/questions/29465612/how-to-detect-invalid-utf8-unicode-binary-in-a-text-file
     # echo -ne '\uFFFD' | hexdump -C
     # python3 -c 'print("\uFFFD".encode("utf8"))'
+
+    GroupLine=$(grep -Ean "^proxy-groups:" "${subscribeFile}" | cut -d: -f1)
+    TotalLine=$(wc -l "${subscribeFile}" | awk '{print $1}')
+    GroupLine=$((GroupLine + 1))
+    if [[ ${GroupLine} -ge ${TotalLine} ]]; then
+        InvalidLines=$(grep -n -axv '.*' "${subscribeFile}" 2>/dev/null | cut -d: -f1)
+        while read -r curLine; do
+            [[ -n "${curLine}" ]] && sed -i "${curLine}d" "${subscribeFile}"
+        done <<<"${InvalidLines}"
+    fi
+
     if grep -q -axv '.*' "${subscribeFile}" 2>/dev/null; then
         InvalidFile="yes"
     elif grep -q -P "\x{fffd}/u" "${subscribeFile}" 2>/dev/null; then
