@@ -423,6 +423,28 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     [[ CPU_ARCH_LEVEL -ge 3 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64v3|amd64-v3"
 }
 
+# Get release version from pip index
+# pip index versions numpy
+# pip index versions cudf-cu11 --extra-index-url https://pypi.nvidia.com
+function App_Installer_Get_Pip_Package_Remote_Version() {
+    local package_name=$1
+    local extra_index_url=$2
+
+    [[ -z "${package_name}" ]] && colorEcho "${FUCHSIA}Package name${RED} can't empty!" && return 1
+
+    [[ ! -x "$(command -v pip)" ]] && colorEcho "${RED}  pip is not installed!" && return 1
+
+    if [[ -n "${extra_index_url}" ]]; then
+        INSTALLER_VER_REMOTE=$(pip index versions "${package_name}" --extra-index-url "${extra_index_url}" 2>/dev/null)
+    else
+        INSTALLER_VER_REMOTE=$(pip index versions "${package_name}" 2>/dev/null)
+    fi
+
+    INSTALLER_VER_REMOTE=$(grep -i 'Available versions' <<<"${INSTALLER_VER_REMOTE}" | awk -F, '{print $1}' | grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' | head -n1)
+
+    [[ -n "${INSTALLER_VER_REMOTE}" ]] && return 0 || return 1
+}
+
 # Get release version from github repository using github API or extract from github release page
 function App_Installer_Get_Remote_Version() {
     local remote_url=$1
