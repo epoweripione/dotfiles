@@ -16,7 +16,7 @@
           "background": "#3465a4",
           "foreground": "#e4e4e4",
           "powerline_symbol": "\ue0b0",
-          "properties": {
+          "options": {
             "folder_icon": "\uf07b",
             "style": "full"
           },
@@ -34,9 +34,8 @@
           ],
           "foreground": "#000000",
           "powerline_symbol": "\ue0b0",
-          "properties": {
+          "options": {
             "branch_icon": " \uf126 ",
-            "fetch_stash_count": true,
             "fetch_status": true,
             "fetch_upstream_icon": true,
             "native_fallback": true
@@ -57,7 +56,7 @@
           "foreground": "#ffffff",
           "invert_powerline": true,
           "powerline_symbol": "\ue0b2",
-          "properties": {
+          "options": {
             "fetch_version": true,
             "npm_icon": "<#cc3a3a>\ue5fa</>",
             "yarn_icon": " <#348cba>\ue6a7</>"
@@ -71,7 +70,7 @@
           "foreground": "#111111",
           "invert_powerline": true,
           "powerline_symbol": "\ue0b2",
-          "properties": {
+          "options": {
             "fetch_version": true
           },
           "style": "powerline",
@@ -146,7 +145,7 @@
           "foreground": "#111111",
           "invert_powerline": true,
           "powerline_symbol": "\ue0b2",
-          "properties": {
+          "options": {
             "fetch_version": true
           },
           "style": "powerline",
@@ -158,7 +157,7 @@
           "foreground": "#111111",
           "invert_powerline": true,
           "powerline_symbol": "\ue0b2",
-          "properties": {
+          "options": {
             "display_mode": "files",
             "fetch_virtual_env": false
           },
@@ -171,7 +170,7 @@
           "foreground": "#ffffff",
           "invert_powerline": true,
           "powerline_symbol": "\ue0b2",
-          "properties": {
+          "options": {
             "display_mode": "files",
             "fetch_version": true
           },
@@ -184,7 +183,7 @@
           "foreground": "#ffffff",
           "invert_powerline": true,
           "powerline_symbol": "\ue0b2",
-          "properties": {
+          "options": {
             "display_mode": "files",
             "fetch_version": false
           },
@@ -200,7 +199,7 @@
           "foreground": "#ffffff",
           "invert_powerline": true,
           "powerline_symbol": "\ue0b2",
-          "properties": {
+          "options": {
             "display_default": false
           },
           "style": "powerline",
@@ -233,7 +232,7 @@
           "foreground": "#d3d7cf",
           "invert_powerline": true,
           "powerline_symbol": "\ue0b2",
-          "properties": {
+          "options": {
             "always_enabled": true
           },
           "style": "powerline",
@@ -245,7 +244,7 @@
           "foreground": "#193549",
           "invert_powerline": true,
           "powerline_symbol": "\ue0b2",
-          "properties": {
+          "options": {
             "discharging_icon": "\ue231 ",
             "charging_icon": "\ue234 ",
             "charged_icon": "\ue22f "
@@ -267,7 +266,7 @@
           "template": " {{ .CurrentDate | date .Format }} \uf017 ",
           "trailing_diamond": "\ue0b0\u2500\u256e",
           "type": "time",
-          "properties": {
+          "options": {
             "time_format": "15:04"
           }
         }

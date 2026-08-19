@@ -7,7 +7,7 @@
         {
           "background": "#b2bec3",
           "foreground": "#222222",
-          "properties": {
+          "options": {
             "linux": "\ue712",
             "macos": "\ue711",
             "windows": "\ue70f"
@@ -37,7 +37,7 @@
         {
           "background": "#FF9248",
           "foreground": "#2d3436",
-          "properties": {
+          "options": {
             "folder_icon": "\uf07b",
             "style": "full"
           },
@@ -55,7 +55,7 @@
             "{{ if gt .Behind 0 }}#C792EA{{ end }}"
           ],
           "foreground": "#011627",
-          "properties": {
+          "options": {
             "branch_icon": " \uf126 ",
             "fetch_status": true,
             "fetch_upstream_icon": true,
@@ -76,7 +76,7 @@
         {
           "background": "#303030",
           "foreground": "#3C873A",
-          "properties": {
+          "options": {
             "fetch_package_manager": true,
             "npm_icon": "<#cc3a3a>\ue5fa</>",
             "yarn_icon": " <#348cba>\ue6a7</>"
@@ -265,7 +265,7 @@
         {
           "background": "#83769c",
           "foreground": "#ffffff",
-          "properties": {
+          "options": {
             "style": "roundrock",
             "threshold": 500
           },
@@ -280,7 +280,7 @@
             "{{ if gt .Code 0 }}#e91e63{{ end }}"
           ],
           "foreground": "#d3d7cf",
-          "properties": {
+          "options": {
             "always_enabled": true
           },
           "style": "diamond",
@@ -296,7 +296,7 @@
             "{{if eq \"Full\" .State.String}}#33DD2D{{end}}"
           ],
           "foreground": "#262626",
-          "properties": {
+          "options": {
             "charged_icon": "\uf240 ",
             "charging_icon": "\uf1e6 ",
             "discharging_icon": "\ue234 "
@@ -309,7 +309,7 @@
         {
           "background": "#d3d7cf",
           "foreground": "#000000",
-          "properties": {
+          "options": {
             "time_format": "15:04"
           },
           "style": "diamond",
@@ -334,7 +334,7 @@
         {
           "foreground": "#e0f8ff",
           "foreground_templates": ["{{ if gt .Code 0 }}#ef5350{{ end }}"],
-          "properties": {
+          "options": {
             "always_enabled": true
           },
           "style": "plain",
