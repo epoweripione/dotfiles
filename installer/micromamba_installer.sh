@@ -20,7 +20,13 @@ fi
 App_Installer_Reset
 
 # [Micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)
-"${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+if [[ "$(command -v micromamba)" ]]; then
+    colorEcho "${BLUE}Updating ${FUCHSIA}micromamba${BLUE}..."
+    micromamba self-update
+else
+    colorEcho "${BLUE}Installing ${FUCHSIA}micromamba${BLUE}..."
+    "${SHELL}" <(curl -L micro.mamba.pm)
+fi
 
 if [[ "$(command -v micromamba)" ]]; then
     if ! grep -q 'mamba initialize' "$HOME/.bashrc" >/dev/null 2>&1; then
