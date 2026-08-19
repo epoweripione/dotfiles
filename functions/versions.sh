@@ -564,3 +564,25 @@ function yayGetAurFlagOutdatedPackages() {
         done
     fi
 }
+
+# create venv using uv
+function uvCreateVenv() {
+    local VENV_DIR=${1:-"${PWD}"}
+    local PYTHON_VERSION=$2
+
+    [[ ! -x "$(command -v uv)" ]] && colorEcho "${FUCHSIA}uv${RED} is not installed!" && return 1
+
+    if [[ -z "${PYTHON_VERSION}" ]]; then
+        colorEcho "${BLUE}Getting latest ${FUCHSIA}Python 3${BLUE} version..."
+        PYTHON_VERSION=$(curl "${CURL_CHECK_OPTS[@]}" "https://www.python.org/api/v2/downloads/release/" \
+                        | jq -r ".[] | select(.is_latest and .version == 3) | .name//empty" \
+                        | grep -Eo -m1 '([0-9]{1,}\.){1,1}[0-9]{1,}' | head -n1)
+        PYTHON_VERSION=${PYTHON_VERSION:-"3.14"}
+    fi
+
+    [[ ! -d "${VENV_DIR}" ]] && mkdir -p "${VENV_DIR}"
+    cd "${VENV_DIR}" || return 1
+
+    uv venv --python "${PYTHON_VERSION}" --seed --managed-python
+    source .venv/bin/activate
+}
