@@ -184,6 +184,10 @@ fi
 
 [[ -x "$(command -v lazygit)" ]] && alias lg='lazygit'
 
+if [[ ! "$(command -v mamba)" ]]; then
+    [[ -x "$(command -v micromamba)" ]] && alias mamba='micromamba'
+fi
+
 # rlwarp alias
 [[ -x "$(command -v telnet)" && -x "$(command -v rlwrap)" ]] && alias telnet="rlwrap telnet"
 
