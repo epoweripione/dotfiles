@@ -275,3 +275,71 @@ winapps-setup --help
 
 
 # [WinApps-Launcher](https://github.com/winapps-org/winapps-launcher)
+InstallSystemPackages "" "yad"
+
+if [[ -d "$HOME/.local/bin/winapps-src" ]]; then
+    WINAPPS_SRC_DIR="$HOME/.local/bin/winapps-src"
+elif [[ -d "/usr/local/bin/winapps-src" ]]; then
+    WINAPPS_SRC_DIR="/usr/local/bin/winapps-src"
+fi
+
+if [[ -d "${WINAPPS_SRC_DIR}" ]]; then
+    colorEcho "${BLUE}Installing ${FUCHSIA}winapps-launcher${BLUE}..."
+    # Clone the repository into the correct location
+    Git_Clone_Update_Branch "winapps-org/winapps-launcher" "${WINAPPS_SRC_DIR}/winapps-launcher"
+
+    # Make the script executable
+    chmod +x "${WINAPPS_SRC_DIR}/winapps-launcher/winapps-launcher.sh"
+
+    ## Run the launcher as a test
+    # "${WINAPPS_SRC_DIR}/winapps-launcher/winapps-launcher.sh"
+
+    # Application Icon
+    mkdir -p "$HOME/.local/share/applications"
+
+    cat > "$HOME/.local/share/applications/winapps-launcher.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=WinApps Launcher
+Comment=Taskbar Launcher for WinApps
+Exec="$WINAPPS_SRC_DIR/winapps-launcher/winapps-launcher.sh"
+Icon=$WINAPPS_SRC_DIR/winapps-launcher/icons/LinkIcon.svg
+Terminal=false
+Categories=Utility;
+EOF
+
+    # Autostart
+    mkdir -p "$HOME/.config/systemd/user"
+
+    cat > "$HOME/.config/systemd/user/winapps-launcher.service" <<EOF
+[Unit]
+Description=Run 'WinApps Launcher'
+After=graphical-session.target default.target
+Wants=graphical-session.target
+
+[Service]
+Type=simple
+Environment="PATH=%h/.local/bin:%h/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="LIBVIRT_DEFAULT_URI=qemu:///system"
+Environment="SCRIPT_PATH=$WINAPPS_SRC_DIR/winapps-launcher/winapps-launcher.sh"
+Environment="LANG=C"
+ExecStart=/bin/bash -c "\\"\$SCRIPT_PATH\\""
+ExecStopPost=/bin/bash -c 'echo "[SYSTEMD] WINAPPS LAUNCHER SERVICE EXITED."'
+TimeoutStartSec=5
+TimeoutStopSec=5
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOF
+
+    # Enable the user service.
+    systemctl --user enable winapps-launcher --now # Enable & Start Service
+    systemctl --user status winapps-launcher # Verify
+fi
+
+## To uninstall the WinApps Launcher user service, run the following:
+# systemctl --user stop winapps-launcher # Stop Service
+# systemctl --user disable winapps-launcher # Disable Service
+# rm ~/.config/systemd/user/winapps-launcher.service # Delete Service
