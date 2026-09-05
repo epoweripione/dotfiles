@@ -394,6 +394,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "fd"
         "file"
         "gping"
+        "ripgrep"
         # "host-editor"
         "hosts-file-editor"
         "keyviz"
