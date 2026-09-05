@@ -28,6 +28,22 @@ if ( -Not (Get-Command "sdkmanager" -ErrorAction SilentlyContinue)) {
         $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
         $userenv = $userenv.TrimEnd(';')
         [System.Environment]::SetEnvironmentVariable("PATH", "%USERPROFILE%\AppData\Local\Android\Sdk\cmdline-tools\latest\bin;" + $userenv, 'User')
+    } elseif (Test-Path "$env:ANDROID_HOME\cmdline-tools") {
+        $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        $userenv = $userenv.TrimEnd(';')
+        [System.Environment]::SetEnvironmentVariable("PATH", "%ANDROID_HOME%\cmdline-tools\latest\bin;" + $userenv, 'User')
+    }
+}
+
+if ( -Not (Get-Command "emulator" -ErrorAction SilentlyContinue)) {
+    if (Test-Path "$HOME\AppData\Local\Android\Sdk\emulator") {
+        $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        $userenv = $userenv.TrimEnd(';')
+        [System.Environment]::SetEnvironmentVariable("PATH", "%USERPROFILE%\AppData\Local\Android\Sdk\emulator;" + $userenv, 'User')
+    } elseif (Test-Path "$env:ANDROID_HOME\emulator") {
+        $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        $userenv = $userenv.TrimEnd(';')
+        [System.Environment]::SetEnvironmentVariable("PATH", "%ANDROID_HOME%\emulator;" + $userenv, 'User')
     }
 }
 
@@ -40,6 +56,10 @@ if ( -Not (Get-Command "adb" -ErrorAction SilentlyContinue)) {
         $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
         $userenv = $userenv.TrimEnd(';')
         [System.Environment]::SetEnvironmentVariable("PATH", "%USERPROFILE%\scoop\apps\adb\current\platform-tools;" + $userenv, 'User')
+    } elseif (Test-Path "$env:ANDROID_HOME\platform-tools") {
+        $userenv = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        $userenv = $userenv.TrimEnd(';')
+        [System.Environment]::SetEnvironmentVariable("PATH", "%ANDROID_HOME%\platform-tools;" + $userenv, 'User')
     }
 }
 
