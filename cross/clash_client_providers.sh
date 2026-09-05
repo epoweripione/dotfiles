@@ -275,7 +275,7 @@ function formatYAMLFile() {
     colorEcho "${BLUE}    Formating YAML file ${FUCHSIA}${subscribeFile}${BLUE}..."
 
     # add Double quotes to `path`, `User-Agent`...
-    sed -ri 's/(ALPN|Alpn|alpn|HOST|Host|host|PATH|Path|path):\s+([^,"\{\}\[]+)/\1: "\2"/g' "${subscribeFile}"
+    sed -ri 's/(ALPN|Alpn|alpn|HOST|Host|host|PATH|Path|path|SNI|Sni|sni):\s+([^,"\{\}\[]+)/\1: "\2"/g' "${subscribeFile}"
 
     # 'alpn', 'http-opts.path', 'http-opts.headers[Host]' is a slice
     sed -ri 's/(ALPN|Alpn|alpn):\s*\"【([^,"\{\}]+)】\"/\1: \["\2"\]/g' "${subscribeFile}"
