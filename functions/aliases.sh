@@ -142,6 +142,8 @@ if [[ -x "$(command -v docker)" ]]; then
     alias docker-sqlfluff='docker run --rm -it -v $PWD:/sql sqlfluff/sqlfluff'
     # https://github.com/maximhq/bifrost
     alias docker-bifrost='docker run -d --name bifrost -p 8080:8080 -v $HOME/bifrost_data:/app/data maximhq/bifrost'
+    # https://github.com/plait-board/drawnix
+    alias docker-drawnix='docker run -d --name drawnix -p 80:80 pubuzhixing/drawnix'
 fi
 
 
