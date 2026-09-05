@@ -1613,7 +1613,10 @@ function installPrebuiltBinary() {
     [[ "${IS_UPDATE_ONLY}" == "yes" && ! "$(command -v "${binary_name}")" ]] && return 0
 
     # Reset ENV vars if there is an application installed before
-    [[ -n "${INSTALLER_APP_NAME}" || "${INSTALLER_IS_INSTALL}" != "yes" ]] && App_Installer_Reset
+    if [[ -n "${INSTALLER_APP_NAME}" || "${INSTALLER_IS_INSTALL}" != "yes" ]]; then
+        App_Installer_Reset
+        [[ "${INSTALLER_BINARY_NO_VERSION_COMMAND}" == "yes" ]] && INSTALLER_VERSION_TO_FILE="yes"
+    fi
 
     if [[ -z "${WORKDIR}" || "${WORKDIR}" != "/tmp/"* || ! -d "${WORKDIR}" ]]; then
         WORKDIR="$(mktemp -d)"
