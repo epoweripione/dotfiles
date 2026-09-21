@@ -423,6 +423,29 @@ function App_Installer_Get_OS_Info_Match_Cond() {
     [[ CPU_ARCH_LEVEL -ge 3 ]] && OS_INFO_MATCH_CPU_LEVEL="amd64v3|amd64-v3"
 }
 
+# Get release version from npm view
+# npm view "@openai/codex@latest" version --json
+function  App_Installer_Get_Npm_Package_Remote_Version() {
+    local package_name=$1
+    local register_url=$2
+
+    [[ -z "${package_name}" ]] && colorEcho "${FUCHSIA}Package name${RED} can't empty!" && return 1
+
+    [[ ! -x "$(command -v npm)" ]] && colorEcho "${RED}  npm is not installed!" && return 1
+
+    [[ -z "${register_url}" && -n "${MIRROR_NODEJS_REGISTRY}" ]] && register_url="${MIRROR_NODEJS_REGISTRY}"
+
+    if [[ -n "${register_url}" ]]; then
+        INSTALLER_VER_REMOTE=$(npm view "${package_name}@latest" version --json --registry "${register_url}" 2>/dev/null)
+    else
+        INSTALLER_VER_REMOTE=$(npm view "${package_name}@latest" version --json 2>/dev/null)
+    fi
+
+    INSTALLER_VER_REMOTE=$(grep -Eo -m1 '([0-9]{1,}\.)+[0-9]{1,}' <<<"${INSTALLER_VER_REMOTE}" | head -n1)
+
+    [[ -n "${INSTALLER_VER_REMOTE}" ]] && return 0 || return 1
+}
+
 # Get release version from pip index
 # pip index versions numpy
 # pip index versions cudf-cu11 --extra-index-url https://pypi.nvidia.com
