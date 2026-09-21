@@ -189,6 +189,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "diffnav#dlvhdr/diffnav#tar.gz#diffnav"
         "edit#microsoft/edit#tar.gz#edit*"
         "erdtree"
+        "hurl#Orange-OpenSource/hurl#tar.gz#hurl*"
         "lnav"
         "magic-wormhole"
         # "nano"
