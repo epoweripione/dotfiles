@@ -94,7 +94,7 @@ if ! grep -q "automount" /etc/wsl.conf 2>/dev/null; then
 enabled = true
 root = /
 options = "metadata,umask=22,fmask=11"
-mountFsTab = false
+# mountFsTab = false
 
 [interop]
 enabled = true
