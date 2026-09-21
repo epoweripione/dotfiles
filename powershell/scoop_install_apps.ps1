@@ -222,6 +222,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "starship"
         "tssh"
         "chsrc"
+        "glazewm"
         # "wingetui"
         # "googlechrome-dev"
         # "chromium"
