@@ -4,4 +4,11 @@
 [wsl2]
 networkingMode=Mirrored
 autoProxy=false
-# virtiofs=true
+
+## Enable virtiofs for WSL2 (requires WSL2 2.9.12+)
+# wsl --update --pre-release
+# wsl --version
+## Check default fs: 9p
+# mount
+# duf -only local,fuse
+virtiofs=true
