@@ -29,12 +29,22 @@ if (Get-Process -Name "xray" -ErrorAction SilentlyContinue) {
 }
 
 $XRayCMD = "xray.exe"
+$XRayVersion1 = "0.0.0"
 if (Get-Command "${XRayCMD}" -ErrorAction SilentlyContinue) {
-    $XRayCMD = (Get-Command "${XRayCMD}" -ErrorAction SilentlyContinue).Path
+    $XRayCMD1 = (Get-Command "${XRayCMD}" -ErrorAction SilentlyContinue).Path
+    $XRayVersion1 = (& "${XRayCMD1}" --version | Select-String '((?:\d{1,}\.)+\d{1,})' | ForEach-Object {$_.Matches[0].Groups[1].Value})
+}
+
+$XRayVersion2 = "0.0.0"
+if (Test-Path "$env:SystemDrive\Tools\xray\xray.exe") {
+    $XRayCMD2 = "$env:SystemDrive\Tools\xray\xray.exe"
+    $XRayVersion2 = (& "${XRayCMD2}" --version | Select-String '((?:\d{1,}\.)+\d{1,})' | ForEach-Object {$_.Matches[0].Groups[1].Value})
+}
+
+if ([Version]$XRayVersion1 -lt [Version]$XRayVersion2){
+    $XRayCMD = $XRayCMD2
 } else {
-    if (Test-Path "$env:SystemDrive\Tools\xray\xray.exe") {
-        $XRayCMD = "$env:SystemDrive\Tools\xray\xray.exe"
-    }
+    $XRayCMD = $XRayCMD1
 }
 
 ## Load variables from local proxy env file
