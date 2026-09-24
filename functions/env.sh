@@ -337,6 +337,12 @@ if [[ -d "$HOME/.pgenv" ]]; then
     [[ ":$PATH:" != *":$HOME/.pgenv/bin:"* ]] && export PATH=$PATH:$HOME/.pgenv/bin:$HOME/.pgenv/pgsql/bin
 fi
 
+# dotnet
+if [[ -d "$HOME/.dotnet" ]]; then
+    export DOTNET_ROOT="$HOME/.dotnet"
+    [[ ":$PATH:" != *":${DOTNET_ROOT}:"* ]] && export PATH=$PATH:${DOTNET_ROOT}:${DOTNET_ROOT}/tools
+fi
+
 # Fix `bin` path in `PATH` environment variable
 FixSystemBinPath
 
