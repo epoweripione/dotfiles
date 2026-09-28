@@ -459,6 +459,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "claude-code"
         "codex"
         "cc-switch"
+        "orca-ide"
         "lmstudio"
         "opencode-desktop"
         "chatbox-ce"
