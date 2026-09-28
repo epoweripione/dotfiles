@@ -19,8 +19,7 @@ fi
 
 App_Installer_Reset
 
-# Tig: text-mode interface for Git
-# http://jonas.github.io/tig/
+# [Tig: text-mode interface for Git](http://jonas.github.io/tig/)
 INSTALLER_APP_NAME="tig"
 INSTALLER_GITHUB_REPO="jonas/tig"
 
@@ -47,6 +46,23 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
 fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
+    INSTALLER_INSTALL_METHOD="build"
+
+    if checkPackageExists "${INSTALLER_APP_NAME}"; then
+        INSTALLER_INSTALL_METHOD="pacman"
+    fi
+fi
+
+# pacman
+if [[ "${INSTALLER_INSTALL_METHOD}" == "pacman" ]]; then
+    if checkPackageNeedInstall "${INSTALLER_APP_NAME}"; then
+        colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
+        [[ -x "$(command -v pacman)" ]] && sudo pacman --noconfirm -S "${INSTALLER_APP_NAME}"
+    fi
+fi
+
+# build
+if [[ "${INSTALLER_INSTALL_METHOD}" == "build" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE} from source..."
     if [[ -x "$(command -v pacman)" ]]; then
         # Pre-requisite packages
