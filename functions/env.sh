@@ -343,6 +343,11 @@ if [[ -d "$HOME/.dotnet" ]]; then
     [[ ":$PATH:" != *":${DOTNET_ROOT}:"* ]] && export PATH=$PATH:${DOTNET_ROOT}:${DOTNET_ROOT}/tools
 fi
 
+if [[ -d "$HOME/.dotnetup" ]]; then
+    export DOTNETUP_ROOT="$HOME/.dotnetup"
+    [[ ":$PATH:" != *":${DOTNETUP_ROOT}:"* ]] && export PATH=$PATH:${DOTNETUP_ROOT}:${DOTNETUP_ROOT}/tools
+fi
+
 # Fix `bin` path in `PATH` environment variable
 FixSystemBinPath
 
