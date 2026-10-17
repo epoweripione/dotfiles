@@ -337,15 +337,15 @@ if [[ -z "${AppManjaroInstallList[*]}" ]]; then
         "kdenlive"
         "archlinuxcn/lx-music-desktop"
         ## Proxy
-        "aur/frps-bin"
-        "aur/frpc-bin"
+        "archlinuxcn/frps"
+        "archlinuxcn/frpc"
         ## Screenshot
         # "deepin-screenshot"
         "flameshot"
         #"xfce4-screenshooter"
         ## Quick search
         "synapse"
-        "utools"
+        "aur/utools-bin"
         ## Linux Advanced Power Management
         "power-profiles-daemon"
         # "tlp"
