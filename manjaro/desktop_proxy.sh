@@ -227,5 +227,11 @@ case "${OS_INFO_TYPE}" in
     #     ;;
 esac
 
+## clash-verge-rev service install/uninstall
+# sudo systemctl restart clash-verge-service
+# sudo clash-verge-service-uninstall
+## pkexec -u root /usr/sbin/sh -c /usr/bin/clash-verge-service-install
+# sudo clash-verge-service-install
+
 
 cd "${CURRENT_DIR}" || exit
