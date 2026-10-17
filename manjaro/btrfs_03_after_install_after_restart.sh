@@ -72,7 +72,8 @@ AppSnapperInstallList=(
     "snap-pac"
     # [Snapper - helps with managing snapshots of Btrfs subvolumes and thin-provisioned LVM volumes](https://wiki.archlinux.org/title/Snapper)
     "snapper"
-    "snapper-gui"
+    # "snapper-gui"
+    # "aur/snapper-tools-git"
     ## [Limine - an advanced, portable, multiprotocol boot loader](https://wiki.archlinux.org/title/Limine)
     ## [Limine-Snapper-Sync: The tool syncs Limine boot entries with Snapper snapshots (Btrfs snapshots)](https://gitlab.com/Zesko/limine-snapper-sync)
     # "limine"
