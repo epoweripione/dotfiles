@@ -126,8 +126,10 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
     }
 
     if (-Not (Get-Command "aria2c" -ErrorAction SilentlyContinue)) {
-        Write-Host "Installing aria2..." -ForegroundColor Blue
-        scoop install aria2
+        # Write-Host "Installing aria2..." -ForegroundColor Blue
+        # scoop install aria2
+        Write-Host "Installing aria2-next..." -ForegroundColor Blue
+        scoop install aria2-next
     }
 
     scoop config aria2-warning-enabled false
@@ -423,6 +425,7 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "jq"
         "yq"
         "vfox"
+        "wsl-ui"
         "wsl2-distro-manager"
         # "trafficmonitor"
         "driverstoreexplorer"
@@ -462,6 +465,8 @@ if (Get-Command "scoop" -ErrorAction SilentlyContinue) {
         "orca-ide"
         "lmstudio"
         "opencode-desktop"
+        "pi-coding-agent"
+        "oh-my-pi"
         "chatbox-ce"
         "cherry-studio"
         "cursor"
