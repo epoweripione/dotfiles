@@ -295,6 +295,7 @@ EOF
 }
 
 # Wayland IME for WPS Office
+# [修复 WPS Office 的 Fcitx5 输入法问题](https://wszqkzqk.github.io/2024/03/09/WPS-Fcitx5/)
 function setWaylandIMEWPSOffice() {
     [[ -f "/usr/lib/office6/wpscloudsvr" && -x "/usr/lib/office6/wpscloudsvr" ]] && sudo chmod -x "/usr/lib/office6/wpscloudsvr"
 
