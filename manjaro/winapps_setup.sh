@@ -343,3 +343,12 @@ fi
 # systemctl --user stop winapps-launcher # Stop Service
 # systemctl --user disable winapps-launcher # Disable Service
 # rm ~/.config/systemd/user/winapps-launcher.service # Delete Service
+
+## [Add support for switching input method](https://github.com/winapps-org/winapps/issues/43)
+# Running this command to know the hex code for my desired keyboard layout:
+# xfreerdp /list:kbd
+# Then add the following line to your ~/.config/winapps/winapps.conf file:
+# RDP_FLAGS="/kbd:layout:0x00000450"
+# On Windows, go to
+# Settings > Time & Language > Typing > Advanced keyboard settings > check the "Use desktop language bar when it's available".
+# And then, bellow that, go to the "Language bar options" and check "Hidden".
