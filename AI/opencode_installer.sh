@@ -24,7 +24,7 @@ INSTALLER_APP_NAME="opencode"
 INSTALLER_GITHUB_REPO="anomalyco/opencode"
 INSTALLER_BINARY_NAME="opencode"
 
-INSTALLER_NPM_PACKAGE="opencode-ai"
+INSTALLER_NPM_PACKAGE="@opencode/cli"
 
 if [[ -x "$(command -v ${INSTALLER_BINARY_NAME})" ]]; then
     INSTALLER_IS_UPDATE="yes"
