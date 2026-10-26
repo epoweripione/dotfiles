@@ -12,3 +12,8 @@ autoProxy=false
 # mount
 # duf -only local,fuse
 virtiofs=true
+
+[general]
+# The number of milliseconds that a distro is idle, before it is shut down
+# Set to -1 to disable auto shutdown
+instanceIdleTimeout=-1
