@@ -316,6 +316,12 @@ function setWaylandIMEWPSOffice() {
             sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/et"
         fi
     fi
+
+    if [[ -f "/usr/bin/wpspdf" ]]; then
+        if ! grep -q "export QT_IM_MODULE=" "/usr/bin/wpspdf"; then
+            sudo sed -i -e '2a export QT_IM_MODULE="fcitx"' -e '2a export XMODIFIERS="@im=fcitx"' "/usr/bin/wpspdf"
+        fi
+    fi
 }
 
 # Wayland IME for Chrome
