@@ -24,6 +24,13 @@ fi
 ## - [Creating a Windows VM with Docker or Podman](https://github.com/winapps-org/winapps/blob/main/docs/docker.md)
 ## - [Windows inside a Docker container](https://github.com/dockur/windows)
 # cd "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro" && docker compose --file winapps_compose.yml up -d
+mkdir -p "${HOME}/winapps/"
+cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/manjaro/winapps_compose.yml" "${HOME}/winapps/winapps_compose.yml"
+cd "${HOME}/winapps/" && docker compose --file winapps_compose.yml up -d
+
+## To undo all changes and start from scratch
+# docker compose --file winapps_compose.yml down  --rmi=all --volumes
+
 ## Access the Windows virtual machine via a VNC connection to complete the Windows setup by navigating to:
 ## http://127.0.0.1:8006
 
@@ -144,7 +151,7 @@ REMOVABLE_MEDIA="/run/media"
 #   If this does not work or if it does not work without the flag, you can try adding /nsc and /gfx.
 # DEFAULT VALUE: '/cert:tofu /sound /microphone +home-drive'
 # VALID VALUES: See https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
-RDP_FLAGS="/cert:tofu /sound /microphone +home-drive"
+RDP_FLAGS="/kbd:layout:0xE0010804 /cert:tofu /sound /microphone +home-drive"
 
 # [NON FULL WINDOWS RDP FLAGS]
 # NOTES:
@@ -346,7 +353,7 @@ fi
 
 ## [Add support for switching input method](https://github.com/winapps-org/winapps/issues/43)
 # Running this command to know the hex code for my desired keyboard layout:
-# xfreerdp /list:kbd
+# xfreerdp3 /list:kbd
 # Then add the following line to your ~/.config/winapps/winapps.conf file:
 # RDP_FLAGS="/kbd:layout:0x00000450"
 # On Windows, go to
