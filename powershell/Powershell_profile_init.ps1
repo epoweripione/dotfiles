@@ -450,6 +450,7 @@ function UpdateInstalledApps {
     if (Get-Command -Name "pip" -ErrorAction SilentlyContinue) {
         Write-Host
         Write-Color -Text "Updating pip packages..." -Color Cyan
+        python.exe -m pip install -U pip
         UpdateOutdatedPipPackages
     }
 
