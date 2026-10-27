@@ -240,6 +240,10 @@ CJKInstallList=(
     "fcitx5-m17n"
     # [RIME - 中州韻輸入法引擎](https://rime.im/)
     "fcitx5-rime"
+    # [水杉输入法](https://github.com/metasequoiaime/msime)
+    "msime-bin"
+    # [fcitx5-vinput: Voice input for Fcitx5](https://github.com/xifan2333/fcitx5-vinput)
+    "fcitx5-vinput-bin"
     # addons
     "fcitx5-chinese-addons"
     "fcitx5-pinyin-zhwiki"
@@ -325,6 +329,13 @@ if [[ ! -f "$HOME/.config/fcitx5/conf/classicui.conf" ]]; then
         cp "${MY_SHELL_SCRIPTS:-$HOME/.dotfiles}/conf/fcitx/classicui.conf" "$HOME/.config/fcitx5/conf/classicui.conf"
     fi
 EOF
+fi
+
+# [水杉输入法](https://github.com/metasequoiaime/msime)
+if [[ -x "$(command -v msime-linux-setup)" ]]; then
+    if [[ ! -f "$HOME/.local/share/msime-client/resources/msime-pinyin.db" ]]; then
+        msime-linux-setup --download
+    fi
 fi
 
 ## How to Insert Emojis & Special Characters
