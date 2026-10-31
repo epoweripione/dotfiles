@@ -17,7 +17,7 @@ else
     fi
 fi
 
-    App_Installer_Reset
+App_Installer_Reset
 
 # [herdr - the runtime your coding agents live on](https://github.com/herdrdev/herdr)
 INSTALLER_APP_NAME="herdr"
@@ -34,7 +34,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}Checking ${FUCHSIA}${INSTALLER_APP_NAME}${BLUE}..."
 
     INSTALLER_CHECK_URL="https://herdr.dev/latest.json"
-    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}" "^jq=.version"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}" "jq=.version"
     if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
         INSTALLER_IS_INSTALL="no"
     fi
@@ -49,6 +49,7 @@ fi
 App_Installer_Reset
 
 # [Collie - A mobile web interface for terminal-based AI agents, served over Tailscale](https://github.com/AltanS/collie)
+INSTALLER_GITHUB_REPO="AltanS/collie"
 INSTALLER_APP_NAME="Collie"
 INSTALLER_BINARY_NAME="collie"
 
@@ -71,5 +72,20 @@ fi
 
 if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
     colorEcho "${BLUE}  Installing ${FUCHSIA}${INSTALLER_APP_NAME} ${YELLOW}${INSTALLER_VER_REMOTE}${BLUE}..."
-    curl -fsSL https://colliepwa.dev/install.sh | sh
+    if [[ "${INSTALLER_IS_UPDATE}" == "yes" ]]; then
+        # collie upgrade
+        collie uninstall
+        collie unlink
+        [[ -d "$HOME/.local/share/collie" ]] && rm -rf  ~/.local/share/collie
+
+        curl -fsSL https://colliepwa.dev/install.sh | sh
+
+        # herdr plugin uninstall herdr.collie
+        # herdr plugin unlink herdr.collie
+        # [[ -x "$(command -v herdr)" ]] && herdr plugin action invoke update --plugin herdr.collie
+    else
+        curl -fsSL https://colliepwa.dev/install.sh | sh
+
+        [[ -x "$(command -v herdr)" ]] && herdr plugin install AltanS/collie && herdr plugin list
+    fi
 fi

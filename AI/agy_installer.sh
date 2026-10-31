@@ -43,7 +43,7 @@ if [[ "${INSTALLER_IS_INSTALL}" == "yes" ]]; then
         INSTALLER_CHECK_URL="${DOWNLOAD_BASE_URL}/manifests/${OS_INFO_TYPE}_${OS_INFO_ARCH}.json"
     fi
 
-    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}" "^jq=.version"
+    App_Installer_Get_Remote_Version "${INSTALLER_CHECK_URL}" "jq=.version"
     if version_le "${INSTALLER_VER_REMOTE}" "${INSTALLER_VER_CURRENT}"; then
         INSTALLER_IS_INSTALL="no"
     fi
