@@ -114,6 +114,23 @@ fi
 #     git config --global pager.diff diffnav
 # fi
 
+# [difftastic](https://github.com/Wilfred/difftastic)
+if [[ -x "$(command -v difft)" ]]; then
+    # Difftastic aliases, so `git dlog -p` is `git log -p` with difftastic and likewise for the other subcommands
+    git config --global alias.dlog "-c diff.external=difft log --ext-diff"
+    git config --global alias.dshow "-c diff.external=difft show --ext-diff"
+    git config --global alias.ddiff "-c diff.external=difft diff"
+
+    # `git log` with patches shown with difftastic.
+    git config --global alias.dl "-c diff.external=difft log -p --ext-diff"
+
+    # Show the most recent commit with difftastic.
+    git config --global alias.ds "-c diff.external=difft show --ext-diff"
+
+    # `git diff` with difftastic.
+    git config --global alias.dft "-c diff.external=difft diff"
+fi
+
 if [[ -x "$(command -v nvim)" ]]; then
     # git difftool --tool-help
     # git config --global --unset diff.tool

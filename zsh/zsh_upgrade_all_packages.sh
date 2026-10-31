@@ -187,6 +187,7 @@ if [[ -z "${AppAlwaysInstallList[*]}" ]]; then
         "croc"
         "dasel"
         "diffnav#dlvhdr/diffnav#tar.gz#diffnav"
+        "difft#Wilfred/difftastic#tar.gz#difft"
         "edit#microsoft/edit#tar.gz#edit*"
         "erdtree"
         "hurl#Orange-OpenSource/hurl#tar.gz#hurl*"
