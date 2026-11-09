@@ -14,6 +14,21 @@ docker buildx history logs
 
 ### Build Docker images using `docker compose` with host network access
 ```bash
+# [fix(bake): grant permissions for configured build inputs- #14325](https://github.com/docker/compose/pull/14325)
+# a workaround is to put the `docker-compose` 5.7.0 binary in `~/.docker/cli-plugins`
+[[ -z "${OS_INFO_TYPE}" ]] && get_os_type && get_arch
+
+cd /tmp
+curl -fSLO "https://github.com/docker/compose/releases/download/v5.7.0/docker-compose-${OS_INFO_TYPE}-${OS_INFO_CPU_ARCH}"
+curl -fSLO "https://github.com/docker/compose/releases/download/v5.7.0/docker-compose-${OS_INFO_TYPE}-${OS_INFO_CPU_ARCH}.sha256"
+shasum -a 256 -c "docker-compose-${OS_INFO_TYPE}-${OS_INFO_CPU_ARCH}.sha256"
+
+mkdir -p ~/.docker/cli-plugins
+rm -f ~/.docker/cli-plugins/docker-compose
+cp "docker-compose-${OS_INFO_TYPE}-${OS_INFO_CPU_ARCH}" ~/.docker/cli-plugins/docker-compose
+chmod +x ~/.docker/cli-plugins/docker-compose
+docker compose version --short
+
 # echo 'insecure-entitlements = [ "network.host", "security.insecure", "device" ]' | sudo tee /etc/buildkitd.toml >/dev/null
 
 # docker buildx create --use --bootstrap \
