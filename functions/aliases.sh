@@ -144,6 +144,8 @@ if [[ -x "$(command -v docker)" ]]; then
     alias docker-bifrost='docker run -d --name bifrost -p 8080:8080 -v $HOME/bifrost_data:/app/data maximhq/bifrost'
     # https://github.com/plait-board/drawnix
     alias docker-drawnix='docker run -d --name drawnix -p 80:80 pubuzhixing/drawnix'
+    # https://github.com/getpaseo/paseo
+    alias docker-paseo='docker run -d --name paseo -e PASEO_PASSWORD=${PASEO_PASSWORD} -p 6767:6767 -v $HOME/paseo_data:/home/paseo -v $PWD:/workspace ghcr.io/getpaseo/paseo:latest'
 fi
 
 
